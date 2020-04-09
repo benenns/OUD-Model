@@ -18,14 +18,16 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   l_out_stm <- decision_model(l_params_all = l_params_all)
   
   ####### Epidemiological Output ###########################################
-  #### Overall Survival (OS) ####
-  v_os <- 1 - l_out_stm$m_M[, "D"]
+  ### All-cause deaths ###
+  v_ <- l_out_stm$m_M_BL[, D] # total deaths in baseline model
   
-  #### Disease prevalence #####
-  v_prev <- rowSums(l_out_stm$m_M[, c("S1", "S2")])/v_os
+  ### HIV prevalence ###
+  v_HIV <- rowSums(l_out_stm$m_M_BL[, POS])/rowSums(l_out_stm$m_M_)
   
-  #### Proportion of sick in S1 state #####
-  v_prop_S2 <- l_out_stm$m_M[, "S2"] / rowSums(l_out_stm$m_M[, c("S1", "S2")])
+  ### Non-fatal overdoses ###
+  v_OD <- l_out_stm$m_M_BL[, OD]
+    
+
   
   ####### Return Output ###########################################
   l_out <- list(Surv = v_os[c(11, 21, 31)],
@@ -36,10 +38,10 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
 
 # Require library 'optim'
 # Create wrapper function around model
-fr <- function(x, data) {   ## Rosenbrock Banana function
+fr <- function(x, data){   ## Rosenbrock Banana function
   x1 <- x[1] # Free parameters to calibrate
   x2 <- x[2]
-  outcome <- run_model(x...) # code to specifically return only model outputs required by calibration routine
+  outcome <- run_model(x...) # code to run model and return outputs required by calibration routine
   y <- (w_o * (outcome - obs_outcome)^2)
   return(y)
 }
