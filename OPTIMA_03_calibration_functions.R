@@ -1,14 +1,4 @@
-#' Generate model outputs for calibration from a parameter set
-#'
-#' \code{calibration_out} computes model outputs to be used for calibration 
-#' routines.
-#'
-#' @param v_params_calib Vector of parameters that need to be calibrated.
-#' @param l_params_all List with all parameters of the decision model.
-#' @return 
-#' A list with Survival (Surv), Prevalence of Sick and Sicker (Prev), and 
-#' proportion of Sicker (PropSicker) out of all sick (Sick+Sicker) individuals.
-#' @export
+
 calibration_out <- function(v_params_calib, l_params_all){ # User defined
   # Substitute values of calibrated parameters in base-case with 
   # calibrated values
@@ -22,12 +12,10 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   v_ <- l_out_stm$m_M_BL[, D] # total deaths in baseline model
   
   ### HIV prevalence ###
-  v_HIV <- rowSums(l_out_stm$m_M_BL[, POS])/rowSums(l_out_stm$m_M_)
+  v_HIV <- rowSums(l_out_stm$m_M_BL[, POS])/rowSums(l_out_stm$m_M_BL[, ])
   
   ### Non-fatal overdoses ###
   v_OD <- l_out_stm$m_M_BL[, OD]
-    
-
   
   ####### Return Output ###########################################
   l_out <- list(Surv = v_os[c(11, 21, 31)],
@@ -38,11 +26,11 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
 
 # Require library 'optim'
 # Create wrapper function around model
-fr <- function(x, data){   ## Rosenbrock Banana function
+fr <- function(x, data){   
   x1 <- x[1] # Free parameters to calibrate
   x2 <- x[2]
   outcome <- run_model(x...) # code to run model and return outputs required by calibration routine
-  y <- (w_o * (outcome - obs_outcome)^2)
+  y <- (w_o * (outcome - obs_outcome)^2) # weighted GOF function
   return(y)
 }
 

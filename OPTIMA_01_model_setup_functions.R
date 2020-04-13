@@ -8,13 +8,6 @@ library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 ###############################################################################
 
-
-
-
-
-
-
-
 #######################
 # Set up model states #
 #######################
@@ -131,7 +124,7 @@ v_initial_MET <- read.csv("data/01_initial_MET.csv")
 n_age_init <- 35 # age at baseline
 n_age_max <- 95 # maximum age of follow up
 
-n_t <- (n_age_max - n_age_init)*12 # modeling time horizon in months
+n_t <- (n_age_max - n_age_init) * 12 # modeling time horizon in months
 p_discount <- 0.03
 
 p_male_BUP <- 0.35
@@ -146,8 +139,8 @@ p_HIV_ART <- 0.75 # % of HIV-positive on-ART
 # Baseline mortality by age
 lt_can_2018 <- read.csv("data/01_all_cause_mortality.csv")
 v_r_mort_by_age <- lt_can_2018 %>% 
-  # filter(Age >= age & Age <= n_age_max) %>%
-  select(Total_Mo) %>%
+  filter(Age >= n_age_init & Age < n_age_max) %>%
+  select(Total) %>%
   as.matrix()
 
 # Hazard ratios for death probability
@@ -165,20 +158,23 @@ hr_ABS  <- hr_s[8, 2]
 
 # HIV Negative
 # ABS (same as baseline)
-v_p_ABS_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)]) # Monthly probability
-
+#v_p_ABS_D_age_NEG_yr   <- (1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)])) # Yearly probability
+v_p_ABS_D_age_NEG   <- (1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12)))
+test <- rep(v_p_ABS_D_age_NEG, each = 12)
+test
+test1 <- rep(n_age_init:(n_age_max - 1), each = 12)
+test1
 # BUP
-v_p_BUP1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_BUP1)
-v_p_BUP_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_BUP)
+v_p_BUP1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_BUP1)
+v_p_BUP_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_BUP)
 # MET
-v_p_MET1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_MET1)    
-v_p_MET_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_MET)
+v_p_MET1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_MET1)    
+v_p_MET_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_MET)
 #REL
-v_p_REL1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_REL1)    
-v_p_REL_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_REL)
+v_p_REL1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_REL1)    
+v_p_REL_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_REL)
 #OD
-v_p_OD_D_age_NEG    <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * hr_OD)
-
+v_p_OD_D_age_NEG    <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_OD)
 
 # HIV Positive
 
@@ -364,22 +360,21 @@ check_sum_of_transition_array(a_P, n_states, n_t, err_stop = err_stop, verbose =
 ##########################
 # Create empty initial state vectors
 # BUP/MET
-v_s_init_BUP <- v_s_init_MET <- rep(0, n_states) # initialize first trace vector of zeros
-names(v_s_init_BUP) <- names(v_s_init_MET) <- v_n
+v_s_init_BL <- v_s_init_BUP <- v_s_init_MET <- rep(0, n_states) # initialize first trace vector of zeros
+names(v_s_init_BL) <- names(v_s_init_BUP) <- names(v_s_init_MET) <- v_n
 
 # Create empty initial state matrices
-# BUP
-m_M_BUP <- matrix(0, 
-                  nrow = (n_t + 1), ncol = n_states, 
-                  dimnames = list(0:n_t, v_n))
-# MET
-m_M_MET <- matrix(0, 
-                  nrow = (n_t + 1), ncol = n_states, 
-                  dimnames = list(0:n_t, v_n))
+# BUP/MET
+m_M_BL <- m_M_BUP <- m_M_MET <- matrix(0, 
+                                       nrow = (n_t + 1), ncol = n_states, 
+                                       dimnames = list(0:n_t, v_n))
 
 ################################
 ### Set initial state vector ###
 ################################
+# Baseline
+v_s_init_BL[BUP]  = 0.5/sum(BUP)
+v_s_init_BL[MET]  = 0.5/sum(MET)
 # BUP
 v_s_init_BUP[BUP] = 1/sum(BUP) # Set all BUP states equal, and sum to 1
 # MET
