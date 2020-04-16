@@ -1,5 +1,5 @@
 ##################################### Initial setup ###########################
-rm(list = ls())  # remove any variables in R's memory 
+#rm(list = ls())  # remove any variables in R's memory 
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
@@ -8,60 +8,34 @@ library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 ###############################################################################
 
-#######################
-# Set up model states #
-#######################
+####################################
+# Set up base to/from model states #
+####################################
 l_dim_s <- list() # list of all states
 
 # Base health states
-BASE <- l_dim_s[[1]] <- c("MET1", "MET", "BUP1", "BUP", "ABS", "REL1", "REL", "OD", "D")
+BASE <- l_dim_s[[1]] <- c("MET1", "MET", "BUP1", "BUP", "ABS", "REL1", "REL", "OD")
 n_BASE <- length(BASE)
 # Injection/non-injection stratification
-INJ <- l_dim_s[[2]] <- c("NI", "INJ")
+INJECT <- l_dim_s[[2]] <- c("NI", "INJ")
+n_INJECT <- length(INJECT)
 # HIV status
-HIV <- l_dim_s[[3]] <- c("POS", "NEG")
+#HIV <- l_dim_s[[3]] <- c("POS", "NEG")
 # Episode number (1-3)
-EP <-  l_dim_s[[4]] <- c("1", "2", "3")
+EP <-  l_dim_s[[3]] <- c("1", "2", "3")
 n_EP <- length(EP)
-
-
 
 n_dim_s <- length(l_dim_s)
 #n_dim_s
+n_t <- 720
 
 df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
-df_flat <- rename(df_flat, BASE = Var1, 
-                           INJ  = Var2, 
-                           HIV  = Var3, 
-                           EP   = Var4)
+df_flat <- rename(df_flat, BASE    = Var1, 
+                           INJECT  = Var2, 
+                           #HIV    = Var3, 
+                           EP      = Var3)
 
-df_n <- unite(df_flat, newCol) # combine columns into one data frame of all health states (1 X [9 states * 2 inj * 2 HIV * 3 Episodes])
-
-v_n <- df_n[,1] # convert df into vector
-
-n_states <- length(v_n) # total number of health states
-#n_states
-
-
-# Create transition probability array of zeroes (108 from-states * 108 to-states * 720 months)
-a_P <- array(0, dim = c(n_states, n_states, n_t),
-             dimnames = list(v_n, v_n, 0:(n_t - 1)))
-
-#######################################################################################################################################
-# List of impossible transitions
-# Any "INJ" -> "NI" - Not allowing switch from injection to non-injection
-# Any "NI" -> "INJ" - Not allowing switch from injection to non-injection (for now)
-# Any "POS" -> Any "NEG" - No transition from HIV+ to HIV-
-# Any "REL1", "REL", "OD" -> Any "ABS" - Can only access ABS from any treatment staten (modify in SA)
-# Any "D" -> Any state - No zombies
-# Any state other than "MET1" -> "MET"
-# Any state other than "BUP1" -> "BUP"
-# Any state other than "REL1" -> "REL"
-# Same state "1" -> Same state "2/3" - Episode can only increase when transitioning from another state (think about whether to have special rule for BUP and MET to keep episode consistent)
-# Same state "2" -> Same state "1/3"
-# Same state "3" -> Same state "1/2"
-#######################################################################################################################################
-# Create index of states to apply above transition rules
+################ Create index of states to populate transition matrices ################
 # All treatment
 TX <- df_flat$BASE == "BUP" | df_flat$BASE == "BUP1" | df_flat$BASE == "MET" | df_flat$BASE == "MET1"
 # All out-of-treatment (excl ABS)
@@ -92,8 +66,8 @@ NEG <- df_flat$HIV == "NEG"
 POS <- df_flat$HIV == "POS"
 
 # Injection
-INJ <- df_flat$INJ == "INJ"
-NI <- df_flat$INJ == "NI"
+INJ <- df_flat$INJECT == "INJ"
+NI <- df_flat$INJECT == "NI"
 
 # Episodes
 EP1 <- df_flat$EP == "1"
@@ -102,6 +76,84 @@ EP3 <- df_flat$EP == "3"
 
 # All death
 D <- df_flat$BASE == "D"
+
+#######
+
+df_n <- unite(df_flat, newCol) # combine columns into one data frame of all health states (1 X [9 states * 2 inj * 2 HIV * 3 Episodes])
+
+v_n <- df_n[,1] # convert df into vector
+
+n_states <- length(v_n) # total number of health states
+#n_states
+
+
+# Create transition probability array of zeroes (108 from-states * 108 to-states * 720 months)
+a_P <- array(0, dim = c(n_states, n_states, n_t),
+             dimnames = list(v_n, v_n, 0:(n_t - 1)))
+
+
+#############################################
+### Time-dependent survival probabilities ###
+#############################################
+  # Empty 2-D matrix
+  m_TDP <- array(0, dim = c(n_t, n_states),
+                    dimnames = list(0:(n_t - 1), v_n))
+  
+  # Create dummy data
+  m_frailty <- array(0.4, dim = c(n_EP, n_BASE, n_INJECT),
+                     dimnames = list(EP, BASE, INJECT))
+  m_weibull_scale <- array(0.7, dim = c(n_BASE, n_INJECT),
+                           dimnames = list(BASE, INJECT))
+  m_weibull_shape <- array(0.7, dim = c(n_BASE, n_INJECT),
+                           dimnames = list(BASE, INJECT))
+  
+
+  # Time-dependent survival probabilities
+  for(i in 1:n_t){
+    t <- i+1 # Shift ahead 1 month to adjust for acute periods
+    # Non-injection
+      # Episode 1
+        m_TDP[i, EP1 & BUP & NI] <- exp(m_frailty["1", "BUP", "NI"] * m_weibull_scale["BUP", "NI"] * (((t-1)^m_weibull_shape["BUP", "NI"]) - (t^m_weibull_shape["BUP", "NI"]))) # (survival curve at time i)/(survival curve at time i-1) 
+        m_TDP[i, EP1 & MET & NI] <- exp(m_frailty["1", "MET", "NI"] * m_weibull_scale["MET", "NI"] * (((t-1)^m_weibull_shape["MET", "NI"]) - (t^m_weibull_shape["MET", "NI"])))
+        m_TDP[i, EP1 & ABS & NI] <- exp(m_frailty["1", "ABS", "NI"] * m_weibull_scale["ABS", "NI"] * (((t-1)^m_weibull_shape["ABS", "NI"]) - (t^m_weibull_shape["ABS", "NI"])))
+        m_TDP[i, EP1 & REL & NI] <- exp(m_frailty["1", "REL", "NI"] * m_weibull_scale["REL", "NI"] * (((t-1)^m_weibull_shape["REL", "NI"]) - (t^m_weibull_shape["REL", "NI"])))
+        m_TDP[i, EP1 & OD & NI]  <- exp(m_frailty["1", "OD" , "NI"] * m_weibull_scale["OD", "NI"] * (((t-1)^m_weibull_shape["OD", "NI"]) - (t^m_weibull_shape["OD", "NI"])))
+      # Episode 2
+        m_TDP[i, EP2 & BUP & NI] <- exp(m_frailty["2", "BUP", "NI"] * m_weibull_scale["BUP", "NI"] * (((t-1)^m_weibull_shape["BUP", "NI"]) - (t^m_weibull_shape["BUP", "NI"]))) # (survival curve at time i)/(survival curve at time i-1) 
+        m_TDP[i, EP2 & MET & NI] <- exp(m_frailty["2", "MET", "NI"] * m_weibull_scale["MET", "NI"] * (((t-1)^m_weibull_shape["MET", "NI"]) - (t^m_weibull_shape["MET", "NI"])))
+        m_TDP[i, EP2 & ABS & NI] <- exp(m_frailty["2", "ABS", "NI"] * m_weibull_scale["ABS", "NI"] * (((t-1)^m_weibull_shape["ABS", "NI"]) - (t^m_weibull_shape["ABS", "NI"])))
+        m_TDP[i, EP2 & REL & NI] <- exp(m_frailty["2", "REL", "NI"] * m_weibull_scale["REL", "NI"] * (((t-1)^m_weibull_shape["REL", "NI"]) - (t^m_weibull_shape["REL", "NI"])))
+        m_TDP[i, EP2 & OD & NI]  <- exp(m_frailty["2", "OD" , "NI"] * m_weibull_scale["OD", "NI"] * (((t-1)^m_weibull_shape["OD", "NI"]) - (t^m_weibull_shape["OD", "NI"])))
+      # Episode 3
+        m_TDP[i, EP3 & BUP & NI] <- exp(m_frailty["3", "BUP", "NI"] * m_weibull_scale["BUP", "NI"] * (((t-1)^m_weibull_shape["BUP", "NI"]) - (t^m_weibull_shape["BUP", "NI"]))) # (survival curve at time i)/(survival curve at time i-1) 
+        m_TDP[i, EP3 & MET & NI] <- exp(m_frailty["3", "MET", "NI"] * m_weibull_scale["MET", "NI"] * (((t-1)^m_weibull_shape["MET", "NI"]) - (t^m_weibull_shape["MET", "NI"])))
+        m_TDP[i, EP3 & ABS & NI] <- exp(m_frailty["3", "ABS", "NI"] * m_weibull_scale["ABS", "NI"] * (((t-1)^m_weibull_shape["ABS", "NI"]) - (t^m_weibull_shape["ABS", "NI"])))
+        m_TDP[i, EP3 & REL & NI] <- exp(m_frailty["3", "REL", "NI"] * m_weibull_scale["REL", "NI"] * (((t-1)^m_weibull_shape["REL", "NI"]) - (t^m_weibull_shape["REL", "NI"])))
+        m_TDP[i, EP3 & OD & NI]  <- exp(m_frailty["3", "OD" , "NI"] * m_weibull_scale["OD", "NI"] * (((t-1)^m_weibull_shape["OD", "NI"]) - (t^m_weibull_shape["OD", "NI"])))
+        
+    # Injection
+      # Episode 1
+        m_TDP[i, EP1 & BUP & INJ] <- exp(m_frailty["1", "BUP", "INJ"] * m_weibull_scale["BUP", "INJ"] * (((t-1)^m_weibull_shape["BUP", "INJ"]) - (t^m_weibull_shape["BUP", "INJ"]))) # (survival curve at time i)/(survival curve at time i-1) 
+        m_TDP[i, EP1 & MET & INJ] <- exp(m_frailty["1", "MET", "INJ"] * m_weibull_scale["MET", "INJ"] * (((t-1)^m_weibull_shape["MET", "INJ"]) - (t^m_weibull_shape["MET", "INJ"])))
+        m_TDP[i, EP1 & ABS & INJ] <- exp(m_frailty["1", "ABS", "INJ"] * m_weibull_scale["ABS", "INJ"] * (((t-1)^m_weibull_shape["ABS", "INJ"]) - (t^m_weibull_shape["ABS", "INJ"])))
+        m_TDP[i, EP1 & REL & INJ] <- exp(m_frailty["1", "REL", "INJ"] * m_weibull_scale["REL", "INJ"] * (((t-1)^m_weibull_shape["REL", "INJ"]) - (t^m_weibull_shape["REL", "INJ"])))
+        m_TDP[i, EP1 & OD & INJ]  <- exp(m_frailty["1", "OD" , "INJ"] * m_weibull_scale["OD", "INJ"] * (((t-1)^m_weibull_shape["OD", "INJ"]) - (t^m_weibull_shape["OD", "INJ"])))
+      # Episode 2
+        m_TDP[i, EP2 & BUP & INJ] <- exp(m_frailty["2", "BUP", "INJ"] * m_weibull_scale["BUP", "INJ"] * (((t-1)^m_weibull_shape["BUP", "INJ"]) - (t^m_weibull_shape["BUP", "INJ"]))) # (survival curve at time i)/(survival curve at time i-1) 
+        m_TDP[i, EP2 & MET & INJ] <- exp(m_frailty["2", "MET", "INJ"] * m_weibull_scale["MET", "INJ"] * (((t-1)^m_weibull_shape["MET", "INJ"]) - (t^m_weibull_shape["MET", "INJ"])))
+        m_TDP[i, EP2 & ABS & INJ] <- exp(m_frailty["2", "ABS", "INJ"] * m_weibull_scale["ABS", "INJ"] * (((t-1)^m_weibull_shape["ABS", "INJ"]) - (t^m_weibull_shape["ABS", "INJ"])))
+        m_TDP[i, EP2 & REL & INJ] <- exp(m_frailty["2", "REL", "INJ"] * m_weibull_scale["REL", "INJ"] * (((t-1)^m_weibull_shape["REL", "INJ"]) - (t^m_weibull_shape["REL", "INJ"])))
+        m_TDP[i, EP2 & OD & INJ]  <- exp(m_frailty["2", "OD" , "INJ"] * m_weibull_scale["OD", "INJ"] * (((t-1)^m_weibull_shape["OD", "INJ"]) - (t^m_weibull_shape["OD", "INJ"])))
+      # Episode 3
+        m_TDP[i, EP3 & BUP & INJ] <- exp(m_frailty["3", "BUP", "INJ"] * m_weibull_scale["BUP", "INJ"] * (((t-1)^m_weibull_shape["BUP", "INJ"]) - (t^m_weibull_shape["BUP", "INJ"]))) # (survival curve at time i)/(survival curve at time i-1) 
+        m_TDP[i, EP3 & MET & INJ] <- exp(m_frailty["3", "MET", "INJ"] * m_weibull_scale["MET", "INJ"] * (((t-1)^m_weibull_shape["MET", "INJ"]) - (t^m_weibull_shape["MET", "INJ"])))
+        m_TDP[i, EP3 & ABS & INJ] <- exp(m_frailty["3", "ABS", "INJ"] * m_weibull_scale["ABS", "INJ"] * (((t-1)^m_weibull_shape["ABS", "INJ"]) - (t^m_weibull_shape["ABS", "INJ"])))
+        m_TDP[i, EP3 & REL & INJ] <- exp(m_frailty["3", "REL", "INJ"] * m_weibull_scale["REL", "INJ"] * (((t-1)^m_weibull_shape["REL", "INJ"]) - (t^m_weibull_shape["REL", "INJ"])))
+        m_TDP[i, EP3 & OD & INJ]  <- exp(m_frailty["3", "OD" , "INJ"] * m_weibull_scale["OD", "INJ"] * (((t-1)^m_weibull_shape["OD", "INJ"]) - (t^m_weibull_shape["OD", "INJ"])))
+  }
+m_TDP        
+
+
 
 
 
@@ -177,61 +229,15 @@ v_p_REL_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max 
 v_p_OD_D_age_NEG    <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_OD)
 
 # HIV Positive
-
-
-
-##################################
-### Probabilities of remaining ###
-##################################
-# Weibull parameters
-#l <- 0.08 # scale
-#g <- 1.1  # shape
-# Weibull function
-#p_ <- l * g * (1:n_t)^{g-1}
-
-# Weibull shape
-v_wb_shape   <- rep(0.69, n_BASE)
-names(v_wb_shape) <- BASE
-v_wb_shape
-
-# Weibull scale
-v_wb_scale   <- rep(0.69, n_BASE)
-names(v_wb_scale) <- BASE
-#v_wb_scale
-
-# Frailty for episodes 2-3 (all frailties for ep1 are 1)
-v_frailty <- rep(1, (n_BASE * n_EP))
-names(v_frailty) <- c("MET1_1", "MET_1", "BUP1_1", "BUP_1", "ABS_1", "REL1_1", "REL_1", "OD_1", "D_1",
-                      "MET1_2", "MET_2", "BUP1_2", "BUP_2", "ABS_2", "REL1_2", "REL_2", "OD_2", "D_2",
-                      "MET1_3", "MET_3", "BUP1_3", "BUP_3", "ABS_3", "REL1_3", "REL_3", "OD_3", "D_3")
-a <- v_frailty[EP1 & BUP]
-b <- v_wb_scale[BUP]
-c <- v_wb_shape["BUP"]
-a
-b
-c
   
 #######################################################  
 ### Transitions conditional on leaving and survival ###
 #######################################################
-# trans_prob = p * (1 - remain - death)
-
-# (2) Translate parameters into model "state space"
-# Remain in health states
-# Probability of remaining in BUP, MET and REL == Probability of transitioning from "BUP1 -> BUP" or "BUP -> BUP"
-v_BUP_remain <-
-v_MET_remain <-
-
-
 
 # Mortality in OD
 a_P[OD, D]
 
-for(i in 1:n_t){
-a[i, ] <- exp(v_frailty["BUP_1"]*v_wb_scale["BUP"]*((((i+1)-1)^v_wb_shape["BUP"])-((i+1)^v_wb_shape["BUP"])))
-#a <- v_frailty
-}
-a
+
 
 ############################################
 ### Fill in transition probability array ###
@@ -239,54 +245,6 @@ a
 # a_P[i, j, k] = Transition probibility array [from, to, time(month)]
 # Transition array already populated with zeros, only need to define possible transitions
 # Only mortality probability and remain probability changing over time
-
-################################################################
-### Time-dependent probability of remaining in health states ###
-################################################################
-m_TD_remain <- matrix(0, 
-                      nrow = (n_t + 1), ncol = n_states, 
-                      dimnames = list(0:n_t, v_n))
-# Time-dependent survival probabilities
-for(i in 1:n_t){
-    #if(length(grep(("AR1"), From.baseline, fixed = FALSE))==0){
-      # Time-independent
-      #m_TD_remain[ i, BUP1] <- 0
-      #m_TD_remain[ i, MET1] <- 0
-      #m_TD_remain[ i, REL1] <- 0
-      m_TD_remain [ i, D] <- 1
-
-      # Episode 1
-      # Shift ahead 1 period to account for BUP1; MET1; REL1
-      m_TD_remain[i, EP1 & BUP] <- exp(v_frailty["BUP_1"]*v_wb_scale["BUP_1"]*((((i+1)-1)^v_wb_shape["BUP_1"])-((i+1)^v_wb_shape["BUP_1"]))) # (survival curve at time i)/(survival curve at time i-1) 
-      m_TD_remain[i, EP1 & MET] <- exp(v_frailty["MET_1"]*v_wb_scale["MET_1"]*((((i+1)-1)^v_wb_shape["MET_1"])-((i+1)^v_wb_shape["MET_1"])))
-      m_TD_remain[i, EP1 & REL] <- exp(v_frailty["REL_1"]*v_wb_scale["REL_1"]*((((i+1)-1)^v_wb_shape["REL_1"])-((i+1)^v_wb_shape["REL_1"])))
-      
-      m_TD_remain[i, EP1 & OD]    <- exp(v_frailty["OD_1"]*v_wb_scale["OD_1"]*((((i-1)^v_wb_shape["OD_1"])-(i^v_wb_shape["OD_1"]))))
-      m_TD_remain[i, EP1 & ABS]   <- exp(v_frailty["ABS_1"]*v_wb_scale["ABS_1"]*((((i-1)^v_wb_shape["ABS_1"])-(i^v_wb_shape["ABS_1"]))))
-      
-      # Episode 2
-      # Shift ahead 1 period to account for BUP1; MET1; REL1
-      m_TD_remain[i, EP2 & BUP] <- exp(v_frailty["BUP_2"]*v_wb_scale["BUP_2"]*((((i+1)-1)^v_wb_shape["BUP_2"])-((i+1)^v_wb_shape["BUP_2"]))) # (survival curve at time i)/(survival curve at time i-1) 
-      m_TD_remain[i, EP2 & MET] <- exp(v_frailty["MET_2"]*v_wb_scale["MET_2"]*((((i+1)-1)^v_wb_shape["MET_2"])-((i+1)^v_wb_shape["MET_2"])))
-      m_TD_remain[i, EP2 & REL] <- exp(v_frailty["REL_2"]*v_wb_scale["REL_2"]*((((i+1)-1)^v_wb_shape["REL_2"])-((i+1)^v_wb_shape["REL_2"])))
-      
-      m_TD_remain[i, EP2 & OD]    <- exp(v_frailty["OD_2"]*v_wb_scale["OD_2"]*((((i-1)^v_wb_shape["OD_2"])-(i^v_wb_shape["OD_2"]))))
-      m_TD_remain[i, EP2 & ABS]   <- exp(v_frailty["ABS_2"]*v_wb_scale["ABS_2"]*((((i-1)^v_wb_shape["ABS_2"])-(i^v_wb_shape["ABS_2"]))))
-      
-      # Episode 3
-      # Shift ahead 1 period to account for BUP1; MET1; REL1
-      m_TD_remain[i, EP3 & BUP] <- exp(v_frailty["BUP_3"]*v_wb_scale["BUP_3"]*((((i+1)-1)^v_wb_shape["BUP_3"])-((i+1)^v_wb_shape["BUP_3"]))) # (survival curve at time i)/(survival curve at time i-1) 
-      m_TD_remain[i, EP3 & MET] <- exp(v_frailty["MET_3"]*v_wb_scale["MET_3"]*((((i+1)-1)^v_wb_shape["MET_3"])-((i+1)^v_wb_shape["MET_3"])))
-      m_TD_remain[i, EP3 & REL] <- exp(v_frailty["REL_3"]*v_wb_scale["REL_3"]*((((i+1)-1)^v_wb_shape["REL_3"])-((i+1)^v_wb_shape["REL_3"])))
-      
-      m_TD_remain[i, EP3 & OD]    <- exp(v_frailty["OD_3"]*v_wb_scale["OD_3"]*((((i-1)^v_wb_shape["OD_3"])-(i^v_wb_shape["OD_3"]))))
-      m_TD_remain[i, EP3 & ABS]   <- exp(v_frailty["ABS_3"]*v_wb_scale["ABS_3"]*((((i-1)^v_wb_shape["ABS_3"])-(i^v_wb_shape["ABS_3"]))))
-}   
-m_TD_remain      
-
-
-v_ %>% left_join(v_state_rules)
-
 
 # Transition probabilities among all base states (divide by n(strata) if not strata-specific)
 n_strata <-  # number of non-base state strata
