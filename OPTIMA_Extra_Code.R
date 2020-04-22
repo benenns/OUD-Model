@@ -158,3 +158,56 @@ v_p_REL1_D_age_NEG  <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max 
 v_p_REL_D_age_NEG   <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_REL)
 #OD
 v_p_OD_D_age_NEG    <- 1 - exp(-v_r_mort_by_age[(n_age_init + 1) + 0:(n_age_max - 1)] * (1/12) * hr_OD)
+
+
+
+
+
+
+# General transition rules
+# Fill transition array first, then adjust for impossible transitions
+# Death rules
+a_P[D, , ] = 0 # From death  = 0; remain in death across all strata and all time points
+# HIV rules
+a_P[POS, NEG, ] = 0 # No transition from HIV+ to HIV-
+# Injection rules
+a_P[INJ, NI] = 0
+a_P[NI, INJ] = 0
+
+# Episode rules
+# Disallowed transitions
+a_P[EP1, EP3, ] = 0
+a_P[EP2, EP1, ] = 0
+a_P[EP3, EP1, ] = 0
+a_P[EP3, EP2, ] = 0
+
+# Conditional transitions
+# Maintain cycles (initiate cycle 2 with OOT -> TX)
+a_P[TX & EP1, OOT & EP2, ] = 0
+a_P[TX & EP2, OOT & EP3, ] = 0
+a_P[OOT & EP1, TX & EP1, ] = 0
+a_P[OOT & EP2, TX & EP2, ] = 0
+
+# Remain
+a_P[BUP, BUP, ] <- a_P[BUP1, BUP, ] <- p_BUP_BUP
+
+#Examples
+a_P[NI, INJ, ] = 0.5 # set any cells with NI -> INJ to 0.5
+a_P[NI & POS, INJ & POS, ] = 0.25 #
+
+
+# Create empty mortality matrix (from_states X n_periods)
+# CAN PROBABLY DROP
+m_mort <- array(0, dim = c(n_states_from, n_t),
+                dimnames = list(v_n_from, 0:(n_t - 1)))
+
+for (i in 1:n_t){
+  m_mort[BUP1, i] <- v_mort_BUP1_NEG[i]
+  m_mort[BUP, i]  <- v_mort_BUP_NEG[i]
+  m_mort[MET1, i] <- v_mort_MET1_NEG[i]
+  m_mort[MET, i]  <- v_mort_MET_NEG[i]
+  m_mort[REL1, i] <- v_mort_REL1_NEG[i]
+  m_mort[REL, i]  <- v_mort_REL_NEG[i]
+  m_mort[OD, i]   <- v_mort_OD_NEG[i]
+  m_mort[ABS, i]  <- v_mort_ABS_NEG[i]
+}
