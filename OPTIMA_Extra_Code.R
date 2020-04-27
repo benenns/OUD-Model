@@ -211,3 +211,35 @@ for (i in 1:n_t){
   m_mort[OD, i]   <- v_mort_OD_NEG[i]
   m_mort[ABS, i]  <- v_mort_ABS_NEG[i]
 }
+
+
+# Add death probabilities
+for(i in 1:n_t){
+  # Non-injection
+  a_P[BUP1 & NI, "D", i] <- v_mort_BUP1_NI_NEG[i]
+  a_P[BUP & NI, "D", i]  <- v_mort_BUP_NI_NEG[i] 
+  a_P[MET1 & NI, "D", i] <- v_mort_MET1_NI_NEG[i]
+  a_P[MET & NI, "D", i]  <- v_mort_MET_NI_NEG[i] 
+  a_P[REL1 & NI, "D", i] <- v_mort_REL1_NI_NEG[i]
+  a_P[REL & NI, "D", i]  <- v_mort_REL_NI_NEG[i] 
+  a_P[OD & NI, "D", i]   <- v_mort_OD_NI_NEG[i]  
+  a_P[ABS & NI, "D", i]  <- v_mort_ABS_NI_NEG[i] 
+  
+  #Injection
+  a_P[BUP1 & INJ, "D", i] <- v_mort_BUP1_INJ_NEG[i]
+  a_P[BUP & INJ, "D", i]  <- v_mort_BUP_INJ_NEG[i] 
+  a_P[MET1 & INJ, "D", i] <- v_mort_MET1_INJ_NEG[i]
+  a_P[MET & INJ, "D", i]  <- v_mort_MET_INJ_NEG[i] 
+  a_P[REL1 & INJ, "D", i] <- v_mort_REL1_INJ_NEG[i]
+  a_P[REL & INJ, "D", i]  <- v_mort_REL_INJ_NEG[i] 
+  a_P[OD & INJ, "D", i]   <- v_mort_OD_INJ_NEG[i]  
+  a_P[ABS & INJ, "D", i]  <- v_mort_ABS_INJ_NEG[i] 
+}
+
+
+
+# Add remain probabilities
+for(i in 1:n_t){
+  
+}
+
