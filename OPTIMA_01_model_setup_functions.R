@@ -60,7 +60,7 @@ HIV <- l_dim_s[[4]] <- c("POS", "NEG")
 
 #n_dim_s <- length(l_dim_s)
 #n_dim_s
-n_t <- 720
+n_t <- (n_age_max - n_age_init) * 12
 
 df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
 df_flat <- rename(df_flat, BASE    = Var1, 
@@ -132,7 +132,7 @@ n_states <- length(v_n_states) # total number of health states
                            dimnames = list(BASE, INJECT))
   
 
-  # Time-dependent survival probabilities
+  # Probability of remaining in given health state
   for(i in 1:n_t){
     t <- i+1 # Shift BUP, MET, REL ahead 1 month to adjust for BUP1, MET1, REL1
     # Non-injection
@@ -188,22 +188,19 @@ m_leave[i, j] <- 0.1
 ########################## 
 ### HIV Seroconversion ###
 ##########################
-# Hazard ratios for death probability
 p_sero <- read.csv("data/01_hiv_sero.csv", header = TRUE)
 p_sero
   
 # Only applied to injection
-p_sero_BUP1 <- p_sero[1, 2]
-p_sero_BUP  <- p_sero[2, 2]
-p_sero_MET1 <- p_sero[3, 2]
-p_sero_MET  <- p_sero[4, 2]
-p_sero_REL1 <- p_sero[5, 2]
-p_sero_REL  <- p_sero[6, 2]
-p_sero_OD   <- p_sero[7, 2]
-p_sero_ABS  <- p_sero[8, 2]
+p_sero_BUP1_NI <- p_sero[1, 2]
+p_sero_BUP_NI  <- p_sero[2, 2]
+p_sero_MET1_NI <- p_sero[3, 2]
+p_sero_MET_NI  <- p_sero[4, 2]
+p_sero_REL1_NI <- p_sero[5, 2]
+p_sero_REL_NI  <- p_sero[6, 2]
+p_sero_OD_NI   <- p_sero[7, 2]
+p_sero_ABS_NI  <- p_sero[8, 2]
 
-
-  
 ###############################
 ### Age-dependent mortality ###
 ###############################
@@ -301,10 +298,10 @@ for (i in 1:n_t){
   m_mort[ABS & INJ, i]  <- v_mort_ABS_NEG_INJ[i]
 }
 
+# Period-specific mortality
 m_alive <- 1 - m_mort
 
 # Alive probability for every state and time period
-
 # Alive probs in from states
 v_alive <- function(from_state, n_mort_per){
   v_alive_prob <- m_alive[from_state, n_mort_per]
@@ -421,14 +418,14 @@ p_REL_OD_INJ   <-
   
   
 ##### Empty 2-D matrix (from states, to states) #######
-m_up <- array(0, dim = c(n_states, n_states),
+m_UP <- array(0, dim = c(n_states, n_states),
                          dimnames = list(v_n_states, v_n_states))
 # TEST
-for (i in (1:n_states)){
-  for (j in (1:n_states)){
-    m_up[i, j] <- 0.5
-  }
-}
+#for (i in (1:n_states)){
+#  for (j in (1:n_states)){
+#    m_UP[i, j] <- 0.5
+#  }
+#}
 
 ##### Empty 3-D matrix (from states, to states, time periods)
 a_P_tdp <- array(0, dim = c(n_states, n_states, n_t),
@@ -478,24 +475,6 @@ a_P_tdp[OOT & EP2, TX & EP2, ] = 0
 
 # Transition probabilities among all base states (divide by n(strata) if not strata-specific)
 #n_strata <-  # number of non-base state strata
-
-    
-
-    
-    
-  death.monthly <- Alive.Probs.input[DeathPer, , drop = FALSE]
-  Alive.Probs <- do.call(rbind, lapply(From.states, function(x) (1 - death.monthly[,x]) * Probs[x,]))
-  rownames(Alive.Probs) <- From.states
-
-
-
-
-#Sample code
-#a <- c(1,2,3)
-#a
-
-#b <- rep(a, length.out = 108)
-#b
 
 ##########################
 #### Run Markov model ####
@@ -560,13 +539,8 @@ for(i in 1:n_t){
 
     # All model time periods
       for(i in 2:(n_t)){
-        #n_per <- i #Period counter
-        #n_mort_per <- min(which(Death[,1] == (n_age_init + ((i - 2) / 12))))
-      # track mortality separately and re-calculate alive prob at each cycle
-      # need to grab p_alive and p_dead for each overall period i from m_mort
       # Time spent in given health state
       for(j in 1:(i - 1)){
-        #m_sojourn <- a_P[, , j, n_mort_per] 
         #state-time-dependent transition probability (j) * age (model-time)-specific mortality (i)
         m_sojourn <- a_P_tdp[, , j] * m_alive[, i]
         
@@ -584,77 +558,17 @@ for(i in 1:n_t){
 }
 a_M_trace
 
-#############
-#TEST MODULE#
-#############
-dat <- as.matrix(read.csv("C:/Users/Benjamin/Desktop/Book1.csv", header = FALSE))
-
-a_test <- array(0, dim = c(5, 5, 10),
-                dimnames = list())
-for (i in 1:10){
-a_test[, , i] <- dat[, ]
+m_M_trace <- array(0, dim = c(n_t + 1, n_states),
+                   dimnames = list(0:n_t, v_n_states))
+for (i in 1:n_t){
+  m_M_trace[i, ] <- rowSums(a_M_trace[i, ,])
 }
 
-
-a_test_trace <- a_test_trace_death <- array(0, dim = c(11, 5, 11))
-m_test <- array(0.99, dim = c(5, 10))
-m_test
-#m_test_death <- 1 - m_test
-#m_death <- array (0, dim = c(11, 1))
-v_init <- c(1, 0, 0, 0, 0)
-a_test_trace[1, , 1] <- a_test_trace_death [1, , 1] <- v_init
-
-m_soj <- a_test[ , , 1] * m_test[, 2]
-m_soj
-
-current <- as.vector(a_test_trace[1, , 1])
-current
-
-same <- as.vector(current * diag(m_soj))
-same
-
-a_test_trace[2, , 2] <- same
-a_test_trace
-
-diag(m_soj) <- 0
-
-new <- as.vector(current %*% m_soj)
-new
-
-# All model time periods
-for(i in 2:10){
-  for(j in 1:(i - 1)){
-    m_sojourn <- a_test[, , j] * m_test[, i]
-    #m_sojourn_death <- a_test[, , j] * m_test_death[, i]
-    
-    v_current_state <- as.vector(a_test_trace[i - 1, , j])
-    
-    v_same_state <- as.vector(v_current_state * diag(m_sojourn))
-    #v_same_state_death <- as.vector(v_current_state * diag(m_sojourn_death))
-    
-    
-    a_test_trace[i, ,j + 1] <- v_same_state 
-    #a_test_trace_death[i, ,j + 1] <- v_same_state_death 
-    
-    diag(m_sojourn) <- 0
-    #diag(m_sojourn_death) <- 0
-    
-    v_new_state <- as.vector(v_current_state %*% m_sojourn)
-    #v_new_state_death <- as.vector(v_current_state %*% m_sojourn_death)
-    
-    a_test_trace[i,,1] <- v_new_state + a_test_trace[i,,1]
-    #a_test_trace_death[i,,1] <- v_new_state_death + a_test_trace_death[i,,1]
-    
-    #m_death[, i] <- rowSums(a_test_trace_death[i, , ])
-  }
+v_deaths <- array(0, dim = c(n_t, 1))
+for (i in 1:n_t){
+  deaths[i,] <- as.vector(1 - rowSums(m_M_trace[i,]))
 }
-b <- rowSums(a_test_trace_death[2, , ])
-b
-
-a_test
-a_test_trace
-m_death
-
+deaths
 
 
 ########################################
