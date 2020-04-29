@@ -78,3 +78,38 @@ deaths
 a_test
 a_test_trace
 m_death
+
+
+###################################
+##### CREATE TRANSITION ARRAY #####
+###################################
+a_TDP <- array(0, dim = c(5, 5, 10))
+m_TDP <- array(0.9, dim = c(5, 10))
+m_UP <- array(0.2, dim = c(5, 5))
+m_leave <- array(0.1, dim = c(5, 10))
+
+for (i in 1:10){
+  a_TDP[, , i] <- m_UP * m_leave[, i]
+}
+a_TDP
+
+for (i in 1:10){
+  for (j in 1:5){
+    a_TDP[j, j, i] <- m_TDP[j, i]
+  } 
+}
+a_TDP
+
+
+p_frailty_BUP_NI_2 <- 0.725
+p_weibull_shape_BUP_NI <- 0.613
+p_weibull_scale_BUP_NI <- 0.153
+t <- 1
+other <- p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI))
+
+for (t in 1:10){
+test[t] <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI))))
+test2[t] <- as.vector(exp(p_frailty_BUP_NI_2 * other))
+}
+test
+test2

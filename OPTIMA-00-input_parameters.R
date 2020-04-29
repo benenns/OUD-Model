@@ -1,167 +1,86 @@
-#############################################################################
-## CA OAT CEA Model
-## Deterministic - Parameter seetings from input file
-## Feb 16, 2017
-#############################################################################
-## Legacy: myCAModel-0-TestParameterSetting-v10
-## Updated: weighted HIV costs by Pr(on ART); new param 'probOnART'
-## Updated: HIV mix corrected (same across heroin/PO)
-#############################################################################
-# PARAMETERS FROM FILE
-#############################################################################
-library(XLConnect)
-#demoExcelFile <- system.file("C:/Users/Benjamin/Documents/GitHub/OUD-Model/Data/CombinedInputs-V1-Baseline.xlsx", package = "XLConnect")
+##################################################################################
+## OUD Cohort Model
+## Deterministic - Set parameter values for: "OPTIMA_01_model_setup_functions.R"
+##################################################################################
+###############################
+### Initial characteristics ###
+###############################
 
-WB <- loadWorkbook("C:/Users/Benjamin/Documents/GitHub/OUD-Model/Data/CombinedInputs-V1-Baseline.xlsx")
+v_initial_BUP <- read.csv("data/01_initial_BUP.csv")
+v_initial_MET <- read.csv("data/01_initial_MET.csv")
 
-unpack.list <- function(object) {
-  for(.x in names(object)){
-    assign(value = object[[.x]], x=.x, envir = parent.frame())
-  }
-} 
+n_age_init <- 35 # age at baseline
+n_age_max <- 95 # maximum age of follow up
 
-unpack.list(as.list(readWorksheet(WB, sheet = "Parameters", rownames=1)))
-#############################################################################
-# INPUTS FROM FILE
-#############################################################################
-To.logic <- readWorksheet(WB, sheet = "BooleanStates", rownames=1)
-Cycle.logic <- readWorksheet(WB, sheet = "BooleanCycle", rownames=1)
-#Weibull <- as.matrix(readWorksheet(WB, sheet = "WeibullFor", header = FALSE) [,-1])
-Weibull.Shape <- as.matrix(readWorksheet(WB, sheet = "WeibullShape", header = FALSE) [,-1])
-Weibull.Scale <- as.matrix(readWorksheet(WB, sheet = "WeibullScale", header = FALSE) [,-1])
-Empirical.Distribution <- readWorksheet(WB, sheet = "EmpiricalStates", rownames=1)
-Death.table <- as.matrix(readWorksheet(WB, sheet = "DeathTable", header = TRUE))
-Death.mult <- readWorksheet(WB, sheet = "DeathMult", rownames=1)
-HIV.sero <- readWorksheet(WB, sheet = "HIVsero", rownames=1)
-Cycle.Frailty <- as.matrix(readWorksheet(WB, sheet = "Frailty", rownames=1))
-CycleFrailty <- Cycle.Frailty[c("FRAILTY.1", "FRAILTY.2", "FRAILTY.3"),]
-Init.dist <- readWorksheet(WB, sheet = "InitDist", rownames=1)
-if(switch.HIV==1){
-  Init.dist.HIV.H <- cbind((Init.dist[,grep("H", names(Init.dist))] * (1 - (HIVposMix))),
-                           (Init.dist[,grep("H", names(Init.dist))] * (HIVposMix)))
-  check.probs(Init.dist.HIV.H / sum(Init.dist[,grep("H", names(Init.dist))]))
-  
-  Init.dist.HIV.P <- cbind((Init.dist[,grep("P", names(Init.dist))] * (1 - (HIVposMix))),
-                           (Init.dist[,grep("P", names(Init.dist))] * (HIVposMix)))
-  check.probs(Init.dist.HIV.P / sum(Init.dist[,grep("P", names(Init.dist))]))
-  
-  Init.dist.HIV <- cbind((Init.dist[,grep("H", names(Init.dist))] * (1 - (HIVposMix))),
-                         (Init.dist[,grep("P", names(Init.dist))] * (1 - (HIVposMix))),
-                         (Init.dist[,grep("H", names(Init.dist))] * (HIVposMix)),
-                         (Init.dist[,grep("P", names(Init.dist))] * (HIVposMix)))
-  AllHSNames.pos <- paste0(colnames(Init.dist), "+")
-  AllHSNames.neg <- paste0(colnames(Init.dist), "-")
-  AllHSNames.HIV <- c(AllHSNames.neg, AllHSNames.pos)
-  colnames(Init.dist.HIV) <- AllHSNames.HIV
-  check.probs(Init.dist.HIV)
-  Init.dist <- Init.dist.HIV
-}
-#############################################################################
-# INPUTS FROM FILE
-#############################################################################
-# Gender weighted death probabilities
-if(switch.gender==1){
-  Death.mix <- Death.table
-  colnames(Death.mix) <- c("Blocks", "GenderMix.H", "GenderMix.P")
-  Death.mix[,"GenderMix.H"] <- ((Death.table[, "Male"] * (1 - GenderMix.H)) + (Death.table[,"Female"] * (GenderMix.H)))
-  Death.mix[,"GenderMix.P"] <- ((Death.table[, "Male"] * (1 - GenderMix.P)) + (Death.table[,"Female"] * (GenderMix.P)))
-} else {Death.mix <- Death.table[,c("Blocks", "Male")]}
+n_t <- (n_age_max - n_age_init) * 12 # modeling time horizon in months
+p_discount <- 0.03
 
-#############################################################################
-# COSTS & QALYs
-#############################################################################
-# QALY inputs
-StateQALYs <- readWorksheet(WB, sheet = "StateQALYs", rownames=1)
-# Cost inputs
-StateCosts <- readWorksheet(WB, sheet = "StateCosts", rownames=1)
-CrimeCosts <- readWorksheet(WB, sheet = "CrimeCosts")
+p_male_BUP <- 0.35
+p_male_MET <- 0.40
 
-if(switch.HIV==0){
-  # TX costs
-  CostVec.tx <- c(as.vector(rep(StateCosts["TX", ], each=NumberOfEpisodes), mode = "numeric"), 0, 0)
-  CostVec.tx.h <- c(as.vector(rep(StateCosts["TX", grep(".H", names(StateCosts), fixed = FALSE)], 
-                                  each=NumberOfEpisodes), mode = "numeric"), 0)
-  CostVec.tx.p <- c(as.vector(rep(StateCosts["TX", grep(".P", names(StateCosts), fixed = FALSE)], 
-                                  each=NumberOfEpisodes), mode = "numeric"), 0)
-  # HRU costs
-  CostVec.hru <- c(as.vector(rep(StateCosts["HRU", ], each=NumberOfEpisodes), mode = "numeric"), 0, 0)
-  CostVec.hru.h <- c(as.vector(rep(StateCosts["HRU", grep(".H", names(StateCosts), fixed = FALSE)], 
-                                   each=NumberOfEpisodes), mode = "numeric"), 0)
-  CostVec.hru.p <- c(as.vector(rep(StateCosts["HRU", grep(".P", names(StateCosts), fixed = FALSE)], 
-                                   each=NumberOfEpisodes), mode = "numeric"), 0)
-  # Crime costs
-  CostMat.crime <- array(0, c(nrow(CrimeCosts), ((ncol(CrimeCosts) - 1) * NumberOfEpisodes) + 2))
-  CostMat.crime.h <- array(0, c(nrow(CrimeCosts), ((ncol(CrimeCosts[, grep(".H", names(CrimeCosts), fixed = FALSE)])) * NumberOfEpisodes) + 1))
-  CostMat.crime.p <- array(0, c(nrow(CrimeCosts), ((ncol(CrimeCosts[, grep(".P", names(CrimeCosts), fixed = FALSE)])) * NumberOfEpisodes) + 1))
-  for(i in 1:nrow(CrimeCosts)){
-    CostMat.crime[i,] <- c(as.vector(rep(CrimeCosts[i,-1], each=NumberOfEpisodes), mode = "numeric"), 0, 0)
-    CostMat.crime.h[i,] <- c(as.vector(rep(CrimeCosts[i, grep(".H", names(CrimeCosts), fixed = FALSE)], each=NumberOfEpisodes), mode = "numeric"), 0)
-    CostMat.crime.p[i,] <- c(as.vector(rep(CrimeCosts[i, grep(".P", names(CrimeCosts), fixed = FALSE)], each=NumberOfEpisodes), mode = "numeric"), 0)
-  }
-  
-  QALYVec <- c(as.vector(rep(StateQALYs["QALYs.NEG", ], each=NumberOfEpisodes), mode = "numeric"), 0, 0)/12
-  QALYVec.h <- c(as.vector(rep(StateQALYs["QALYs.NEG", grep(".H", names(StateQALYs), fixed = FALSE)], 
-                               each=NumberOfEpisodes), mode = "numeric"), 0)/12
-  QALYVec.p <- c(as.vector(rep(StateQALYs["QALYs.NEG", grep(".P", names(StateQALYs), fixed = FALSE)], 
-                               each=NumberOfEpisodes), mode = "numeric"), 0)/12
-  
-  
-} else if(switch.HIV==1){
-  # TX costs
-  CostVec.tx <- c(as.vector(rep(StateCosts["TX",], each=NumberOfEpisodes, times = 2), mode = "numeric"), 0, 0)
-  CostVec.tx.h <- c(as.vector(rep(StateCosts["TX", grep(".H", names(StateCosts), fixed = FALSE)], 
-                                  each=NumberOfEpisodes, times = 2), mode = "numeric"), 0)
-  CostVec.tx.p <- c(as.vector(rep(StateCosts["TX", grep(".P", names(StateCosts), fixed = FALSE)], 
-                                  each=NumberOfEpisodes, times = 2), mode = "numeric"), 0)
-  # HRU costs
-  CostVec.hru <- c(as.vector(rep(StateCosts["HRU",], each=NumberOfEpisodes, times = 2), mode = "numeric"), 0, 0)
-  CostVec.hru.h <- c(as.vector(rep(StateCosts["HRU", grep(".H", names(StateCosts), fixed = FALSE)], 
-                                   each=NumberOfEpisodes, times = 2), mode = "numeric"), 0)
-  CostVec.hru.p <- c(as.vector(rep(StateCosts["HRU", grep(".P", names(StateCosts), fixed = FALSE)], 
-                                   each=NumberOfEpisodes, times = 2), mode = "numeric"), 0)
-  # HIV-specific costs
-  CostVec.hivhru <- c(as.vector(rep(0, ncol(StateCosts) * NumberOfEpisodes)), 
-                   as.vector(rep(StateCosts["HIV",], each=NumberOfEpisodes), mode = "numeric"), 0, 0)
-  CostVec.hivhru.h <- c(as.vector(rep(0, ncol(StateCosts["HIV", grep(".H", names(StateCosts), fixed = FALSE)]) * NumberOfEpisodes)), 
-                     as.vector(rep(StateCosts["HIV", grep(".H", names(StateCosts), fixed = FALSE)], 
-                                   each=NumberOfEpisodes), mode = "numeric"), 0)
-  CostVec.hivhru.p <- c(as.vector(rep(0, ncol(StateCosts["HIV", grep(".P", names(StateCosts), fixed = FALSE)]) * NumberOfEpisodes)), 
-                     as.vector(rep(StateCosts["HIV", grep(".P", names(StateCosts), fixed = FALSE)], 
-                                   each=NumberOfEpisodes), mode = "numeric"), 0)
-  # ART
-  CostVec.art <- c(as.vector(rep(0, ncol(StateCosts) * NumberOfEpisodes)), 
-                   as.vector(rep(StateCosts["ART",] * probOnART, each=NumberOfEpisodes), mode = "numeric"), 0, 0)
-  CostVec.art.h <- c(as.vector(rep(0, ncol(StateCosts["ART", grep(".H", names(StateCosts), fixed = FALSE)]) * NumberOfEpisodes)), 
-                     as.vector(rep(StateCosts["ART", grep(".H", names(StateCosts), fixed = FALSE)]  * probOnART, 
-                                   each=NumberOfEpisodes), mode = "numeric"), 0)
-  CostVec.art.p <- c(as.vector(rep(0, ncol(StateCosts["ART", grep(".P", names(StateCosts), fixed = FALSE)]) * NumberOfEpisodes)), 
-                     as.vector(rep(StateCosts["ART", grep(".P", names(StateCosts), fixed = FALSE)]  * probOnART, 
-                                   each=NumberOfEpisodes), mode = "numeric"), 0)
-  # Combine HIV costs
-  CostVec.hiv <- CostVec.hivhru + CostVec.art
-  CostVec.hiv.h <- CostVec.hivhru.h + CostVec.art.h
-  CostVec.hiv.p <- CostVec.hivhru.p + CostVec.art.p
-  
-  # Crime costs
-  CostMat.crime <- array(0, c(nrow(CrimeCosts), ((ncol(CrimeCosts) - 1) * NumberOfEpisodes) * 2 + 2))
-  CostMat.crime.h <- array(0, c(nrow(CrimeCosts), ((ncol(CrimeCosts[, grep(".H", names(CrimeCosts), fixed = FALSE)])) * NumberOfEpisodes) * 2 + 1))
-  CostMat.crime.p <- array(0, c(nrow(CrimeCosts), ((ncol(CrimeCosts[, grep(".P", names(CrimeCosts), fixed = FALSE)])) * NumberOfEpisodes) * 2 + 1))
-  for(i in 1:nrow(CrimeCosts)){
-    CostMat.crime[i,] <- c(as.vector(rep(CrimeCosts[i,-1], each=NumberOfEpisodes, times = 2), mode = "numeric"), 0, 0)
-    CostMat.crime.h[i,] <- c(as.vector(rep(CrimeCosts[i, grep(".H", names(CrimeCosts), fixed = FALSE)], each=NumberOfEpisodes, times = 2), mode = "numeric"), 0)
-    CostMat.crime.p[i,] <- c(as.vector(rep(CrimeCosts[i, grep(".P", names(CrimeCosts), fixed = FALSE)], each=NumberOfEpisodes, times = 2), mode = "numeric"), 0)
-  }
-  
-  QALYVec <- c(as.vector(rep(StateQALYs["QALYs.NEG", ], each=NumberOfEpisodes), mode = "numeric"), 
-               as.vector(rep(StateQALYs["QALYs.POS", ], each=NumberOfEpisodes), mode = "numeric"), 0, 0)/12
-  QALYVec.h <- c(as.vector(rep(StateQALYs["QALYs.NEG", grep(".H", names(StateQALYs), fixed = FALSE)], each=NumberOfEpisodes), mode = "numeric"), 
-                 as.vector(rep(StateQALYs["QALYs.POS", grep(".H", names(StateQALYs), fixed = FALSE)], each=NumberOfEpisodes), mode = "numeric"), 0)/12
-  QALYVec.p <- c(as.vector(rep(StateQALYs["QALYs.NEG", grep(".P", names(StateQALYs), fixed = FALSE)], each=NumberOfEpisodes), mode = "numeric"), 
-                 as.vector(rep(StateQALYs["QALYs.POS", grep(".P", names(StateQALYs), fixed = FALSE)], each=NumberOfEpisodes), mode = "numeric"), 0)/12
-}
+p_HIV_POS <- 0.05 # % of HIV-positive individuals
+p_HIV_ART <- 0.75 # % of HIV-positive on-ART
+
+#########################
+### Survival analysis ###
+#########################
+m_frailty <- array(0.4, dim = c(n_EP, n_BASE, n_INJECT),
+                   dimnames = list(EP, BASE, INJECT))
+m_weibull_scale <- array(0.7, dim = c(n_BASE, n_INJECT),
+                         dimnames = list(BASE, INJECT))
+m_weibull_shape <- array(0.7, dim = c(n_BASE, n_INJECT),
+                         dimnames = list(BASE, INJECT))
 
 
+########################## 
+### HIV Seroconversion ###
+##########################
+p_sero <- read.csv("data/01_hiv_sero.csv", header = TRUE)
+p_sero
 
-# From & To health states
-From.baseline <- From.state.names(To.logic,Cycle.logic,NumberOfEpisodes)
-To.baseline <- To.state.names(To.logic,Cycle.logic,NumberOfEpisodes)
+# Only applied to injection
+p_sero_BUP1_NI <- p_sero[1, 2]
+p_sero_BUP_NI  <- p_sero[2, 2]
+p_sero_MET1_NI <- p_sero[3, 2]
+p_sero_MET_NI  <- p_sero[4, 2]
+p_sero_REL1_NI <- p_sero[5, 2]
+p_sero_REL_NI  <- p_sero[6, 2]
+p_sero_OD_NI   <- p_sero[7, 2]
+p_sero_ABS_NI  <- p_sero[8, 2]
+
+###############################
+### Age-dependent mortality ###
+###############################
+# Baseline mortality by age
+lt_can_2018 <- read.csv("data/01_all_cause_mortality.csv")
+#v_mortality_age <- lt_can_2018[which(lt_can_2018$Age >= n_age_init & lt_can_2018$Age < n_age_max), ] 
+
+v_r_mort_by_age <- lt_can_2018 %>%
+  #subset(Age >= n_age_init & Age < n_age_max) %>%
+  #filter(Age >= n_age_init & Age < n_age_max) %>%
+  select(Total) %>%
+  as.matrix()
+
+# Hazard ratios for death probability
+hr_s <- read.csv("data/01_death_hr.csv", header = TRUE)
+#hr_s
+#hr_BUP1 <- hr_s["BUP1", "HR"] figure out why this doesn't work
+hr_BUP1_NI <- hr_s[1, 2]
+hr_BUP_NI  <- hr_s[2, 2]
+hr_MET1_NI <- hr_s[3, 2]
+hr_MET_NI  <- hr_s[4, 2]
+hr_REL1_NI <- hr_s[5, 2]
+hr_REL_NI  <- hr_s[6, 2]
+hr_OD_NI   <- hr_s[7, 2]
+hr_ABS_NI  <- hr_s[8, 2]
+
+hr_BUP1_INJ <- hr_s[9, 2]
+hr_BUP_INJ  <- hr_s[10, 2]
+hr_MET1_INJ <- hr_s[11, 2]
+hr_MET_INJ  <- hr_s[12, 2]
+hr_REL1_INJ <- hr_s[13, 2]
+hr_REL_INJ  <- hr_s[14, 2]
+hr_OD_INJ   <- hr_s[15, 2]
+hr_ABS_INJ  <- hr_s[16, 2]
+
+hr_ABS_HIV  <- hr_s[17, 2]
