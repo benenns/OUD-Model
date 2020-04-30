@@ -14,8 +14,6 @@ library(tidyverse)
 # Set up base to/from model states #
 ####################################
 l_dim_s  <- list() # list of base states
-#l_dim_hiv   <- list() # list of base states
-#l_dim_death <- list() # list of base states
 
 # Base health states
 BASE <- l_dim_s[[1]] <- c("MET1", "MET", "BUP1", "BUP", "ABS", "REL1", "REL", "OD")
@@ -31,6 +29,7 @@ n_EP <- length(EP)
 
 # HIV status
 HIV <- l_dim_s[[4]] <- c("POS", "NEG")
+n_HIV <- length(HIV)
 
 #n_dim_s <- length(l_dim_s)
 #n_dim_s
@@ -39,14 +38,13 @@ n_t <- (n_age_max - n_age_init) * 12
 df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
 df_flat <- rename(df_flat, BASE    = Var1, 
                            INJECT  = Var2, 
-                           HIV     = Var3, 
-                           EP      = Var4)
-
+                           EP      = Var3, 
+                           HIV     = Var4)
 ################ Create index of states to populate transition matrices ################
 # All treatment
 TX <- df_flat$BASE == "BUP" | df_flat$BASE == "BUP1" | df_flat$BASE == "MET" | df_flat$BASE == "MET1"
-# All out-of-treatment (excl ABS)
-OOT <- df_flat$BASE == "REL1" | df_flat$BASE == "REL" | df_flat$BASE == "OD"
+# All out-of-treatment (incl ABS)
+OOT <- df_flat$BASE == "REL1" | df_flat$BASE == "REL" | df_flat$BASE == "OD" | df_flat$BASE == "ABS"
 
 # All BUP
 all_BUP <- df_flat$BASE == "BUP" | df_flat$BASE == "BUP1"
@@ -91,7 +89,7 @@ n_states <- length(v_n_states) # total number of health states
 #############################################
   # Empty 2-D matrix
   m_TDP <- array(0, dim = c(n_states, n_t),
-                    dimnames = list(v_n_states, 0:(n_t - 1)))
+                    dimnames = list(v_n_states, 1:n_t))
 
   # Probability of remaining in given health state
   # Only populate for allowed transitions
@@ -138,9 +136,11 @@ n_states <- length(v_n_states) # total number of health states
         m_TDP[EP3 & OD & INJ, i]  <- v_TDP_OD_INJ_3[i]  
   }
 m_TDP
+write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
 
 # Probability of from-state-exit
 m_leave <- 1 - m_TDP
+write.csv(m_leave,"C:/Users/Benjamin/Desktop/m_leave.csv", row.names = TRUE)
 
 #################
 ### Mortality ###
@@ -174,26 +174,28 @@ v_mort_ABS_POS_INJ  <- v_mort(hr_ABS_INJ_HIV)
 
 # Create empty mortality matrix (from_states X n_periods)
 m_mort <- array(0, dim = c(n_states, n_t),
-                dimnames = list(v_n_states, 0:(n_t - 1)))
+                dimnames = list(v_n_states, 1:n_t))
 # Populate mortality matrix (monthly death probability from each state)
 for (i in 1:n_t){
-  m_mort[BUP1 & NI, i] <- v_mort_BUP1_NEG_NI[i]
-  m_mort[BUP & NI, i]  <- v_mort_BUP_NEG_NI[i]
-  m_mort[MET1 & NI, i] <- v_mort_MET1_NEG_NI[i]
-  m_mort[MET & NI, i]  <- v_mort_MET_NEG_NI[i]
-  m_mort[REL1 & NI, i] <- v_mort_REL1_NEG_NI[i]
-  m_mort[REL & NI, i]  <- v_mort_REL_NEG_NI[i]
-  m_mort[OD & NI, i]   <- v_mort_OD_NEG_NI[i]
-  m_mort[ABS & NI, i]  <- v_mort_ABS_NEG_NI[i]
+  m_mort[BUP1 & NI, i] <- v_mort_BUP1_NI[i]
+  m_mort[BUP & NI, i]  <- v_mort_BUP_NI[i]
+  m_mort[MET1 & NI, i] <- v_mort_MET1_NI[i]
+  m_mort[MET & NI, i]  <- v_mort_MET_NI[i]
+  m_mort[REL1 & NI, i] <- v_mort_REL1_NI[i]
+  m_mort[REL & NI, i]  <- v_mort_REL_NI[i]
+  m_mort[OD & NI, i]   <- v_mort_OD_NI[i]
+  m_mort[ABS & NI & NEG, i]  <- v_mort_ABS_NEG_NI[i]
+  m_mort[ABS & NI & POS, i]  <- v_mort_ABS_POS_NI[i]
   
-  m_mort[BUP1 & INJ, i] <- v_mort_BUP1_NEG_INJ[i]
-  m_mort[BUP & INJ, i]  <- v_mort_BUP_NEG_INJ[i]
-  m_mort[MET1 & INJ, i] <- v_mort_MET1_NEG_INJ[i]
-  m_mort[MET & INJ, i]  <- v_mort_MET_NEG_INJ[i]
-  m_mort[REL1 & INJ, i] <- v_mort_REL1_NEG_INJ[i]
-  m_mort[REL & INJ, i]  <- v_mort_REL_NEG_INJ[i]
-  m_mort[OD & INJ, i]   <- v_mort_OD_NEG_INJ[i]
-  m_mort[ABS & INJ, i]  <- v_mort_ABS_NEG_INJ[i]
+  m_mort[BUP1 & INJ, i] <- v_mort_BUP1_INJ[i]
+  m_mort[BUP & INJ, i]  <- v_mort_BUP_INJ[i]
+  m_mort[MET1 & INJ, i] <- v_mort_MET1_INJ[i]
+  m_mort[MET & INJ, i]  <- v_mort_MET_INJ[i]
+  m_mort[REL1 & INJ, i] <- v_mort_REL1_INJ[i]
+  m_mort[REL & INJ, i]  <- v_mort_REL_INJ[i]
+  m_mort[OD & INJ, i]   <- v_mort_OD_INJ[i]
+  m_mort[ABS & INJ & NEG, i]  <- v_mort_ABS_NEG_INJ[i]
+  m_mort[ABS & INJ & POS, i]  <- v_mort_ABS_POS_INJ[i]
 }
 
 # Alive probability in each period
@@ -211,17 +213,15 @@ v_death <- function(from_state, n_mort_per){
   v_death_prob <- m_mort[from_state, n_mort_per]
   return(m_mort)
 }
-
-
 ##############################################
 ### Unconditional transition probabilities ###
 ##############################################
-# Base state transition probabilities (from -> to)
-
 ##### Empty 2-D unconditional transition matrix (from states, to states) #######
 m_UP <- array(0, dim = c(n_states, n_states),
               dimnames = list(v_n_states, v_n_states))
-# Populate unconditional transition probabilities
+# Populate unconditional transition matrix
+# Transitions from BUP1, MET1, REL1 adjusted to account for "remain" (e.g.  BUP1 -> BUP; MET1 -> MET; REL1 -> REL)
+# which change by episode # and are equal to 1st month TDP for BUP, MET and REL
 ######## Non-Injection #########
 # From BUP1
 m_UP[BUP1 & NI & EP1, BUP & NI & EP1] <- p_BUP1_BUP_NI_1
@@ -250,9 +250,9 @@ m_UP[BUP & NI, OD & NI] <- p_BUP_OD_NI
 m_UP[MET1 & NI & EP1, MET & NI & EP1] <- p_MET1_MET_NI_1
 m_UP[MET1 & NI & EP2, MET & NI & EP2] <- p_MET1_MET_NI_2
 m_UP[MET1 & NI & EP3, MET & NI & EP3] <- p_MET1_MET_NI_3
-m_UP[MET1 & NI & EP1, MET1 & NI & EP1] <- p_MET1_MET1_NI * (1 - p_MET1_MET_NI_1)
-m_UP[MET1 & NI & EP2, MET1 & NI & EP2] <- p_MET1_MET1_NI * (1 - p_MET1_MET_NI_2)
-m_UP[MET1 & NI & EP3, MET1 & NI & EP3] <- p_MET1_MET1_NI * (1 - p_MET1_MET_NI_3)
+m_UP[MET1 & NI & EP1, BUP1 & NI & EP1] <- p_MET1_BUP1_NI * (1 - p_MET1_MET_NI_1)
+m_UP[MET1 & NI & EP2, BUP1 & NI & EP2] <- p_MET1_BUP1_NI * (1 - p_MET1_MET_NI_2)
+m_UP[MET1 & NI & EP3, BUP1 & NI & EP3] <- p_MET1_BUP1_NI * (1 - p_MET1_MET_NI_3)
 m_UP[MET1 & NI & EP1, ABS & NI & EP1] <- p_MET1_ABS_NI * (1 - p_MET1_MET_NI_1)
 m_UP[MET1 & NI & EP2, ABS & NI & EP2] <- p_MET1_ABS_NI * (1 - p_MET1_MET_NI_2)
 m_UP[MET1 & NI & EP3, ABS & NI & EP3] <- p_MET1_ABS_NI * (1 - p_MET1_MET_NI_3)
@@ -274,18 +274,23 @@ m_UP[ABS & NI, REL1 & NI] <- p_ABS_REL1_NI
 m_UP[ABS & NI, OD & NI] <- p_ABS_OD_NI
   
 # From REL1
+# TRANSITIONS FROM EP(i) OOT -> EP(i+1) TX
 m_UP[REL1 & NI & EP1, REL & NI & EP1] <- p_REL1_REL_NI_1
 m_UP[REL1 & NI & EP2, REL & NI & EP2] <- p_REL1_REL_NI_2
 m_UP[REL1 & NI & EP3, REL & NI & EP3] <- p_REL1_REL_NI_3
-m_UP[REL1 & NI & EP1, MET1 & NI & EP1] <- p_REL1_MET1_NI * (1 - p_REL1_REL_NI_1)
-m_UP[REL1 & NI & EP2, MET1 & NI & EP2] <- p_REL1_MET1_NI * (1 - p_REL1_REL_NI_2)
+
+m_UP[REL1 & NI & EP1, BUP1 & NI & EP2] <- p_REL1_BUP1_NI * (1 - p_REL1_REL_NI_1)
+m_UP[REL1 & NI & EP2, BUP1 & NI & EP3] <- p_REL1_BUP1_NI * (1 - p_REL1_REL_NI_2)
+m_UP[REL1 & NI & EP3, BUP1 & NI & EP3] <- p_REL1_BUP1_NI * (1 - p_REL1_REL_NI_3)
+
+m_UP[REL1 & NI & EP1, MET1 & NI & EP2] <- p_REL1_MET1_NI * (1 - p_REL1_REL_NI_1)
+m_UP[REL1 & NI & EP2, MET1 & NI & EP3] <- p_REL1_MET1_NI * (1 - p_REL1_REL_NI_2)
 m_UP[REL1 & NI & EP3, MET1 & NI & EP3] <- p_REL1_MET1_NI * (1 - p_REL1_REL_NI_3)
+
 m_UP[REL1 & NI & EP1, ABS & NI & EP1] <- p_REL1_ABS_NI * (1 - p_REL1_REL_NI_1)
 m_UP[REL1 & NI & EP2, ABS & NI & EP2] <- p_REL1_ABS_NI * (1 - p_REL1_REL_NI_2)
 m_UP[REL1 & NI & EP3, ABS & NI & EP3] <- p_REL1_ABS_NI * (1 - p_REL1_REL_NI_3)
-m_UP[REL1 & NI & EP1, REL1 & NI & EP1] <- p_REL1_REL1_NI * (1 - p_REL1_REL_NI_1)
-m_UP[REL1 & NI & EP2, REL1 & NI & EP2] <- p_REL1_REL1_NI * (1 - p_REL1_REL_NI_2)
-m_UP[REL1 & NI & EP3, REL1 & NI & EP3] <- p_REL1_REL1_NI * (1 - p_REL1_REL_NI_3)
+
 m_UP[REL1 & NI & EP1, OD & NI & EP1] <- p_REL1_OD_NI * (1 - p_REL1_REL_NI_1)
 m_UP[REL1 & NI & EP2, OD & NI & EP2] <- p_REL1_OD_NI * (1 - p_REL1_REL_NI_2)
 m_UP[REL1 & NI & EP3, OD & NI & EP3] <- p_REL1_OD_NI * (1 - p_REL1_REL_NI_3)
@@ -330,9 +335,9 @@ m_UP[BUP & INJ, OD & INJ] <- p_BUP_OD_INJ
 m_UP[MET1 & INJ & EP1, MET & INJ & EP1] <- p_MET1_MET_INJ_1
 m_UP[MET1 & INJ & EP2, MET & INJ & EP2] <- p_MET1_MET_INJ_2
 m_UP[MET1 & INJ & EP3, MET & INJ & EP3] <- p_MET1_MET_INJ_3
-m_UP[MET1 & INJ & EP1, MET1 & INJ & EP1] <- p_MET1_MET1_INJ * (1 - p_MET1_MET_INJ_1)
-m_UP[MET1 & INJ & EP2, MET1 & INJ & EP2] <- p_MET1_MET1_INJ * (1 - p_MET1_MET_INJ_2)
-m_UP[MET1 & INJ & EP3, MET1 & INJ & EP3] <- p_MET1_MET1_INJ * (1 - p_MET1_MET_INJ_3)
+m_UP[MET1 & INJ & EP1, BUP1 & INJ & EP1] <- p_MET1_BUP1_INJ * (1 - p_MET1_MET_INJ_1)
+m_UP[MET1 & INJ & EP2, BUP1 & INJ & EP2] <- p_MET1_BUP1_INJ * (1 - p_MET1_MET_INJ_2)
+m_UP[MET1 & INJ & EP3, BUP1 & INJ & EP3] <- p_MET1_BUP1_INJ * (1 - p_MET1_MET_INJ_3)
 m_UP[MET1 & INJ & EP1, ABS & INJ & EP1] <- p_MET1_ABS_INJ * (1 - p_MET1_MET_INJ_1)
 m_UP[MET1 & INJ & EP2, ABS & INJ & EP2] <- p_MET1_ABS_INJ * (1 - p_MET1_MET_INJ_2)
 m_UP[MET1 & INJ & EP3, ABS & INJ & EP3] <- p_MET1_ABS_INJ * (1 - p_MET1_MET_INJ_3)
@@ -354,18 +359,23 @@ m_UP[ABS & INJ, REL1 & INJ] <- p_ABS_REL1_INJ
 m_UP[ABS & INJ, OD & INJ] <- p_ABS_OD_INJ
 
 # From REL1
+# TRANSITIONS FROM EP(i) OOT -> EP(i+1) TX
 m_UP[REL1 & INJ & EP1, REL & INJ & EP1] <- p_REL1_REL_INJ_1
 m_UP[REL1 & INJ & EP2, REL & INJ & EP2] <- p_REL1_REL_INJ_2
 m_UP[REL1 & INJ & EP3, REL & INJ & EP3] <- p_REL1_REL_INJ_3
-m_UP[REL1 & INJ & EP1, MET1 & INJ & EP1] <- p_REL1_MET1_INJ * (1 - p_REL1_REL_INJ_1)
-m_UP[REL1 & INJ & EP2, MET1 & INJ & EP2] <- p_REL1_MET1_INJ * (1 - p_REL1_REL_INJ_2)
+
+m_UP[REL1 & INJ & EP1, BUP1 & INJ & EP2] <- p_REL1_BUP1_INJ * (1 - p_REL1_REL_INJ_1)
+m_UP[REL1 & INJ & EP2, BUP1 & INJ & EP3] <- p_REL1_BUP1_INJ * (1 - p_REL1_REL_INJ_2)
+m_UP[REL1 & INJ & EP3, BUP1 & INJ & EP3] <- p_REL1_BUP1_INJ * (1 - p_REL1_REL_INJ_3)
+
+m_UP[REL1 & INJ & EP1, MET1 & INJ & EP2] <- p_REL1_MET1_INJ * (1 - p_REL1_REL_INJ_1)
+m_UP[REL1 & INJ & EP2, MET1 & INJ & EP3] <- p_REL1_MET1_INJ * (1 - p_REL1_REL_INJ_2)
 m_UP[REL1 & INJ & EP3, MET1 & INJ & EP3] <- p_REL1_MET1_INJ * (1 - p_REL1_REL_INJ_3)
+
 m_UP[REL1 & INJ & EP1, ABS & INJ & EP1] <- p_REL1_ABS_INJ * (1 - p_REL1_REL_INJ_1)
 m_UP[REL1 & INJ & EP2, ABS & INJ & EP2] <- p_REL1_ABS_INJ * (1 - p_REL1_REL_INJ_2)
 m_UP[REL1 & INJ & EP3, ABS & INJ & EP3] <- p_REL1_ABS_INJ * (1 - p_REL1_REL_INJ_3)
-m_UP[REL1 & INJ & EP1, REL1 & INJ & EP1] <- p_REL1_REL1_INJ * (1 - p_REL1_REL_INJ_1)
-m_UP[REL1 & INJ & EP2, REL1 & INJ & EP2] <- p_REL1_REL1_INJ * (1 - p_REL1_REL_INJ_2)
-m_UP[REL1 & INJ & EP3, REL1 & INJ & EP3] <- p_REL1_REL1_INJ * (1 - p_REL1_REL_INJ_3)
+
 m_UP[REL1 & INJ & EP1, OD & INJ & EP1] <- p_REL1_OD_INJ * (1 - p_REL1_REL_INJ_1)
 m_UP[REL1 & INJ & EP2, OD & INJ & EP2] <- p_REL1_OD_INJ * (1 - p_REL1_REL_INJ_2)
 m_UP[REL1 & INJ & EP3, OD & INJ & EP3] <- p_REL1_OD_INJ * (1 - p_REL1_REL_INJ_3)
@@ -397,31 +407,130 @@ m_UP[REL1, REL1]  = 0
 
 # Conditional transitions
 # Maintain cycles (initiate cycle i+1 with OOT -> TX)
-m_UP[TX & EP1, OOT & EP2] = 0
-m_UP[TX & EP2, OOT & EP3] = 0
-m_UP[OOT & EP1, TX & EP1] = 0
-m_UP[OOT & EP2, TX & EP2] = 0
+m_UP[TX & EP1, TX & EP2]   = 0
+m_UP[TX & EP2, TX & EP3]   = 0
+m_UP[TX & EP1, OOT & EP2]  = 0
+m_UP[TX & EP2, OOT & EP3]  = 0
+m_UP[OOT & EP1, OOT & EP2] = 0
+m_UP[OOT & EP2, OOT & EP3] = 0
+m_UP[OOT & EP1, TX & EP1]  = 0
+m_UP[OOT & EP2, TX & EP2]  = 0
+#m_UP[ABS & EP1, ]
 
-##### Empty 3-D matrix (from states, to states, time periods)
+# Checks
+rowSums(m_UP)
+write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
+
+###################################################
+### Create full time-dependent transition array ###
+###################################################
+### Empty 3-D matrix (from states, to states, time periods)
 a_TDP <- array(0, dim = c(n_states, n_states, n_t),
-                 dimnames = list(v_n_states, v_n_states, 0:(n_t - 1)))
-
-# Add transitions conditional on exit
+                 dimnames = list(v_n_states, v_n_states, 1:n_t))
+# Add transitions conditional on state-exit (m_leave = 1 - remain)
 for (i in 1:n_t){
- a_TDP[, , i] <- m_UP * m_leave[, i]
+  a_TDP[, , i] <- m_UP * m_leave[, i]
 }
 
 # Add time-dependent remain probabilities
+
 for (i in 1:n_t){
   for (j in 1:n_states){
  a_TDP[j, j, i] <- m_TDP[j, i]
   } 
 }
-a_TDP
+##### Add NEG -> POS remain probabilities #####
+for (i in 1:n_t){
+# Non-injection
+a_TDP[BUP & NI & EP1 & NEG, BUP & NI & EP1 & POS, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
+a_TDP[BUP & NI & EP2 & NEG, BUP & NI & EP2 & POS, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
+a_TDP[BUP & NI & EP3 & NEG, BUP & NI & EP3 & POS, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
 
+a_TDP[MET & NI & EP1 & NEG, MET & NI & EP1 & POS, i] <- m_TDP[MET & NI & EP1 & NEG, i]
+a_TDP[MET & NI & EP2 & NEG, MET & NI & EP2 & POS, i] <- m_TDP[MET & NI & EP2 & NEG, i]
+a_TDP[MET & NI & EP3 & NEG, MET & NI & EP3 & POS, i] <- m_TDP[MET & NI & EP3 & NEG, i]
 
+a_TDP[REL & NI & EP1 & NEG, REL & NI & EP1 & POS, i] <- m_TDP[REL & NI & EP1 & NEG, i]
+a_TDP[REL & NI & EP2 & NEG, REL & NI & EP2 & POS, i] <- m_TDP[REL & NI & EP2 & NEG, i]
+a_TDP[REL & NI & EP3 & NEG, REL & NI & EP3 & POS, i] <- m_TDP[REL & NI & EP3 & NEG, i]
 
-### Apply transition rules #####
+a_TDP[OD & NI & EP1 & NEG, OD & NI & EP1 & POS, i] <- m_TDP[OD & NI & EP1 & NEG, i]
+a_TDP[OD & NI & EP2 & NEG, OD & NI & EP2 & POS, i] <- m_TDP[OD & NI & EP2 & NEG, i]
+a_TDP[OD & NI & EP3 & NEG, OD & NI & EP3 & POS, i] <- m_TDP[OD & NI & EP3 & NEG, i]
+
+a_TDP[ABS & NI & EP1 & NEG, ABS & NI & EP1 & POS, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
+a_TDP[ABS & NI & EP2 & NEG, ABS & NI & EP2 & POS, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
+a_TDP[ABS & NI & EP3 & NEG, ABS & NI & EP3 & POS, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
+
+# Injection
+a_TDP[BUP & INJ & EP1 & NEG, BUP & INJ & EP1 & POS, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
+a_TDP[BUP & INJ & EP2 & NEG, BUP & INJ & EP2 & POS, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
+a_TDP[BUP & INJ & EP3 & NEG, BUP & INJ & EP3 & POS, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
+
+a_TDP[MET & INJ & EP1 & NEG, MET & INJ & EP1 & POS, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
+a_TDP[MET & INJ & EP2 & NEG, MET & INJ & EP2 & POS, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
+a_TDP[MET & INJ & EP3 & NEG, MET & INJ & EP3 & POS, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+
+a_TDP[REL & INJ & EP1 & NEG, REL & INJ & EP1 & POS, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
+a_TDP[REL & INJ & EP2 & NEG, REL & INJ & EP2 & POS, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
+a_TDP[REL & INJ & EP3 & NEG, REL & INJ & EP3 & POS, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+
+a_TDP[OD & INJ & EP1 & NEG, OD & INJ & EP1 & POS, i] <- m_TDP[OD & INJ & EP1 & NEG, i]
+a_TDP[OD & INJ & EP2 & NEG, OD & INJ & EP2 & POS, i] <- m_TDP[OD & INJ & EP2 & NEG, i]
+a_TDP[OD & INJ & EP3 & NEG, OD & INJ & EP3 & POS, i] <- m_TDP[OD & INJ & EP3 & NEG, i]
+
+a_TDP[ABS & INJ & EP1 & NEG, ABS & INJ & EP1 & POS, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
+a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & POS, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
+a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & POS, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
+}
+#a_TDP
+
+#k <- a_TDP[ , , 710]
+#write.csv(k,"C:/Users/Benjamin/Desktop/K1.csv", row.names = TRUE)
+
+###############################
+### HIV(HCV) seroconversion ###
+###############################
+# Seroconversion prob not time-dependent
+# Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
+# Probabilities applied equally across POS/NEG initially, re-weight by sero prob
+# Non-injection
+a_TDP[, BUP1 & NI & NEG, ] <- a_TDP[, BUP1 & NI & NEG, ] * (1 - p_sero_BUP1_NI)
+a_TDP[, BUP1 & NI & POS, ] <- a_TDP[, BUP1 & NI & POS, ] * p_sero_BUP1_NI
+a_TDP[, BUP & NI & NEG, ] <- a_TDP[, BUP & NI & NEG, ] * (1 - p_sero_BUP_NI)
+a_TDP[, BUP & NI & POS, ] <- a_TDP[, BUP & NI & POS, ] * p_sero_BUP_NI
+a_TDP[, MET1 & NI & NEG, ] <- a_TDP[, MET1 & NI & NEG, ] * (1 - p_sero_MET1_NI)
+a_TDP[, MET1 & NI & POS, ] <- a_TDP[, MET1 & NI & POS, ] * p_sero_MET1_NI
+a_TDP[, MET & NI & NEG, ] <- a_TDP[, MET & NI & NEG, ] * (1 - p_sero_MET_NI)
+a_TDP[, MET & NI & POS, ] <- a_TDP[, MET & NI & POS, ] * p_sero_MET_NI
+a_TDP[, REL1 & NI & NEG, ] <- a_TDP[, REL1 & NI & NEG, ] * (1 - p_sero_REL1_NI)
+a_TDP[, REL1 & NI & POS, ] <- a_TDP[, REL1 & NI & POS, ] * p_sero_REL1_NI
+a_TDP[, REL & NI & NEG, ] <- a_TDP[, REL & NI & NEG, ] * (1 - p_sero_REL_NI)
+a_TDP[, REL & NI & POS, ] <- a_TDP[, REL & NI & POS, ] * p_sero_REL_NI
+a_TDP[, OD & NI & NEG, ] <- a_TDP[, OD & NI & NEG, ] * (1 - p_sero_OD_NI)
+a_TDP[, OD & NI & POS, ] <- a_TDP[, OD & NI & POS, ] * p_sero_OD_NI
+a_TDP[, ABS & NI & NEG, ] <- a_TDP[, ABS & NI & NEG, ] * (1 - p_sero_ABS_NI)
+a_TDP[, ABS & NI & POS, ] <- a_TDP[, ABS & NI & POS, ] * p_sero_ABS_NI
+
+# Injection
+a_TDP[, BUP1 & INJ & NEG, ] <- a_TDP[, BUP1 & INJ & NEG, ] * (1 - p_sero_BUP1_INJ)
+a_TDP[, BUP1 & INJ & POS, ] <- a_TDP[, BUP1 & INJ & POS, ] * p_sero_BUP1_INJ
+a_TDP[, BUP & INJ & NEG, ] <- a_TDP[, BUP & INJ & NEG, ] * (1 - p_sero_BUP_INJ)
+a_TDP[, BUP & INJ & POS, ] <- a_TDP[, BUP & INJ & POS, ] * p_sero_BUP_INJ
+a_TDP[, MET1 & INJ & NEG, ] <- a_TDP[, MET1 & INJ & NEG, ] * (1 - p_sero_MET1_INJ)
+a_TDP[, MET1 & INJ & POS, ] <- a_TDP[, MET1 & INJ & POS, ] * p_sero_MET1_INJ
+a_TDP[, MET & INJ & NEG, ] <- a_TDP[, MET & INJ & NEG, ] * (1 - p_sero_MET_INJ)
+a_TDP[, MET & INJ & POS, ] <- a_TDP[, MET & INJ & POS, ] * p_sero_MET_INJ
+a_TDP[, REL1 & INJ & NEG, ] <- a_TDP[, REL1 & INJ & NEG, ] * (1 - p_sero_REL1_INJ)
+a_TDP[, REL1 & INJ & POS, ] <- a_TDP[, REL1 & INJ & POS, ] * p_sero_REL1_INJ
+a_TDP[, REL & INJ & NEG, ] <- a_TDP[, REL & INJ & NEG, ] * (1 - p_sero_REL_INJ)
+a_TDP[, REL & INJ & POS, ] <- a_TDP[, REL & INJ & POS, ] * p_sero_REL_INJ
+a_TDP[, OD & INJ & NEG, ] <- a_TDP[, OD & INJ & NEG, ] * (1 - p_sero_OD_INJ)
+a_TDP[, OD & INJ & POS, ] <- a_TDP[, OD & INJ & POS, ] * p_sero_OD_INJ
+a_TDP[, ABS & INJ & NEG, ] <- a_TDP[, ABS & INJ & NEG, ] * (1 - p_sero_ABS_INJ)
+a_TDP[, ABS & INJ & POS, ] <- a_TDP[, ABS & INJ & POS, ] * p_sero_ABS_INJ
+
+### Check transition rules #####
 # Episode rules
 # Disallowed transitions
 a_TDP[EP1, EP3, ] = 0
@@ -435,69 +544,39 @@ a_TDP[MET1, MET1, ]  = 0
 a_TDP[REL1, REL1, ]  = 0
 
 # Conditional transitions
-# Maintain cycles (initiate cycle i+1 with OOT -> TX)
+# Next episode with out-of-treatment(OOT) EPi -> treatment(TX) EP(i+1)
 a_TDP[TX & EP1, OOT & EP2, ] = 0
 a_TDP[TX & EP2, OOT & EP3, ] = 0
 a_TDP[OOT & EP1, TX & EP1, ] = 0
 a_TDP[OOT & EP2, TX & EP2, ] = 0
 
-#######################################################  
-### Transitions conditional on leaving and survival ###
-#######################################################
-# a_P[i, j, k] = Transition probibility array [from, to, time(month)]
-# Transition array already populated with zeros, only need to define possible transitions
-# Only mortality probability and remain probability changing over time
-# Other transitions re-weighted by probability of leaving
+# Checks
+#k_hiv <- a_TDP[, , 50]
+#k_hiv2<- a_TDP[, , 710]
 
-# Transition probabilities among all base states (divide by n(strata) if not strata-specific)
-#n_strata <-  # number of non-base state strata
+#write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
+#write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
 
 ##########################
 #### Run Markov model ####
 ##########################
 # Create empty initial state vectors
-# BUP/MET
-v_s_init_BL <- v_s_init_BUP <- v_s_init_MET <- rep(0, n_states) # initialize first trace vector of zeros
+v_s_init_BL <- v_s_init_BUP <- v_s_init_MET <- rep(0, n_states)
 names(v_s_init_BL) <- names(v_s_init_BUP) <- names(v_s_init_MET) <- v_n_states
-
-# Create empty initial state matrices
-# BUP/MET
-#m_M_BL <- m_M_BUP <- m_M_MET <- matrix(0, 
-#                                       nrow = (n_t + 1), ncol = n_states, 
-#                                       dimnames = list(0:n_t, v_n))
 
 ################################
 ### Set initial state vector ###
 ################################
 # Baseline
-v_s_init_BL[BUP]  = 0.5/sum(BUP) # Empirically observed proportions from base state
-v_s_init_BL[MET]  = 0.5/sum(MET)
+v_s_init_BL[BUP1 & NI & EP1 & NEG]  <- 0.5 # Empirically observed proportions from base state
+v_s_init_BL[MET1 & NI & EP1 & NEG]  <- 0.5
+v_s_init_BL
 
 # BUP
 v_s_init_BUP[BUP] = 1/sum(BUP) # Set all BUP states equal, and sum to 1
 # MET
 v_s_init_MET[MET] = 1/sum(MET) # Set all MET states equal, and sum to 1
 sum(v_s_init_BUP)
-
-
-# Set first row of m.M with the initial state vector
-# Baseline
-m_M_BL[1, ]  <- v_s_init_BL
-# BUP
-m_M_BUP[1, ] <- v_s_init_BUP
-# MET
-m_M_MET[1, ] <- v_s_init_MET
-
-
-# Iterate over all time periods
-for(i in 1:n_t){
-  # BUP
-  m_M_BUP[i + 1, ] <- m_M_BUP[i, ] %*% a_P_BUP[, , i]
-  # MET
-  m_M_MET[i + 1, ] <- m_M_MET[i, ] %*% a_P_MET[, , i]
-  # BL
-  m_M_BL[i + 1, ]  <- m_M_BL[i, ] %*% a_P_BL[, , i]
-}
 
 #################################
 ### Hawkins sojourn fucnction ###
@@ -511,14 +590,14 @@ for(i in 1:n_t){
     a_M_trace <- array(0, dim = c((n_t + 1), n_states, (n_t + 1)),
                        dimnames = list(0:n_t, v_n_states, 0:n_t))
     a_M_trace[1, , 1] <- v_s_init_BL
-    a_M_trace
+    #a_M_trace
 
     # All model time periods
       for(i in 2:(n_t)){
       # Time spent in given health state
       for(j in 1:(i - 1)){
         #state-time-dependent transition probability (j) * age (model-time)-specific mortality (i)
-        m_sojourn <- a_P_tdp[, , j] * m_alive[, i]
+        m_sojourn <- a_TDP[, , j] * m_alive[, i]
         
         v_current_state <- as.vector(a_M_trace[i - 1, , j])
         v_same_state <- as.vector(v_current_state * diag(m_sojourn))
@@ -540,42 +619,28 @@ for (i in 1:n_t){
   m_M_trace[i, ] <- rowSums(a_M_trace[i, ,])
 }
 
-v_deaths <- array(0, dim = c(n_t, 1))
-for (i in 1:n_t){
-  deaths[i,] <- as.vector(1 - rowSums(m_M_trace[i,]))
-}
-deaths
-
-
 ########################################
 ### Create aggregated trace matrices ###
 ########################################
-# Iterate over all time periods
-for(t in 1:n_t){
-  # BUP
-  m_M_BUP[t + 1, ] <- m_M_BUP[t, ] %*% a_P_BUP[, , t]
-  # MET
-  m_M_MET[t + 1, ] <- m_M_MET[t, ] %*% a_P_MET[, , t]
-}
-m_M_BUP
-m_M_MET
-
 # Aggregated trace matrix
-function(m_M){
-m_M_agg_trace <- cbind(TOT = rowSums(m_M[, ]), # total across all states at each time point
-  
-                       BUP = rowSums(m_M[, BUP]), # totals in base states (no strat)
-                       MET = rowSums(m_M[, MET]),
-                       REL = rowSums(m_M[, REL]),
-                       OD  = rowSums(m_M[, OD]),
-                       ABS = rowSums(m_M[, ABS]),
-                       
-                       HIV = rowSums(m_M[, HIV]), # total with HIV
-                       
-                       INJ = rowSums(m_M[, INJ])
-                       )
-return(m_M_agg_trace)
+#function(m_M){
+v_agg_trace_states <- c("Alive", "BUP", "MET", "REL", "ABS", "OD", "Deaths")
+n_agg_trace_states <- length(v_agg_trace_states)
+m_M_agg_trace <- array(0, dim = c(n_t + 1, n_agg_trace_states),
+                       dimnames = list(0:n_t, v_agg_trace_states))
+
+for (i in 1:n_t){
+  m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])  
+  m_M_agg_trace[i, "BUP"] <- sum(m_M_trace[i, all_BUP])
+  m_M_agg_trace[i, "MET"] <- sum(m_M_trace[i, all_MET])
+  m_M_agg_trace[i, "REL"] <- sum(m_M_trace[i, all_REL])
+  m_M_agg_trace[i, "ABS"] <- sum(m_M_trace[i, ABS])
+  m_M_agg_trace[i, "OD"]  <- sum(m_M_trace[i, OD])
+  #m_M_agg_trace[i, "HIV"] <- sum(m_M_trace[i, POS]) # Need cumulative sum for HIV
+  m_M_agg_trace[i, "Deaths"] <- 1 - sum(m_M_trace[i, ])
 }
+
+write.csv(m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
 
 #######################################
 #### State and Transition Outcomes ####
@@ -607,28 +672,3 @@ table_cea
 ### CEA frontier
 plot(df_cea) +
   expand_limits(x = 20.8)
-
-
-############################################
-#### Check if transition array is valid ####
-############################################
-check_sum_of_transition_array <- function(a_P,
-                                          n_states_to,
-                                          n_t,  
-                                          err_stop = FALSE, 
-                                          verbose = FALSE) {
-  
-  valid <- (apply(a_P, 3, function(x) sum(rowSums(x))) == n_states)
-  if (!isTRUE(all_equal(as.numeric(sum(valid)), as.numeric(n_t)))) {
-    if(err_stop) {
-      stop("This is not a valid transition Matrix")
-    }
-    
-    if(verbose){
-      warning("This is not a valid transition Matrix")
-    } 
-  }
-}
-
-check_transition_probability(a_P, err_stop = err_stop, verbose = verbose)
-check_sum_of_transition_array(a_P, n_states_to, n_t, err_stop = err_stop, verbose = verbose)

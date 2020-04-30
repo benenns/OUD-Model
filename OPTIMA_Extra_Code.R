@@ -388,3 +388,157 @@ p_male_MET <- 0.40
 
 p_HIV_POS <- 0.05 # % of HIV-positive individuals
 p_HIV_ART <- 0.75 # % of HIV-positive on-ART
+
+#######################################################  
+### Transitions conditional on leaving and survival ###
+#######################################################
+# a_P[i, j, k] = Transition probibility array [from, to, time(month)]
+# Transition array already populated with zeros, only need to define possible transitions
+# Only mortality probability and remain probability changing over time
+# Other transitions re-weighted by probability of leaving
+
+# Transition probabilities among all base states (divide by n(strata) if not strata-specific)
+#n_strata <-  # number of non-base state strata
+
+
+
+
+### Function to check transition array
+check_transition_probability <- function(a_P,
+                                         err_stop = FALSE, 
+                                         verbose = FALSE) {
+  
+  m_indices_notvalid <- arrayInd(which(a_P < 0 | a_P > 1), 
+                                 dim(a_P))
+  
+  if(dim(m_indices_notvalid)[1] != 0){
+    v_rows_notval   <- rownames(a_P)[m_indices_notvalid[, 1]]
+    v_cols_notval   <- colnames(a_P)[m_indices_notvalid[, 2]]
+    v_cycles_notval <- dimnames(a_P)[[3]][m_indices_notvalid[, 3]]
+    
+    df_notvalid <- data.frame(`Transition probabilities not valid:` = 
+                                matrix(paste0(paste(v_rows_notval, v_cols_notval, sep = "->"),
+                                              "; at cycle ",
+                                              v_cycles_notval), ncol = 1), 
+                              check.names = FALSE)
+    
+    if(err_stop) {
+      stop("Not valid transition probabilities\n",
+           paste(capture.output(df_notvalid), collapse = "\n"))
+    }
+    
+    if(verbose){
+      warning("Not valid transition probabilities\n",
+              paste(capture.output(df_notvalid), collapse = "\n"))
+    } 
+  }
+}
+
+check_sum_of_transition_array <- function(a_P,
+                                          n_states,
+                                          n_t,  
+                                          err_stop = FALSE, 
+                                          verbose = FALSE) {
+  
+  valid <- (apply(a_P, 3, function(x) sum(rowSums(x))) == n_states)
+  if (!isTRUE(all_equal(as.numeric(sum(valid)), as.numeric(n_t)))) {
+    if(err_stop) {
+      stop("This is not a valid transition Matrix")
+    }
+    
+    if(verbose){
+      warning("This is not a valid transition Matrix")
+    } 
+  }
+}
+
+a <- as.vector()
+b <- as.vector()
+
+for (i in 1:n_t){
+  a[i] <- sum(a_TDP[BUP1 & NI & EP1,,i])
+  b[i] <- sum(a_TDP[BUP1 & INJ & EP1,,i])
+}
+
+check_transition_probability(a_TDP, err_stop = FALSE, verbose = TRUE)
+check_sum_of_transition_array(a_TDP, n_states, n_t, err_stop = FALSE, verbose = TRUE)
+
+# Set first row of m.M with the initial state vector
+# Baseline
+m_M_BL[1, ]  <- v_s_init_BL
+# BUP
+m_M_BUP[1, ] <- v_s_init_BUP
+# MET
+m_M_MET[1, ] <- v_s_init_MET
+
+
+# Iterate over all time periods
+for(i in 1:n_t){
+  # BUP
+  m_M_BUP[i + 1, ] <- m_M_BUP[i, ] %*% a_P_BUP[, , i]
+  # MET
+  m_M_MET[i + 1, ] <- m_M_MET[i, ] %*% a_P_MET[, , i]
+  # BL
+  m_M_BL[i + 1, ]  <- m_M_BL[i, ] %*% a_P_BL[, , i]
+  
+  # Create empty initial state matrices
+  # BUP/MET
+  #m_M_BL <- m_M_BUP <- m_M_MET <- matrix(0, 
+  #                                       nrow = (n_t + 1), ncol = n_states, 
+  #                                       dimnames = list(0:n_t, v_n))
+  
+  
+  # Iterate over all time periods
+  for(t in 1:n_t){
+    # BUP
+    m_M_BUP[t + 1, ] <- m_M_BUP[t, ] %*% a_P_BUP[, , t]
+    # MET
+    m_M_MET[t + 1, ] <- m_M_MET[t, ] %*% a_P_MET[, , t]
+  }
+  m_M_BUP
+  m_M_MET
+  
+  
+  
+  ############################################
+  #### Check if transition array is valid ####
+  ############################################
+  check_sum_of_transition_array <- function(a_P,
+                                            n_states_to,
+                                            n_t,  
+                                            err_stop = FALSE, 
+                                            verbose = FALSE) {
+    
+    valid <- (apply(a_P, 3, function(x) sum(rowSums(x))) == n_states)
+    if (!isTRUE(all_equal(as.numeric(sum(valid)), as.numeric(n_t)))) {
+      if(err_stop) {
+        stop("This is not a valid transition Matrix")
+      }
+      
+      if(verbose){
+        warning("This is not a valid transition Matrix")
+      } 
+    }
+  }
+  
+  check_transition_probability(a_P, err_stop = err_stop, verbose = verbose)
+  check_sum_of_transition_array(a_P, n_states_to, n_t, err_stop = err_stop, verbose = verbose)
+  
+  
+  cbind(TOT = colSums(m_M_trace[i, ]), # total across all states at each time point
+        
+        BUP = colSums(m_M_trace[i, BUP]), # totals in base states (no strat)
+        MET = colSums(m_M_trace[i, MET]),
+        REL = colSums(m_M_trace[i, REL]),
+        OD  = colSums(m_M_trace[i, OD]),
+        ABS = colSums(m_M_trace[i, ABS]),
+        
+        HIV = colSums(m_M_trace[, POS]), # total with HIV
+        
+        INJ = colSums(m_M_trace[, INJ]))
+  
+  v_deaths <- array(0, dim = c(n_t, 1))
+  for (i in 1:n_t){
+    deaths[i,] <- as.vector(1 - rowSums(m_M_trace[i,]))
+  }
+  deaths

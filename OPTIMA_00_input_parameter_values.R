@@ -182,9 +182,9 @@ for(i in 1:n_t){
 ##############################################
 ######## Non-Injection #########
 # From BUP1
-p_BUP1_BUP_NI_1  <- exp(m_frailty_BUP_NI_1 * m_weibull_scale_BUP_NI * (((0)^m_weibull_shape_BUP_NI) - (1^m_weibull_shape_BUP_NI))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
-p_BUP1_BUP_NI_2  <- exp(m_frailty_BUP_NI_2 * m_weibull_scale_BUP_NI * (((0)^m_weibull_shape_BUP_NI) - (1^m_weibull_shape_BUP_NI)))
-p_BUP1_BUP_NI_3  <- exp(m_frailty_BUP_NI_3 * m_weibull_scale_BUP_NI * (((0)^m_weibull_shape_BUP_NI) - (1^m_weibull_shape_BUP_NI)))
+p_BUP1_BUP_NI_1  <- exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
+p_BUP1_BUP_NI_2  <- exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI)))
+p_BUP1_BUP_NI_3  <- exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI)))
 p_BUP1_MET1_NI <- 0.15
 p_BUP1_ABS_NI  <- 0.23
 p_BUP1_REL1_NI <- 0.18
@@ -197,9 +197,9 @@ p_BUP_REL1_NI <- 0.23
 p_BUP_OD_NI   <- (1 - 0.05 - 0.23 - 0.23)
 
 # From MET1
-p_MET1_MET_NI_1  <- exp(m_frailty_MET_NI_1 * m_weibull_scale_MET_NI * (((0)^m_weibull_shape_MET_NI) - (1^m_weibull_shape_MET_NI)))
-p_MET1_MET_NI_2  <- exp(m_frailty_MET_NI_2 * m_weibull_scale_MET_NI * (((0)^m_weibull_shape_MET_NI) - (1^m_weibull_shape_MET_NI)))
-p_MET1_MET_NI_3  <- exp(m_frailty_MET_NI_3 * m_weibull_scale_MET_NI * (((0)^m_weibull_shape_MET_NI) - (1^m_weibull_shape_MET_NI)))
+p_MET1_MET_NI_1  <- exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
+p_MET1_MET_NI_2  <- exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
+p_MET1_MET_NI_3  <- exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
 p_MET1_BUP1_NI <- 0.15
 p_MET1_ABS_NI  <- 0.23
 p_MET1_REL1_NI <- 0.18
@@ -216,9 +216,9 @@ p_ABS_REL1_NI <- 0.5
 p_ABS_OD_NI   <- 0.5
 
 # From REL1
-p_REL1_REL_NI_1  <- exp(m_frailty_REL_NI_1 * m_weibull_scale_REL_NI * (((0)^m_weibull_shape_REL_NI) - (1^m_weibull_shape_REL_NI)))
-p_REL1_REL_NI_2  <- exp(m_frailty_REL_NI_2 * m_weibull_scale_REL_NI * (((0)^m_weibull_shape_REL_NI) - (1^m_weibull_shape_REL_NI)))
-p_REL1_REL_NI_3  <- exp(m_frailty_REL_NI_3 * m_weibull_scale_REL_NI * (((0)^m_weibull_shape_REL_NI) - (1^m_weibull_shape_REL_NI)))
+p_REL1_REL_NI_1  <- exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
+p_REL1_REL_NI_2  <- exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
+p_REL1_REL_NI_3  <- exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
 p_REL1_MET1_NI <- 0.04
 p_REL1_BUP1_NI <- 0.32
 p_REL1_ABS_NI  <- 0.18
@@ -238,9 +238,9 @@ p_OD_REL1_NI   <- (1 - 0.04 - 0.32 - 0.18)
 
 ######## Injection ##########
 # From BUP1
-p_BUP1_BUP_INJ_1  <- exp(m_frailty_BUP_INJ_1 * m_weibull_scale_BUP_INJ * (((0)^m_weibull_shape_BUP_INJ) - (1^m_weibull_shape_BUP_INJ))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
-p_BUP1_BUP_INJ_2  <- exp(m_frailty_BUP_INJ_2 * m_weibull_scale_BUP_INJ * (((0)^m_weibull_shape_BUP_INJ) - (1^m_weibull_shape_BUP_INJ)))
-p_BUP1_BUP_INJ_3  <- exp(m_frailty_BUP_INJ_3 * m_weibull_scale_BUP_INJ * (((0)^m_weibull_shape_BUP_INJ) - (1^m_weibull_shape_BUP_INJ)))
+p_BUP1_BUP_INJ_1  <- exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
+p_BUP1_BUP_INJ_2  <- exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
+p_BUP1_BUP_INJ_3  <- exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
 p_BUP1_MET1_INJ <- 0.15
 p_BUP1_ABS_INJ  <- 0.23
 p_BUP1_REL1_INJ <- 0.18
@@ -253,9 +253,9 @@ p_BUP_REL1_INJ <- 0.23
 p_BUP_OD_INJ   <- (1 - 0.05 - 0.23 - 0.23)
 
 # From MET1
-p_MET1_MET_INJ_1  <- exp(m_frailty_MET_INJ_1 * m_weibull_scale_MET_INJ * (((0)^m_weibull_shape_MET_INJ) - (1^m_weibull_shape_MET_INJ)))
-p_MET1_MET_INJ_2  <- exp(m_frailty_MET_INJ_2 * m_weibull_scale_MET_INJ * (((0)^m_weibull_shape_MET_INJ) - (1^m_weibull_shape_MET_INJ)))
-p_MET1_MET_INJ_3  <- exp(m_frailty_MET_INJ_3 * m_weibull_scale_MET_INJ * (((0)^m_weibull_shape_MET_INJ) - (1^m_weibull_shape_MET_INJ)))
+p_MET1_MET_INJ_1  <- exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
+p_MET1_MET_INJ_2  <- exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
+p_MET1_MET_INJ_3  <- exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
 p_MET1_BUP1_INJ <- 0.15
 p_MET1_ABS_INJ  <- 0.23
 p_MET1_REL1_INJ <- 0.18
@@ -272,9 +272,9 @@ p_ABS_REL1_INJ <- 0.5
 p_ABS_OD_INJ   <- 0.5
 
 # From REL1
-p_REL1_REL_INJ_1  <- exp(m_frailty_REL_INJ_1 * m_weibull_scale_REL_INJ * (((0)^m_weibull_shape_REL_INJ) - (1^m_weibull_shape_REL_INJ)))
-p_REL1_REL_INJ_2  <- exp(m_frailty_REL_INJ_2 * m_weibull_scale_REL_INJ * (((0)^m_weibull_shape_REL_INJ) - (1^m_weibull_shape_REL_INJ)))
-p_REL1_REL_INJ_3  <- exp(m_frailty_REL_INJ_3 * m_weibull_scale_REL_INJ * (((0)^m_weibull_shape_REL_INJ) - (1^m_weibull_shape_REL_INJ)))
+p_REL1_REL_INJ_1  <- exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
+p_REL1_REL_INJ_2  <- exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
+p_REL1_REL_INJ_3  <- exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
 p_REL1_MET1_INJ <- 0.04
 p_REL1_BUP1_INJ <- 0.32
 p_REL1_ABS_INJ  <- 0.18
