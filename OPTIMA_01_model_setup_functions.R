@@ -94,7 +94,6 @@ n_states <- length(v_n_states) # total number of health states
   # Probability of remaining in given health state
   # Only populate for allowed transitions
   for(i in 1:n_t){
-    #t <- i+1 # Shift BUP, MET, REL ahead 1 month to adjust for BUP1, MET1, REL1
     # Non-injection
       # Episode 1
         m_TDP[EP1 & BUP & NI, i] <- v_TDP_BUP_NI_1[i] # vector of remain probabilities
@@ -135,12 +134,12 @@ n_states <- length(v_n_states) # total number of health states
         m_TDP[EP3 & REL & INJ, i] <- v_TDP_REL_INJ_3[i]
         m_TDP[EP3 & OD & INJ, i]  <- v_TDP_OD_INJ_3[i]  
   }
-m_TDP
-write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
+#m_TDP
+#write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
 
 # Probability of from-state-exit
-m_leave <- 1 - m_TDP
-write.csv(m_leave,"C:/Users/Benjamin/Desktop/m_leave.csv", row.names = TRUE)
+#m_leave <- 1 - m_TDP
+#write.csv(m_leave,"C:/Users/Benjamin/Desktop/m_leave.csv", row.names = TRUE)
 
 #################
 ### Mortality ###
@@ -415,11 +414,10 @@ m_UP[OOT & EP1, OOT & EP2] = 0
 m_UP[OOT & EP2, OOT & EP3] = 0
 m_UP[OOT & EP1, TX & EP1]  = 0
 m_UP[OOT & EP2, TX & EP2]  = 0
-#m_UP[ABS & EP1, ]
 
 # Checks
-rowSums(m_UP)
-write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
+#rowSums(m_UP)
+#write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
 
 ###################################################
 ### Create full time-dependent transition array ###
@@ -578,19 +576,14 @@ v_s_init_BUP[BUP] = 1/sum(BUP) # Set all BUP states equal, and sum to 1
 v_s_init_MET[MET] = 1/sum(MET) # Set all MET states equal, and sum to 1
 sum(v_s_init_BUP)
 
-#################################
-### Hawkins sojourn fucnction ###
-#################################
-# Create transition probability array of zeros (from-states * to-states * periods (TDP) * periods (death))
-#a_P <- array(0, dim = c(n_states_from, n_states_to, n_t_per, n_mort_per),
-#             dimnames = list(v_n_from, v_n_to, 0:(n_t - 1), 0:(n_mort - 1)))
-
+###########################
+### Create Markov Trace ###
+###########################
   # Initialize population
     #MarkovTrace[1,,1] <- c(as.vector(sapply(Init.dist, function(x) c(x, rep(0, (NumberOfEpisodes - 1))))), 0, 0)
     a_M_trace <- array(0, dim = c((n_t + 1), n_states, (n_t + 1)),
                        dimnames = list(0:n_t, v_n_states, 0:n_t))
     a_M_trace[1, , 1] <- v_s_init_BL
-    #a_M_trace
 
     # All model time periods
       for(i in 2:(n_t)){
