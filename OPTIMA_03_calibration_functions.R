@@ -10,10 +10,7 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   ####### Epidemiological Output ###########################################
   ### All-cause deaths ###
   v_ <- l_out_stm$m_M_BL[, D] # total deaths in baseline model
-  
-  ### HIV prevalence ###
-  v_HIV <- rowSums(l_out_stm$m_M_BL[, POS])/rowSums(l_out_stm$m_M_BL[, ])
-  
+
   ### Non-fatal overdoses ###
   v_OD <- l_out_stm$m_M_BL[, OD]
   

@@ -13,7 +13,7 @@
 #' @examples 
 #' generate_psa_params()
 #' @export
-generate_psa_params <- function(n_sim = 1000, seed = 20190220){ # User defined
+generate_psa_params <- function(n_sim = 2000, seed = 20190220){ # User defined
   ## Load calibrated parameters
   n_sim <- nrow(m_calib_post)
   set_seed <- seed
@@ -21,9 +21,16 @@ generate_psa_params <- function(n_sim = 1000, seed = 20190220){ # User defined
     ### Calibrated parameters
     m_calib_post,
     
-    ### Transition probabilities (per cycle)
-    p_HS1   = rbeta(n_sim, 30, 170),        # probability to become sick when healthy
-    p_S1H   = rbeta(n_sim, 60, 60) ,        # probability to become healthy when sick
+    ### Transition probabilities conditional on leaving (use Dirichlet)
+    # Sample
+    #p_HS1   = rbeta(n_sim, 30, 170),        # probability to become sick when healthy
+    #p_S1H   = rbeta(n_sim, 60, 60) ,        # probability to become healthy when sick
+    
+    
+    
+    
+    
+    
     
     ### State rewards
     ## Costs

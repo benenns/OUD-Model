@@ -46,6 +46,7 @@ load_all_params <- function(file.init = NULL,
                             file.mort = NULL,
                             file.weibull = NULL,
                             file.unconditional = NULL,
+                            file.sero = NULL
                             ){ # User defined
   #### Load initial set of initial parameters from .csv file ####
   if(!is.null(file.init)) {
@@ -99,6 +100,8 @@ load_all_params <- function(file.init = NULL,
 }
 
 
+
+#### START OF WORKING CODE ####
 n_age_init <- 35 # age at baseline
 n_age_max <- 95 # maximum age of follow up
 

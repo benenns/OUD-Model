@@ -542,3 +542,16 @@ for(i in 1:n_t){
     deaths[i,] <- as.vector(1 - rowSums(m_M_trace[i,]))
   }
   deaths
+  
+  
+  
+  v_agg_trace_episodes <- c("EP1", "EP2", "EP3")
+  n_agg_trace_episodes <- length(v_agg_trace_episodes)
+  m_M_agg_trace_ep <- array(0, dim = c(n_t + 1, n_agg_trace_episodes),
+                            dimnames = list(0:n_t, v_agg_trace_episodes))
+  
+  for (i in 1:n_t){
+    m_M_agg_trace_ep[i, "EP1"] <- sum(m_M_trace[i, EP1])  
+    m_M_agg_trace_ep[i, "EP2"] <- sum(m_M_trace[i, EP2])
+    m_M_agg_trace_ep[i, "EP3"] <- sum(m_M_trace[i, EP3])
+  }

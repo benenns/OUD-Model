@@ -92,7 +92,7 @@ n_states <- length(v_n_states) # total number of health states
                     dimnames = list(v_n_states, 1:n_t))
 
   # Probability of remaining in given health state
-  # Only populate for allowed transitions
+  # BUP1, MET1 and REL1: p_remain = 0
   for(i in 1:n_t){
     # Non-injection
       # Episode 1
@@ -138,7 +138,7 @@ n_states <- length(v_n_states) # total number of health states
 #write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
 
 # Probability of from-state-exit
-#m_leave <- 1 - m_TDP
+m_leave <- 1 - m_TDP
 #write.csv(m_leave,"C:/Users/Benjamin/Desktop/m_leave.csv", row.names = TRUE)
 
 #################
@@ -417,7 +417,7 @@ m_UP[OOT & EP2, TX & EP2]  = 0
 
 # Checks
 #rowSums(m_UP)
-#write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
+write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
 
 ###################################################
 ### Create full time-dependent transition array ###
@@ -481,10 +481,6 @@ a_TDP[ABS & INJ & EP1 & NEG, ABS & INJ & EP1 & POS, i] <- m_TDP[ABS & INJ & EP1 
 a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & POS, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
 a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & POS, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
 }
-#a_TDP
-
-#k <- a_TDP[ , , 710]
-#write.csv(k,"C:/Users/Benjamin/Desktop/K1.csv", row.names = TRUE)
 
 ###############################
 ### HIV(HCV) seroconversion ###
@@ -580,7 +576,6 @@ sum(v_s_init_BUP)
 ### Create Markov Trace ###
 ###########################
   # Initialize population
-    #MarkovTrace[1,,1] <- c(as.vector(sapply(Init.dist, function(x) c(x, rep(0, (NumberOfEpisodes - 1))))), 0, 0)
     a_M_trace <- array(0, dim = c((n_t + 1), n_states, (n_t + 1)),
                        dimnames = list(0:n_t, v_n_states, 0:n_t))
     a_M_trace[1, , 1] <- v_s_init_BL
@@ -591,20 +586,28 @@ sum(v_s_init_BUP)
       for(j in 1:(i - 1)){
         #state-time-dependent transition probability (j) * age (model-time)-specific mortality (i)
         m_sojourn <- a_TDP[, , j] * m_alive[, i]
+        #m_sojourn_death <- a_TDP[, , j] * m_mort[, i] # Tracking state/time-specific deaths
         
         v_current_state <- as.vector(a_M_trace[i - 1, , j])
+        #v_current_state_death <- as.vector(a_M_trace_death[i - 1, , j])
+        
         v_same_state <- as.vector(v_current_state * diag(m_sojourn))
-        a_M_trace[i, ,j + 1] <- v_same_state 
+        #v_same_state_death <- as.vector(v_current_state_death * diag(m_sojourn_death))
+        
+        a_M_trace[i, ,j + 1] <- v_same_state
+        #a_M_trace_death[i, ,j + 1] <- v_same_state_death
     
         diag(m_sojourn) <- 0
+        #diag(m_sojourn_death) <- 0
         
         v_new_state <- as.vector(v_current_state %*% m_sojourn)
-        a_M_trace[i,,1] <- v_new_state + a_M_trace[i,,1]
+        #v_new_state_death <- as.vector(v_current_state_death %*% m_sojourn_death)
+        
+        a_M_trace[i, ,1] <- v_new_state + a_M_trace[i, ,1]
+        #a_M_trace_death[i,,1] <- v_new_state_death + a_M_trace_death[i,,1]
       }
-    #out.trace <- list(Trace = MarkovTrace, 
-     #                 HIVseroconversion = sero.out)
 }
-a_M_trace
+#a_M_trace
 
 m_M_trace <- array(0, dim = c(n_t + 1, n_states),
                    dimnames = list(0:n_t, v_n_states))
@@ -616,24 +619,43 @@ for (i in 1:n_t){
 ### Create aggregated trace matrices ###
 ########################################
 # Aggregated trace matrix
-#function(m_M){
-v_agg_trace_states <- c("Alive", "BUP", "MET", "REL", "ABS", "OD", "Deaths")
+v_agg_trace_states <- c("Alive", "BUP", "MET", "REL", "ABS", "OD", "Death")
 n_agg_trace_states <- length(v_agg_trace_states)
-m_M_agg_trace <- array(0, dim = c(n_t + 1, n_agg_trace_states),
+m_M_agg_trace <- array(0, dim = c((n_t + 1), n_agg_trace_states),
                        dimnames = list(0:n_t, v_agg_trace_states))
 
 for (i in 1:n_t){
   m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])  
-  m_M_agg_trace[i, "BUP"] <- sum(m_M_trace[i, all_BUP])
-  m_M_agg_trace[i, "MET"] <- sum(m_M_trace[i, all_MET])
-  m_M_agg_trace[i, "REL"] <- sum(m_M_trace[i, all_REL])
-  m_M_agg_trace[i, "ABS"] <- sum(m_M_trace[i, ABS])
-  m_M_agg_trace[i, "OD"]  <- sum(m_M_trace[i, OD])
-  #m_M_agg_trace[i, "HIV"] <- sum(m_M_trace[i, POS]) # Need cumulative sum for HIV
-  m_M_agg_trace[i, "Deaths"] <- 1 - sum(m_M_trace[i, ])
+  m_M_agg_trace[i, "BUP"]   <- sum(m_M_trace[i, all_BUP])
+  m_M_agg_trace[i, "MET"]   <- sum(m_M_trace[i, all_MET])
+  m_M_agg_trace[i, "REL"]   <- sum(m_M_trace[i, all_REL])
+  m_M_agg_trace[i, "ABS"]   <- sum(m_M_trace[i, ABS])
+  m_M_agg_trace[i, "OD"]    <- sum(m_M_trace[i, OD])
+  #m_M_agg_trace[i, "HIV"]  <- sum(m_M_trace[i, POS]) # Need cumulative sum for HIV
+  m_M_agg_trace[i, "Death"] <- 1 - sum(m_M_trace[i, ])
 }
 
-write.csv(m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
+df_M_agg_trace <- as.data.frame(m_M_agg_trace)
+df_M_agg_trace$month <- as.numeric(rownames(df_M_agg_trace))
+df_M_agg_trace <- df_M_agg_trace %>% gather(state, proportion, "Death", "OD", "REL", "BUP", "MET", "ABS")
+state_order <- factor(df_M_agg_trace$state, levels = c("Death", "OD", "REL", "BUP", "MET", "ABS"))
+
+### Trace plots ###
+main_states_trace_plot <- ggplot(df_M_agg_trace, aes(x = month, y = proportion, fill = state_order)) + 
+                                 theme_bw() +
+                                 geom_area() +
+                                 scale_fill_brewer(palette = "Dark2")
+
+pdf("Plots/Markov Trace/trace_states.pdf")
+main_states_trace
+dev.off()
+
+#png(file = "Plots/Markov Trace/trace_states.png",
+#    width = 600, height = 600)
+#main_states_trace
+#dev.off()
+
+#write.csv(m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
 
 #######################################
 #### State and Transition Outcomes ####
