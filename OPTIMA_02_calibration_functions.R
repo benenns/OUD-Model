@@ -21,31 +21,7 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   return(l_out)
 }
 
-
-
-
-
-
-
-
 #' Sample from prior distributions of calibrated parameters
-#'
-#' \code{sample.prior} generates a sample of parameter sets from their prior 
-#' distribution.
-#' @param n_samp Number of samples.
-#' @param v_param_names Vector with parameter names.
-#' @param v_ub Vector with lower bounds for each parameter.
-#' @param v_lb Vector with upper bounds for each parameter.
-#' @return 
-#' A matrix with 3 rows and \code{n_samp} rows. Each row corresponds to a 
-#' parameter set sampled from their prior distributions
-#' @examples 
-#' v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#' n_param        <- length(v_param_names)
-#' v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#' v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#' sample.prior(2)
-#' @export
 sample.prior <- function(n_samp,
                          v_param_names = c("p_S1S2", "hr_S1", "hr_S2"),
                          v_lb = c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5),
@@ -67,22 +43,6 @@ sample.prior <- function(n_samp,
 }
 
 #' Evaluate log-prior of calibrated parameters
-#'
-#' \code{log_prior} computes a log-prior value for one (or multiple) parameter 
-#' set(s) based on their prior distributions.
-#' @param v_params Vector (or matrix) of model parameters.
-#' @param v_param_names Vector with parameter names.
-#' @param v_ub Vector with lower bounds for each parameter.
-#' @param v_lb Vector with upper bounds for each parameter.
-#' @return 
-#' A scalar (or vector) with log-prior values.
-#' @examples 
-#' v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#' n_param        <- length(v_param_names)
-#' v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#' v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#' log_prior(v_params = sample.prior(n_samp = 5))
-#' @export
 log_prior <- function(v_params, 
                       v_param_names = c("p_S1S2", "hr_S1", "hr_S2"),
                       v_lb = c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5),
@@ -109,44 +69,12 @@ log_prior <- function(v_params,
 }
 
 #' Evaluate prior of calibrated parameters
-#'
-#' \code{prior} computes a prior value for one (or multiple) parameter set(s).
-#' @param v_params Vector (or matrix) of model parameters 
-#' @return 
-#' A scalar (or vector) with prior values.
-#' @examples
-#' v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#' n_param        <- length(v_param_names)
-#' v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#' v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#' prior(v_params = sample.prior(n_samp = 5))
-#' @export
 prior <- function(v_params) { 
   v_prior <- exp(log_prior(v_params)) 
   return(v_prior)
 }
 
 #' Log-likelihood function for a parameter set
-#'
-#' \code{log_lik} computes a log-likelihood value for one (or multiple) 
-#' parameter set(s).
-#'
-#' @param v_params Vector (or matrix) of model parameters.
-#' @param l_params_all List with all parameters of the decision model. 
-#' @return 
-#' A scalar (or vector) with log-likelihood values.
-#' @importFrom stats dnorm dunif quantile qunif rbeta rgamma sd
-#' @examples 
-#' \dontrun{
-#'   v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#'   n_param        <- length(v_param_names)
-#'   v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#'   v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#'   v_target_names <- c("Surv", "Prev", "PropSick")
-#'   n_target       <- length(v_target_names)
-#'   log_lik(v_params = sample.prior(n_samp = 2))
-#' }
-#' @export
 log_lik <- function(v_params,
                     l_params_all = load_all_params()){ # User defined
   if(is.null(dim(v_params))) { # If vector, change to matrix
@@ -201,67 +129,18 @@ log_lik <- function(v_params,
 }
 
 #' Likelihood
-#'
-#' \code{likelihood} computes a likelihood value for one (or multiple) 
-#' parameter set(s).
-#'
-#' @param v_params Vector (or matrix) of model parameters. 
-#' @return 
-#' A scalar (or vector) with likelihood values.
-#' @examples
-#' v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#' n_param        <- length(v_param_names)
-#' v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#' v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#' v_target_names <- c("Surv", "Prev", "PropSick")
-#' n_target       <- length(v_target_names)
-#' likelihood(v_params = sample.prior(n_samp = 2))
-#' @export
 likelihood <- function(v_params){ 
   v_like <- exp(log_lik(v_params)) 
   return(v_like)
 }
 
 #' Evaluate log-posterior of calibrated parameters
-#'
-#' \code{log_post} Computes a log-posterior value for one (or multiple) 
-#' parameter set(s) based on the simulation model, likelihood functions and 
-#' prior distributions.
-#' @param v_params Vector (or matrix) of model parameters 
-#' @return 
-#' A scalar (or vector) with log-posterior values.
-#' @examples 
-#' v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#' n_param        <- length(v_param_names)
-#' v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#' v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#' v_target_names <- c("Surv", "Prev", "PropSick")
-#' n_target       <- length(v_target_names)
-#' log_post(v_params = sample.prior(n_samp = 5))
-#' @export
 log_post <- function(v_params) { 
   v_lpost <- log_prior(v_params) + log_lik(v_params)
   return(v_lpost) 
 }
 
 #' Evaluate posterior of calibrated parameters
-#'
-#' \code{posterior} computes a posterior value for one (or multiple) parameter 
-#' set(s).
-#' @param v_params Vector (or matrix) of model parameters 
-#' @return 
-#' A scalar (or vector) with posterior values.
-#' @examples
-#' \dontrun{
-#'  v_param_names  <- c("p_S1S2", "hr_S1", "hr_S2")
-#'  n_param        <- length(v_param_names)
-#'  v_lb <- c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5)  # lower bound
-#'  v_ub <- c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15) # upper bound
-#'  v_target_names <- c("Surv", "Prev", "PropSick")
-#'  n_target       <- length(v_target_names)
-#'  posterior(v_params = sample.prior(n_samp = 5))
-#' }
-#' @export
 posterior <- function(v_params) { 
   v_posterior <- exp(log_post(v_params)) 
   return(v_posterior)

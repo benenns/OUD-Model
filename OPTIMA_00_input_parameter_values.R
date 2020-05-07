@@ -1,447 +1,294 @@
-##################################################################################
-## OUD Cohort Model
-## Deterministic - Set parameter values for: "OPTIMA_01_model_setup_functions.R"
-## To-do: Clean-up parameter read-in
-##################################################################################
-###############################
-### Initial characteristics ###
-###############################
-
-#v_initial_BUP <- read.csv("data/01_initial_BUP.csv")
-#v_initial_MET <- read.csv("data/01_initial_MET.csv")
-
-#' Load mortality data
-#'
-#' \code{load_mort_data} is used to load age-specific mortality from .csv file 
-#' into vector.
-#'
-#' @param file String with the location and name of the file with mortality 
-#' data. If \code{NULL}, \code{v_r_mort_by_age} will be used as default
-#' @return 
-#' A vector with mortality by age.
-#' @export
-load_mort_data <- function(file = NULL){
-  # Load mortality data from file
-  if(!is.null(file)) {
-    df_r_mort_by_age <- read.csv(file = file)}
-  else{
-    df_r_mort_by_age <- all_cause_mortality
-  }
-  # Vector with mortality rates
-  v_r_mort_by_age  <- as.matrix(dplyr::select(df_r_mort_by_age, .data$Total))
-  
-  return(v_r_mort_by_age)
-}
-
 #' Load all parameters
 #'
 #' \code{load_all_params} loads all parameters for the decision model from multiple sources and creates a list.
 #'
 #' @param file.init String with the location and name of the file with initial set of parameters
 #' @param file.mort String with the location and name of the file with mortality data
+#' @param file.death_hr String with the location and name of death hazard ratios
+#'                             file.frailty
+#'                             file.weibull_scale = NULL,
+#'                             file.weibull_shape = NULL,
+#'                             file.unconditional = NULL,
+#'                             file.sero = NULL,
+#'                             file.costs = NULL,
+#'                             file.crime_costs = NULL,
+#'                             file.qalys = NULL
+#' 
 #' @return 
 #' A list of all parameters used for the decision model.
 #' @export
+### Mortality ###
+#' Load mortality data
+#'
+#' \code{load_mort_data} is used to load age-specific mortality from .csv file 
+#' into vector.
+#'
+#' @param file String with the location and name of the file with mortality 
+#' data.
+#' @return 
+#' A vector with mortality by age.
+#' @export
+load_mort_params <- function(file.mort = NULL){
+  df_lt_can_2018 <- read.csv(file = file.mort)
+  v_r_mort_by_age <- df_lt_can_2018 %>%
+    select(Total) %>%
+    as.matrix()
+  return(v_r_mort_by_age)
+}
+
 load_all_params <- function(file.init = NULL,
                             file.mort = NULL,
-                            file.weibull = NULL,
+                            file.death_hr = NULL,
+                            file.frailty = NULL,
+                            file.weibull_scale = NULL,
+                            file.weibull_shape = NULL,
                             file.unconditional = NULL,
-                            file.sero = NULL
-                            ){ # User defined
-  #### Load initial set of initial parameters from .csv file ####
-  if(!is.null(file.init)) {
-    df_params_init <- read.csv(file = file.init)
-  } else{
-    df_params_init <- df_params_init
-  }
+                            file.sero = NULL,
+                            file.costs = NULL,
+                            file.crime_costs = NULL,
+                            file.qalys = NULL){ # User defined
+    
+  #Load files of all baseline model parameters
+  df_init_params <- read.csv(file = file.init, row.names = 1, header = TRUE) # Initial parameter values
+  df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
+  df_frailty <- read.csv(file = file.frailty, row.names = 1, header = TRUE) # Episode frailty params
+  df_weibull_scale <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull scale params
+  df_weibull_shape <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull shape params
+  df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
+  df_sero <- read.csv(file = file.sero, row.names = 1, header = TRUE) # Seroconversion probs
+  df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
+  df_crime_costs <- read.csv(file = file.crime_costs, row.names = 1, header = TRUE) # Age-dependent crime costs
+  df_qalys <- read.csv(file = file.qalys, row.names = 1, header = TRUE) # QALYs
   
-  #### All-cause age-specific mortality from .csv file ####
-  v_r_mort_by_age <- load_mort_data(file = file.mort)
-  
-  l_params_all <- with(as.list(df_params_init), {
-    #### General setup ####
-    v_names_str <- c("No Treatment", "Treatment")  # CEA strategies
-    n_str       <- length(v_names_str) # Number of strategies
-    v_age_names <- n_age_init:(n_age_init + n_t - 1) # vector with age names
-    v_n <- c("H", "S1", "S2", "D")  # vector with the 4 health states of the model:
-    # Healthy (H), Sick (S1), Sicker (S2), Dead (D)
-    n_states <- length(v_n)         # number of health states 
-    v_s_init <- c(H = 1, S1 = 0, S2 = 0, D = 0) # initial state vector
-    #### Create list with all parameters ####
+  l_params_all <- list(
+    # Initial parameters
+    n_age_init = df_init_params["pe", "age_init"], # age at baseline
+    n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
+    p_discount = df_init_params["pe", "discount"], # discount rate
+    p_male = df_init_params["pe", "male_prop"], # % male
+    p_HIV_POS = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
+    p_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART
     
+    # Mortality
+    v_r_mort_by_age = load_mort_params(file = file.mort),
     
+    # Hazard ratios for death probability
+    hr_BUP1_NI = df_death_hr["pe", "BUP1_NI"],
+    hr_BUP_NI  = df_death_hr["pe", "BUP_NI"],
+    hr_MET1_NI = df_death_hr["pe", "MET1_NI"],
+    hr_MET_NI  = df_death_hr["pe", "MET_NI"],
+    hr_REL1_NI = df_death_hr["pe", "REL1_NI"],
+    hr_REL_NI  = df_death_hr["pe", "REL_NI"],
+    hr_OD_NI   = df_death_hr["pe", "OD_NI"],
+    hr_ABS_NI  = df_death_hr["pe", "ABS_NI"],
+    hr_HIV_NI  = df_death_hr["pe", "HIV_NI"],
     
-    l_params_all <- list(
-      
-      v_names_str = v_names_str,
-      n_str       = n_str      ,
-      n_age_init  = n_age_init, 
-      n_t         = n_t       , 
-      v_age_names = v_age_names,
-      v_n = v_n,
-      n_states = n_states,
-      v_s_init = c(H = 1, S1 = 0, S2 = 0, D = 0),
-      v_r_mort_by_age = v_r_mort_by_age
-      
-    )
+    hr_BUP1_INJ = df_death_hr["pe", "BUP1_INJ"],
+    hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
+    hr_MET1_INJ = df_death_hr["pe", "MET1_INJ"],
+    hr_MET_INJ  = df_death_hr["pe", "MET_INJ"],
+    hr_REL1_INJ = df_death_hr["pe", "REL1_INJ"],
+    hr_REL_INJ  = df_death_hr["pe", "REL_INJ"],
+    hr_OD_INJ   = df_death_hr["pe", "OD_INJ"],
+    hr_ABS_INJ  = df_death_hr["pe", "ABS_INJ"],
+    hr_HIV_INJ  = df_death_hr["pe", "HIV_INJ"],
+
+    # Survival analysis
+    p_frailty_BUP_NI_1 = 1,
+    p_frailty_BUP_NI_2 = df_frailty["pe", "BUP_NI_2"],
+    p_frailty_BUP_NI_3 = df_frailty["pe", "BUP_NI_3"],
+    p_frailty_MET_NI_1 = 1,
+    p_frailty_MET_NI_2 = df_frailty["pe", "MET_NI_2"],
+    p_frailty_MET_NI_3 = df_frailty["pe", "MET_NI_3"],
+    p_frailty_ABS_NI_1 = 1,
+    p_frailty_ABS_NI_2 = df_frailty["pe", "ABS_NI_2"],
+    p_frailty_ABS_NI_3 = df_frailty["pe", "ABS_NI_3"],
+    p_frailty_REL_NI_1 = 1,
+    p_frailty_REL_NI_2 = df_frailty["pe", "REL_NI_2"],
+    p_frailty_REL_NI_3 = df_frailty["pe", "REL_NI_3"],
+    p_frailty_OD_NI_1  = 1,
+    p_frailty_OD_NI_2  = df_frailty["pe", "OD_NI_2"],
+    p_frailty_OD_NI_3  = df_frailty["pe", "OD_NI_3"],
+
+    p_frailty_BUP_INJ_1 = 1,
+    p_frailty_BUP_INJ_2 = df_frailty["pe", "BUP_INJ_2"],
+    p_frailty_BUP_INJ_3 = df_frailty["pe", "BUP_INJ_3"],
+    p_frailty_MET_INJ_1 = 1,
+    p_frailty_MET_INJ_2 = df_frailty["pe", "MET_INJ_2"],
+    p_frailty_MET_INJ_3 = df_frailty["pe", "MET_INJ_3"],
+    p_frailty_ABS_INJ_1 = 1,
+    p_frailty_ABS_INJ_2 = df_frailty["pe", "ABS_INJ_2"],
+    p_frailty_ABS_INJ_3 = df_frailty["pe", "ABS_INJ_3"],
+    p_frailty_REL_INJ_1 = 1,
+    p_frailty_REL_INJ_2 = df_frailty["pe", "REL_INJ_2"],
+    p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
+    p_frailty_OD_INJ_1  = 1,
+    p_frailty_OD_INJ_2  = df_frailty["pe", "OD_INJ_2"],
+    p_frailty_OD_INJ_3  = df_frailty["pe", "OD_INJ_3"],
+
+    # Load weibull parameters
+    # Weibull scale
+    p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
+    p_weibull_scale_MET_NI = df_weibull_scale["pe", "MET_NI"],
+    p_weibull_scale_REL_NI = df_weibull_scale["pe", "REL_NI"],
+    p_weibull_scale_OD_NI  = df_weibull_scale["pe", "OD_NI"],
+    p_weibull_scale_ABS_NI = df_weibull_scale["pe", "ABS_NI"],
+    p_weibull_scale_BUP_INJ = df_weibull_scale["pe", "BUP_INJ"],
+    p_weibull_scale_MET_INJ = df_weibull_scale["pe", "MET_INJ"],
+    p_weibull_scale_REL_INJ = df_weibull_scale["pe", "REL_INJ"],
+    p_weibull_scale_OD_INJ  = df_weibull_scale["pe", "OD_INJ"],
+    p_weibull_scale_ABS_INJ = df_weibull_scale["pe", "ABS_INJ"],
+
+    # Weibull shape
+    p_weibull_shape_BUP_NI = df_weibull_shape["pe", "BUP_NI"],
+    p_weibull_shape_MET_NI = df_weibull_shape["pe", "MET_NI"],
+    p_weibull_shape_REL_NI = df_weibull_shape["pe", "REL_NI"],
+    p_weibull_shape_OD_NI  = df_weibull_shape["pe", "OD_NI"],
+    p_weibull_shape_ABS_NI = df_weibull_shape["pe", "ABS_NI"],
+    p_weibull_shape_BUP_INJ = df_weibull_shape["pe", "BUP_INJ"],
+    p_weibull_shape_MET_INJ = df_weibull_shape["pe", "MET_INJ"],
+    p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
+    p_weibull_shape_OD_INJ  = df_weibull_shape["pe", "OD_INJ"],
+    p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
+
+    # Unconditional transition probabilities
+    # Non-Injection
+    # From BUP1 & BUP
+    p_BUP1_MET1_NI = df_UP["BUP_NI", "MET1_NI"],
+    p_BUP_MET1_NI  = df_UP["BUP_NI", "MET1_NI"],
+    p_BUP1_ABS_NI  = df_UP["BUP_NI", "ABS_NI"],
+    p_BUP_ABS_NI   = df_UP["BUP_NI", "ABS_NI"],
+    p_BUP1_REL1_NI = df_UP["BUP_NI", "REL1_NI"],
+    p_BUP_REL1_NI  = df_UP["BUP_NI", "REL1_NI"],
+    p_BUP1_OD_NI   = df_UP["BUP_NI", "OD_NI"],
+    p_BUP_OD_NI    = df_UP["BUP_NI", "OD_NI"],
+    # From MET1 & MET
+    p_MET1_BUP1_NI = df_UP["MET_NI", "BUP1_NI"],
+    p_MET_BUP1_NI  = df_UP["MET_NI", "BUP1_NI"],
+    p_MET1_ABS_NI  = df_UP["MET_NI", "ABS_NI"],
+    p_MET_ABS_NI   = df_UP["MET_NI", "ABS_NI"],
+    p_MET1_REL1_NI = df_UP["MET_NI", "REL1_NI"],
+    p_MET_REL1_NI  = df_UP["MET_NI", "REL1_NI"],
+    p_MET1_OD_NI   = df_UP["MET_NI", "OD_NI"],
+    p_MET_OD_NI    = df_UP["MET_NI", "OD_NI"],
+    # From ABS
+    p_ABS_REL1_NI = df_UP["ABS_NI", "REL1_NI"],
+    p_ABS_OD_NI   = df_UP["ABS_NI", "OD_NI"],
+    # From REL1 & REL
+    p_REL1_MET1_NI = df_UP["REL_NI", "MET1_NI"],
+    p_REL_MET1_NI  = df_UP["REL_NI", "MET1_NI"],
+    p_REL1_BUP1_NI = df_UP["REL_NI", "BUP1_NI"],
+    p_REL_BUP1_NI  = df_UP["REL_NI", "BUP1_NI"],
+    p_REL1_ABS_NI  = df_UP["REL_NI", "ABS_NI"],
+    p_REL_ABS_NI   = df_UP["REL_NI", "ABS_NI"],
+    p_REL1_OD_NI   = df_UP["REL_NI", "OD_NI"],
+    p_REL_OD_NI    = df_UP["REL_NI", "OD_NI"],
+    # From OD
+    p_OD_MET1_NI  = df_UP["OD_NI", "MET1_NI"],
+    p_OD_BUP1_NI  = df_UP["OD_NI", "BUP1_NI"],
+    p_OD_ABS_NI   = df_UP["OD_NI", "ABS_NI"],
+    p_OD_REL1_NI  = df_UP["OD_NI", "REL1_NI"],
+
+    # Inj
+    # From BUP1 & BUP
+    p_BUP1_MET1_INJ = df_UP["BUP_INJ", "MET1_INJ"],
+    p_BUP_MET1_INJ  = df_UP["BUP_INJ", "MET1_INJ"],
+    p_BUP1_ABS_INJ  = df_UP["BUP_INJ", "ABS_INJ"],
+    p_BUP_ABS_INJ   = df_UP["BUP_INJ", "ABS_INJ"],
+    p_BUP1_REL1_INJ = df_UP["BUP_INJ", "REL1_INJ"],
+    p_BUP_REL1_INJ  = df_UP["BUP_INJ", "REL1_INJ"],
+    p_BUP1_OD_INJ   = df_UP["BUP_INJ", "OD_INJ"],
+    p_BUP_OD_INJ    = df_UP["BUP_INJ", "OD_INJ"],
+    # From MET1 & MET
+    p_MET1_BUP1_INJ = df_UP["MET_INJ", "BUP1_INJ"],
+    p_MET_BUP1_INJ  = df_UP["MET_INJ", "BUP1_INJ"],
+    p_MET1_ABS_INJ  = df_UP["MET_INJ", "ABS_INJ"],
+    p_MET_ABS_INJ   = df_UP["MET_INJ", "ABS_INJ"],
+    p_MET1_REL1_INJ = df_UP["MET_INJ", "REL1_INJ"],
+    p_MET_REL1_INJ  = df_UP["MET_INJ", "REL1_INJ"],
+    p_MET1_OD_INJ   = df_UP["MET_INJ", "OD_INJ"],
+    p_MET_OD_INJ    = df_UP["MET_INJ", "OD_INJ"],
+    # From ABS
+    p_ABS_REL1_INJ = df_UP["ABS_INJ", "REL1_INJ"],
+    p_ABS_OD_INJ   = df_UP["ABS_INJ", "OD_INJ"],
+    # From REL1
+    p_REL1_MET1_INJ = df_UP["REL_INJ", "MET1_INJ"],
+    p_REL_MET1_INJ  = df_UP["REL_INJ", "MET1_INJ"],
+    p_REL1_BUP1_INJ = df_UP["REL_INJ", "BUP1_INJ"],
+    p_REL_BUP1_INJ  = df_UP["REL_INJ", "BUP1_INJ"],
+    p_REL1_ABS_INJ  = df_UP["REL_INJ", "ABS_INJ"],
+    p_REL_ABS_INJ   = df_UP["REL_INJ", "ABS_INJ"],
+    p_REL1_OD_INJ   = df_UP["REL_INJ", "OD_INJ"],
+    p_REL_OD_INJ    = df_UP["REL_INJ", "OD_INJ"],
+    # From OD
+    p_OD_MET1_INJ  = df_UP["OD_INJ", "MET1_INJ"],
+    p_OD_BUP1_INJ  = df_UP["OD_INJ", "BUP1_INJ"],
+    p_OD_ABS_INJ   = df_UP["OD_INJ", "ABS_INJ"],
+    p_OD_REL1_INJ  = df_UP["OD_INJ", "REL1_INJ"],
+
+    # HIV Seroconversion
+    # Non-injection
+    p_sero_BUP1_NI = df_sero["pe", "BUP_NI"],
+    p_sero_BUP_NI  = df_sero["pe", "BUP_NI"],
+    p_sero_MET1_NI = df_sero["pe", "MET_NI"],
+    p_sero_MET_NI  = df_sero["pe", "MET_NI"],
+    p_sero_REL1_NI = df_sero["pe", "REL_NI"],
+    p_sero_REL_NI  = df_sero["pe", "REL_NI"],
+    p_sero_OD_NI   = df_sero["pe", "REL_NI"],
+    p_sero_ABS_NI  = df_sero["pe", "ABS_NI"],
     
+    # Injection
+    p_sero_BUP1_INJ = df_sero["pe", "BUP_INJ"],
+    p_sero_BUP_INJ  = df_sero["pe", "BUP_INJ"],
+    p_sero_MET1_INJ = df_sero["pe", "MET_INJ"],
+    p_sero_MET_INJ  = df_sero["pe", "MET_INJ"],
+    p_sero_REL1_INJ = df_sero["pe", "REL_INJ"],
+    p_sero_REL_INJ  = df_sero["pe", "REL_INJ"],
+    p_sero_OD_INJ   = df_sero["pe", "REL_INJ"],
+    p_sero_ABS_INJ  = df_sero["pe", "ABS_INJ"],
+
+    # Costs
+    # Treatment Costs
+    c_BUP_TX  = df_costs["pe", "BUP_TX"],
+    c_MET_TX  = df_costs["pe", "MET_TX"],
     
+    # HRU Costs
+    # Modify if age-specific
+    c_BUP_NI_HRU = df_costs["pe", "BUP_NI_HRU"],
+    c_MET_NI_HRU = df_costs["pe", "MET_NI_HRU"],
+    c_REL_NI_HRU = df_costs["pe", "REL_NI_HRU"],
+    c_OD_NI_HRU = df_costs["pe", "OD_NI_HRU"],
+    c_ABS_NI_HRU = df_costs["pe", "ABS_NI_HRU"],
+    c_BUP_INJ_HRU = df_costs["pe", "BUP_INJ_HRU"], 
+    c_MET_INJ_HRU = df_costs["pe", "MET_INJ_HRU"],
+    c_REL_INJ_HRU = df_costs["pe", "REL_INJ_HRU"],
+    c_OD_INJ_HRU = df_costs["pe", "OD_INJ_HRU"],
+    c_ABS_INJ_HRU = df_costs["pe", "ABS_INJ_HRU"], 
+
+    # HIV Costs
+    c_HIV = df_costs["pe", "HIV_HRU"],
+    c_ART = df_costs["pe", "HIV_ART"]
     
+    # Crime Costs
+    # Age-specific
     
-    
-    
-    
-    return(l_params_all)
-  }
-  )
-  
-  l_params_all <- c(l_params_all, 
-                    df_params_init) # Add initial set of parameters
+    ### QALYs ###
+
+    ) # Close list
+  return(l_params_all) # Return full parameter list
 }
 
-
-
-#### START OF WORKING CODE ####
-n_age_init <- 35 # age at baseline
-n_age_max <- 95 # maximum age of follow up
-
-n_t <- (n_age_max - n_age_init) * 12 # modeling time horizon in months
-p_discount <- 0.03
-
-p_male_BUP <- 0.35
-p_male_MET <- 0.40
-
-p_HIV_POS <- 0.05 # % of HIV-positive individuals
-p_HIV_ART <- 0.75 # % of HIV-positive on-ART
-
-#########################
-### Survival analysis ###
-#########################
-# Frailty terms
-p_frailty_BUP_NI_1 <- 1
-p_frailty_BUP_NI_2 <- 0.725
-p_frailty_BUP_NI_3 <- 0.724
-  
-p_frailty_MET_NI_1 <- 1
-p_frailty_MET_NI_2 <- 0.725
-p_frailty_MET_NI_3 <- 0.724
-
-p_frailty_ABS_NI_1 <- 1 
-p_frailty_ABS_NI_2 <- 1.09
-p_frailty_ABS_NI_3 <- 1.08 
-  
-p_frailty_REL_NI_1 <- 1 
-p_frailty_REL_NI_2 <- 1.22 
-p_frailty_REL_NI_3 <- 1.35
-  
-p_frailty_OD_NI_1 <- 1
-p_frailty_OD_NI_2 <- 0.930
-p_frailty_OD_NI_3 <- 0.910  
-
-p_frailty_BUP_INJ_1 <- 1
-p_frailty_BUP_INJ_2 <- 0.961
-p_frailty_BUP_INJ_3 <- 0.959
-
-p_frailty_MET_INJ_1 <- 1
-p_frailty_MET_INJ_2 <- 0.961
-p_frailty_MET_INJ_3 <- 0.959
-
-p_frailty_ABS_INJ_1 <- 1 
-p_frailty_ABS_INJ_2 <- 1.09 
-p_frailty_ABS_INJ_3 <- 1.08 
-
-p_frailty_REL_INJ_1 <- 1 
-p_frailty_REL_INJ_2 <- 1.22 
-p_frailty_REL_INJ_3 <- 1.35
-
-p_frailty_OD_INJ_1 <- 1
-p_frailty_OD_INJ_2 <- 0.930
-p_frailty_OD_INJ_3 <- 0.910   
-  
-# Weibull scale  
-p_weibull_scale_BUP_NI <- 0.153
-p_weibull_scale_MET_NI <- 0.153
-p_weibull_scale_ABS_NI <- 0.061
-p_weibull_scale_REL_NI <- 0.110
-p_weibull_scale_OD_NI  <- 0.750
-  
-p_weibull_scale_BUP_INJ <- 0.184
-p_weibull_scale_MET_INJ <- 0.184
-p_weibull_scale_ABS_INJ <- 0.089
-p_weibull_scale_REL_INJ <- 0.091
-p_weibull_scale_OD_INJ  <- 0.750
-
-# Weibull shape
-p_weibull_shape_BUP_NI <- 0.613
-p_weibull_shape_MET_NI <- 0.613
-p_weibull_shape_ABS_NI <- 0.800
-p_weibull_shape_REL_NI <- 0.672
-p_weibull_shape_OD_NI  <- 0.793
-  
-p_weibull_shape_BUP_INJ <- 0.623
-p_weibull_shape_MET_INJ <- 0.623
-p_weibull_shape_ABS_INJ <- 0.797
-p_weibull_shape_REL_INJ <- 0.672
-p_weibull_shape_OD_INJ  <- 0.793
-
-#############################################
-### Time-dependent survival probabilities ###
-#############################################
-# Initialize vectors
-  v_TDP_BUP_NI_1 <- vector()
-  v_TDP_MET_NI_1 <- vector()
-  v_TDP_ABS_NI_1 <- vector()
-  v_TDP_REL_NI_1 <- vector()
-  v_TDP_OD_NI_1  <- vector()
-  # Episode 2
-  v_TDP_BUP_NI_2 <- vector()
-  v_TDP_MET_NI_2 <- vector()
-  v_TDP_ABS_NI_2 <- vector()
-  v_TDP_REL_NI_2 <- vector()
-  v_TDP_OD_NI_2  <- vector()
-  # Episode 3
-  v_TDP_BUP_NI_3 <- vector()
-  v_TDP_MET_NI_3 <- vector()
-  v_TDP_ABS_NI_3 <- vector()
-  v_TDP_REL_NI_3 <- vector()
-  v_TDP_OD_NI_3  <- vector()
-  
-  # Injection
-  # Episode 1
-  v_TDP_BUP_INJ_1 <- vector()
-  v_TDP_MET_INJ_1 <- vector()
-  v_TDP_ABS_INJ_1 <- vector()
-  v_TDP_REL_INJ_1 <- vector()
-  v_TDP_OD_INJ_1  <- vector()
-  # Episode 2
-  v_TDP_BUP_INJ_2 <- vector()
-  v_TDP_MET_INJ_2 <- vector()
-  v_TDP_ABS_INJ_2 <- vector()
-  v_TDP_REL_INJ_2 <- vector()
-  v_TDP_OD_INJ_2  <- vector()
-  # Episode 3
-  v_TDP_BUP_INJ_3 <- vector()
-  v_TDP_MET_INJ_3 <- vector()
-  v_TDP_ABS_INJ_3 <- vector()
-  v_TDP_REL_INJ_3 <- vector()
-  v_TDP_OD_INJ_3  <- vector()
-
-# Probability of remaining in given health state
-for(i in 1:n_t){
-  t <- i+1 # Shift BUP, MET, REL ahead 1 month to adjust for BUP1, MET1, REL1
-  # Non-injection
-  # Episode 1
-  v_TDP_BUP_NI_1[i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI)))) # (survival curve at time i)/(survival curve at time i-1) 
-  v_TDP_MET_NI_1[i] <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((t - 1)^p_weibull_shape_MET_NI) - (t^p_weibull_shape_MET_NI))))
-  v_TDP_ABS_NI_1[i] <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-  v_TDP_REL_NI_1[i] <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((t - 1)^p_weibull_shape_REL_NI) - (t^p_weibull_shape_REL_NI))))
-  v_TDP_OD_NI_1[i]  <- as.vector(exp(p_frailty_OD_NI_1  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))
-  # Episode 2
-  v_TDP_BUP_NI_2[i] <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI)))) # (survival curve at time i)/(survival curve at time i-1) 
-  v_TDP_MET_NI_2[i] <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((t - 1)^p_weibull_shape_MET_NI) - (t^p_weibull_shape_MET_NI))))
-  v_TDP_ABS_NI_2[i] <- as.vector(exp(p_frailty_ABS_NI_2 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-  v_TDP_REL_NI_2[i] <- as.vector(exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((t - 1)^p_weibull_shape_REL_NI) - (t^p_weibull_shape_REL_NI))))
-  v_TDP_OD_NI_2[i]  <- as.vector(exp(p_frailty_OD_NI_2  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))
-  # Episode 3
-  v_TDP_BUP_NI_3[i] <- as.vector(exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI)))) # (survival curve at time i)/(survival curve at time i-1) 
-  v_TDP_MET_NI_3[i] <- as.vector(exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((t - 1)^p_weibull_shape_MET_NI) - (t^p_weibull_shape_MET_NI))))
-  v_TDP_ABS_NI_3[i] <- as.vector(exp(p_frailty_ABS_NI_3 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-  v_TDP_REL_NI_3[i] <- as.vector(exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((t - 1)^p_weibull_shape_REL_NI) - (t^p_weibull_shape_REL_NI))))
-  v_TDP_OD_NI_3[i]  <- as.vector(exp(p_frailty_OD_NI_3  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))
-  
-  # Injection
-  # Episode 1
-  v_TDP_BUP_INJ_1[i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((t - 1)^p_weibull_shape_BUP_INJ) - (t^p_weibull_shape_BUP_INJ)))) # (survival curve at time i)/(survival curve at time i-1) 
-  v_TDP_MET_INJ_1[i] <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((t - 1)^p_weibull_shape_MET_INJ) - (t^p_weibull_shape_MET_INJ))))
-  v_TDP_ABS_INJ_1[i] <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-  v_TDP_REL_INJ_1[i] <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((t - 1)^p_weibull_shape_REL_INJ) - (t^p_weibull_shape_REL_INJ))))
-  v_TDP_OD_INJ_1[i]  <- as.vector(exp(p_frailty_OD_INJ_1  * p_weibull_scale_OD_INJ  * (((i - 1)^p_weibull_shape_OD_INJ) - (i^p_weibull_shape_OD_INJ))))
-  # Episode 2
-  v_TDP_BUP_INJ_2[i] <- as.vector(exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((t - 1)^p_weibull_shape_BUP_INJ) - (t^p_weibull_shape_BUP_INJ)))) # (survival curve at time i)/(survival curve at time i-1) 
-  v_TDP_MET_INJ_2[i] <- as.vector(exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((t - 1)^p_weibull_shape_MET_INJ) - (t^p_weibull_shape_MET_INJ))))
-  v_TDP_ABS_INJ_2[i] <- as.vector(exp(p_frailty_ABS_INJ_2 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-  v_TDP_REL_INJ_2[i] <- as.vector(exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((t - 1)^p_weibull_shape_REL_INJ) - (t^p_weibull_shape_REL_INJ))))
-  v_TDP_OD_INJ_2[i]  <- as.vector(exp(p_frailty_OD_INJ_2  * p_weibull_scale_OD_INJ  * (((i - 1)^p_weibull_shape_OD_INJ) - (i^p_weibull_shape_OD_INJ))))
-  # Episode 3
-  v_TDP_BUP_INJ_3[i] <- as.vector(exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((t - 1)^p_weibull_shape_BUP_INJ) - (t^p_weibull_shape_BUP_INJ)))) # (survival curve at time i)/(survival curve at time i-1) 
-  v_TDP_MET_INJ_3[i] <- as.vector(exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((t - 1)^p_weibull_shape_MET_INJ) - (t^p_weibull_shape_MET_INJ))))
-  v_TDP_ABS_INJ_3[i] <- as.vector(exp(p_frailty_ABS_INJ_3 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-  v_TDP_REL_INJ_3[i] <- as.vector(exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((t - 1)^p_weibull_shape_REL_INJ) - (t^p_weibull_shape_REL_INJ))))
-  v_TDP_OD_INJ_3[i]  <- as.vector(exp(p_frailty_OD_INJ_3  * p_weibull_scale_OD_INJ  * (((i - 1)^p_weibull_shape_OD_INJ) - (i^p_weibull_shape_OD_INJ))))
+#' Update parameters
+#'
+#' \code{update_param_list} is used to update list of all parameters with new 
+#' values for specific parameters.
+#'
+#' @param l_params_all List with all parameters of decision model
+#' @param params_updated Parameters for which values need to be updated
+#' @return 
+#' A modifed list with all parameters updated.
+#' @export
+update_param_list <- function(l_params_all, params_updated){
+  l_params_all <- modifyList(l_params_all, params_updated) #update the values
+  return(l_params_all)
 }
-
-##############################################
-### Unconditional transition probabilities ###
-##############################################
-######## Non-Injection #########
-# From BUP1
-p_BUP1_BUP_NI_1  <- exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
-p_BUP1_BUP_NI_2  <- exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI)))
-p_BUP1_BUP_NI_3  <- exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI)))
-p_BUP1_MET1_NI <- 0.15
-p_BUP1_ABS_NI  <- 0.23
-p_BUP1_REL1_NI <- 0.18
-p_BUP1_OD_NI   <- (1 - 0.15 - 0.23 - 0.18)
-
-# From BUP
-p_BUP_MET1_NI <- 0.05
-p_BUP_ABS_NI  <- 0.23
-p_BUP_REL1_NI <- 0.23
-p_BUP_OD_NI   <- (1 - 0.05 - 0.23 - 0.23)
-
-# From MET1
-p_MET1_MET_NI_1  <- exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
-p_MET1_MET_NI_2  <- exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
-p_MET1_MET_NI_3  <- exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
-p_MET1_BUP1_NI <- 0.15
-p_MET1_ABS_NI  <- 0.23
-p_MET1_REL1_NI <- 0.18
-p_MET1_OD_NI   <- (1 - 0.15 - 0.23 - 0.18) 
-
-# From MET
-p_MET_BUP1_NI <- 0.04
-p_MET_ABS_NI  <- 0.32
-p_MET_REL1_NI <- 0.18
-p_MET_OD_NI   <- (1 - 0.04 - 0.32 - 0.18)
-
-# From ABS
-p_ABS_REL1_NI <- 0.5
-p_ABS_OD_NI   <- 0.5
-
-# From REL1
-p_REL1_REL_NI_1  <- exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
-p_REL1_REL_NI_2  <- exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
-p_REL1_REL_NI_3  <- exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
-p_REL1_MET1_NI <- 0.04
-p_REL1_BUP1_NI <- 0.32
-p_REL1_ABS_NI  <- 0.18
-p_REL1_OD_NI   <- (1 - 0.04 - 0.32 - 0.18)
-
-# From REL
-p_REL_MET1_NI <- 0.04
-p_REL_BUP1_NI <- 0.32
-p_REL_ABS_NI  <- 0.18
-p_REL_OD_NI   <- (1 - 0.04 - 0.32 - 0.18)
-
-# From OD
-p_OD_MET1_NI <- 0.04
-p_OD_BUP1_NI <- 0.32
-p_OD_ABS_NI  <- 0.18
-p_OD_REL1_NI   <- (1 - 0.04 - 0.32 - 0.18)
-
-######## Injection ##########
-# From BUP1
-p_BUP1_BUP_INJ_1  <- exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
-p_BUP1_BUP_INJ_2  <- exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
-p_BUP1_BUP_INJ_3  <- exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
-p_BUP1_MET1_INJ <- 0.15
-p_BUP1_ABS_INJ  <- 0.23
-p_BUP1_REL1_INJ <- 0.18
-p_BUP1_OD_INJ   <- (1 - 0.15 - 0.23 - 0.18)
-
-# From BUP
-p_BUP_MET1_INJ <- 0.05
-p_BUP_ABS_INJ  <- 0.23
-p_BUP_REL1_INJ <- 0.23
-p_BUP_OD_INJ   <- (1 - 0.05 - 0.23 - 0.23)
-
-# From MET1
-p_MET1_MET_INJ_1  <- exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
-p_MET1_MET_INJ_2  <- exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
-p_MET1_MET_INJ_3  <- exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
-p_MET1_BUP1_INJ <- 0.15
-p_MET1_ABS_INJ  <- 0.23
-p_MET1_REL1_INJ <- 0.18
-p_MET1_OD_INJ   <- (1 - 0.15 - 0.23 - 0.18) 
-
-# From MET
-p_MET_BUP1_INJ <- 0.04
-p_MET_ABS_INJ  <- 0.32
-p_MET_REL1_INJ <- 0.18
-p_MET_OD_INJ   <- (1 - 0.04 - 0.32 - 0.18)
-
-# From ABS
-p_ABS_REL1_INJ <- 0.5
-p_ABS_OD_INJ   <- 0.5
-
-# From REL1
-p_REL1_REL_INJ_1  <- exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
-p_REL1_REL_INJ_2  <- exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
-p_REL1_REL_INJ_3  <- exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
-p_REL1_MET1_INJ <- 0.04
-p_REL1_BUP1_INJ <- 0.32
-p_REL1_ABS_INJ  <- 0.18
-p_REL1_OD_INJ   <- (1 - 0.04 - 0.32 - 0.18)
-
-# From REL
-p_REL_MET1_INJ <- 0.04
-p_REL_BUP1_INJ <- 0.32
-p_REL_ABS_INJ  <- 0.18
-p_REL_OD_INJ   <- (1 - 0.04 - 0.32 - 0.18)
-
-# From OD
-p_OD_MET1_INJ <- 0.04
-p_OD_BUP1_INJ <- 0.32
-p_OD_ABS_INJ  <- 0.18
-p_OD_REL1_INJ   <- (1 - 0.04 - 0.32 - 0.18)
-
-
-########################## 
-### HIV Seroconversion ###
-##########################
-# Non-injection
-p_sero_BUP1_NI <- 0.000070
-p_sero_BUP_NI  <- 0.000070
-p_sero_MET1_NI <- 0.000070
-p_sero_MET_NI  <- 0.000070
-p_sero_REL1_NI <- 0.000926
-p_sero_REL_NI  <- 0.000926
-p_sero_OD_NI   <- 0.000926
-p_sero_ABS_NI  <- 0.000018
-
-# Injection
-p_sero_BUP1_INJ <- 0.000234
-p_sero_BUP_INJ  <- 0.000234
-p_sero_MET1_INJ <- 0.000234
-p_sero_MET_INJ  <- 0.000234
-p_sero_REL1_INJ <- 0.00309
-p_sero_REL_INJ  <- 0.00309
-p_sero_OD_INJ   <- 0.00309
-p_sero_ABS_INJ  <- 0.000058
-
-###############################
-### Age-dependent mortality ###
-###############################
-# Baseline mortality by age
-lt_can_2018 <- read.csv("data/01_all_cause_mortality.csv")
-#v_mortality_age <- lt_can_2018[which(lt_can_2018$Age >= n_age_init & lt_can_2018$Age < n_age_max), ] 
-
-v_r_mort_by_age <- lt_can_2018 %>%
-  #subset(Age >= n_age_init & Age < n_age_max) %>%
-  #filter(Age >= n_age_init & Age < n_age_max) %>%
-  select(Total) %>%
-  as.matrix()
-
-# Hazard ratios for death probability
-#hr_s <- read.csv("data/01_death_hr.csv", header = TRUE)
-#hr_s
-# HIV-negative
-hr_BUP1_NI <- 5
-hr_BUP_NI  <- 1.332
-hr_MET1_NI <- 8
-hr_MET_NI  <- 1.332
-hr_REL1_NI <- 14.615
-hr_REL_NI  <- 3.922
-hr_OD_NI   <- 40
-hr_ABS_NI  <- 1
-hr_ABS_NI_HIV <- 1.25
-
-hr_BUP1_INJ <- 5
-hr_BUP_INJ  <- 2.432
-hr_MET1_INJ <- 8
-hr_MET_INJ  <- 2.432
-hr_REL1_INJ <- 26.689
-hr_REL_INJ  <- 7.162
-hr_OD_INJ   <- 50
-hr_ABS_INJ  <- 1
-hr_ABS_INJ_HIV  <- 1.47

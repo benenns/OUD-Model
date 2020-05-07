@@ -3,6 +3,7 @@
 ## Deterministic - Model Functions from: "OPTIMA_00_input_parameter_values.R"
 ############################## Initial setup ##################################
 #rm(list = ls())  # remove any variables in R's memory 
+#library(plyr)
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
@@ -10,9 +11,27 @@ library(scales)   # for dollar signs and commas
 library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 ###############################################################################
-####################################
-# Set up base to/from model states #
-####################################
+
+
+
+# Load parameters
+l_params_all <- load_all_params(file.init = "data/init_params.csv",
+  file.mort = "data/all_cause_mortality.csv",
+  file.death_hr = "data/death_hr.csv",
+  file.frailty = "data/frailty.csv",
+  file.weibull_scale = "data/weibull_scale.csv",
+  file.weibull_shape = "data/weibull_shape.csv",
+  file.unconditional = "data/unconditional_TP.csv",
+  file.sero = "data/hiv_sero.csv",
+  file.costs = "data/costs.csv",
+  file.crime_costs = "data/crime_costs.csv",
+  file.qalys = "data/qalys.csv")
+
+list2env(l_params_all,globalenv())
+#with(as.list(l_params_all), {
+
+### Set up model states
+n_t <- (n_age_max - n_age_init) * 12 # modeling time horizon in months
 l_dim_s  <- list() # list of base states
 
 # Base health states
@@ -84,9 +103,7 @@ df_n <- unite(df_flat, newCol) # combine columns into one data frame of all heal
 v_n_states <- df_n[,1] # convert df into vector
 n_states <- length(v_n_states) # total number of health states
 
-#############################################
-### Time-dependent survival probabilities ###
-#############################################
+### Time-dependent survival probabilities
   # Empty 2-D matrix
   m_TDP <- array(0, dim = c(n_states, n_t),
                     dimnames = list(v_n_states, 1:n_t))
@@ -94,45 +111,46 @@ n_states <- length(v_n_states) # total number of health states
   # Probability of remaining in given health state
   # BUP1, MET1 and REL1: p_remain = 0
   for(i in 1:n_t){
+    t <- i+1 # Shift BUP, MET, REL ahead 1 month to adjust for BUP1, MET1, REL1
     # Non-injection
       # Episode 1
-        m_TDP[EP1 & BUP & NI, i] <- v_TDP_BUP_NI_1[i] # vector of remain probabilities
-        m_TDP[EP1 & MET & NI, i] <- v_TDP_MET_NI_1[i]
-        m_TDP[EP1 & ABS & NI, i] <- v_TDP_ABS_NI_1[i]
-        m_TDP[EP1 & REL & NI, i] <- v_TDP_REL_NI_1[i]
-        m_TDP[EP1 & OD & NI, i]  <- v_TDP_OD_NI_1[i]  
+        m_TDP[EP1 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+        m_TDP[EP1 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((t - 1)^p_weibull_shape_MET_NI) - (t^p_weibull_shape_MET_NI))))
+        m_TDP[EP1 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+        m_TDP[EP1 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((t - 1)^p_weibull_shape_REL_NI) - (t^p_weibull_shape_REL_NI))))
+        m_TDP[EP1 & OD & NI, i]  <- as.vector(exp(p_frailty_OD_NI_1  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))  
       # Episode 2
-        m_TDP[EP2 & BUP & NI, i] <- v_TDP_BUP_NI_2[i]
-        m_TDP[EP2 & MET & NI, i] <- v_TDP_MET_NI_2[i]
-        m_TDP[EP2 & ABS & NI, i] <- v_TDP_ABS_NI_2[i]
-        m_TDP[EP2 & REL & NI, i] <- v_TDP_REL_NI_2[i]
-        m_TDP[EP2 & OD & NI, i]  <- v_TDP_OD_NI_2[i]
+        m_TDP[EP2 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI))))
+        m_TDP[EP2 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((t - 1)^p_weibull_shape_MET_NI) - (t^p_weibull_shape_MET_NI))))
+        m_TDP[EP2 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_2 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+        m_TDP[EP2 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((t - 1)^p_weibull_shape_REL_NI) - (t^p_weibull_shape_REL_NI))))
+        m_TDP[EP2 & OD & NI, i]  <- as.vector(exp(p_frailty_OD_NI_2  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))
       # Episode 3
-        m_TDP[EP3 & BUP & NI, i] <- v_TDP_BUP_NI_3[i]
-        m_TDP[EP3 & MET & NI, i] <- v_TDP_MET_NI_3[i]
-        m_TDP[EP3 & ABS & NI, i] <- v_TDP_ABS_NI_3[i]
-        m_TDP[EP3 & REL & NI, i] <- v_TDP_REL_NI_3[i]
-        m_TDP[EP3 & OD & NI, i]  <- v_TDP_OD_NI_3[i]
+        m_TDP[EP3 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((t - 1)^p_weibull_shape_BUP_NI) - (t^p_weibull_shape_BUP_NI))))
+        m_TDP[EP3 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((t - 1)^p_weibull_shape_MET_NI) - (t^p_weibull_shape_MET_NI))))
+        m_TDP[EP3 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_3 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+        m_TDP[EP3 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((t - 1)^p_weibull_shape_REL_NI) - (t^p_weibull_shape_REL_NI))))
+        m_TDP[EP3 & OD & NI, i]  <- as.vector(exp(p_frailty_OD_NI_3  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))
         
     # Injection
       # Episode 1
-        m_TDP[EP1 & BUP & INJ, i] <- v_TDP_BUP_INJ_1[i] # vector of remain probabilities 
-        m_TDP[EP1 & MET & INJ, i] <- v_TDP_MET_INJ_1[i]
-        m_TDP[EP1 & ABS & INJ, i] <- v_TDP_ABS_INJ_1[i]
-        m_TDP[EP1 & REL & INJ, i] <- v_TDP_REL_INJ_1[i]
-        m_TDP[EP1 & OD & INJ, i]  <- v_TDP_OD_INJ_1[i]  
+        m_TDP[EP1 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((t - 1)^p_weibull_shape_BUP_INJ) - (t^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities 
+        m_TDP[EP1 & MET & INJ, i] <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((t - 1)^p_weibull_shape_MET_INJ) - (t^p_weibull_shape_MET_INJ))))
+        m_TDP[EP1 & ABS & INJ, i] <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+        m_TDP[EP1 & REL & INJ, i] <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((t - 1)^p_weibull_shape_REL_INJ) - (t^p_weibull_shape_REL_INJ))))
+        m_TDP[EP1 & OD & INJ, i]  <- as.vector(exp(p_frailty_OD_INJ_1  * p_weibull_scale_OD_INJ  * (((i - 1)^p_weibull_shape_OD_INJ) - (i^p_weibull_shape_OD_INJ)))) 
       # Episode 2
-        m_TDP[EP2 & BUP & INJ, i] <- v_TDP_BUP_INJ_2[i]
-        m_TDP[EP2 & MET & INJ, i] <- v_TDP_MET_INJ_2[i]
-        m_TDP[EP2 & ABS & INJ, i] <- v_TDP_ABS_INJ_2[i]
-        m_TDP[EP2 & REL & INJ, i] <- v_TDP_REL_INJ_2[i]
-        m_TDP[EP2 & OD & INJ, i]  <- v_TDP_OD_INJ_2[i]  
+        m_TDP[EP2 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((t - 1)^p_weibull_shape_BUP_INJ) - (t^p_weibull_shape_BUP_INJ))))
+        m_TDP[EP2 & MET & INJ, i] <- as.vector(exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((t - 1)^p_weibull_shape_MET_INJ) - (t^p_weibull_shape_MET_INJ))))
+        m_TDP[EP2 & ABS & INJ, i] <- as.vector(exp(p_frailty_ABS_INJ_2 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+        m_TDP[EP2 & REL & INJ, i] <- as.vector(exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((t - 1)^p_weibull_shape_REL_INJ) - (t^p_weibull_shape_REL_INJ))))
+        m_TDP[EP2 & OD & INJ, i]  <- as.vector(exp(p_frailty_OD_INJ_2  * p_weibull_scale_OD_INJ  * (((i - 1)^p_weibull_shape_OD_INJ) - (i^p_weibull_shape_OD_INJ)))) 
       # Episode 3
-        m_TDP[EP3 & BUP & INJ, i] <- v_TDP_BUP_INJ_3[i]
-        m_TDP[EP3 & MET & INJ, i] <- v_TDP_MET_INJ_3[i]
-        m_TDP[EP3 & ABS & INJ, i] <- v_TDP_ABS_INJ_3[i]
-        m_TDP[EP3 & REL & INJ, i] <- v_TDP_REL_INJ_3[i]
-        m_TDP[EP3 & OD & INJ, i]  <- v_TDP_OD_INJ_3[i]  
+        m_TDP[EP3 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((t - 1)^p_weibull_shape_BUP_INJ) - (t^p_weibull_shape_BUP_INJ))))
+        m_TDP[EP3 & MET & INJ, i] <- as.vector(exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((t - 1)^p_weibull_shape_MET_INJ) - (t^p_weibull_shape_MET_INJ))))
+        m_TDP[EP3 & ABS & INJ, i] <- as.vector(exp(p_frailty_ABS_INJ_3 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+        m_TDP[EP3 & REL & INJ, i] <- as.vector(exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((t - 1)^p_weibull_shape_REL_INJ) - (t^p_weibull_shape_REL_INJ))))
+        m_TDP[EP3 & OD & INJ, i]  <- as.vector(exp(p_frailty_OD_INJ_3  * p_weibull_scale_OD_INJ  * (((i - 1)^p_weibull_shape_OD_INJ) - (i^p_weibull_shape_OD_INJ)))) 
   }
 #m_TDP
 #write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
@@ -141,9 +159,7 @@ n_states <- length(v_n_states) # total number of health states
 m_leave <- 1 - m_TDP
 #write.csv(m_leave,"C:/Users/Benjamin/Desktop/m_leave.csv", row.names = TRUE)
 
-#################
-### Mortality ###
-#################
+### Mortality
 # Monthly mortality vector for all model periods by state
 # Monthly mortality for each age applied to 12 periods
 v_mort <- function(hr, hiv){
@@ -159,7 +175,7 @@ v_mort_REL1_NI <- v_mort(hr_REL1_NI)
 v_mort_REL_NI  <- v_mort(hr_REL_NI)
 v_mort_OD_NI   <- v_mort(hr_OD_NI)
 v_mort_ABS_NEG_NI  <- v_mort(hr_ABS_NI)
-v_mort_ABS_POS_NI  <- v_mort(hr_ABS_NI_HIV)
+v_mort_ABS_POS_NI  <- v_mort(hr_HIV_NI)
 
 v_mort_BUP1_INJ <- v_mort(hr_BUP1_INJ)
 v_mort_BUP_INJ  <- v_mort(hr_BUP_INJ)
@@ -169,7 +185,7 @@ v_mort_REL1_INJ <- v_mort(hr_REL1_INJ)
 v_mort_REL_INJ  <- v_mort(hr_REL_INJ)
 v_mort_OD_INJ   <- v_mort(hr_OD_INJ)
 v_mort_ABS_NEG_INJ  <- v_mort(hr_ABS_INJ)
-v_mort_ABS_POS_INJ  <- v_mort(hr_ABS_INJ_HIV)
+v_mort_ABS_POS_INJ  <- v_mort(hr_HIV_INJ)
 
 # Create empty mortality matrix (from_states X n_periods)
 m_mort <- array(0, dim = c(n_states, n_t),
@@ -219,8 +235,28 @@ v_death <- function(from_state, n_mort_per){
 m_UP <- array(0, dim = c(n_states, n_states),
               dimnames = list(v_n_states, v_n_states))
 # Populate unconditional transition matrix
-# Transitions from BUP1, MET1, REL1 adjusted to account for "remain" (e.g.  BUP1 -> BUP; MET1 -> MET; REL1 -> REL)
-# which change by episode # and are equal to 1st month TDP for BUP, MET and REL
+# Transitions from BUP1, MET1, REL1 adjusted to account for "remain" (i.e.  BUP1 -> BUP; MET1 -> MET; REL1 -> REL)
+# which change by episode # and are equal to 1st month remain for BUP, MET and REL
+p_BUP1_BUP_NI_1  <- exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI))) # Transition from BUP1 -> BUP = Month-1(BUP) -> Month-2(BUP)
+p_BUP1_BUP_NI_2  <- exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI)))
+p_BUP1_BUP_NI_3  <- exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((0)^p_weibull_shape_BUP_NI) - (1^p_weibull_shape_BUP_NI)))
+p_MET1_MET_NI_1  <- exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI))) # Transition from BUP1 -> BUP = Month-1(MET) -> Month-2(MET)
+p_MET1_MET_NI_2  <- exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
+p_MET1_MET_NI_3  <- exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((0)^p_weibull_shape_MET_NI) - (1^p_weibull_shape_MET_NI)))
+p_REL1_REL_NI_1  <- exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI))) # Transition from BUP1 -> BUP = Month-1(REL) -> Month-2(REL)
+p_REL1_REL_NI_2  <- exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
+p_REL1_REL_NI_3  <- exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((0)^p_weibull_shape_REL_NI) - (1^p_weibull_shape_REL_NI)))
+
+p_BUP1_BUP_INJ_1  <- exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
+p_BUP1_BUP_INJ_2  <- exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
+p_BUP1_BUP_INJ_3  <- exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((0)^p_weibull_shape_BUP_INJ) - (1^p_weibull_shape_BUP_INJ)))
+p_MET1_MET_INJ_1  <- exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
+p_MET1_MET_INJ_2  <- exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
+p_MET1_MET_INJ_3  <- exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((0)^p_weibull_shape_MET_INJ) - (1^p_weibull_shape_MET_INJ)))
+p_REL1_REL_INJ_1  <- exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
+p_REL1_REL_INJ_2  <- exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
+p_REL1_REL_INJ_3  <- exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((0)^p_weibull_shape_REL_INJ) - (1^p_weibull_shape_REL_INJ)))
+
 ######## Non-Injection #########
 # From BUP1
 m_UP[BUP1 & NI & EP1, BUP & NI & EP1] <- p_BUP1_BUP_NI_1
@@ -425,18 +461,19 @@ write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
 ### Empty 3-D matrix (from states, to states, time periods)
 a_TDP <- array(0, dim = c(n_states, n_states, n_t),
                  dimnames = list(v_n_states, v_n_states, 1:n_t))
+
 # Add transitions conditional on state-exit (m_leave = 1 - remain)
 for (i in 1:n_t){
   a_TDP[, , i] <- m_UP * m_leave[, i]
 }
 
 # Add time-dependent remain probabilities
-
 for (i in 1:n_t){
   for (j in 1:n_states){
  a_TDP[j, j, i] <- m_TDP[j, i]
   } 
 }
+
 ##### Add NEG -> POS remain probabilities #####
 for (i in 1:n_t){
 # Non-injection
@@ -482,6 +519,12 @@ a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & POS, i] <- m_TDP[ABS & INJ & EP2 
 a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & POS, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
 }
 
+# Checks
+k_hiv <- a_TDP[, , 50]
+k_hiv2<- a_TDP[, , 710]
+
+write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
+write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
 ###############################
 ### HIV(HCV) seroconversion ###
 ###############################
@@ -489,40 +532,43 @@ a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & POS, i] <- m_TDP[ABS & INJ & EP3 
 # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
 # Probabilities applied equally across POS/NEG initially, re-weight by sero prob
 # Non-injection
-a_TDP[, BUP1 & NI & NEG, ] <- a_TDP[, BUP1 & NI & NEG, ] * (1 - p_sero_BUP1_NI)
-a_TDP[, BUP1 & NI & POS, ] <- a_TDP[, BUP1 & NI & POS, ] * p_sero_BUP1_NI
-a_TDP[, BUP & NI & NEG, ] <- a_TDP[, BUP & NI & NEG, ] * (1 - p_sero_BUP_NI)
-a_TDP[, BUP & NI & POS, ] <- a_TDP[, BUP & NI & POS, ] * p_sero_BUP_NI
-a_TDP[, MET1 & NI & NEG, ] <- a_TDP[, MET1 & NI & NEG, ] * (1 - p_sero_MET1_NI)
-a_TDP[, MET1 & NI & POS, ] <- a_TDP[, MET1 & NI & POS, ] * p_sero_MET1_NI
-a_TDP[, MET & NI & NEG, ] <- a_TDP[, MET & NI & NEG, ] * (1 - p_sero_MET_NI)
-a_TDP[, MET & NI & POS, ] <- a_TDP[, MET & NI & POS, ] * p_sero_MET_NI
-a_TDP[, REL1 & NI & NEG, ] <- a_TDP[, REL1 & NI & NEG, ] * (1 - p_sero_REL1_NI)
-a_TDP[, REL1 & NI & POS, ] <- a_TDP[, REL1 & NI & POS, ] * p_sero_REL1_NI
-a_TDP[, REL & NI & NEG, ] <- a_TDP[, REL & NI & NEG, ] * (1 - p_sero_REL_NI)
-a_TDP[, REL & NI & POS, ] <- a_TDP[, REL & NI & POS, ] * p_sero_REL_NI
-a_TDP[, OD & NI & NEG, ] <- a_TDP[, OD & NI & NEG, ] * (1 - p_sero_OD_NI)
-a_TDP[, OD & NI & POS, ] <- a_TDP[, OD & NI & POS, ] * p_sero_OD_NI
-a_TDP[, ABS & NI & NEG, ] <- a_TDP[, ABS & NI & NEG, ] * (1 - p_sero_ABS_NI)
-a_TDP[, ABS & NI & POS, ] <- a_TDP[, ABS & NI & POS, ] * p_sero_ABS_NI
+a_TDP[NEG & NI, BUP1 & NI & NEG, ] <- a_TDP[NEG & NI, BUP1 & NI & NEG, ] * (1 - p_sero_BUP1_NI)
+a_TDP[NEG & NI, BUP1 & NI & POS, ] <- a_TDP[NEG & NI, BUP1 & NI & POS, ] * p_sero_BUP1_NI
+a_TDP[NEG & NI, BUP & NI & NEG, ]  <- a_TDP[NEG & NI, BUP & NI & NEG, ] * (1 - p_sero_BUP_NI)
+a_TDP[NEG & NI, BUP & NI & POS, ]  <- a_TDP[NEG & NI, BUP & NI & POS, ] * p_sero_BUP_NI
+a_TDP[NEG & NI, MET1 & NI & NEG, ] <- a_TDP[NEG & NI, MET1 & NI & NEG, ] * (1 - p_sero_MET1_NI)
+a_TDP[NEG & NI, MET1 & NI & POS, ] <- a_TDP[NEG & NI, MET1 & NI & POS, ] * p_sero_MET1_NI
+a_TDP[NEG & NI, MET & NI & NEG, ]  <- a_TDP[NEG & NI, MET & NI & NEG, ] * (1 - p_sero_MET_NI)
+a_TDP[NEG & NI, MET & NI & POS, ]  <- a_TDP[NEG & NI, MET & NI & POS, ] * p_sero_MET_NI
+a_TDP[NEG & NI, REL1 & NI & NEG, ] <- a_TDP[NEG & NI, REL1 & NI & NEG, ] * (1 - p_sero_REL1_NI)
+a_TDP[NEG & NI, REL1 & NI & POS, ] <- a_TDP[NEG & NI, REL1 & NI & POS, ] * p_sero_REL1_NI
+a_TDP[NEG & NI, REL & NI & NEG, ]  <- a_TDP[NEG & NI, REL & NI & NEG, ] * (1 - p_sero_REL_NI)
+a_TDP[NEG & NI, REL & NI & POS, ]  <- a_TDP[NEG & NI, REL & NI & POS, ] * p_sero_REL_NI
+a_TDP[NEG & NI, OD & NI & NEG, ]   <- a_TDP[NEG & NI, OD & NI & NEG, ] * (1 - p_sero_OD_NI)
+a_TDP[NEG & NI, OD & NI & POS, ]   <- a_TDP[NEG & NI, OD & NI & POS, ] * p_sero_OD_NI
+a_TDP[NEG & NI, ABS & NI & NEG, ]  <- a_TDP[NEG & NI, ABS & NI & NEG, ] * (1 - p_sero_ABS_NI)
+a_TDP[NEG & NI, ABS & NI & POS, ]  <- a_TDP[NEG & NI, ABS & NI & POS, ] * p_sero_ABS_NI
 
 # Injection
-a_TDP[, BUP1 & INJ & NEG, ] <- a_TDP[, BUP1 & INJ & NEG, ] * (1 - p_sero_BUP1_INJ)
-a_TDP[, BUP1 & INJ & POS, ] <- a_TDP[, BUP1 & INJ & POS, ] * p_sero_BUP1_INJ
-a_TDP[, BUP & INJ & NEG, ] <- a_TDP[, BUP & INJ & NEG, ] * (1 - p_sero_BUP_INJ)
-a_TDP[, BUP & INJ & POS, ] <- a_TDP[, BUP & INJ & POS, ] * p_sero_BUP_INJ
-a_TDP[, MET1 & INJ & NEG, ] <- a_TDP[, MET1 & INJ & NEG, ] * (1 - p_sero_MET1_INJ)
-a_TDP[, MET1 & INJ & POS, ] <- a_TDP[, MET1 & INJ & POS, ] * p_sero_MET1_INJ
-a_TDP[, MET & INJ & NEG, ] <- a_TDP[, MET & INJ & NEG, ] * (1 - p_sero_MET_INJ)
-a_TDP[, MET & INJ & POS, ] <- a_TDP[, MET & INJ & POS, ] * p_sero_MET_INJ
-a_TDP[, REL1 & INJ & NEG, ] <- a_TDP[, REL1 & INJ & NEG, ] * (1 - p_sero_REL1_INJ)
-a_TDP[, REL1 & INJ & POS, ] <- a_TDP[, REL1 & INJ & POS, ] * p_sero_REL1_INJ
-a_TDP[, REL & INJ & NEG, ] <- a_TDP[, REL & INJ & NEG, ] * (1 - p_sero_REL_INJ)
-a_TDP[, REL & INJ & POS, ] <- a_TDP[, REL & INJ & POS, ] * p_sero_REL_INJ
-a_TDP[, OD & INJ & NEG, ] <- a_TDP[, OD & INJ & NEG, ] * (1 - p_sero_OD_INJ)
-a_TDP[, OD & INJ & POS, ] <- a_TDP[, OD & INJ & POS, ] * p_sero_OD_INJ
-a_TDP[, ABS & INJ & NEG, ] <- a_TDP[, ABS & INJ & NEG, ] * (1 - p_sero_ABS_INJ)
-a_TDP[, ABS & INJ & POS, ] <- a_TDP[, ABS & INJ & POS, ] * p_sero_ABS_INJ
+a_TDP[NEG & INJ, BUP1 & INJ & NEG, ] <- a_TDP[NEG & INJ, BUP1 & INJ & NEG, ] * (1 - p_sero_BUP1_INJ)
+a_TDP[NEG & INJ, BUP1 & INJ & POS, ] <- a_TDP[NEG & INJ, BUP1 & INJ & POS, ] * p_sero_BUP1_INJ
+a_TDP[NEG & INJ, BUP & INJ & NEG, ]  <- a_TDP[NEG & INJ, BUP & INJ & NEG, ] * (1 - p_sero_BUP_INJ)
+a_TDP[NEG & INJ, BUP & INJ & POS, ]  <- a_TDP[NEG & INJ, BUP & INJ & POS, ] * p_sero_BUP_INJ
+a_TDP[NEG & INJ, MET1 & INJ & NEG, ] <- a_TDP[NEG & INJ, MET1 & INJ & NEG, ] * (1 - p_sero_MET1_INJ)
+a_TDP[NEG & INJ, MET1 & INJ & POS, ] <- a_TDP[NEG & INJ, MET1 & INJ & POS, ] * p_sero_MET1_INJ
+a_TDP[NEG & INJ, MET & INJ & NEG, ]  <- a_TDP[NEG & INJ, MET & INJ & NEG, ] * (1 - p_sero_MET_INJ)
+a_TDP[NEG & INJ, MET & INJ & POS, ]  <- a_TDP[NEG & INJ, MET & INJ & POS, ] * p_sero_MET_INJ
+a_TDP[NEG & INJ, REL1 & INJ & NEG, ] <- a_TDP[NEG & INJ, REL1 & INJ & NEG, ] * (1 - p_sero_REL1_INJ)
+a_TDP[NEG & INJ, REL1 & INJ & POS, ] <- a_TDP[NEG & INJ, REL1 & INJ & POS, ] * p_sero_REL1_INJ
+a_TDP[NEG & INJ, REL & INJ & NEG, ]  <- a_TDP[NEG & INJ, REL & INJ & NEG, ] * (1 - p_sero_REL_INJ)
+a_TDP[NEG & INJ, REL & INJ & POS, ]  <- a_TDP[NEG & INJ, REL & INJ & POS, ] * p_sero_REL_INJ
+a_TDP[NEG & INJ, OD & INJ & NEG, ]   <- a_TDP[NEG & INJ, OD & INJ & NEG, ] * (1 - p_sero_OD_INJ)
+a_TDP[NEG & INJ, OD & INJ & POS, ]   <- a_TDP[NEG & INJ, OD & INJ & POS, ] * p_sero_OD_INJ
+a_TDP[NEG & INJ, ABS & INJ & NEG, ]  <- a_TDP[NEG & INJ, ABS & INJ & NEG, ] * (1 - p_sero_ABS_INJ)
+a_TDP[NEG & INJ, ABS & INJ & POS, ]  <- a_TDP[NEG & INJ, ABS & INJ & POS, ] * p_sero_ABS_INJ
+
+
+
 
 ### Check transition rules #####
 # Episode rules
@@ -545,11 +591,11 @@ a_TDP[OOT & EP1, TX & EP1, ] = 0
 a_TDP[OOT & EP2, TX & EP2, ] = 0
 
 # Checks
-#k_hiv <- a_TDP[, , 50]
-#k_hiv2<- a_TDP[, , 710]
+k_hiv <- a_TDP[, , 50]
+k_hiv2<- a_TDP[, , 710]
 
-#write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
-#write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
+write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
+write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
 
 ##########################
 #### Run Markov model ####
@@ -608,27 +654,30 @@ sum(v_s_init_BUP)
       }
 }
 #a_M_trace
-
 m_M_trace <- array(0, dim = c(n_t + 1, n_states),
                    dimnames = list(0:n_t, v_n_states))
 for (i in 1:n_t){
   m_M_trace[i, ] <- rowSums(a_M_trace[i, ,])
 }
 
-########################################
-### Create aggregated trace matrices ###
-########################################
+#####################################
+### Create aggregated trace plots ###
+#####################################
 # Aggregated trace matrix
-v_agg_trace_states <- c("Alive", "BUP", "MET", "REL", "ABS", "OD", "Death")
+#id=factor(c("Second", "First", "Third"), levels=c("First", "Second", "Third"))
+v_agg_trace_states <- c("Alive", "Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS")
 n_agg_trace_states <- length(v_agg_trace_states)
 m_M_agg_trace <- array(0, dim = c((n_t + 1), n_agg_trace_states),
                        dimnames = list(0:n_t, v_agg_trace_states))
 
 for (i in 1:n_t){
-  m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])  
-  m_M_agg_trace[i, "BUP"]   <- sum(m_M_trace[i, all_BUP])
-  m_M_agg_trace[i, "MET"]   <- sum(m_M_trace[i, all_MET])
-  m_M_agg_trace[i, "REL"]   <- sum(m_M_trace[i, all_REL])
+  m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])
+  m_M_agg_trace[i, "BUP1"]   <- sum(m_M_trace[i, BUP1])
+  m_M_agg_trace[i, "BUP"]   <- sum(m_M_trace[i, BUP])
+  m_M_agg_trace[i, "MET1"]   <- sum(m_M_trace[i, MET1])
+  m_M_agg_trace[i, "MET"]   <- sum(m_M_trace[i, MET])
+  m_M_agg_trace[i, "REL1"]   <- sum(m_M_trace[i, REL1])
+  m_M_agg_trace[i, "REL"]   <- sum(m_M_trace[i, REL])
   m_M_agg_trace[i, "ABS"]   <- sum(m_M_trace[i, ABS])
   m_M_agg_trace[i, "OD"]    <- sum(m_M_trace[i, OD])
   #m_M_agg_trace[i, "HIV"]  <- sum(m_M_trace[i, POS]) # Need cumulative sum for HIV
@@ -637,23 +686,44 @@ for (i in 1:n_t){
 
 df_M_agg_trace <- as.data.frame(m_M_agg_trace)
 df_M_agg_trace$month <- as.numeric(rownames(df_M_agg_trace))
-df_M_agg_trace <- df_M_agg_trace %>% gather(state, proportion, "Death", "OD", "REL", "BUP", "MET", "ABS")
-state_order <- factor(df_M_agg_trace$state, levels = c("Death", "OD", "REL", "BUP", "MET", "ABS"))
+
+df_M_agg_trace_plot <- df_M_agg_trace %>% gather(state, proportion, "Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS")
+df_M_agg_state_time <- df_M_agg_trace %>% gather(state, proportion, "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS")
+
+df_M_agg_state_time <- df_M_agg_state_time %>% 
+  group_by(state) %>% 
+  summarise_each(funs(sum), proportion) %>%
+  mutate(percentage = round((proportion / sum(proportion)) * 100,1))
+
+
+state_order_trace <- factor(df_M_agg_trace_plot$state, levels = c("Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS"))
+state_order_time  <- factor(df_M_agg_state_time$state, levels = c("OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS"))
+state_colours_trace <- c("#d9d9d9", "#d53e4f", "#f46d43", "#fdae61", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd")
+state_colours_time <- c("#d53e4f", "#f46d43", "#fdae61", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd")
+
+
 
 ### Trace plots ###
-main_states_trace_plot <- ggplot(df_M_agg_trace, aes(x = month, y = proportion, fill = state_order)) + 
+main_states_trace_plot <- ggplot(df_M_agg_trace_plot, aes(x = month, y = proportion, fill = state_order_trace)) + 
                                  theme_bw() +
                                  geom_area() +
-                                 scale_fill_brewer(palette = "Dark2")
-
+                                 scale_fill_manual(values = state_colours_trace)
 pdf("Plots/Markov Trace/trace_states.pdf")
-main_states_trace
+main_states_trace_plot
 dev.off()
 
-#png(file = "Plots/Markov Trace/trace_states.png",
-#    width = 600, height = 600)
-#main_states_trace
-#dev.off()
+### Time spent in model states ###
+main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = proportion, fill = state_order_time)) +
+                           theme_bw() +
+                           theme(legend.position = "none") +
+                           xlab("Health State") + ylab("Time") +
+                           geom_bar(stat = "identity") +
+                           scale_fill_manual(values = state_colours_time) +
+                           geom_text(aes(label = percentage), hjust = -0.25, size = 3.5) +
+                           coord_flip(ylim = c(0, 720))
+pdf(file = "Plots/Markov Trace/time_states.pdf", width = 8, height = 4)
+main_states_time
+dev.off()
 
 #write.csv(m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
 

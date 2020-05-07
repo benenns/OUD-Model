@@ -19,13 +19,11 @@ generate_psa_params <- function(n_sim = 2000, seed = 3730687){ # User defined
   set_seed <- seed
   df_psa_params <- data.frame(
     ### Calibrated parameters
-    m_calib_post,
+    m_calib_post, # Matrix of calibration parameters drawn from posterior distribution
   
     # Frailty terms for successive episodes
-    # Consider "truncnorm" if wanting to restrict frailty terms to >1 for EP1
     # Non-injection
     p_frailty_BUP_NI_1 <- rep(1, n_sim),
-    #p_frailty_BUP_NI_2 <- truncnorm::rtruncnorm(n_sim, mean = par_frailty_BUP_NI_2$mean, sd = par_frailty_BUP_NI_2$sd, a = 1), # Disallow frailty <1
     p_frailty_BUP_NI_2 <- rnorm(n_sim, mean = par_frailty_BUP_NI_2_mean, sd = par_frailty_BUP_NI_2_sd),
     p_frailty_BUP_NI_3 <- rnorm(n_sim, mean = par_frailty_BUP_NI_3_mean, sd = par_frailty_BUP_NI_3_sd),
     p_frailty_MET_NI_1 <- rep(1, n_sim),
@@ -85,11 +83,7 @@ generate_psa_params <- function(n_sim = 2000, seed = 3730687){ # User defined
     p_weibull_shape_OD_INJ  <- runif(),
     
     ### Transition probabilities conditional on leaving (use Dirichlet)
-    # Sample code
-    #p_HS1   = rbeta(n_sim, 30, 170),        # probability to become sick when healthy
-    #p_S1H   = rbeta(n_sim, 60, 60) ,        # probability to become healthy when sick
-    
-    ######## Non-Injection #########
+    # Non-Injection
     # From BUP1
     p_BUP1_MET1_NI <- rdirichlet(),
     p_BUP1_ABS_NI  <- rdirichlet(),
@@ -129,7 +123,7 @@ generate_psa_params <- function(n_sim = 2000, seed = 3730687){ # User defined
     p_OD_ABS_NI  <- rdirichlet(),
     p_OD_REL1_NI <- rdirichlet(),
     
-    ######## Injection ##########
+    # Injection
     # From BUP1
     p_BUP1_MET1_INJ <- rdirichlet(),
     p_BUP1_ABS_INJ  <- rdirichlet(),
@@ -169,22 +163,80 @@ generate_psa_params <- function(n_sim = 2000, seed = 3730687){ # User defined
     p_OD_ABS_INJ  <- rdirichlet(),
     p_OD_REL1_INJ <- rdirichlet(),
     
+    ### Death hazard ratios ###
+    # Hazard ratios for death probability
+    df_death_hr <- read.csv("data/death_hr.csv", header = TRUE),
+    # HIV-negative
+    hr_BUP1_NI <- rnorm(n_sim, mean = df_death_hr["pe", "BUP1_NI"], sd = df_death_hr["sd", "BUP1_NI"]),
+    hr_BUP_NI  <- rnorm(n_sim, mean = df_death_hr["pe", "BUP_NI"] , sd = df_death_hr["sd", "BUP_NI"] ),
+    hr_MET1_NI <- rnorm(n_sim, mean = df_death_hr["pe", "MET1_NI"], sd = df_death_hr["sd", "MET1_NI"]),
+    hr_MET_NI  <- rnorm(n_sim, mean = df_death_hr["pe", "MET_NI"] , sd = df_death_hr["sd", "MET_NI"] ),
+    hr_REL1_NI <- rnorm(n_sim, mean = df_death_hr["pe", "REL1_NI"], sd = df_death_hr["sd", "REL1_NI"]),
+    hr_REL_NI  <- rnorm(n_sim, mean = df_death_hr["pe", "REL_NI"] , sd = df_death_hr["sd", "REL_NI"] ),
+    hr_OD_NI   <- rnorm(n_sim, mean = df_death_hr["pe", "OD_NI"]  , sd = df_death_hr["sd", "OD_NI"]  ),
+    hr_ABS_NI  <- rnorm(n_sim, mean = df_death_hr["pe", "ABS_NI"] , sd = df_death_hr["sd", "ABS_NI"] ),
+    hr_HIV_NI  <- rnorm(n_sim, mean = df_death_hr["pe", "HIV_NI"] , sd = df_death_hr["sd", "HIV_NI"] ),
+    
+    hr_BUP1_INJ <- rnorm(n_sim, mean = df_death_hr["pe", "BUP1_INJ"], sd = df_death_hr["sd", "BUP1_INJ"]),
+    hr_BUP_INJ  <- rnorm(n_sim, mean = df_death_hr["pe", "BUP_INJ"] , sd = df_death_hr["sd", "BUP_INJ"] ),
+    hr_MET1_INJ <- rnorm(n_sim, mean = df_death_hr["pe", "MET1_INJ"], sd = df_death_hr["sd", "MET1_INJ"]),
+    hr_MET_INJ  <- rnorm(n_sim, mean = df_death_hr["pe", "MET_INJ"] , sd = df_death_hr["sd", "MET_INJ"] ),
+    hr_REL1_INJ <- rnorm(n_sim, mean = df_death_hr["pe", "REL1_INJ"], sd = df_death_hr["sd", "REL1_INJ"]),
+    hr_REL_INJ  <- rnorm(n_sim, mean = df_death_hr["pe", "REL_INJ"] , sd = df_death_hr["sd", "REL_INJ"] ),
+    hr_OD_INJ   <- rnorm(n_sim, mean = df_death_hr["pe", "OD_INJ"]  , sd = df_death_hr["sd", "OD_INJ"]  ),
+    hr_ABS_INJ  <- rnorm(n_sim, mean = df_death_hr["pe", "ABS_INJ"] , sd = df_death_hr["sd", "ABS_INJ"] ),
+    hr_HIV_INJ  <- rnorm(n_sim, mean = df_death_hr["pe", "HIV_INJ"] , sd = df_death_hr["sd", "HIV_INJ"] ),
+    
+    ### HIV seroconversion ###
+    # Non-injection
+    p_sero_BUP1_NI <- runif(n_sim, df_sero["low", "BUP_NI"], df_sero["high", "BUP_NI"]),
+    p_sero_BUP_NI  <- runif(n_sim, df_sero["low", "BUP_NI"], df_sero["high", "BUP_NI"]),
+    p_sero_MET1_NI <- runif(n_sim, df_sero["low", "MET_NI"], df_sero["high", "MET_NI"]),
+    p_sero_MET_NI  <- runif(n_sim, df_sero["low", "MET_NI"], df_sero["high", "MET_NI"]),
+    p_sero_REL1_NI <- runif(n_sim, df_sero["low", "REL_NI"], df_sero["high", "REL_NI"]),
+    p_sero_REL_NI  <- runif(n_sim, df_sero["low", "REL_NI"], df_sero["high", "REL_NI"]),
+    p_sero_OD_NI   <- runif(n_sim, df_sero["low", "REL_NI"], df_sero["high", "REL_NI"]),
+    p_sero_ABS_NI  <- runif(n_sim, df_sero["low", "ABS_NI"], df_sero["high", "ABS_NI"]),
+    # Injection
+    p_sero_BUP1_INJ <- runif(n_sim, df_sero["low", "BUP_INJ"], df_sero["high", "BUP_INJ"]),
+    p_sero_BUP_INJ  <- runif(n_sim, df_sero["low", "BUP_INJ"], df_sero["high", "BUP_INJ"]),
+    p_sero_MET1_INJ <- runif(n_sim, df_sero["low", "MET_INJ"], df_sero["high", "MET_INJ"]),
+    p_sero_MET_INJ  <- runif(n_sim, df_sero["low", "MET_INJ"], df_sero["high", "MET_INJ"]),
+    p_sero_REL1_INJ <- runif(n_sim, df_sero["low", "REL_INJ"], df_sero["high", "REL_INJ"]),
+    p_sero_REL_INJ  <- runif(n_sim, df_sero["low", "REL_INJ"], df_sero["high", "REL_INJ"]),
+    p_sero_OD_INJ   <- runif(n_sim, df_sero["low", "REL_INJ"], df_sero["high", "REL_INJ"]),
+    p_sero_ABS_INJ  <- runif(n_sim, df_sero["low", "ABS_INJ"], df_sero["high", "ABS_INJ"]),
+    
+    ### Costs ###
+    # Treatment Costs
+    c_BUP_TX  <- rgamma(n_sim, shape = df_costs["shape", "BUP_TX"], scale = df_costs["scale", "BUP_TX"]), # BUP treatment costs
+    c_MET_TX  <- rgamma(n_sim, shape = df_costs["shape", "MET_TX"], scale = df_costs["scale", "MET_TX"]), # MET treatment costs
+    
+    # HRU Costs
+    # Modify if age-specific
+    c_BUP_NI_HRU <- rgamma(n_sim, shape = df_costs["shape", "BUP_NI_HRU"], scale = df_costs["scale", "BUP_NI_HRU"]), 
+    c_MET_NI_HRU <- rgamma(n_sim, shape = df_costs["shape", "MET_NI_HRU"], scale = df_costs["scale", "MET_NI_HRU"]), 
+    c_ABS_NI_HRU <- rgamma(n_sim, shape = df_costs["shape", "ABS_NI_HRU"], scale = df_costs["scale", "ABS_NI_HRU"]), 
+    c_REL_NI_HRU <- rgamma(n_sim, shape = df_costs["shape", "REL_NI_HRU"], scale = df_costs["scale", "REL_NI_HRU"]), 
+    c_OD_NI_HRU <- rgamma(n_sim, shape = df_costs["shape", "OD_NI_HRU"] , scale = df_costs["scale", "OD_NI_HRU"] ), 
+    c_BUP_INJ_HRU <- rgamma(n_sim, shape = df_costs["shape", "BUP_INJ_HRU"], scale = df_costs["scale", "BUP_INJ_HRU"]), 
+    c_MET_INJ_HRU <- rgamma(n_sim, shape = df_costs["shape", "MET_INJ_HRU"], scale = df_costs["scale", "MET_INJ_HRU"]), 
+    c_ABS_INJ_HRU <- rgamma(n_sim, shape = df_costs["shape", "ABS_INJ_HRU"], scale = df_costs["scale", "ABS_INJ_HRU"]), 
+    c_REL_INJ_HRU <- rgamma(n_sim, shape = df_costs["shape", "REL_INJ_HRU"], scale = df_costs["scale", "REL_INJ_HRU"]), 
+    c_OD_INJ_HRU <- rgamma(n_sim, shape = df_costs["shape", "OD_INJ_HRU"] , scale = df_costs["scale", "OD_INJ_HRU"] ),
+    
+    # HIV Costs
+    c_HIV <- rgamma(n_sim, shape = df_costs["shape", "HIV_HRU"], scale = df_costs["scale", "HIV_HRU"]),
+    c_ART <- rgamma(n_sim, shape = df_costs["shape", "HIV_ART"], scale = df_costs["scale", "HIV_ART"]),
+    
+    # Crime Costs
+    # Age-specific
+    
+
     
     
     
-    
-    ### State rewards
-    ## Costs
-    c_BUP_INJ_TX  = rgamma(n_sim, shape = , scale = ), #
-    c_BUP_INJ_HRU = rgamma(n_sim, shape = , scale = ), #
-    
-    
-    c_H   = rgamma(n_sim, shape = 100, scale = 20)    , # cost of remaining one cycle in state H
-    c_S1  = rgamma(n_sim, shape = 177.8, scale = 22.5), # cost of remaining one cycle in state S1
-    c_S2  = rgamma(n_sim, shape = 225, scale = 66.7)  , # cost of remaining one cycle in state S2
-    c_Trt = rgamma(n_sim, shape = 73.5, scale = 163.3), # cost of treatment (per cycle)
-    c_D   = 0                                         , # cost of being in the death state
-    ## Utilities
+    ### Utilities ###
     u_H   = truncnorm::rtruncnorm(n_sim, mean =    1, sd = 0.01, b = 1), # utility when healthy
     u_S1  = truncnorm::rtruncnorm(n_sim, mean = 0.75, sd = 0.02, b = 1), # utility when sick
     u_S2  = truncnorm::rtruncnorm(n_sim, mean = 0.50, sd = 0.03, b = 1), # utility when sicker
