@@ -1,23 +1,31 @@
-
+#' Generate model outputs for calibration from a parameter set
+#'
+#' \code{calibration_out} computes model outputs to be used for calibration 
+#' routines.
+#'
+#' @param v_params_calib Vector of parameters that need to be calibrated.
+#' @param l_params_all List with all parameters of the decision model.
+#' @return 
+#' A list with all cause deaths, and non-fatal overdoses.
+#' @export
 calibration_out <- function(v_params_calib, l_params_all){ # User defined
   # Substitute values of calibrated parameters in base-case with 
   # calibrated values
   l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
   
   # Run model with updated calibrated parameters
-  l_out_stm <- decision_model(l_params_all = l_params_all)
+  l_out_markov <- markov_model(l_params_all = l_params_all)
   
-  ####### Epidemiological Output ###########################################
+  #### Epidemiological Output ####
   ### All-cause deaths ###
-  v_ <- l_out_stm$m_M_BL[, D] # total deaths in baseline model
+  v_death <- l_out_markov$m_M_agg_trace[, "Death"] # cumulative deaths at month i
 
   ### Non-fatal overdoses ###
-  v_OD <- l_out_stm$m_M_BL[, OD]
+  v_OD_alive <- l_out_markov$m_M_agg_trace[, "OD"] # cumulative non-fatal overdoses at month i
   
-  ####### Return Output ###########################################
-  l_out <- list(Surv = v_os[c(11, 21, 31)],
-                Prev = v_prev[c(11, 21, 31)],
-                PropSicker = v_prop_S2[c(11, 21, 31)])
+  #### Return Output ####
+  l_out <- list(deaths = v_death[c(i, j, k)], # deaths at i, j ,k time periods
+                overdose = v_OD_alive[c(i, j, k)])
   return(l_out)
 }
 

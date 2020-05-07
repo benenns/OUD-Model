@@ -1,23 +1,3 @@
-#' Load all parameters
-#'
-#' \code{load_all_params} loads all parameters for the decision model from multiple sources and creates a list.
-#'
-#' @param file.init String with the location and name of the file with initial set of parameters
-#' @param file.mort String with the location and name of the file with mortality data
-#' @param file.death_hr String with the location and name of death hazard ratios
-#'                             file.frailty
-#'                             file.weibull_scale = NULL,
-#'                             file.weibull_shape = NULL,
-#'                             file.unconditional = NULL,
-#'                             file.sero = NULL,
-#'                             file.costs = NULL,
-#'                             file.crime_costs = NULL,
-#'                             file.qalys = NULL
-#' 
-#' @return 
-#' A list of all parameters used for the decision model.
-#' @export
-### Mortality ###
 #' Load mortality data
 #'
 #' \code{load_mort_data} is used to load age-specific mortality from .csv file 
@@ -36,6 +16,25 @@ load_mort_params <- function(file.mort = NULL){
   return(v_r_mort_by_age)
 }
 
+#' Load all parameters
+#'
+#' \code{load_all_params} loads all parameters for the decision model from multiple sources and creates a list.
+#'
+#' @param file.init String with the location and name of the file with initial set of parameters
+#' @param file.mort String with the location and name of the file with mortality data
+#' @param file.death_hr String with the location and name of death hazard ratios
+#' @param file.frailty String with the location and name of the file with frailty estimates
+#' @param file.weibull_scale String with the location and name of the file with weibull scale
+#' @param file.weibull_shape String with the location and name of the file with weibull shape
+#' @param file.unconditional String with the location and name of the file with empirical destination states
+#' @param file.sero String with the location and name of the file with seroconversion probabilities
+#' @param file.costs String with the location and name of the file with costs (excluding crime costs)
+#' @param file.crime_costs String with the location and name of the file with age-specific crime costs
+#' @param file.qalys String with the location and name of the file with HRQoL weights
+#' 
+#' @return 
+#' A list of all parameters used for the decision model.
+#' @export
 load_all_params <- function(file.init = NULL,
                             file.mort = NULL,
                             file.death_hr = NULL,
@@ -70,7 +69,7 @@ load_all_params <- function(file.init = NULL,
     p_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART
     
     # Mortality
-    v_r_mort_by_age = load_mort_params(file = file.mort),
+    v_r_mort_by_age = load_mort_params(file = file.mort), # vector of age-specific mortality
     
     # Hazard ratios for death probability
     hr_BUP1_NI = df_death_hr["pe", "BUP1_NI"],
