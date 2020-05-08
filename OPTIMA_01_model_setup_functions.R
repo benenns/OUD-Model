@@ -1,31 +1,15 @@
-###############################################################################
-## OUD Cohort Model (OPTIMA Trial Adaptation)
-## Deterministic - Model Functions from: "OPTIMA_00_input_parameter_values.R"
-############################## Initial setup ##################################
-#rm(list = ls())  # remove any variables in R's memory 
-library(dplyr)    # to manipulate data
-library(reshape2) # to transform data
-library(ggplot2)  # for nice looking plots
-library(scales)   # for dollar signs and commas
-library(dampack)  # for CEA and calculate ICERs
-library(tidyverse)
-###############################################################################
-# Parameter read-in
-# Load parameters
-l_params_all <- load_all_params(file.init = "data/init_params.csv",
-  file.mort = "data/all_cause_mortality.csv",
-  file.death_hr = "data/death_hr.csv",
-  file.frailty = "data/frailty.csv",
-  file.weibull_scale = "data/weibull_scale.csv",
-  file.weibull_shape = "data/weibull_shape.csv",
-  file.unconditional = "data/unconditional_TP.csv",
-  file.sero = "data/hiv_sero.csv",
-  file.costs = "data/costs.csv",
-  file.crime_costs = "data/crime_costs.csv",
-  file.qalys = "data/qalys.csv")
-
-#l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
-
+#' Markov model
+#'
+#' \code{markov_model} implements the main model function.
+#'
+#' @param l_params_all List with all parameters
+#' @param err_stop Logical variable to stop model run if transition array is invalid, if TRUE. Default = FALSE.
+#' @param verbose Logical variable to indicate print out of messages. Default = FALSE
+#' @return 
+#' a_TDP: Transition probability array
+#' m_M_trace: Full markov cohort trace
+#' m_M_agg_trace: Aggregated trace over base health states
+#' @export
 markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   ### Definition:
   ##   Markov model implementation function
@@ -33,8 +17,9 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   ##   l_params_all: List with all parameters
   ##   verbose: Logical variable to indicate print out of messages
   ### Returns:
-  ##   a_TDP: Transition probability array
-  ##   m_M_trace: Matrix cohort trace
+  ##   a_TDP: Transition probability array.
+  ##   m_M_trace: Matrix cohort trace.
+  ##   m_M_agg_trace: Aggregated trace over base health states.
   ##
   with(as.list(l_params_all), {
 
@@ -580,7 +565,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[OOT & EP2, TX & EP2, ] = 0
 
   #### Check transition array ####
-  check_transition_probability(a_P = a_TDP, err_stop = err_stop, verbose = verbose) # check all probs /0, 1/
+  check_transition_probability(a_P = a_TDP, err_stop = err_stop, verbose = verbose) # check all probs [0, 1]
   check_sum_of_transition_array(a_P = a_TDP, n_states = n_states, n_t = n_t, err_stop = err_stop, verbose = verbose) # check prob sums = 1
 
   #### Run Markov model ####

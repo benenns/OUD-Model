@@ -6,6 +6,18 @@ library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 
 #### Create plots ####
+# Load parameters
+l_params_all <- load_all_params(file.init = "data/init_params.csv",
+                                file.mort = "data/all_cause_mortality.csv",
+                                file.death_hr = "data/death_hr.csv",
+                                file.frailty = "data/frailty.csv",
+                                file.weibull_scale = "data/weibull_scale.csv",
+                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.unconditional = "data/unconditional_TP.csv",
+                                file.sero = "data/hiv_sero.csv",
+                                file.costs = "data/costs.csv",
+                                file.crime_costs = "data/crime_costs.csv",
+                                file.qalys = "data/qalys.csv")
 # Run model
 l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
 
