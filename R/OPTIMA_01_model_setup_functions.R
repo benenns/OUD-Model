@@ -141,7 +141,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Probability of state-exit
   m_leave <- 1 - m_TDP
 
-  # Mortality
+  #### Mortality ####
   # Monthly mortality for each age applied to 12 months, includes state-specific hr
   v_mort <- function(hr = hr){
     v_mort <- rep((1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * (1/12) * hr)), each = 12)
@@ -197,17 +197,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
   # Alive probability in each period
   m_alive <- 1 - m_mort
-
-  # Alive probability for every state and time period
-  #v_alive <- function(from_state, n_mort_per){
-  #  v_alive_prob <- m_alive[from_state, n_mort_per]
-  #return(m_alive)
-  #}
-  # Count deaths
-  #v_death <- function(from_state, n_mort_per){
-  #  v_death_prob <- m_mort[from_state, n_mort_per]
-  #  return(m_mort)
-  #}
 
   #### Unconditional transition probabilities ####
   # Empty 2-D unconditional transition matrix (from states, to states)
@@ -590,11 +579,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     a_M_trace[1, , 1] <- v_s_init_BL
 
     # All model time periods
-      for(i in 2:(n_t)){ #added + 1
+      for(i in 2:(n_t)){
       # Time spent in given health state
       for(j in 1:(i - 1)){
         #state-time-dependent transition probability (j) * age (model-time)-specific mortality (i)
-        m_sojourn <- a_TDP[, , j] * m_alive[, i]
+        m_sojourn <- a_TDP[, , j] * m_alive[, i - 1]
         
         v_current_state <- as.vector(a_M_trace[i - 1, , j])
         
@@ -643,7 +632,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
 #' Check if transition array is valid
 #'
-#' \code{check_transition_probability} checks if transition probabilities are in \[0, 1\].
+#' \code{check_transition_probability} checks if individual transition probabilities are in \[0, 1\].
 #'
 #' @param a_P A transition probability array.
 #' @param err_stop Logical variable to stop model run if set up as TRUE. Default = FALSE.
@@ -651,8 +640,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 #' Default = FALSE
 #'
 #' @return
-#' This function stops if transition probability array is not valid and shows 
-#' what are the entries that are not valid
+#' This function stops if transition probability array is not valid and shows which entries are invalid
 #' @import utils
 #' @export
 check_transition_probability <- function(a_P,

@@ -288,6 +288,6 @@ load_all_params <- function(file.init = NULL,
 #' A modifed list with all parameters updated.
 #' @export
 update_param_list <- function(l_params_all, params_updated){
-  l_params_all <- modifyList(l_params_all, params_updated) #update the values
+  l_params_all <- modifyList(l_params_all, params_updated) #update values
   return(l_params_all)
 }
