@@ -5,7 +5,6 @@ library(scales)   # for dollar signs and commas
 library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 
-#### Create plots ####
 # Load parameters
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.mort = "data/all_cause_mortality.csv",
@@ -22,7 +21,9 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
 l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
 
 #write.csv(l_out_markov$m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
-
+#write.csv(l_out_markov$m_M_agg_trace_death,"C:/Users/Benjamin/Desktop/trace_death.csv", row.names = TRUE)
+#write.csv(l_out_markov$m_M_agg_trace_sero,"C:/Users/Benjamin/Desktop/trace_sero.csv", row.names = TRUE)
+#### Create plots ####
 # Prepare data
 df_M_agg_trace <- as.data.frame(l_out_markov$m_M_agg_trace)
 df_M_agg_trace$month <- as.numeric(rownames(df_M_agg_trace))

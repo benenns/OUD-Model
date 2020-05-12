@@ -597,18 +597,37 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
         
         a_M_trace[i, ,1] <- v_new_state + a_M_trace[i, ,1]
         }
-  }
+      }
+  # Collect trace for time-periods across all model states  
   m_M_trace <- array(0, dim = c((n_t + 1), n_states),
                      dimnames = list(0:n_t, v_n_states))
   for (i in 1:n_t){
     m_M_trace[i, ] <- rowSums(a_M_trace[i, ,])
   }
+  
+  # Count cumulative state-specific deaths
+  m_M_trace_death <- array(0, dim = c((n_t + 1), n_states),
+                           dimnames = list(0:n_t, v_n_states))
+  for (i in 2:n_t){
+    m_M_trace_death[i, ] <- m_M_trace[i - 1, ] * m_mort[, i - 1] # State-specific deaths at each time point as function of alive in t-1
+  }
+  m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative deaths at each time point (use m_M_trace_death for period deaths)
 
-  #### Create aggregated trace matrix ####
+  #### Create aggregated trace matrices ####
   v_agg_trace_states <- c("Alive", "Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # states to aggregate
+  v_agg_trace_death_states <- c("Total", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # states to aggregate
+  v_agg_trace_sero_states <- c("HIV - Alive", "HIV - Dead") # states to aggregate
+  
   n_agg_trace_states <- length(v_agg_trace_states)
+  n_agg_trace_death_states <- length(v_agg_trace_death_states)
+  n_agg_trace_sero_states <- length(v_agg_trace_sero_states)
+  
   m_M_agg_trace <- array(0, dim = c((n_t + 1), n_agg_trace_states),
                          dimnames = list(0:n_t, v_agg_trace_states))
+  m_M_agg_trace_death <- array(0, dim = c((n_t + 1), n_agg_trace_death_states),
+                               dimnames = list(0:n_t, v_agg_trace_death_states))
+  m_M_agg_trace_sero  <- array(0, dim = c((n_t + 1), n_agg_trace_sero_states),
+                               dimnames = list(0:n_t, v_agg_trace_sero_states))
   
   for (i in 1:n_t){
     m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])
@@ -622,10 +641,29 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     m_M_agg_trace[i, "OD"]    <- sum(m_M_trace[i, OD])
     m_M_agg_trace[i, "Death"] <- 1 - sum(m_M_trace[i, ])
   }
-  #write.csv(m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
+  
+  for (i in 1:n_t){
+    m_M_agg_trace_death[i, "Total"] <- sum(m_M_trace_cumsum_death[i, ])
+    m_M_agg_trace_death[i, "OD"]    <- sum(m_M_trace_cumsum_death[i, OD])
+    m_M_agg_trace_death[i, "REL1"]  <- sum(m_M_trace_cumsum_death[i, REL1])
+    m_M_agg_trace_death[i, "REL"]   <- sum(m_M_trace_cumsum_death[i, REL])
+    m_M_agg_trace_death[i, "BUP1"]  <- sum(m_M_trace_cumsum_death[i, BUP1])
+    m_M_agg_trace_death[i, "BUP"]   <- sum(m_M_trace_cumsum_death[i, BUP])
+    m_M_agg_trace_death[i, "MET1"]  <- sum(m_M_trace_cumsum_death[i, MET1])
+    m_M_agg_trace_death[i, "MET"]   <- sum(m_M_trace_cumsum_death[i, MET])
+    m_M_agg_trace_death[i, "ABS"]   <- sum(m_M_trace_cumsum_death[i, ABS])
+  }
+  
+  for (i in 1:n_t){
+    m_M_agg_trace_sero[i, "HIV - Alive"] <- sum(m_M_trace[i, POS])
+    m_M_agg_trace_sero[i, "HIV - Dead"]  <- sum(m_M_trace_cumsum_death[i, POS])
+  }
+  
   return(list(a_TDP = a_TDP,
               m_M_trace = m_M_trace,
-              m_M_agg_trace = m_M_agg_trace))
+              m_M_agg_trace = m_M_agg_trace,
+              m_M_agg_trace_death = m_M_agg_trace_death,
+              m_M_agg_trace_sero = m_M_agg_trace_sero))
   }
  )
 }
