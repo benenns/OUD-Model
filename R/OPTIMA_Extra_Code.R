@@ -876,3 +876,16 @@ for(i in 1:n_t){
   
   #write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
   #write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
+  
+  
+  c_BUP_NI_crime = df_crime_costs[, "BUP_NI"],
+  c_MET_NI_crime = df_crime_costs[, "MET_NI"],
+  c_REL_NI_crime = df_crime_costs[, "REL_NI"],
+  c_OD_NI_crime = df_crime_costs[, "OD_NI"],
+  c_ABS_NI_crime = df_crime_costs[, "ABS_NI"],
+  
+  c_BUP_INJ_crime = df_crime_costs[, "BUP_INJ"],
+  c_MET_INJ_crime = df_crime_costs[, "MET_INJ"],
+  c_REL_INJ_crime = df_crime_costs[, "REL_INJ"],
+  c_OD_INJ_crime = df_crime_costs[, "OD_INJ"],
+  c_ABS_INJ_crime = df_crime_costs[, "ABS_INJ"],

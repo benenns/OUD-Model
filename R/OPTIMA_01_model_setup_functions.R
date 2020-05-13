@@ -87,6 +87,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   df_n <- unite(df_flat, newCol) # combine columns into one data frame of all health states (8 states * 2 inj * 2 HIV * 3 Episodes)
   v_n_states <- df_n[,1] # convert df into vector
   n_states <- length(v_n_states) # total number of health states
+  v_index <- c(TX, OOT, all_BUP, BUP, BUP1, all_MET, MET, MET1, all_REL, REL, REL1, OD, ABS, NEG, POS, INJ, NI, EP1, EP2, EP3)
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -659,7 +660,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     m_M_agg_trace_sero[i, "HIV - Dead"]  <- sum(m_M_trace_cumsum_death[i, POS])
   }
   
-  return(list(a_TDP = a_TDP,
+  return(list(v_index = v_index,
+              n_t = n_t,
+              n_states = n_states,
+              v_n_states = v_n_states,
+              a_TDP = a_TDP,
               m_M_trace = m_M_trace,
               m_M_agg_trace = m_M_agg_trace,
               m_M_agg_trace_death = m_M_agg_trace_death,

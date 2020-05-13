@@ -56,7 +56,7 @@ load_all_params <- function(file.init = NULL,
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_sero <- read.csv(file = file.sero, row.names = 1, header = TRUE) # Seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
-  df_crime_costs <- read.csv(file = file.crime_costs, row.names = 1, header = TRUE) # Age-dependent crime costs
+  df_crime_costs <- read.csv(file = file.crime_costs, header = TRUE) # Age-dependent crime costs
   df_qalys <- read.csv(file = file.qalys, row.names = 1, header = TRUE) # QALYs
   
   l_params_all <- list(
@@ -250,6 +250,7 @@ load_all_params <- function(file.init = NULL,
     # Treatment Costs
     c_BUP_TX  = df_costs["pe", "BUP_TX"],
     c_MET_TX  = df_costs["pe", "MET_TX"],
+    c_OD_TX  = df_costs["pe", "OD_TX"],
     
     # HRU Costs
     # Modify if age-specific
@@ -266,12 +267,26 @@ load_all_params <- function(file.init = NULL,
 
     # HIV Costs
     c_HIV = df_costs["pe", "HIV_HRU"],
-    c_ART = df_costs["pe", "HIV_ART"]
+    c_ART = df_costs["pe", "HIV_ART"],
     
     # Crime Costs
+    #df_crime_costs = subset(df_crime_costs, type >= "pe_25" & type <= "pe_90"),
+    df_crime_costs = subset(df_crime_costs, type=="pe"),
     # Age-specific
+    v_c_BUP_NI_crime = df_crime_costs %>% select(BUP_NI) %>% as.matrix(),
+    v_c_MET_NI_crime = df_crime_costs %>% select(MET_NI) %>% as.matrix(),
+    v_c_REL_NI_crime = df_crime_costs %>% select(REL_NI) %>% as.matrix(),
+    v_c_OD_NI_crime = df_crime_costs %>% select(OD_NI) %>% as.matrix(),
+    v_c_ABS_NI_crime = df_crime_costs %>% select(ABS_NI) %>% as.matrix(),
     
-    ### QALYs ###
+    v_c_BUP_INJ_crime = df_crime_costs %>% select(BUP_INJ) %>% as.matrix(),
+    v_c_MET_INJ_crime = df_crime_costs %>% select(MET_INJ) %>% as.matrix(),
+    v_c_REL_INJ_crime = df_crime_costs %>% select(REL_INJ) %>% as.matrix(),
+    v_c_OD_INJ_crime = df_crime_costs %>% select(OD_INJ) %>% as.matrix(),
+    v_c_ABS_INJ_crime = df_crime_costs %>% select(ABS_INJ) %>% as.matrix() 
+
+    # QALYs
+    
 
     ) # Close list
   return(l_params_all) # Return full parameter list
