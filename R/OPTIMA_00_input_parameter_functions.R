@@ -21,6 +21,7 @@ load_mort_params <- function(file.mort = NULL){
 #' \code{load_all_params} loads all parameters for the decision model from multiple sources and creates a list.
 #'
 #' @param file.init String with the location and name of the file with initial set of parameters
+#' @param file.init_dist String with the location and name of the file with initial distributions
 #' @param file.mort String with the location and name of the file with mortality data
 #' @param file.death_hr String with the location and name of death hazard ratios
 #' @param file.frailty String with the location and name of the file with frailty estimates
@@ -36,6 +37,7 @@ load_mort_params <- function(file.mort = NULL){
 #' A list of all parameters used for the decision model.
 #' @export
 load_all_params <- function(file.init = NULL,
+                            file.init_dist = NULL,
                             file.mort = NULL,
                             file.death_hr = NULL,
                             file.frailty = NULL,
@@ -49,6 +51,7 @@ load_all_params <- function(file.init = NULL,
     
   #Load files of all baseline model parameters
   df_init_params <- read.csv(file = file.init, row.names = 1, header = TRUE) # Initial parameter values
+  df_init_dist <- read.csv(file = file.init_dist, row.names = 1, header = TRUE) # Initial parameter values
   df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
   df_frailty <- read.csv(file = file.frailty, row.names = 1, header = TRUE) # Episode frailty params
   df_weibull_scale <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull scale params
@@ -65,8 +68,12 @@ load_all_params <- function(file.init = NULL,
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
     p_discount = df_init_params["pe", "discount"], # discount rate
     p_male = df_init_params["pe", "male_prop"], # % male
+    p_INJ = df_init_params["pe", "inj_prop"], # % injection
     p_HIV_POS = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
-    p_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART
+    p_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
+    
+    # Initial state distribution
+    v_init_dist = as.vector(df_init_dist["pe", ]),
     
     # Mortality
     v_r_mort_by_age = load_mort_params(file = file.mort), # vector of age-specific mortality
@@ -266,8 +273,8 @@ load_all_params <- function(file.init = NULL,
     c_ABS_INJ_HRU = df_costs["pe", "ABS_INJ_HRU"], 
 
     # HIV Costs
-    c_HIV = df_costs["pe", "HIV_HRU"],
-    c_ART = df_costs["pe", "HIV_ART"],
+    c_HIV_HRU = df_costs["pe", "HIV_HRU"],
+    c_HIV_ART = df_costs["pe", "HIV_ART"],
     
     # Crime Costs
     #df_crime_costs = subset(df_crime_costs, type >= "pe_25" & type <= "pe_90"),

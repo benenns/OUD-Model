@@ -87,7 +87,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   df_n <- unite(df_flat, newCol) # combine columns into one data frame of all health states (8 states * 2 inj * 2 HIV * 3 Episodes)
   v_n_states <- df_n[,1] # convert df into vector
   n_states <- length(v_n_states) # total number of health states
-  v_index <- c(TX, OOT, all_BUP, BUP, BUP1, all_MET, MET, MET1, all_REL, REL, REL1, OD, ABS, NEG, POS, INJ, NI, EP1, EP2, EP3)
+  l_index_s  <- list(TX = TX, OOT = OOT, 
+                     all_BUP = all_BUP, BUP = BUP, BUP1 = BUP1, 
+                     all_MET = all_MET, MET = MET, MET1 = MET1, 
+                     all_REL = all_REL, REL = REL, REL1 = REL1, 
+                     OD = OD, ABS = ABS, 
+                     NEG = NEG, POS = POS, 
+                     INJ = INJ, NI = NI, 
+                     EP1 = EP1, EP2 = EP2, EP3 = EP3)
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -560,24 +567,34 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
   #### Run Markov model ####
   # Create empty initial state vectors
-  v_s_init_BL <- v_s_init_BUP <- v_s_init_MET <- rep(0, n_states)
-  names(v_s_init_BL) <- names(v_s_init_BUP) <- names(v_s_init_MET) <- v_n_states
+  v_s_init <- rep(0, n_states)
+  names(v_s_init) <- v_n_states
 
-  # Set initial state vector
+  #### Set initial state vector ####
   # Baseline
-  v_s_init_BL[BUP1 & NI & EP1 & NEG]  <- 0.5 # Empirically observed proportions from base state
-  v_s_init_BL[MET1 & NI & EP1 & NEG]  <- 0.5
+  # Populate first episode in base states
+  v_s_init[BUP1 & EP1] <- v_init_dist["pe", "BUP1"] # Empirically observed proportions from base states
+  v_s_init[BUP & EP1]  <- v_init_dist["pe", "BUP"]
+  v_s_init[MET1 & EP1] <- v_init_dist["pe", "MET1"]
+  v_s_init[MET & EP1]  <- v_init_dist["pe", "MET"]
+  v_s_init[REL1 & EP1] <- v_init_dist["pe", "REL1"]
+  v_s_init[REL & EP1]  <- v_init_dist["pe", "REL"]
+  v_s_init[OD & EP1]   <- v_init_dist["pe", "OD"]
+  v_s_init[ABS & EP1]  <- v_init_dist["pe", "ABS"]
   
-  # BUP
-  v_s_init_BUP[BUP] = 1/sum(BUP) # Set all BUP states equal, and sum to 1
-  # MET
-  v_s_init_MET[MET] = 1/sum(MET) # Set all MET states equal, and sum to 1
+  # Distribute by injection/non-injection
+  v_s_init[NI]  <- v_s_init[NI] * (1 - p_INJ)
+  v_s_init[INJ] <- v_s_init[INJ] * p_INJ
+  
+  # Distribute HIV+/-
+  v_s_init[NEG] <- v_s_init[NEG] * (1 - p_HIV_POS)
+  v_s_init[POS] <- v_s_init[POS] * p_HIV_POS
 
   # Create Markov Trace
     # Initialize population
     a_M_trace <- array(0, dim = c((n_t + 1), n_states, (n_t + 1)),
                        dimnames = list(0:n_t, v_n_states, 0:n_t))
-    a_M_trace[1, , 1] <- v_s_init_BL
+    a_M_trace[1, , 1] <- v_s_init
 
     # All model time periods
       for(i in 2:(n_t)){
@@ -612,7 +629,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   for (i in 2:n_t){
     m_M_trace_death[i, ] <- m_M_trace[i - 1, ] * m_mort[, i - 1] # State-specific deaths at each time point as function of alive in t-1
   }
-  m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative deaths at each time point (use m_M_trace_death for period deaths)
+  m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative deaths at each time point (use m_M_trace_death for individual period deaths)
 
   #### Create aggregated trace matrices ####
   v_agg_trace_states <- c("Alive", "Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # states to aggregate
@@ -660,10 +677,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     m_M_agg_trace_sero[i, "HIV - Dead"]  <- sum(m_M_trace_cumsum_death[i, POS])
   }
   
-  return(list(v_index = v_index,
-              n_t = n_t,
-              n_states = n_states,
-              v_n_states = v_n_states,
+  return(list(l_index_s = l_index_s,
               a_TDP = a_TDP,
               m_M_trace = m_M_trace,
               m_M_agg_trace = m_M_agg_trace,

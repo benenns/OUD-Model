@@ -7,6 +7,7 @@ library(tidyverse)
 
 # Load parameters
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
+                                file.init_dist = "data/init_dist.csv",
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
