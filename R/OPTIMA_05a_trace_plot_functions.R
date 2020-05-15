@@ -5,6 +5,10 @@ library(scales)   # for dollar signs and commas
 library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 
+# Call model setup functions
+source("R/OPTIMA_00_input_parameter_functions.R")
+source("R/OPTIMA_01_model_setup_functions.R")
+
 # Load parameters
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.init_dist = "data/init_dist.csv",
@@ -18,6 +22,7 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.costs = "data/costs.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
+
 # Run model
 l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
 

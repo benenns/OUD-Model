@@ -889,3 +889,17 @@ for(i in 1:n_t){
   c_REL_INJ_crime = df_crime_costs[, "REL_INJ"],
   c_OD_INJ_crime = df_crime_costs[, "OD_INJ"],
   c_ABS_INJ_crime = df_crime_costs[, "ABS_INJ"],
+  
+  
+  gh <- outcomes(l_params_all = l_params_all, l_out_markov = l_out_markov)
+  ty <- gh$m_TOTAL_costs_states
+  a <- gh$m_TX_costs
+  b <- gh$m_HRU_costs
+  c <- gh$m_HIV_costs
+  d <- gh$m_crime_costs
+  write.csv(ty,"C:/Users/Benjamin/Desktop/total_costs.csv", row.names = TRUE)
+  write.csv(l_out_markov$m_M_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
+  write.csv(a,"C:/Users/Benjamin/Desktop/tx.csv", row.names = TRUE)
+  write.csv(b,"C:/Users/Benjamin/Desktop/hru.csv", row.names = TRUE)
+  write.csv(c,"C:/Users/Benjamin/Desktop/hiv.csv", row.names = TRUE)
+  write.csv(d,"C:/Users/Benjamin/Desktop/crime.csv", row.names = TRUE)

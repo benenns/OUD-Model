@@ -54,3 +54,38 @@ a
 b
 c <- a * b
 c
+
+
+
+df_init_dist <- read.csv("C:/Users/Benjamin/Documents/GitHub/OUD-Model/Data/init_dist.csv", row.names = 1, header = TRUE) # Initial parameter values
+v_init_dist = as.vector(df_init_dist["pe", ])
+
+
+v_s_init <- rep(0, dim = c(n_states), 
+                dimnames = list(v_n_states))
+
+v_s_init <- rep(0, n_states)
+names(v_s_init) <- v_n_states
+
+# Set initial state vector
+p_INJ <- 0.5
+p_HIV_POS <- 0.05
+n_t <- 720
+# Baseline
+v_s_init[BUP1 & EP1] <- v_init_dist["pe", "BUP1"] # Empirically observed proportions from base states
+v_s_init[BUP & EP1]  <- v_init_dist["pe", "BUP"]
+v_s_init[MET1 & EP1] <- v_init_dist["pe", "MET1"]
+v_s_init[MET & EP1]  <- v_init_dist["pe", "MET"]
+v_s_init[REL1 & EP1] <- v_init_dist["pe", "REL1"]
+v_s_init[REL & EP1]  <- v_init_dist["pe", "REL"]
+v_s_init[OD & EP1]   <- v_init_dist["pe", "OD"]
+v_s_init[ABS & EP1]  <- v_init_dist["pe", "ABS"]
+
+v_s_init[NI]  <- v_s_init[NI] * (1 - p_INJ)
+v_s_init[INJ] <- v_s_init[INJ] * p_INJ
+
+v_s_init[NEG] <- v_s_init[NEG] * (1 - p_HIV_POS)
+v_s_init[POS] <- v_s_init[POS] * p_HIV_POS
+
+g_unit <- sum(v_s_init)
+write.csv(v_s_init,"C:/Users/Benjamin/Desktop/v_s_init.csv", row.names = TRUE)
