@@ -144,27 +144,32 @@ markov_model_CA <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
   #### Mortality ####
   # Monthly mortality for each age applied to 12 months, includes state-specific hr
-  v_mort <- function(hr = hr){
-    #v_mort <- rep(1 - (1 - (v_r_mort_by_age[n_age_init:(n_age_max - 1)] * hr) ^ (1/12)), each = 12)
-    v_mort <- rep(1 - (1 - (1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * hr)))^(1/12), each = 12)
-    return(v_mort)
+  v_mort_NI <- function(hr = hr){
+    #v_mort <- rep((1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * (1/12) * hr)), each = 12) # all three functions produce identical results
+    #v_mort <- rep(1 - (1 - (1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * hr)))^(1/12), each = 12)
+    v_mort_NI <- rep((1 - (1 - (1 - exp(-v_r_mort_by_age_NI[n_age_init:(n_age_max - 1), ])))^(1/12)) * hr, each = 12) # test
+    return(v_mort_NI)
+  }
+  v_mort_INJ <- function(hr = hr){
+    v_mort_INJ <- rep((1 - (1 - (1 - exp(-v_r_mort_by_age_INJ[n_age_init:(n_age_max - 1), ])))^(1/12)) * hr, each = 12) # test
+    return(v_mort_INJ)
   }
   # Non-injection
-  v_mort_MET_NI       <- v_mort(hr = hr_MET_NI)
-  v_mort_REL1_NI      <- v_mort(hr = hr_REL1_NI)
-  v_mort_REL_NI       <- v_mort(hr = hr_REL_NI)
-  v_mort_OD_NEG_NI    <- v_mort(hr = hr_OD_NI)
-  v_mort_OD_POS_NI    <- v_mort(hr = hr_HIV_OD_NI) # REMOVE THIS AFTER CA REP
-  v_mort_ABS_NEG_NI   <- v_mort(hr = hr_ABS_NI)
-  v_mort_ABS_POS_NI   <- v_mort(hr = hr_HIV_NI)
+  v_mort_MET_NI       <- v_mort_NI(hr = hr_MET_NI)
+  v_mort_REL1_NI      <- v_mort_NI(hr = hr_REL1_NI)
+  v_mort_REL_NI       <- v_mort_NI(hr = hr_REL_NI)
+  v_mort_OD_NEG_NI    <- v_mort_NI(hr = hr_OD_NI)
+  v_mort_OD_POS_NI    <- v_mort_NI(hr = hr_HIV_OD_NI) # REMOVE THIS AFTER CA REP
+  v_mort_ABS_NEG_NI   <- v_mort_NI(hr = hr_ABS_NI)
+  v_mort_ABS_POS_NI   <- v_mort_NI(hr = hr_HIV_NI)
   # Injection
-  v_mort_MET_INJ      <- v_mort(hr = hr_MET_INJ)
-  v_mort_REL1_INJ     <- v_mort(hr = hr_REL1_INJ)
-  v_mort_REL_INJ      <- v_mort(hr = hr_REL_INJ)
-  v_mort_OD_NEG_INJ   <- v_mort(hr = hr_OD_INJ)
-  v_mort_OD_POS_INJ   <- v_mort(hr = hr_HIV_OD_INJ) # REMOVE THIS AFTER CA REP
-  v_mort_ABS_NEG_INJ  <- v_mort(hr = hr_ABS_INJ)
-  v_mort_ABS_POS_INJ  <- v_mort(hr = hr_HIV_INJ)
+  v_mort_MET_INJ      <- v_mort_INJ(hr = hr_MET_INJ)
+  v_mort_REL1_INJ     <- v_mort_INJ(hr = hr_REL1_INJ)
+  v_mort_REL_INJ      <- v_mort_INJ(hr = hr_REL_INJ)
+  v_mort_OD_NEG_INJ   <- v_mort_INJ(hr = hr_OD_INJ)
+  v_mort_OD_POS_INJ   <- v_mort_INJ(hr = hr_HIV_OD_INJ) # REMOVE THIS AFTER CA REP
+  v_mort_ABS_NEG_INJ  <- v_mort_INJ(hr = hr_ABS_INJ)
+  v_mort_ABS_POS_INJ  <- v_mort_INJ(hr = hr_HIV_INJ)
 
   # Create empty mortality matrix
   m_mort <- array(0, dim = c(n_states, n_t),

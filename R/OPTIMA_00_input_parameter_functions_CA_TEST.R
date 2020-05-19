@@ -8,10 +8,10 @@
 #' @return 
 #' A vector with mortality by age.
 #' @export
-load_mort_params <- function(file.mort = NULL){
+load_mort_params <- function(file.mort = NULL, type = NULL){
   df_lt_can_2018 <- read.csv(file = file.mort)
   v_r_mort_by_age <- df_lt_can_2018 %>%
-    select(Total) %>%
+    select(type) %>%
     as.matrix()
   return(v_r_mort_by_age)
 }
@@ -76,7 +76,8 @@ load_all_params <- function(file.init = NULL,
     v_init_dist = as.vector(df_init_dist["pe", ]),
     
     # Mortality
-    v_r_mort_by_age = load_mort_params(file = file.mort), # vector of age-specific mortality
+    v_r_mort_by_age_NI = load_mort_params(file = file.mort, type = "Total_NI"), # vector of age-specific mortality
+    v_r_mort_by_age_INJ = load_mort_params(file = file.mort, type = "Total_INJ"), # vector of age-specific mortality
     
     # Hazard ratios for death probability
 

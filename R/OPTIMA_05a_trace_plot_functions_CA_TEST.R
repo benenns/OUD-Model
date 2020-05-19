@@ -5,6 +5,10 @@ library(scales)   # for dollar signs and commas
 library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 
+# Call model setup functions
+source("R/OPTIMA_00_input_parameter_functions_CA_TEST.R")
+source("R/OPTIMA_01_model_setup_functions_CA_TEST.R")
+
 # Load parameters
 l_params_all_CA_EB <- load_all_params(file.init = "data/CA_EB_Replication/init_params_CA_EB.csv",
                                       file.init_dist = "data/CA_EB_Replication/init_dist_CA_EB.csv",
@@ -21,7 +25,7 @@ l_params_all_CA_EB <- load_all_params(file.init = "data/CA_EB_Replication/init_p
 # Run model
 l_out_markov <- markov_model_CA(l_params_all = l_params_all_CA_EB, err_stop = FALSE, verbose = TRUE)
 
-#write.csv(l_out_markov$m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
+write.csv(l_out_markov$m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
 #write.csv(l_out_markov$m_M_agg_trace_death,"C:/Users/Benjamin/Desktop/trace_death.csv", row.names = TRUE)
 #write.csv(l_out_markov$m_M_agg_trace_sero,"C:/Users/Benjamin/Desktop/trace_sero.csv", row.names = TRUE)
 #### Create plots ####
@@ -54,6 +58,9 @@ main_states_trace_plot <- ggplot(df_M_agg_trace_plot, aes(x = month, y = proport
 pdf("Plots/Markov Trace/trace_states_CA_EB.pdf", width = 8, height = 5)
 main_states_trace_plot
 dev.off()
+png("Plots/Markov Trace/trace_states_CA_EB.png", width = 640, height = 480)
+main_states_trace_plot
+dev.off()
 
 ### Time spent in health states ###
 main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = proportion, fill = state_order_time)) +
@@ -65,5 +72,8 @@ main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = pr
   geom_text(aes(label = percentage), hjust = -0.25, size = 3.5) +
   coord_flip(ylim = c(0, 720))
 pdf(file = "Plots/Markov Trace/time_states_CA_EB.pdf", width = 8, height = 4)
+main_states_time
+dev.off()
+png("Plots/Markov Trace/time_states_CA_EB.png", width = 640, height = 480)
 main_states_time
 dev.off()
