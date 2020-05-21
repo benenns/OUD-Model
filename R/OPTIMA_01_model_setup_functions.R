@@ -1,31 +1,45 @@
 #' Markov model
 #'
-#' \code{markov_model} implements the main model function.
+#' \code{markov_model} implements the main model functions to calculate Markov trace.
 #'
 #' @param l_params_all List with all parameters
 #' @param err_stop Logical variable to stop model run if transition array is invalid, if TRUE. Default = FALSE.
 #' @param verbose Logical variable to indicate print out of messages. Default = FALSE
 #' @return 
 #' a_TDP: Transition probability array
-#' m_M_trace: Full markov cohort trace
-#' m_M_agg_trace: Aggregated trace over base health states
+#' m_M_trace: Fully stratified markov cohort trace
+#' m_M_agg_trace: Aggregated markov trace over base health states
+#' m_M_agg_trace_death: State-specific mortality from each health state
+#' m_M_agg_trace_sero: HIV seroconversions from each health state
 #' @export
 markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   ### Definition:
   ##   Markov model implementation function
+  ### Prefixes:
+  ##   l_* denotes list
+  ##   n_* denotes number
+  ##   a_* denotes 3-D array
+  ##   m_* denotes 2-D matrix
+  ##   v_* denotes vector
+  ##   df_* denotes data frame
+  ##   p_* denotes transition parameters
+  ##   c_* denotes costs
+  ##   u_* denotes utilities
   ### Arguments:  
   ##   l_params_all: List with all parameters
   ##   verbose: Logical variable to indicate print out of messages
   ### Returns:
   ##   a_TDP: Transition probability array.
-  ##   m_M_trace: Matrix cohort trace.
-  ##   m_M_agg_trace: Aggregated trace over base health states.
+  ##   m_M_trace: Fully disaggregated matrix cohort trace.
+  ##   m_M_agg_trace: Aggregated trace over selected base health states.
+  ##   m_M_agg_trace_death: State-specific mortality from each health state.
+  ##   m_M_agg_trace_sero: HIV seroconversions from each health state.
   ##
   with(as.list(l_params_all), {
 
   #### Set up model states ####
   n_t <- (n_age_max - n_age_init) * 12 # modeling time horizon in months
-  l_dim_s  <- list() # list of base states
+  l_dim_s  <- list() # list of health states
   
   # Base health states
   BASE <- l_dim_s[[1]] <- c("MET1", "MET", "BUP1", "BUP", "ABS", "REL1", "REL", "OD")
@@ -84,7 +98,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   EP2 <- df_flat$EP == "2"
   EP3 <- df_flat$EP == "3"
 
-  df_n <- unite(df_flat, newCol) # combine columns into one data frame of all health states (8 states * 2 inj * 2 HIV * 3 Episodes)
+  df_n <- unite(df_flat, newCol) # combine columns into one data frame of all health states
   v_n_states <- df_n[,1] # convert df into vector
   n_states <- length(v_n_states) # total number of health states
   l_index_s  <- list(TX = TX, OOT = OOT, 
@@ -150,7 +164,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_leave <- 1 - m_TDP
 
   #### Mortality ####
-  # Monthly mortality for each age applied to 12 months, includes state-specific hr
+  # Monthly mortality vectors for each age applied to 12 months, includes state-specific hr
   v_mort <- function(hr = hr){
     v_mort <- rep((1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * (1/12) * hr)), each = 12)
     return(v_mort)
@@ -583,12 +597,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_s_init[ABS & EP1]  <- v_init_dist["pe", "ABS"]
   
   # Distribute by injection/non-injection
-  v_s_init[NI]  <- v_s_init[NI] * (1 - p_INJ)
-  v_s_init[INJ] <- v_s_init[INJ] * p_INJ
+  v_s_init[NI]  <- v_s_init[NI] * (1 - n_INJ)
+  v_s_init[INJ] <- v_s_init[INJ] * n_INJ
   
   # Distribute HIV+/-
-  v_s_init[NEG] <- v_s_init[NEG] * (1 - p_HIV_POS)
-  v_s_init[POS] <- v_s_init[POS] * p_HIV_POS
+  v_s_init[NEG] <- v_s_init[NEG] * (1 - n_HIV_POS)
+  v_s_init[POS] <- v_s_init[POS] * n_HIV_POS
 
   # Create Markov Trace
     # Initialize population
@@ -689,7 +703,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
 #' Check if transition array is valid
 #'
-#' \code{check_transition_probability} checks if individual transition probabilities are in \[0, 1\].
+#' \code{check_transition_probability} checks if individual transition probabilities are in range \[0, 1\].
 #'
 #' @param a_P A transition probability array.
 #' @param err_stop Logical variable to stop model run if set up as TRUE. Default = FALSE.
@@ -730,7 +744,7 @@ check_transition_probability <- function(a_P,
   }
 }
 
-#' Check if the sum of transition probabilities equal to one. 
+#' Check if the sum of transition probabilities from each state are equal to one. 
 #'
 #' \code{check_sum_of_transition_array} checks if each of the rows of the 
 #' transition matrices sum to one. 

@@ -1,0 +1,42 @@
+library(dplyr)    # to manipulate data
+library(reshape2) # to transform data
+library(ggplot2)  # for nice looking plots
+library(tidyverse)
+
+# Call model setup functions
+source("R/OPTIMA_00_input_parameter_functions.R")
+source("R/OPTIMA_01_model_setup_functions.R")
+source("R/OPTIMA_05b_ICER_functions.R")
+
+# Load parameters
+l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
+                                file.init_dist = "data/init_dist_bup.csv",
+                                file.mort = "data/all_cause_mortality.csv",
+                                file.death_hr = "data/death_hr.csv",
+                                file.frailty = "data/frailty.csv",
+                                file.weibull_scale = "data/weibull_scale.csv",
+                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.unconditional = "data/unconditional_TP.csv",
+                                file.sero = "data/hiv_sero.csv",
+                                file.costs = "data/costs.csv",
+                                file.crime_costs = "data/crime_costs.csv",
+                                file.qalys = "data/qalys.csv")
+
+l_params_MET <- load_all_params(file.init = "data/init_params.csv",
+                                file.init_dist = "data/init_dist_met.csv",
+                                file.mort = "data/all_cause_mortality.csv",
+                                file.death_hr = "data/death_hr.csv",
+                                file.frailty = "data/frailty.csv",
+                                file.weibull_scale = "data/weibull_scale.csv",
+                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.unconditional = "data/unconditional_TP.csv",
+                                file.sero = "data/hiv_sero.csv",
+                                file.costs = "data/costs.csv",
+                                file.crime_costs = "data/crime_costs.csv",
+                                file.qalys = "data/qalys.csv")
+
+# Run Markov model and return outputs
+outcomes_comp <- outcomes(l_params_all = l_params_BUP)
+outcomes_int  <- outcomes(l_params_all = l_params_MET)
+
+ICER <- ICER(outcomes_comp = outcomes_MET, outcomes_int = outcomes_BUP)

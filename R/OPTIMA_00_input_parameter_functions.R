@@ -66,11 +66,11 @@ load_all_params <- function(file.init = NULL,
     # Initial parameters
     n_age_init = df_init_params["pe", "age_init"], # age at baseline
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
-    p_discount = df_init_params["pe", "discount"], # discount rate
-    p_male = df_init_params["pe", "male_prop"], # % male
-    p_INJ = df_init_params["pe", "inj_prop"], # % injection
-    p_HIV_POS = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
-    p_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
+    n_discount = df_init_params["pe", "discount"], # discount rate
+    n_male = df_init_params["pe", "male_prop"], # % male
+    n_INJ = df_init_params["pe", "inj_prop"], # % injection
+    n_HIV_POS = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
+    n_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
     
     # Initial state distribution
     v_init_dist = as.vector(df_init_dist["pe", ]),
@@ -279,44 +279,43 @@ load_all_params <- function(file.init = NULL,
     c_HIV_ART = df_costs["pe", "HIV_ART"],
     
     # Crime Costs
-    #df_crime_costs = subset(df_crime_costs, type >= "pe_25" & type <= "pe_90"),
     df_crime_costs = subset(df_crime_costs, type=="pe"),
     # Age-specific
     v_c_BUP_NI_crime = df_crime_costs %>% select(BUP_NI) %>% as.matrix(),
     v_c_MET_NI_crime = df_crime_costs %>% select(MET_NI) %>% as.matrix(),
     v_c_REL_NI_crime = df_crime_costs %>% select(REL_NI) %>% as.matrix(),
-    v_c_OD_NI_crime = df_crime_costs %>% select(OD_NI) %>% as.matrix(),
+    v_c_OD_NI_crime  = df_crime_costs %>% select(OD_NI) %>% as.matrix(),
     v_c_ABS_NI_crime = df_crime_costs %>% select(ABS_NI) %>% as.matrix(),
     
     v_c_BUP_INJ_crime = df_crime_costs %>% select(BUP_INJ) %>% as.matrix(),
     v_c_MET_INJ_crime = df_crime_costs %>% select(MET_INJ) %>% as.matrix(),
     v_c_REL_INJ_crime = df_crime_costs %>% select(REL_INJ) %>% as.matrix(),
-    v_c_OD_INJ_crime = df_crime_costs %>% select(OD_INJ) %>% as.matrix(),
+    v_c_OD_INJ_crime  = df_crime_costs %>% select(OD_INJ) %>% as.matrix(),
     v_c_ABS_INJ_crime = df_crime_costs %>% select(ABS_INJ) %>% as.matrix(), 
 
     # QALYs
     u_BUP_NI_NEG = df_qalys["pe", "BUP_NI_NEG"],
     u_MET_NI_NEG = df_qalys["pe", "MET_NI_NEG"],
     u_REL_NI_NEG = df_qalys["pe", "REL_NI_NEG"],
-    u_OD_NI_NEG = df_qalys["pe", "OD_NI_NEG"],
+    u_OD_NI_NEG  = df_qalys["pe", "OD_NI_NEG"],
     u_ABS_NI_NEG = df_qalys["pe", "ABS_NI_NEG"],
     
     u_BUP_INJ_NEG = df_qalys["pe", "BUP_INJ_NEG"],
     u_MET_INJ_NEG = df_qalys["pe", "MET_INJ_NEG"],
     u_REL_INJ_NEG = df_qalys["pe", "REL_INJ_NEG"],
-    u_OD_INJ_NEG = df_qalys["pe", "OD_INJ_NEG"],
+    u_OD_INJ_NEG  = df_qalys["pe", "OD_INJ_NEG"],
     u_ABS_INJ_NEG = df_qalys["pe", "ABS_INJ_NEG"],
     
     u_BUP_NI_POS = df_qalys["pe", "BUP_NI_POS"],
     u_MET_NI_POS = df_qalys["pe", "MET_NI_POS"],
     u_REL_NI_POS = df_qalys["pe", "REL_NI_POS"],
-    u_OD_NI_POS = df_qalys["pe", "OD_NI_POS"],
+    u_OD_NI_POS  = df_qalys["pe", "OD_NI_POS"],
     u_ABS_NI_POS = df_qalys["pe", "ABS_NI_POS"],
     
     u_BUP_INJ_POS = df_qalys["pe", "BUP_INJ_POS"],
     u_MET_INJ_POS = df_qalys["pe", "MET_INJ_POS"],
     u_REL_INJ_POS = df_qalys["pe", "REL_INJ_POS"],
-    u_OD_INJ_POS = df_qalys["pe", "OD_INJ_POS"],
+    u_OD_INJ_POS  = df_qalys["pe", "OD_INJ_POS"],
     u_ABS_INJ_POS = df_qalys["pe", "ABS_INJ_POS"],
     
     u_HIV_mult = df_qalys["pe", "HIV_mult"] # Modify if using state-HIV-specific QALYs, also add HCV

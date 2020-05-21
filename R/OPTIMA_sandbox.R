@@ -89,3 +89,10 @@ v_s_init[POS] <- v_s_init[POS] * p_HIV_POS
 
 g_unit <- sum(v_s_init)
 write.csv(v_s_init,"C:/Users/Benjamin/Desktop/v_s_init.csv", row.names = TRUE)
+
+
+
+
+v_test <- rep(1, 721)
+one_year <- sum(v_test[1:12])
+five_year <- sum(v_test[1:60])

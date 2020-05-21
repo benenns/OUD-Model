@@ -69,7 +69,7 @@ main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = pr
   xlab("Health State") + ylab("Time") +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = state_colours_time2) +
-  geom_text(aes(label = percentage), hjust = -0.25, size = 3.5) +
+  geom_text(aes(label = paste0(round((proportion/12),1)," (",percentage,")", "%")), hjust = -0.25, size = 3.5) +
   coord_flip(ylim = c(0, 720))
 pdf(file = "Plots/Markov Trace/time_states_CA_EB.pdf", width = 8, height = 4)
 main_states_time

@@ -7,7 +7,7 @@
 #' @param n_sim Number of PSA samples.
 #' @param seed Seed for reproducibility of Monte Carlo sampling.
 #' @return 
-#' A data frame with \code{n_sim} rows and 15 columns of parameters for PSA. 
+#' A data frame with \code{n_sim} rows and {n_states} columns of parameters for PSA. 
 #' Each row is a parameter set sampled from distributions that characterize 
 #' their uncertainty
 #' @examples 
@@ -240,12 +240,12 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     c_MET_NI_HRU = rgamma(n_sim, shape = df_costs["shape", "MET_NI_HRU"], scale = df_costs["scale", "MET_NI_HRU"]), 
     c_ABS_NI_HRU = rgamma(n_sim, shape = df_costs["shape", "ABS_NI_HRU"], scale = df_costs["scale", "ABS_NI_HRU"]), 
     c_REL_NI_HRU = rgamma(n_sim, shape = df_costs["shape", "REL_NI_HRU"], scale = df_costs["scale", "REL_NI_HRU"]), 
-    c_OD_NI_HRU = rgamma(n_sim, shape = df_costs["shape", "OD_NI_HRU"] , scale = df_costs["scale", "OD_NI_HRU"] ), 
+    c_OD_NI_HRU  = rgamma(n_sim, shape = df_costs["shape", "OD_NI_HRU"] , scale = df_costs["scale", "OD_NI_HRU"] ), 
     c_BUP_INJ_HRU = rgamma(n_sim, shape = df_costs["shape", "BUP_INJ_HRU"], scale = df_costs["scale", "BUP_INJ_HRU"]), 
     c_MET_INJ_HRU = rgamma(n_sim, shape = df_costs["shape", "MET_INJ_HRU"], scale = df_costs["scale", "MET_INJ_HRU"]), 
     c_ABS_INJ_HRU = rgamma(n_sim, shape = df_costs["shape", "ABS_INJ_HRU"], scale = df_costs["scale", "ABS_INJ_HRU"]), 
     c_REL_INJ_HRU = rgamma(n_sim, shape = df_costs["shape", "REL_INJ_HRU"], scale = df_costs["scale", "REL_INJ_HRU"]), 
-    c_OD_INJ_HRU = rgamma(n_sim, shape = df_costs["shape", "OD_INJ_HRU"] , scale = df_costs["scale", "OD_INJ_HRU"] ),
+    c_OD_INJ_HRU  = rgamma(n_sim, shape = df_costs["shape", "OD_INJ_HRU"] , scale = df_costs["scale", "OD_INJ_HRU"] ),
     
     # HIV Costs
     c_HIV = rgamma(n_sim, shape = df_costs["shape", "HIV_HRU"], scale = df_costs["scale", "HIV_HRU"]),

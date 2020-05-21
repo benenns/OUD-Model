@@ -26,9 +26,6 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
 # Run model
 l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
 
-#write.csv(l_out_markov$m_M_agg_trace,"C:/Users/Benjamin/Desktop/trace.csv", row.names = TRUE)
-#write.csv(l_out_markov$m_M_agg_trace_death,"C:/Users/Benjamin/Desktop/trace_death.csv", row.names = TRUE)
-#write.csv(l_out_markov$m_M_agg_trace_sero,"C:/Users/Benjamin/Desktop/trace_sero.csv", row.names = TRUE)
 #### Create plots ####
 # Prepare data
 df_M_agg_trace <- as.data.frame(l_out_markov$m_M_agg_trace)
@@ -67,8 +64,8 @@ main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = pr
   xlab("Health State") + ylab("Time") +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = state_colours_time2) +
-  geom_text(aes(label = percentage), hjust = -0.25, size = 3.5) +
+  geom_text(aes(label = paste0(round(proportion,1)," (",percentage,"%)")), hjust = -0.25, size = 3.5) +
   coord_flip(ylim = c(0, 720))
-pdf(file = "Plots/Markov Trace/time_states.pdf", width = 8, height = 4)
+pdf(file = "Plots/Markov Trace/time_states.pdf", width = 8, height = 3)
 main_states_time
 dev.off()
