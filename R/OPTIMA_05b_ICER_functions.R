@@ -82,7 +82,7 @@ outcomes <- function(l_params_all){
       m_HRU_costs[i, ] <- m_HRU_costs[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount
 
       # HIV
-      m_HIV_costs[i, POS] <- m_HIV_costs[i, POS] * (c_HIV_HRU + (c_HIV_ART * p_HIV_ART)) # Can disaggregate ART costs
+      m_HIV_costs[i, POS] <- m_HIV_costs[i, POS] * (c_HIV_HRU + (c_HIV_ART * n_HIV_ART)) # Can disaggregate ART costs
       m_HIV_costs[i, NEG] <- m_HIV_costs[i, NEG] * 0
       
       m_HIV_costs[i, ] <- m_HIV_costs[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount

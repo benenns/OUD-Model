@@ -38,7 +38,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   with(as.list(l_params_all), {
 
   #### Set up model states ####
-  n_t <- (n_age_max - n_age_init) * 12 # modeling time horizon in months
   l_dim_s  <- list() # list of health states
   
   # Base health states

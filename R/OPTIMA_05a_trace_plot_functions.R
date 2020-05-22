@@ -2,7 +2,6 @@ library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(scales)   # for dollar signs and commas
-library(dampack)  # for CEA and calculate ICERs
 library(tidyverse)
 
 # Call model setup functions
@@ -65,7 +64,17 @@ main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = pr
   geom_bar(stat = "identity") +
   scale_fill_manual(values = state_colours_time2) +
   geom_text(aes(label = paste0(round(proportion,1)," (",percentage,"%)")), hjust = -0.25, size = 3.5) +
-  coord_flip(ylim = c(0, 720))
+  coord_flip(ylim = c(0, 780))
 pdf(file = "Plots/Markov Trace/time_states.pdf", width = 8, height = 3)
 main_states_time
 dev.off()
+
+### Combined plot ###
+#plots <- list()
+#plots[[1]] <- main_states_trace_plot
+#plots[[2]] <- main_states_time
+#layout <- matrix(c(1, 1, 2), nrow = 3, byrow = TRUE)
+
+#pdf(file = "Plots/Markov Trace/full_trace.pdf", width = 8, height = 9)
+#multiplot(plotlist = plots, layout = layout)
+#dev.off()

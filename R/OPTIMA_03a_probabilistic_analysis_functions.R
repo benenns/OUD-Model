@@ -43,7 +43,6 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     m_calib_post, # Matrix of calibration parameters drawn from posterior distribution
     
     # Hazard ratios for death probability
-    df_death_hr = read.csv("data/death_hr.csv", header = TRUE),
     # HIV-negative
     hr_BUP1_NI = rnorm(n_sim, mean = df_death_hr["pe", "BUP1_NI"], sd = df_death_hr["sd", "BUP1_NI"]),
     hr_BUP_NI  = rnorm(n_sim, mean = df_death_hr["pe", "BUP_NI"] , sd = df_death_hr["sd", "BUP_NI"] ),

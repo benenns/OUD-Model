@@ -8,11 +8,11 @@
 #' @return 
 #' A vector with mortality by age.
 #' @export
-load_mort_params <- function(file.mort = NULL){
+load_mort_params <- function(file.mort = NULL, n_male){
   df_lt_can_2018 <- read.csv(file = file.mort)
-  v_r_mort_by_age <- df_lt_can_2018 %>%
-    select(Total) %>%
-    as.matrix()
+  v_r_mort_by_age_male <- df_lt_can_2018 %>% select(Male) %>% as.matrix()
+  v_r_mort_by_age_female <- df_lt_can_2018 %>% select(Female) %>% as.matrix()
+  v_r_mort_by_age <- (v_r_mort_by_age_male * n_male) + (v_r_mort_by_age_female * (1 - n_male)) # weighted mortality
   return(v_r_mort_by_age)
 }
 
@@ -66,6 +66,7 @@ load_all_params <- function(file.init = NULL,
     # Initial parameters
     n_age_init = df_init_params["pe", "age_init"], # age at baseline
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
+    n_t = (df_init_params["pe", "age_max"] - df_init_params["pe", "age_init"]) * 12, # modeling time horizon in months
     n_discount = df_init_params["pe", "discount"], # discount rate
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "inj_prop"], # % injection
@@ -76,7 +77,7 @@ load_all_params <- function(file.init = NULL,
     v_init_dist = as.vector(df_init_dist["pe", ]),
     
     # Mortality
-    v_r_mort_by_age = load_mort_params(file = file.mort), # vector of age-specific mortality
+    v_r_mort_by_age = load_mort_params(file = file.mort, n_male = df_init_params["pe", "male_prop"]), # vector of age-specific mortality
     
     # Hazard ratios for death probability
     hr_BUP1_NI = df_death_hr["pe", "BUP1_NI"],

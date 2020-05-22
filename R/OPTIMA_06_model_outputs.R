@@ -9,8 +9,9 @@ source("R/OPTIMA_01_model_setup_functions.R")
 source("R/OPTIMA_05b_ICER_functions.R")
 
 # Load parameters
+# BNX scenario
 l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_bup.csv",
+                                file.init_dist = "data/init_dist_bup.csv", # Change initial distributions (100% in BUP)
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
@@ -22,8 +23,9 @@ l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
 
+# Methadone scenario
 l_params_MET <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_met.csv",
+                                file.init_dist = "data/init_dist_met.csv", # Change initial distributions (100% in MET)
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
@@ -35,8 +37,12 @@ l_params_MET <- load_all_params(file.init = "data/init_params.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
 
+### Main deterministic model outputs ###
 # Run Markov model and return outputs
-outcomes_comp <- outcomes(l_params_all = l_params_BUP)
-outcomes_int  <- outcomes(l_params_all = l_params_MET)
+outcomes_MET <- outcomes(l_params_all = l_params_MET)
+outcomes_BUP  <- outcomes(l_params_all = l_params_BUP)
 
+# Calculate ICERs
 ICER <- ICER(outcomes_comp = outcomes_MET, outcomes_int = outcomes_BUP)
+
+### Run PSA ###

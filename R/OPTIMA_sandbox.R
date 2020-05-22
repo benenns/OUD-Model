@@ -94,5 +94,8 @@ write.csv(v_s_init,"C:/Users/Benjamin/Desktop/v_s_init.csv", row.names = TRUE)
 
 
 v_test <- rep(1, 721)
+v_test2 <- rep(0.5, 721)
 one_year <- sum(v_test[1:12])
 five_year <- sum(v_test[1:60])
+
+v_test3 <- (v_test * 0.6) + (v_test2 * 0.4)
