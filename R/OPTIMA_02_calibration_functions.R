@@ -17,15 +17,15 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   l_out_markov <- markov_model(l_params_all = l_params_all)
   
   #### Epidemiological Output ####
-  ### All-cause deaths ###
-  v_death <- l_out_markov$m_M_agg_trace[, "Death"] # cumulative deaths at month i
+  ### Overdose deaths ###
+  v_death <- l_out_markov$m_M_agg_trace[, "Death"] # cumulative deaths at year i
 
   ### Non-fatal overdoses ###
-  v_OD_alive <- l_out_markov$m_M_agg_trace[, "OD"] # cumulative non-fatal overdoses at month i
+  v_ODN <- l_out_markov$m_M_agg_trace[, "ODN"] # cumulative non-fatal overdoses at year i
   
   #### Return Output ####
   l_out <- list(deaths = v_death[c(i, j, k)], # deaths at i, j ,k time periods
-                overdose = v_OD_alive[c(i, j, k)])
+                overdose = v_ODN[c(i, j, k)])
   return(l_out)
 }
 

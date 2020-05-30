@@ -48,7 +48,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   EP <-  l_dim_s[[3]] <- c("1", "2", "3")
   # HIV status
   HIV <- l_dim_s[[4]] <- c("POS", "NEG")
-  n_t <- (n_age_max - n_age_init) * 12
+  n_t <- (n_age_max - n_age_init) * 52 # convert years into weeks
   
   df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
   df_flat <- rename(df_flat, BASE    = Var1, 
@@ -113,21 +113,31 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                      EP1 = EP1, EP2 = EP2, EP3 = EP3)
   
   #### Overdose probability ####
-  # Function to calculate probability of overdose from states
-  # Captures the probability of transitioning to overdose
-  p_BUP_OD_NI  <- p_BUP_OD
-  p_MET_OD_NI  <- p_MET_OD
-  p_REL_OD_NI  <- p_REL_OD
-  p_ABS_OD_NI  <- p_ABS_OD
-  
-  p_BUP_OD_INJ <- p_fent + (p_BUP_OD * p_INJ_OD)
-  p_MET_OD_INJ <- 
-  p_REL_OD_INJ <- 
-  p_ABS_OD_INJ <- 
-    
   # Probability of mortality from overdose
   # Subsets overdose into fatal and non-fatal, conditional on different parameters
   p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX)
+  
+  # Module to calculate probability of overdose from states
+  # Probability of transitioning to overdose
+  # Non-injection
+  p_BUP_ODN_NI  <- p_BUP_OD * (1 - p_fatal_OD_NX)
+  p_MET_ODN_NI  <- p_MET_OD * (1 - p_fatal_OD_NX)
+  p_REL_ODN_NI  <- p_REL_OD * (1 - p_fatal_OD_NX)
+  p_ABS_ODN_NI  <- p_ABS_OD * (1 - p_fatal_OD_NX)
+  p_BUP_ODF_NI  <- p_BUP_OD * p_fatal_OD_NX
+  p_MET_ODF_NI  <- p_MET_OD * p_fatal_OD_NX
+  p_REL_ODF_NI  <- p_REL_OD * p_fatal_OD_NX
+  p_ABS_ODF_NI  <- p_ABS_OD * p_fatal_OD_NX
+  
+  # Injection
+  p_BUP_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_BUP_OD)) * (1 - p_fatal_OD_NX)
+  p_MET_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_MET_OD)) * (1 - p_fatal_OD_NX)
+  p_REL_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_REL_OD)) * (1 - p_fatal_OD_NX)
+  p_ABS_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_ABS_OD)) * (1 - p_fatal_OD_NX)
+  p_BUP_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_BUP_OD)) * p_fatal_OD_NX
+  p_MET_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_MET_OD)) * p_fatal_OD_NX
+  p_REL_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_REL_OD)) * p_fatal_OD_NX
+  p_ABS_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_ABS_OD)) * p_fatal_OD_NX
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -135,7 +145,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                       dimnames = list(v_n_states, 1:n_t))
 
     # Probability of remaining in health state
-    # For BUP1, MET1 and REL1: p_remain = 0
+    # All transition out of overdose after 1 week, probs already set to zero
     for(i in 1:n_t){
       # Non-injection
         # Episode 1
@@ -143,7 +153,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
         m_TDP[EP1 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
         m_TDP[EP1 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
         m_TDP[EP1 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-        #m_TDP[EP1 & OD & NI, i]  <- as.vector(exp(p_frailty_OD_NI_1  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))  
+        #m_TDP[EP1 & OD & NI, i] <- as.vector(exp(p_frailty_OD_NI_1  * p_weibull_scale_OD_NI  * (((i - 1)^p_weibull_shape_OD_NI) - (i^p_weibull_shape_OD_NI))))  
         # Episode 2
         m_TDP[EP2 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
         m_TDP[EP2 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
@@ -182,7 +192,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_leave <- 1 - m_TDP
   
   #### Mortality ####
-  # Monthly mortality vectors for each age applied to 12 months, includes state-specific hr
+  # Mortality vectors for each age applied to 52 weeks, includes state-specific hr
   v_mort <- function(hr = hr){
     v_mort <- rep((1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * (1/52) * hr)), each = 52)
     return(v_mort)
@@ -327,15 +337,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   for (i in 5:n_t){
     a_TDP[, , i] <- m_UP * m_leave[, i]
   }
-  
-  # Modify transition probabilities to OD from REL in first 4 weeks
-  for (i in 1:4){
-    # From REL
-    a_TDP[REL, OD, i]  <- a_TDP[REL, OD, i] * p_OD_mult
-    a_TDP[REL, BUP, i] <- a_TDP[REL, BUP, i] * (1 - p_OD_mult)
-    a_TDP[REL, MET, i] <- a_TDP[REL, MET, i] * (1 - p_OD_mult)
-    a_TDP[REL, ABS, i] <- a_TDP[REL, ABS, i] * (1 - p_OD_mult)
-  }
 
   # Add time-dependent remain probabilities
   for (i in 1:n_t){
@@ -394,16 +395,10 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
   # Probabilities applied equally across POS/NEG initially, re-weight by sero prob
   # Non-injection
-  a_TDP[NEG & NI, BUP1 & NI & NEG, ] <- a_TDP[NEG & NI, BUP1 & NI & NEG, ] * (1 - p_sero_BUP1_NI)
-  a_TDP[NEG & NI, BUP1 & NI & POS, ] <- a_TDP[NEG & NI, BUP1 & NI & POS, ] * p_sero_BUP1_NI
   a_TDP[NEG & NI, BUP & NI & NEG, ]  <- a_TDP[NEG & NI, BUP & NI & NEG, ] * (1 - p_sero_BUP_NI)
   a_TDP[NEG & NI, BUP & NI & POS, ]  <- a_TDP[NEG & NI, BUP & NI & POS, ] * p_sero_BUP_NI
-  a_TDP[NEG & NI, MET1 & NI & NEG, ] <- a_TDP[NEG & NI, MET1 & NI & NEG, ] * (1 - p_sero_MET1_NI)
-  a_TDP[NEG & NI, MET1 & NI & POS, ] <- a_TDP[NEG & NI, MET1 & NI & POS, ] * p_sero_MET1_NI
   a_TDP[NEG & NI, MET & NI & NEG, ]  <- a_TDP[NEG & NI, MET & NI & NEG, ] * (1 - p_sero_MET_NI)
   a_TDP[NEG & NI, MET & NI & POS, ]  <- a_TDP[NEG & NI, MET & NI & POS, ] * p_sero_MET_NI
-  a_TDP[NEG & NI, REL1 & NI & NEG, ] <- a_TDP[NEG & NI, REL1 & NI & NEG, ] * (1 - p_sero_REL1_NI)
-  a_TDP[NEG & NI, REL1 & NI & POS, ] <- a_TDP[NEG & NI, REL1 & NI & POS, ] * p_sero_REL1_NI
   a_TDP[NEG & NI, REL & NI & NEG, ]  <- a_TDP[NEG & NI, REL & NI & NEG, ] * (1 - p_sero_REL_NI)
   a_TDP[NEG & NI, REL & NI & POS, ]  <- a_TDP[NEG & NI, REL & NI & POS, ] * p_sero_REL_NI
   a_TDP[NEG & NI, OD & NI & NEG, ]   <- a_TDP[NEG & NI, OD & NI & NEG, ] * (1 - p_sero_OD_NI)
@@ -412,16 +407,10 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[NEG & NI, ABS & NI & POS, ]  <- a_TDP[NEG & NI, ABS & NI & POS, ] * p_sero_ABS_NI
 
   # Injection
-  a_TDP[NEG & INJ, BUP1 & INJ & NEG, ] <- a_TDP[NEG & INJ, BUP1 & INJ & NEG, ] * (1 - p_sero_BUP1_INJ)
-  a_TDP[NEG & INJ, BUP1 & INJ & POS, ] <- a_TDP[NEG & INJ, BUP1 & INJ & POS, ] * p_sero_BUP1_INJ
   a_TDP[NEG & INJ, BUP & INJ & NEG, ]  <- a_TDP[NEG & INJ, BUP & INJ & NEG, ] * (1 - p_sero_BUP_INJ)
   a_TDP[NEG & INJ, BUP & INJ & POS, ]  <- a_TDP[NEG & INJ, BUP & INJ & POS, ] * p_sero_BUP_INJ
-  a_TDP[NEG & INJ, MET1 & INJ & NEG, ] <- a_TDP[NEG & INJ, MET1 & INJ & NEG, ] * (1 - p_sero_MET1_INJ)
-  a_TDP[NEG & INJ, MET1 & INJ & POS, ] <- a_TDP[NEG & INJ, MET1 & INJ & POS, ] * p_sero_MET1_INJ
   a_TDP[NEG & INJ, MET & INJ & NEG, ]  <- a_TDP[NEG & INJ, MET & INJ & NEG, ] * (1 - p_sero_MET_INJ)
   a_TDP[NEG & INJ, MET & INJ & POS, ]  <- a_TDP[NEG & INJ, MET & INJ & POS, ] * p_sero_MET_INJ
-  a_TDP[NEG & INJ, REL1 & INJ & NEG, ] <- a_TDP[NEG & INJ, REL1 & INJ & NEG, ] * (1 - p_sero_REL1_INJ)
-  a_TDP[NEG & INJ, REL1 & INJ & POS, ] <- a_TDP[NEG & INJ, REL1 & INJ & POS, ] * p_sero_REL1_INJ
   a_TDP[NEG & INJ, REL & INJ & NEG, ]  <- a_TDP[NEG & INJ, REL & INJ & NEG, ] * (1 - p_sero_REL_INJ)
   a_TDP[NEG & INJ, REL & INJ & POS, ]  <- a_TDP[NEG & INJ, REL & INJ & POS, ] * p_sero_REL_INJ
   a_TDP[NEG & INJ, OD & INJ & NEG, ]   <- a_TDP[NEG & INJ, OD & INJ & NEG, ] * (1 - p_sero_OD_INJ)
