@@ -1,0 +1,55 @@
+---
+title: "Introduction"
+# output: rmarkdown::html_vignette
+output:
+  bookdown::html_document2
+pkgdown:
+  as_is: true
+vignette: >
+  %\VignetteIndexEntry{aa-introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography:
+- book.bib
+- packages.bib  
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE, warning=FALSE}
+# automatically create a bib database for R packages
+# list all R packages that are required by LEM model at this point
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown', 'dplyr', 'truncnorm', 
+                           'lhs', 'IMIS', 'matrixStats',
+                           'plotrix', 'psych', "survival",
+                           "scatterplot3d", "reshape2",
+                           "BiocManager", "devtools",
+                           "shiny", "rstudioapi", 'nlme'
+), 'packages.bib')
+```
+
+```{r load-inputs, include=FALSE}
+library(darthpack)
+l_params_all <- load_all_params()
+```
+
+# The LEM model {-}
+In this R package, we provide the code for our previously published dynamic, compartmental HIV transmission model that replicates the city-level HIV micro epidemic for six US cities: Atlanta; Baltimore; Los Angeles (LA); Miami (Dade County); New York City (NYC); and Seattle (King County ). We simulate a population of individuals susceptible to HIV through the course of infection (if ever), diagnosis, treatment with antiretroviral therapy (ART), and ART dropout over a time horizon of X years [@Krebs2019, @Zang2020].
+
+In each city, the adult population 15–64 is partitioned by sex at birth, HIV risk group [MSM, people who inject drugs (PWID), MSM who inject drugs (IMWID) and heterosexuals (HET)], race/ethnicity (black/African American, Hispanic/ Latinx and non-Hispanic white/others) and sexual risk behavior level (high-risk vs. low-risk), representing 42 groups.  Individuals who are initially uninfected start in the “Susceptible” health state (denoted by Sx). Susceptible individuals are at risk of being infected, at which point they would transition to the “Infected” health state (denoted by Ix). From here, infected but unaware individuals can be diagnosed and remain in the Diagnosed health state (denoted by Dx) or initiate ART within 30 days of diagnosis (the “on-ART” health state, denoted by T2). There is a chance that individuals do not adhere to treatment and thus progress to an “off-ART'' state (denoted by Ox). Additionally, PLWH can be categorized into acute HIV health states (denoted by IA or DA) or by CD4 cell count strata (≥ 500, 200-499, <200 cells/𝜇𝐿) and thus can transition between CD4 cell count categories. Heterosexuals and MSM in the Susceptible state face baseline mortality rates based on race/ethnicity, gender, risk group, and high/low risk among MSM, PWID and MWID as determined by population life tables. PLWH face an increased mortality rate relative to susceptible individuals, derived from HIVRN data for each stratified subpopulation [@HIVRN]; this rate also differs based on ART status (off/on) and IDU.  Figure 2 shows the state-transition diagram of our dynamic, compartmental model. Quality-adjusted life years (QALYs) and costs, from a societal perspective, are discounted at an annual rate of 3%.
+
+![State-transition diagram of the model. Susceptible individuals can become infected and progress through the model towards diagnosis and ART, age out, die or simply stay susceptible. Infected individuals can be diagnosed (and stay diagnosed), progress to on/off ART, die or age out. \label{fig:model-diagram}](../figs/model_diagram.png)
+
+Two alternative strategies exist for this hypothetical disease: a no-treatment and a treatment strategy. Under the treatment strategy, Sick and Sicker individuals receive treatment and continue doing so until they recover or die. The cost of the treatment is additional to the cost of being Sick or Sicker for one year. The treatment improves QoL for those individuals who are Sick but has no effect on the QoL of those who are sicker. To evaluate these two alternative strategies, we perform a CEA.
+
+We assume that most of the parameters of the Sick-Sicker model and their uncertainty have been previously estimated and are known to the analyst. However, while we can identify those who are afflicted with the illness through obvious symptoms, we can not easily distinguish those in the Sick state from the those in the Sicker state. Thus, we can not directly estimate state-specific mortality hazard rate ratios, nor do we know the transition probability of progressing from Sick to Sicker. Therefore, we calibrate the model to different epidemiological data. We internally validated the calibrated model by comparing the predicted outputs from the model evaluated at the calibrated parameters against the calibration targets [@Eddy2012, @Goldhaber_Fiebert2010]. 
+
+As part of the CEA, we conducted different deterministic sensitivity analysis (SA), including one-way and two-way SA, and tornado plots. To quantify the effect of parameter uncertainty on decision uncertainty, we conducted a probabilistic sensitivity analysis (PSA) and reported our uncertainty analysis results with a cost-effectiveness acceptability curve (CEAC), cost-effectiveness acceptability frontier (CEAF) and expected loss curves (ELC) [@Alarid-Escudero2019]. We also conducted a value of information (VOI) analysis to determine whether potential future research is needed to reduce parameter uncertainty. All steps of the CEA will be described using the different components of the framework. 
+
+# References {-}
