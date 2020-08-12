@@ -28,6 +28,7 @@ load_mort_params <- function(file.mort = NULL, n_male){
 #' @param file.weibull_scale String with the location and name of the file with weibull scale
 #' @param file.weibull_shape String with the location and name of the file with weibull shape
 #' @param file.unconditional String with the location and name of the file with empirical destination states
+#' @param file.overdose String with the location and name of the file with overdose/fentanyl-related parameters
 #' @param file.sero String with the location and name of the file with seroconversion probabilities
 #' @param file.costs String with the location and name of the file with costs (excluding crime costs)
 #' @param file.crime_costs String with the location and name of the file with age-specific crime costs
@@ -44,6 +45,7 @@ load_all_params <- function(file.init = NULL,
                             file.weibull_scale = NULL,
                             file.weibull_shape = NULL,
                             file.unconditional = NULL,
+                            file.overdose = NULL,
                             file.sero = NULL,
                             file.costs = NULL,
                             file.crime_costs = NULL,
@@ -57,6 +59,7 @@ load_all_params <- function(file.init = NULL,
   df_weibull_scale <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull scale params
   df_weibull_shape <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
+  df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
   df_sero <- read.csv(file = file.sero, row.names = 1, header = TRUE) # Seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
   df_crime_costs <- read.csv(file = file.crime_costs, header = TRUE) # Age-dependent crime costs
@@ -236,7 +239,32 @@ load_all_params <- function(file.init = NULL,
     #p_OD_BUP1_INJ  = df_UP["OD_INJ", "BUP1_INJ"],
     #p_OD_ABS_INJ   = df_UP["OD_INJ", "ABS_INJ"],
     #p_OD_REL1_INJ  = df_UP["OD_INJ", "REL1_INJ"],
-
+    
+    # Overdose
+    # Non-injection
+    p_BUP_OD_NI = df_overdose["pe", "BUP_OD_NI"],
+    p_MET_OD_NI = df_overdose["pe", "MET_OD_NI"],
+    p_ABS_OD_NI = df_overdose["pe", "ABS_OD_NI"],
+    p_REL_OD_NI = df_overdose["pe", "REL_OD_NI"],
+    
+    # Injection
+    p_BUP_OD_INJ = df_overdose["pe", "BUP_OD_INJ"],
+    p_MET_OD_INJ = df_overdose["pe", "MET_OD_INJ"],
+    p_ABS_OD_INJ = df_overdose["pe", "ABS_OD_INJ"],
+    p_REL_OD_INJ = df_overdose["pe", "REL_OD_INJ"],
+    
+    # Fatal overdose
+    p_fatal_OD = df_overdose["pe", "fatal_OD_prob"],
+    
+    # Fentanyl
+    p_fent_OD = df_overdose["pe", "fent_OD_prob"],
+    p_fent_exp = df_overdose["pe", "fent_exp_prob"], # prob of fentanyl exposure
+    
+    # Naloxone
+    p_witness = df_overdose["pe", "witness_prob"],
+    p_NX_used = df_overdose["pe", "NX_prob"],
+    p_NX_success = df_overdose["pe", "NX_success_prob"],
+    
     # HIV Seroconversion
     # Non-injection
     #p_sero_BUP1_NI = df_sero["pe", "BUP_NI"],
@@ -300,25 +328,25 @@ load_all_params <- function(file.init = NULL,
     u_BUP_NI_NEG = df_qalys["pe", "BUP_NI_NEG"],
     u_MET_NI_NEG = df_qalys["pe", "MET_NI_NEG"],
     u_REL_NI_NEG = df_qalys["pe", "REL_NI_NEG"],
-    u_OD_NI_NEG  = df_qalys["pe", "OD_NI_NEG"],
+    u_ODN_NI_NEG = df_qalys["pe", "ODN_NI_NEG"],
     u_ABS_NI_NEG = df_qalys["pe", "ABS_NI_NEG"],
     
     u_BUP_INJ_NEG = df_qalys["pe", "BUP_INJ_NEG"],
     u_MET_INJ_NEG = df_qalys["pe", "MET_INJ_NEG"],
     u_REL_INJ_NEG = df_qalys["pe", "REL_INJ_NEG"],
-    u_OD_INJ_NEG  = df_qalys["pe", "OD_INJ_NEG"],
+    u_ODN_INJ_NEG  = df_qalys["pe", "ODN_INJ_NEG"],
     u_ABS_INJ_NEG = df_qalys["pe", "ABS_INJ_NEG"],
     
     u_BUP_NI_POS = df_qalys["pe", "BUP_NI_POS"],
     u_MET_NI_POS = df_qalys["pe", "MET_NI_POS"],
     u_REL_NI_POS = df_qalys["pe", "REL_NI_POS"],
-    u_OD_NI_POS  = df_qalys["pe", "OD_NI_POS"],
+    u_ODN_NI_POS = df_qalys["pe", "ODN_NI_POS"],
     u_ABS_NI_POS = df_qalys["pe", "ABS_NI_POS"],
     
     u_BUP_INJ_POS = df_qalys["pe", "BUP_INJ_POS"],
     u_MET_INJ_POS = df_qalys["pe", "MET_INJ_POS"],
     u_REL_INJ_POS = df_qalys["pe", "REL_INJ_POS"],
-    u_OD_INJ_POS  = df_qalys["pe", "OD_INJ_POS"],
+    u_ODN_INJ_POS = df_qalys["pe", "ODN_INJ_POS"],
     u_ABS_INJ_POS = df_qalys["pe", "ABS_INJ_POS"],
     
     u_HIV_mult = df_qalys["pe", "HIV_mult"] # Modify if using state-HIV-specific QALYs, also add HCV

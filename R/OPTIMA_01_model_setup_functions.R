@@ -113,31 +113,34 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                      EP1 = EP1, EP2 = EP2, EP3 = EP3)
   
   #### Overdose probability ####
-  # Probability of mortality from overdose
+  # Probability of successful naloxone use
+  p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
+  
+  # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
   # Subsets overdose into fatal and non-fatal, conditional on different parameters
-  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX)
+  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
   
   # Module to calculate probability of overdose from states
-  # Probability of transitioning to overdose
+  # Probability of overdose
   # Non-injection
-  p_BUP_ODN_NI  <- p_BUP_OD * (1 - p_fatal_OD_NX)
-  p_MET_ODN_NI  <- p_MET_OD * (1 - p_fatal_OD_NX)
-  p_REL_ODN_NI  <- p_REL_OD * (1 - p_fatal_OD_NX)
-  p_ABS_ODN_NI  <- p_ABS_OD * (1 - p_fatal_OD_NX)
-  p_BUP_ODF_NI  <- p_BUP_OD * p_fatal_OD_NX
-  p_MET_ODF_NI  <- p_MET_OD * p_fatal_OD_NX
-  p_REL_ODF_NI  <- p_REL_OD * p_fatal_OD_NX
-  p_ABS_ODF_NI  <- p_ABS_OD * p_fatal_OD_NX
+  p_BUP_ODN_NI  <- ((p_BUP_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_MET_ODN_NI  <- ((p_MET_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_REL_ODN_NI  <- ((p_REL_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_ABS_ODN_NI  <- ((p_ABS_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_BUP_ODF_NI  <- ((p_BUP_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_MET_ODF_NI  <- ((p_MET_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_REL_ODF_NI  <- ((p_REL_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_ABS_ODF_NI  <- ((p_ABS_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
   
   # Injection
-  p_BUP_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_BUP_OD)) * (1 - p_fatal_OD_NX)
-  p_MET_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_MET_OD)) * (1 - p_fatal_OD_NX)
-  p_REL_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_REL_OD)) * (1 - p_fatal_OD_NX)
-  p_ABS_ODN_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_ABS_OD)) * (1 - p_fatal_OD_NX)
-  p_BUP_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_BUP_OD)) * p_fatal_OD_NX
-  p_MET_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_MET_OD)) * p_fatal_OD_NX
-  p_REL_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_REL_OD)) * p_fatal_OD_NX
-  p_ABS_ODF_INJ <- ((p_fent * p_OD_fent) + ((1 - p_fent) * p_ABS_OD)) * p_fatal_OD_NX
+  p_BUP_ODN_INJ <- ((p_BUP_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_MET_ODN_INJ <- ((p_MET_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_REL_ODN_INJ <- ((p_REL_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_ABS_ODN_INJ <- ((p_ABS_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  p_BUP_ODF_INJ <- ((p_BUP_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_MET_ODF_INJ <- ((p_MET_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_REL_ODF_INJ <- ((p_REL_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_ABS_ODF_INJ <- ((p_ABS_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -193,6 +196,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   
   #### Mortality ####
   # Mortality vectors for each age applied to 52 weeks, includes state-specific hr
+  # Overdose deaths tracked separately as "ODF"
   v_mort <- function(hr = hr){
     v_mort <- rep((1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * (1/52) * hr)), each = 52)
     return(v_mort)
@@ -201,7 +205,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_mort_BUP_NI     <- v_mort(hr = hr_BUP_NI)
   v_mort_MET_NI     <- v_mort(hr = hr_MET_NI)
   v_mort_REL_NI     <- v_mort(hr = hr_REL_NI)
-  v_mort_ODN_NI     <- v_mort(hr = hr_ODN_NI)
+  #v_mort_ODN_NI     <- v_mort(hr = hr_ODN_NI)
   v_mort_ODF_NI     <- rep(1, n_t) # mortality transition = 1 as death already tracked in ODF
   v_mort_ABS_NEG_NI <- v_mort(hr = hr_ABS_NI)
   v_mort_ABS_POS_NI <- v_mort(hr = hr_HIV_NI)
@@ -210,7 +214,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_mort_BUP_INJ     <- v_mort(hr = hr_BUP_INJ)
   v_mort_MET_INJ     <- v_mort(hr = hr_MET_INJ)
   v_mort_REL_INJ     <- v_mort(hr = hr_REL_INJ)
-  v_mort_ODN_INJ     <- v_mort(hr = hr_ODN_INJ)
+  #v_mort_ODN_INJ     <- v_mort(hr = hr_ODN_INJ)
   v_mort_ODF_INJ     <- rep(1, n_t) # mortality transition = 1 as death already tracked in ODF
   v_mort_ABS_NEG_INJ <- v_mort(hr = hr_ABS_INJ)
   v_mort_ABS_POS_INJ <- v_mort(hr = hr_HIV_INJ)
