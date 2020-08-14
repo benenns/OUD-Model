@@ -198,10 +198,10 @@ load_all_params <- function(file.init = NULL,
     #p_REL1_OD_NI   = df_UP["REL_NI", "OD_NI"],
     #p_REL_OD_NI    = df_UP["REL_NI", "OD_NI"],
     # From OD
-    #p_OD_MET1_NI  = df_UP["OD_NI", "MET1_NI"],
-    #p_OD_BUP1_NI  = df_UP["OD_NI", "BUP1_NI"],
-    #p_OD_ABS_NI   = df_UP["OD_NI", "ABS_NI"],
-    #p_OD_REL1_NI  = df_UP["OD_NI", "REL1_NI"],
+    p_ODN_MET_NI  = df_UP["ODN_NI", "MET_NI"],
+    p_ODN_BUP_NI  = df_UP["ODN_NI", "BUP_NI"],
+    p_ODN_ABS_NI  = df_UP["ODN_NI", "ABS_NI"],
+    p_ODN_REL_NI  = df_UP["ODN_NI", "REL_NI"],
 
     # Inj
     # From BUP1 & BUP
@@ -235,10 +235,10 @@ load_all_params <- function(file.init = NULL,
     #p_REL1_OD_INJ   = df_UP["REL_INJ", "OD_INJ"],
     #p_REL_OD_INJ    = df_UP["REL_INJ", "OD_INJ"],
     # From OD
-    #p_OD_MET1_INJ  = df_UP["OD_INJ", "MET1_INJ"],
-    #p_OD_BUP1_INJ  = df_UP["OD_INJ", "BUP1_INJ"],
-    #p_OD_ABS_INJ   = df_UP["OD_INJ", "ABS_INJ"],
-    #p_OD_REL1_INJ  = df_UP["OD_INJ", "REL1_INJ"],
+    p_ODN_MET_INJ  = df_UP["ODN_INJ", "MET_INJ"],
+    p_ODN_BUP_INJ  = df_UP["ODN_INJ", "BUP_INJ"],
+    p_ODN_ABS_INJ  = df_UP["ODN_INJ", "ABS_INJ"],
+    p_ODN_REL_INJ  = df_UP["ODN_INJ", "REL_INJ"],
     
     # Overdose
     # Non-injection
@@ -252,6 +252,11 @@ load_all_params <- function(file.init = NULL,
     p_MET_OD_INJ = df_overdose["pe", "MET_OD_INJ"],
     p_ABS_OD_INJ = df_overdose["pe", "ABS_OD_INJ"],
     p_REL_OD_INJ = df_overdose["pe", "REL_OD_INJ"],
+    
+    # Overdose transition multipliers for first 4 weeks of treatment and relapse
+    p_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
+    p_MET_OD_mult = df_overdose["pe", "MET_OD_mult"],
+    p_REL_OD_mult = df_overdose["pe", "REL_OD_mult"],
     
     # Fatal overdose
     p_fatal_OD = df_overdose["pe", "fatal_OD_prob"],
