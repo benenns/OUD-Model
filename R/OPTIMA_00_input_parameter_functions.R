@@ -69,7 +69,7 @@ load_all_params <- function(file.init = NULL,
     # Initial parameters
     n_age_init = df_init_params["pe", "age_init"], # age at baseline
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
-    n_t = (df_init_params["pe", "age_max"] - df_init_params["pe", "age_init"]) * 12, # modeling time horizon in months
+    n_t = (df_init_params["pe", "age_max"] - df_init_params["pe", "age_init"]) * 52, # modeling time horizon in weeks
     n_discount = df_init_params["pe", "discount"], # discount rate
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "inj_prop"], # % injection

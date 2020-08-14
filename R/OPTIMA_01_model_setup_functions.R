@@ -205,7 +205,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_mort_BUP_NI     <- v_mort(hr = hr_BUP_NI)
   v_mort_MET_NI     <- v_mort(hr = hr_MET_NI)
   v_mort_REL_NI     <- v_mort(hr = hr_REL_NI)
-  #v_mort_ODN_NI     <- v_mort(hr = hr_ODN_NI)
+  v_mort_ODN_NI     <- v_mort(hr = hr_ODN_NI) # Mortality equal for REL/ODN (fatal overdoses counted separately)
   v_mort_ODF_NI     <- rep(1, n_t) # mortality transition = 1 as death already tracked in ODF
   v_mort_ABS_NEG_NI <- v_mort(hr = hr_ABS_NI)
   v_mort_ABS_POS_NI <- v_mort(hr = hr_HIV_NI)
@@ -214,7 +214,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_mort_BUP_INJ     <- v_mort(hr = hr_BUP_INJ)
   v_mort_MET_INJ     <- v_mort(hr = hr_MET_INJ)
   v_mort_REL_INJ     <- v_mort(hr = hr_REL_INJ)
-  #v_mort_ODN_INJ     <- v_mort(hr = hr_ODN_INJ)
+  v_mort_ODN_INJ     <- v_mort(hr = hr_ODN_INJ) # Mortality equal for REL/ODN (fatal overdoses counted separately)
   v_mort_ODF_INJ     <- rep(1, n_t) # mortality transition = 1 as death already tracked in ODF
   v_mort_ABS_NEG_INJ <- v_mort(hr = hr_ABS_INJ)
   v_mort_ABS_POS_INJ <- v_mort(hr = hr_HIV_INJ)
@@ -430,9 +430,9 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[EP3, EP2, ] = 0
   a_TDP[POS, NEG, ] = 0
   a_TDP[ABS, TX, ]  = 0
-  a_TDP[BUP1, BUP1, ]  = 0
-  a_TDP[MET1, MET1, ]  = 0
-  a_TDP[REL1, REL1, ]  = 0
+  #a_TDP[BUP1, BUP1, ]  = 0
+  #a_TDP[MET1, MET1, ]  = 0
+  #a_TDP[REL1, REL1, ]  = 0
   # Conditional transitions
   # Next episode with out-of-treatment(OOT) EPi -> treatment(TX) EP(i+1)
   a_TDP[TX & EP1, OOT & EP2, ] = 0
@@ -452,13 +452,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   #### Set initial state vector ####
   # Baseline
   # Populate first episode in base states
-  v_s_init[BUP1 & EP1] <- v_init_dist["pe", "BUP1"] # Empirically observed proportions from base states
+  #v_s_init[BUP1 & EP1] <- v_init_dist["pe", "BUP1"] # Empirically observed proportions from base states
   v_s_init[BUP & EP1]  <- v_init_dist["pe", "BUP"]
-  v_s_init[MET1 & EP1] <- v_init_dist["pe", "MET1"]
+  #v_s_init[MET1 & EP1] <- v_init_dist["pe", "MET1"]
   v_s_init[MET & EP1]  <- v_init_dist["pe", "MET"]
-  v_s_init[REL1 & EP1] <- v_init_dist["pe", "REL1"]
+  #v_s_init[REL1 & EP1] <- v_init_dist["pe", "REL1"]
   v_s_init[REL & EP1]  <- v_init_dist["pe", "REL"]
-  v_s_init[OD & EP1]   <- v_init_dist["pe", "OD"]
+  v_s_init[ODN & EP1]   <- v_init_dist["pe", "ODN"]
+  v_s_init[ODF & EP1]   <- v_init_dist["pe", "ODF"]
   v_s_init[ABS & EP1]  <- v_init_dist["pe", "ABS"]
   
   # Distribute by injection/non-injection
@@ -511,8 +512,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative deaths at each time point (use m_M_trace_death for individual period deaths)
 
   #### Create aggregated trace matrices ####
-  v_agg_trace_states <- c("Alive", "Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # states to aggregate
-  v_agg_trace_death_states <- c("Total", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # states to aggregate
+  v_agg_trace_states <- c("Alive", "Death", "ODN", "ODF", "REL", "BUP", "MET", "ABS") # states to aggregate
+  v_agg_trace_death_states <- c("Total", "ODN", "ODF", "REL", "BUP", "MET", "ABS") # states to aggregate
   v_agg_trace_sero_states <- c("HIV - Alive", "HIV - Dead") # states to aggregate
   
   n_agg_trace_states <- length(v_agg_trace_states)
@@ -528,25 +529,27 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   
   for (i in 1:n_t){
     m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])
-    m_M_agg_trace[i, "BUP1"]  <- sum(m_M_trace[i, BUP1])
+    #m_M_agg_trace[i, "BUP1"]  <- sum(m_M_trace[i, BUP1])
     m_M_agg_trace[i, "BUP"]   <- sum(m_M_trace[i, BUP])
-    m_M_agg_trace[i, "MET1"]  <- sum(m_M_trace[i, MET1])
+    #m_M_agg_trace[i, "MET1"]  <- sum(m_M_trace[i, MET1])
     m_M_agg_trace[i, "MET"]   <- sum(m_M_trace[i, MET])
-    m_M_agg_trace[i, "REL1"]  <- sum(m_M_trace[i, REL1])
+    #m_M_agg_trace[i, "REL1"]  <- sum(m_M_trace[i, REL1])
     m_M_agg_trace[i, "REL"]   <- sum(m_M_trace[i, REL])
     m_M_agg_trace[i, "ABS"]   <- sum(m_M_trace[i, ABS])
-    m_M_agg_trace[i, "OD"]    <- sum(m_M_trace[i, OD])
+    m_M_agg_trace[i, "ODN"]    <- sum(m_M_trace[i, ODN])
+    m_M_agg_trace[i, "ODF"]    <- sum(m_M_trace[i, ODF])
     m_M_agg_trace[i, "Death"] <- 1 - sum(m_M_trace[i, ])
   }
   
   for (i in 1:n_t){
     m_M_agg_trace_death[i, "Total"] <- sum(m_M_trace_cumsum_death[i, ])
-    m_M_agg_trace_death[i, "OD"]    <- sum(m_M_trace_cumsum_death[i, OD])
-    m_M_agg_trace_death[i, "REL1"]  <- sum(m_M_trace_cumsum_death[i, REL1])
+    m_M_agg_trace_death[i, "ODN"]    <- sum(m_M_trace_cumsum_death[i, ODN])
+    m_M_agg_trace_death[i, "ODF"]    <- sum(m_M_trace_cumsum_death[i, ODF])
+    #m_M_agg_trace_death[i, "REL1"]  <- sum(m_M_trace_cumsum_death[i, REL1])
     m_M_agg_trace_death[i, "REL"]   <- sum(m_M_trace_cumsum_death[i, REL])
-    m_M_agg_trace_death[i, "BUP1"]  <- sum(m_M_trace_cumsum_death[i, BUP1])
+    #m_M_agg_trace_death[i, "BUP1"]  <- sum(m_M_trace_cumsum_death[i, BUP1])
     m_M_agg_trace_death[i, "BUP"]   <- sum(m_M_trace_cumsum_death[i, BUP])
-    m_M_agg_trace_death[i, "MET1"]  <- sum(m_M_trace_cumsum_death[i, MET1])
+    #m_M_agg_trace_death[i, "MET1"]  <- sum(m_M_trace_cumsum_death[i, MET1])
     m_M_agg_trace_death[i, "MET"]   <- sum(m_M_trace_cumsum_death[i, MET])
     m_M_agg_trace_death[i, "ABS"]   <- sum(m_M_trace_cumsum_death[i, ABS])
   }

@@ -1,0 +1,22 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figs/"
+)
+```
+
+# OUD Model <img src='figs/logo.jpg' align="right" height="139" />
+<!-- <img src="figs/logo.jpg" align="center" alt="" width="360" /> -->
+
+[`LEMpack`](https://github.com/HERU-LEM/LEMpack) is an R package with necessary code and data to run a dynamic compartmental simulation model for the localized HIV microepidemics in Atlanta, Baltimore, Los Angeles, Miami, NYC, Seattle.
+
+[`LEMpack`](https://github.com/HERU-LEM/LEMpack) the development of the LEM model is detailed in the following manuscripts:
+
+# References {-}
