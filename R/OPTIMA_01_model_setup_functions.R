@@ -113,34 +113,55 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                      EP1 = EP1, EP2 = EP2, EP3 = EP3)
   
   #### Overdose probability ####
-  # Probability of successful naloxone use
-  p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
-  
-  # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
-  # Subsets overdose into fatal and non-fatal, conditional on different parameters
-  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
-  
+  #' Probability of non-fatal and fatal overdose
+  #'
+  #' \code{p_OD} is used to calculate weekly overdose probabilities from health states. This function also requires additional overdose/fentanyl/naloxone parameters included in `l_params_all`
+  #'
+  #' @param p_from_state_OD Baseline overdose probability from each health state
+  #' @param fatal Logical parameter to switch between fatal/non-fatal overdose
+  #' 
+  #' @return 
+  #' `p_OD` weekly probability of fatal or non-fatal overdose from a given health state
+  #' @export
+  p_OD <- function(p_from_state_OD = p_from_state_OD,
+                   fatal = FALSE){
+    
+    # Probability of successful naloxone use
+    p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
+    
+    # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
+    # Subsets overdose into fatal and non-fatal, conditional on different parameters
+    p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
+    
+    if (fatal = FALSE){
+      p_OD <- ((from_state * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+    } else if (fatal = TRUE){
+        p_OD <- ((from_state * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+    }
+    return(p_OD)
+  }
+
   # Module to calculate probability of overdose from states
   # Probability of overdose
   # Non-injection
-  p_BUP_ODN_NI  <- ((p_BUP_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_MET_ODN_NI  <- ((p_MET_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_REL_ODN_NI  <- ((p_REL_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_ABS_ODN_NI  <- ((p_ABS_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_BUP_ODF_NI  <- ((p_BUP_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
-  p_MET_ODF_NI  <- ((p_MET_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
-  p_REL_ODF_NI  <- ((p_REL_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
-  p_ABS_ODF_NI  <- ((p_ABS_OD_NI * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_BUP_ODN_NI  <- p_OD(p_from_state_OD = p_BUP_OD_NI, fatal = FALSE)
+  p_MET_ODN_NI  <- p_OD(p_from_state_OD = p_MET_OD_NI, fatal = FALSE)
+  p_REL_ODN_NI  <- p_OD(p_from_state_OD = p_REL_OD_NI, fatal = FALSE)
+  p_ABS_ODN_NI  <- p_OD(p_from_state_OD = p_ABS_OD_NI, fatal = FALSE)
+  p_BUP_ODF_NI  <- p_OD(p_from_state_OD = p_BUP_OD_NI, fatal = TRUE)
+  p_MET_ODF_NI  <- p_OD(p_from_state_OD = p_MET_OD_NI, fatal = TRUE)
+  p_REL_ODF_NI  <- p_OD(p_from_state_OD = p_REL_OD_NI, fatal = TRUE)
+  p_ABS_ODF_NI  <- p_OD(p_from_state_OD = p_ABS_OD_NI, fatal = TRUE)
   
   # Injection
-  p_BUP_ODN_INJ <- ((p_BUP_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_MET_ODN_INJ <- ((p_MET_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_REL_ODN_INJ <- ((p_REL_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_ABS_ODN_INJ <- ((p_ABS_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
-  p_BUP_ODF_INJ <- ((p_BUP_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
-  p_MET_ODF_INJ <- ((p_MET_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
-  p_REL_ODF_INJ <- ((p_REL_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
-  p_ABS_ODF_INJ <- ((p_ABS_OD_INJ * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  p_BUP_ODN_INJ <- p_OD(p_from_state_OD = p_BUP_OD_INJ, fatal = FALSE)
+  p_MET_ODN_INJ <- p_OD(p_from_state_OD = p_MET_OD_INJ, fatal = FALSE)
+  p_REL_ODN_INJ <- p_OD(p_from_state_OD = p_REL_OD_INJ, fatal = FALSE)
+  p_ABS_ODN_INJ <- p_OD(p_from_state_OD = p_ABS_OD_INJ, fatal = FALSE)
+  p_BUP_ODF_INJ <- p_OD(p_from_state_OD = p_BUP_OD_INJ, fatal = TRUE)
+  p_MET_ODF_INJ <- p_OD(p_from_state_OD = p_MET_OD_INJ, fatal = TRUE)
+  p_REL_ODF_INJ <- p_OD(p_from_state_OD = p_REL_OD_INJ, fatal = TRUE)
+  p_ABS_ODF_INJ <- p_OD(p_from_state_OD = p_ABS_OD_INJ, fatal = TRUE)
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -376,11 +397,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                    dimnames = list(v_n_states, v_n_states, 1:n_t))
   
   # Add transitions conditional on state-exit (m_leave = 1 - remain)
-  # Modified transitions for first 4-weeks in relapse
+  # Modified transitions for first 4-weeks
   for (i in 1:4){
     a_TDP[, , i] <- m_UP_4wk * m_leave[, i]
   }
-  # All transitions
+  # All transitions 5+ weeks
   for (i in 5:n_t){
     a_TDP[, , i] <- m_UP * m_leave[, i]
   }
@@ -441,6 +462,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   #### Seroconversion ####
   # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
   # Probabilities applied equally across POS/NEG initially, re-weight by sero prob
+  # Currently applies to HIV, need to expand state-space for HCV
   # Non-injection
   a_TDP[NEG & NI, BUP & NI & NEG, ]  <- a_TDP[NEG & NI, BUP & NI & NEG, ] * (1 - p_sero_BUP_NI)
   a_TDP[NEG & NI, BUP & NI & POS, ]  <- a_TDP[NEG & NI, BUP & NI & POS, ] * p_sero_BUP_NI

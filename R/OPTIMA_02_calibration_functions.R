@@ -3,8 +3,8 @@
 #' \code{calibration_out} computes model outputs to be used for calibration 
 #' routines.
 #'
-#' @param v_params_calib Vector of parameters that need to be calibrated.
-#' @param l_params_all List with all parameters of the decision model.
+#' @param v_params_calib is a vector of parameters that need to be calibrated.   
+#' @param l_params_all is a list with all parameters of the decision model.
 #' @return 
 #' A list with all cause deaths, and non-fatal overdoses.
 #' @export
@@ -18,7 +18,7 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   
   #### Epidemiological Output ####
   ### Overdose deaths ###
-  v_death <- l_out_markov$m_M_agg_trace[, "Death"] # cumulative deaths at year i
+  v_ODF <- l_out_markov$m_M_agg_trace[, "ODF"] # cumulative deaths at year i
 
   ### Non-fatal overdoses ###
   v_ODN <- l_out_markov$m_M_agg_trace[, "ODN"] # cumulative non-fatal overdoses at year i

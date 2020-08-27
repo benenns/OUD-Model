@@ -903,3 +903,17 @@ for(i in 1:n_t){
   write.csv(b,"C:/Users/Benjamin/Desktop/hru.csv", row.names = TRUE)
   write.csv(c,"C:/Users/Benjamin/Desktop/hiv.csv", row.names = TRUE)
   write.csv(d,"C:/Users/Benjamin/Desktop/crime.csv", row.names = TRUE)
+  
+  
+  
+  # Probability of successful naloxone use
+  p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
+  
+  # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
+  # Subsets overdose into fatal and non-fatal, conditional on different parameters
+  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
+  
+  #' @param p_witness Probability of witnessed/attended overdose
+  #' @param p_NX_used Probability of naloxone use, given witnessed overdose
+  #' @param p_NX_success Probability of naloxone effectiveness, given use
+  #' @param p_fatal_OD Probability of fatal overdose, conditional on overdose 
