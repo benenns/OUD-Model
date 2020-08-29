@@ -47,7 +47,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Episodes (1-3)
   EP <-  l_dim_s[[3]] <- c("1", "2", "3")
   # HIV status
-  HIV <- l_dim_s[[4]] <- c("POS", "NEG")
+  HIV <- l_dim_s[[4]] <- c("HIV", "HCV", "COI", "NEG")
   n_t <- (n_age_max - n_age_init) * 52 # convert years into weeks
   
   df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
@@ -86,9 +86,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Abstinence
   ABS <- df_flat$BASE == "ABS"
   
-  # HIV status
+  # Serostatus
   NEG <- df_flat$HIV == "NEG"
-  POS <- df_flat$HIV == "POS"
+  HIV <- df_flat$HIV == "HIV"
+  HCV <- df_flat$HIV == "HCV"
+  COI <- df_flat$HIV == "COI"
   
   # Injection
   INJ <- df_flat$INJECT == "INJ"
@@ -108,7 +110,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                      REL = REL, 
                      all_OD = all_OD, ODN = ODN, ODF = ODF, 
                      ABS = ABS, 
-                     NEG = NEG, POS = POS, 
+                     NEG = NEG, HIV = HIV, HCV = HCV, COI = COI, 
                      INJ = INJ, NI = NI, 
                      EP1 = EP1, EP2 = EP2, EP3 = EP3)
   
@@ -415,77 +417,316 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
   # Add NEG -> POS remain probabilities
   # To-do: See if there is a better way to do this
+  # AUGUST 28, 2020 **UPDATE SEROCONVERSION SECTION TO INCLUDE HCV AND COI**
   for (i in 1:n_t){
     # Non-injection
-    a_TDP[BUP & NI & EP1 & NEG, BUP & NI & EP1 & POS, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
-    a_TDP[BUP & NI & EP2 & NEG, BUP & NI & EP2 & POS, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
-    a_TDP[BUP & NI & EP3 & NEG, BUP & NI & EP3 & POS, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
+    # BUP
+    a_TDP[BUP & NI & EP1 & NEG, BUP & NI & EP1 & HIV, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
+    a_TDP[BUP & NI & EP2 & NEG, BUP & NI & EP2 & HIV, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
+    a_TDP[BUP & NI & EP3 & NEG, BUP & NI & EP3 & HIV, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
     
-    a_TDP[MET & NI & EP1 & NEG, MET & NI & EP1 & POS, i] <- m_TDP[MET & NI & EP1 & NEG, i]
-    a_TDP[MET & NI & EP2 & NEG, MET & NI & EP2 & POS, i] <- m_TDP[MET & NI & EP2 & NEG, i]
-    a_TDP[MET & NI & EP3 & NEG, MET & NI & EP3 & POS, i] <- m_TDP[MET & NI & EP3 & NEG, i]
+    a_TDP[BUP & NI & EP1 & NEG, BUP & NI & EP1 & HCV, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
+    a_TDP[BUP & NI & EP2 & NEG, BUP & NI & EP2 & HCV, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
+    a_TDP[BUP & NI & EP3 & NEG, BUP & NI & EP3 & HCV, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
     
-    a_TDP[REL & NI & EP1 & NEG, REL & NI & EP1 & POS, i] <- m_TDP[REL & NI & EP1 & NEG, i]
-    a_TDP[REL & NI & EP2 & NEG, REL & NI & EP2 & POS, i] <- m_TDP[REL & NI & EP2 & NEG, i]
-    a_TDP[REL & NI & EP3 & NEG, REL & NI & EP3 & POS, i] <- m_TDP[REL & NI & EP3 & NEG, i]
+    a_TDP[BUP & NI & EP1 & NEG, BUP & NI & EP1 & COI, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
+    a_TDP[BUP & NI & EP2 & NEG, BUP & NI & EP2 & COI, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
+    a_TDP[BUP & NI & EP3 & NEG, BUP & NI & EP3 & COI, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
     
-    a_TDP[OD & NI & EP1 & NEG, OD & NI & EP1 & POS, i] <- m_TDP[OD & NI & EP1 & NEG, i]
-    a_TDP[OD & NI & EP2 & NEG, OD & NI & EP2 & POS, i] <- m_TDP[OD & NI & EP2 & NEG, i]
-    a_TDP[OD & NI & EP3 & NEG, OD & NI & EP3 & POS, i] <- m_TDP[OD & NI & EP3 & NEG, i]
+    a_TDP[BUP & NI & EP1 & HIV, BUP & NI & EP1 & COI, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
+    a_TDP[BUP & NI & EP2 & HIV, BUP & NI & EP2 & COI, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
+    a_TDP[BUP & NI & EP3 & HIV, BUP & NI & EP3 & COI, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
     
-    a_TDP[ABS & NI & EP1 & NEG, ABS & NI & EP1 & POS, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
-    a_TDP[ABS & NI & EP2 & NEG, ABS & NI & EP2 & POS, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
-    a_TDP[ABS & NI & EP3 & NEG, ABS & NI & EP3 & POS, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
+    a_TDP[BUP & NI & EP1 & HCV, BUP & NI & EP1 & COI, i] <- m_TDP[BUP & NI & EP1 & NEG, i]
+    a_TDP[BUP & NI & EP2 & HCV, BUP & NI & EP2 & COI, i] <- m_TDP[BUP & NI & EP2 & NEG, i]
+    a_TDP[BUP & NI & EP3 & HCV, BUP & NI & EP3 & COI, i] <- m_TDP[BUP & NI & EP3 & NEG, i]
+    
+    # MET
+    a_TDP[MET & NI & EP1 & NEG, MET & NI & EP1 & HIV, i] <- m_TDP[MET & NI & EP1 & NEG, i]
+    a_TDP[MET & NI & EP2 & NEG, MET & NI & EP2 & HIV, i] <- m_TDP[MET & NI & EP2 & NEG, i]
+    a_TDP[MET & NI & EP3 & NEG, MET & NI & EP3 & HIV, i] <- m_TDP[MET & NI & EP3 & NEG, i]
+    
+    a_TDP[MET & NI & EP1 & NEG, MET & NI & EP1 & HCV, i] <- m_TDP[MET & NI & EP1 & NEG, i]
+    a_TDP[MET & NI & EP2 & NEG, MET & NI & EP2 & HCV, i] <- m_TDP[MET & NI & EP2 & NEG, i]
+    a_TDP[MET & NI & EP3 & NEG, MET & NI & EP3 & HCV, i] <- m_TDP[MET & NI & EP3 & NEG, i]
+    
+    a_TDP[MET & NI & EP1 & NEG, MET & NI & EP1 & COI, i] <- m_TDP[MET & NI & EP1 & NEG, i]
+    a_TDP[MET & NI & EP2 & NEG, MET & NI & EP2 & COI, i] <- m_TDP[MET & NI & EP2 & NEG, i]
+    a_TDP[MET & NI & EP3 & NEG, MET & NI & EP3 & COI, i] <- m_TDP[MET & NI & EP3 & NEG, i]
+    
+    a_TDP[MET & NI & EP1 & HIV, MET & NI & EP1 & COI, i] <- m_TDP[MET & NI & EP1 & NEG, i]
+    a_TDP[MET & NI & EP2 & HIV, MET & NI & EP2 & COI, i] <- m_TDP[MET & NI & EP2 & NEG, i]
+    a_TDP[MET & NI & EP3 & HIV, MET & NI & EP3 & COI, i] <- m_TDP[MET & NI & EP3 & NEG, i]
+    
+    a_TDP[MET & NI & EP1 & HCV, MET & NI & EP1 & COI, i] <- m_TDP[MET & NI & EP1 & NEG, i]
+    a_TDP[MET & NI & EP2 & HCV, MET & NI & EP2 & COI, i] <- m_TDP[MET & NI & EP2 & NEG, i]
+    a_TDP[MET & NI & EP3 & HCV, MET & NI & EP3 & COI, i] <- m_TDP[MET & NI & EP3 & NEG, i]
+    
+    # REL
+    a_TDP[REL & NI & EP1 & NEG, REL & NI & EP1 & HIV, i] <- m_TDP[REL & NI & EP1 & NEG, i]
+    a_TDP[REL & NI & EP2 & NEG, REL & NI & EP2 & HIV, i] <- m_TDP[REL & NI & EP2 & NEG, i]
+    a_TDP[REL & NI & EP3 & NEG, REL & NI & EP3 & HIV, i] <- m_TDP[REL & NI & EP3 & NEG, i]
+    
+    a_TDP[REL & NI & EP1 & NEG, REL & NI & EP1 & HCV, i] <- m_TDP[REL & NI & EP1 & NEG, i]
+    a_TDP[REL & NI & EP2 & NEG, REL & NI & EP2 & HCV, i] <- m_TDP[REL & NI & EP2 & NEG, i]
+    a_TDP[REL & NI & EP3 & NEG, REL & NI & EP3 & HCV, i] <- m_TDP[REL & NI & EP3 & NEG, i]
+    
+    a_TDP[REL & NI & EP1 & NEG, REL & NI & EP1 & COI, i] <- m_TDP[REL & NI & EP1 & NEG, i]
+    a_TDP[REL & NI & EP2 & NEG, REL & NI & EP2 & COI, i] <- m_TDP[REL & NI & EP2 & NEG, i]
+    a_TDP[REL & NI & EP3 & NEG, REL & NI & EP3 & COI, i] <- m_TDP[REL & NI & EP3 & NEG, i]
+    
+    a_TDP[REL & NI & EP1 & HIV, REL & NI & EP1 & COI, i] <- m_TDP[REL & NI & EP1 & NEG, i]
+    a_TDP[REL & NI & EP2 & HIV, REL & NI & EP2 & COI, i] <- m_TDP[REL & NI & EP2 & NEG, i]
+    a_TDP[REL & NI & EP3 & HIV, REL & NI & EP3 & COI, i] <- m_TDP[REL & NI & EP3 & NEG, i]
+    
+    a_TDP[REL & NI & EP1 & HCV, REL & NI & EP1 & COI, i] <- m_TDP[REL & NI & EP1 & NEG, i]
+    a_TDP[REL & NI & EP2 & HCV, REL & NI & EP2 & COI, i] <- m_TDP[REL & NI & EP2 & NEG, i]
+    a_TDP[REL & NI & EP3 & HCV, REL & NI & EP3 & COI, i] <- m_TDP[REL & NI & EP3 & NEG, i]
+    
+    # OD
+    #a_TDP[OD & NI & EP1 & NEG, OD & NI & EP1 & POS, i] <- m_TDP[OD & NI & EP1 & NEG, i]
+    #a_TDP[OD & NI & EP2 & NEG, OD & NI & EP2 & POS, i] <- m_TDP[OD & NI & EP2 & NEG, i]
+    #a_TDP[OD & NI & EP3 & NEG, OD & NI & EP3 & POS, i] <- m_TDP[OD & NI & EP3 & NEG, i]
+    
+    # ABS
+    a_TDP[ABS & NI & EP1 & NEG, ABS & NI & EP1 & HIV, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
+    a_TDP[ABS & NI & EP2 & NEG, ABS & NI & EP2 & HIV, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
+    a_TDP[ABS & NI & EP3 & NEG, ABS & NI & EP3 & HIV, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
+    
+    a_TDP[ABS & NI & EP1 & NEG, ABS & NI & EP1 & HCV, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
+    a_TDP[ABS & NI & EP2 & NEG, ABS & NI & EP2 & HCV, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
+    a_TDP[ABS & NI & EP3 & NEG, ABS & NI & EP3 & HCV, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
+    
+    a_TDP[ABS & NI & EP1 & NEG, ABS & NI & EP1 & COI, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
+    a_TDP[ABS & NI & EP2 & NEG, ABS & NI & EP2 & COI, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
+    a_TDP[ABS & NI & EP3 & NEG, ABS & NI & EP3 & COI, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
+    
+    a_TDP[ABS & NI & EP1 & HIV, ABS & NI & EP1 & COI, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
+    a_TDP[ABS & NI & EP2 & HIV, ABS & NI & EP2 & COI, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
+    a_TDP[ABS & NI & EP3 & HIV, ABS & NI & EP3 & COI, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
+    
+    a_TDP[ABS & NI & EP1 & HCV, ABS & NI & EP1 & COI, i] <- m_TDP[ABS & NI & EP1 & NEG, i]
+    a_TDP[ABS & NI & EP2 & HCV, ABS & NI & EP2 & COI, i] <- m_TDP[ABS & NI & EP2 & NEG, i]
+    a_TDP[ABS & NI & EP3 & HCV, ABS & NI & EP3 & COI, i] <- m_TDP[ABS & NI & EP3 & NEG, i]
 
     # Injection
-    a_TDP[BUP & INJ & EP1 & NEG, BUP & INJ & EP1 & POS, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
-    a_TDP[BUP & INJ & EP2 & NEG, BUP & INJ & EP2 & POS, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
-    a_TDP[BUP & INJ & EP3 & NEG, BUP & INJ & EP3 & POS, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
+    # BUP
+    a_TDP[BUP & INJ & EP1 & NEG, BUP & INJ & EP1 & HIV, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
+    a_TDP[BUP & INJ & EP2 & NEG, BUP & INJ & EP2 & HIV, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
+    a_TDP[BUP & INJ & EP3 & NEG, BUP & INJ & EP3 & HIV, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
     
-    a_TDP[MET & INJ & EP1 & NEG, MET & INJ & EP1 & POS, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
-    a_TDP[MET & INJ & EP2 & NEG, MET & INJ & EP2 & POS, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
-    a_TDP[MET & INJ & EP3 & NEG, MET & INJ & EP3 & POS, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+    a_TDP[BUP & INJ & EP1 & NEG, BUP & INJ & EP1 & HCV, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
+    a_TDP[BUP & INJ & EP2 & NEG, BUP & INJ & EP2 & HCV, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
+    a_TDP[BUP & INJ & EP3 & NEG, BUP & INJ & EP3 & HCV, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
     
-    a_TDP[REL & INJ & EP1 & NEG, REL & INJ & EP1 & POS, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
-    a_TDP[REL & INJ & EP2 & NEG, REL & INJ & EP2 & POS, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
-    a_TDP[REL & INJ & EP3 & NEG, REL & INJ & EP3 & POS, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+    a_TDP[BUP & INJ & EP1 & NEG, BUP & INJ & EP1 & COI, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
+    a_TDP[BUP & INJ & EP2 & NEG, BUP & INJ & EP2 & COI, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
+    a_TDP[BUP & INJ & EP3 & NEG, BUP & INJ & EP3 & COI, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
     
-    a_TDP[OD & INJ & EP1 & NEG, OD & INJ & EP1 & POS, i] <- m_TDP[OD & INJ & EP1 & NEG, i]
-    a_TDP[OD & INJ & EP2 & NEG, OD & INJ & EP2 & POS, i] <- m_TDP[OD & INJ & EP2 & NEG, i]
-    a_TDP[OD & INJ & EP3 & NEG, OD & INJ & EP3 & POS, i] <- m_TDP[OD & INJ & EP3 & NEG, i]
+    a_TDP[BUP & INJ & EP1 & HIV, BUP & INJ & EP1 & COI, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
+    a_TDP[BUP & INJ & EP2 & HIV, BUP & INJ & EP2 & COI, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
+    a_TDP[BUP & INJ & EP3 & HIV, BUP & INJ & EP3 & COI, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
     
-    a_TDP[ABS & INJ & EP1 & NEG, ABS & INJ & EP1 & POS, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
-    a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & POS, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
-    a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & POS, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
+    a_TDP[BUP & INJ & EP1 & HCV, BUP & INJ & EP1 & COI, i] <- m_TDP[BUP & INJ & EP1 & NEG, i]
+    a_TDP[BUP & INJ & EP2 & HCV, BUP & INJ & EP2 & COI, i] <- m_TDP[BUP & INJ & EP2 & NEG, i]
+    a_TDP[BUP & INJ & EP3 & HCV, BUP & INJ & EP3 & COI, i] <- m_TDP[BUP & INJ & EP3 & NEG, i]
+    
+    # MET
+    a_TDP[MET & INJ & EP1 & NEG, MET & INJ & EP1 & HIV, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
+    a_TDP[MET & INJ & EP2 & NEG, MET & INJ & EP2 & HIV, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
+    a_TDP[MET & INJ & EP3 & NEG, MET & INJ & EP3 & HIV, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+    
+    a_TDP[MET & INJ & EP1 & NEG, MET & INJ & EP1 & HCV, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
+    a_TDP[MET & INJ & EP2 & NEG, MET & INJ & EP2 & HCV, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
+    a_TDP[MET & INJ & EP3 & NEG, MET & INJ & EP3 & HCV, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+    
+    a_TDP[MET & INJ & EP1 & NEG, MET & INJ & EP1 & COI, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
+    a_TDP[MET & INJ & EP2 & NEG, MET & INJ & EP2 & COI, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
+    a_TDP[MET & INJ & EP3 & NEG, MET & INJ & EP3 & COI, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+    
+    a_TDP[MET & INJ & EP1 & HIV, MET & INJ & EP1 & COI, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
+    a_TDP[MET & INJ & EP2 & HIV, MET & INJ & EP2 & COI, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
+    a_TDP[MET & INJ & EP3 & HIV, MET & INJ & EP3 & COI, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+    
+    a_TDP[MET & INJ & EP1 & HCV, MET & INJ & EP1 & COI, i] <- m_TDP[MET & INJ & EP1 & NEG, i]
+    a_TDP[MET & INJ & EP2 & HCV, MET & INJ & EP2 & COI, i] <- m_TDP[MET & INJ & EP2 & NEG, i]
+    a_TDP[MET & INJ & EP3 & HCV, MET & INJ & EP3 & COI, i] <- m_TDP[MET & INJ & EP3 & NEG, i]
+    
+    # REL
+    a_TDP[REL & INJ & EP1 & NEG, REL & INJ & EP1 & HIV, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
+    a_TDP[REL & INJ & EP2 & NEG, REL & INJ & EP2 & HIV, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
+    a_TDP[REL & INJ & EP3 & NEG, REL & INJ & EP3 & HIV, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+    
+    a_TDP[REL & INJ & EP1 & NEG, REL & INJ & EP1 & HCV, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
+    a_TDP[REL & INJ & EP2 & NEG, REL & INJ & EP2 & HCV, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
+    a_TDP[REL & INJ & EP3 & NEG, REL & INJ & EP3 & HCV, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+    
+    a_TDP[REL & INJ & EP1 & NEG, REL & INJ & EP1 & COI, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
+    a_TDP[REL & INJ & EP2 & NEG, REL & INJ & EP2 & COI, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
+    a_TDP[REL & INJ & EP3 & NEG, REL & INJ & EP3 & COI, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+    
+    a_TDP[REL & INJ & EP1 & HIV, REL & INJ & EP1 & COI, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
+    a_TDP[REL & INJ & EP2 & HIV, REL & INJ & EP2 & COI, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
+    a_TDP[REL & INJ & EP3 & HIV, REL & INJ & EP3 & COI, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+    
+    a_TDP[REL & INJ & EP1 & HCV, REL & INJ & EP1 & COI, i] <- m_TDP[REL & INJ & EP1 & NEG, i]
+    a_TDP[REL & INJ & EP2 & HCV, REL & INJ & EP2 & COI, i] <- m_TDP[REL & INJ & EP2 & NEG, i]
+    a_TDP[REL & INJ & EP3 & HCV, REL & INJ & EP3 & COI, i] <- m_TDP[REL & INJ & EP3 & NEG, i]
+    
+    # OD
+    #a_TDP[OD & INJ & EP1 & NEG, OD & INJ & EP1 & POS, i] <- m_TDP[OD & INJ & EP1 & NEG, i]
+    #a_TDP[OD & INJ & EP2 & NEG, OD & INJ & EP2 & POS, i] <- m_TDP[OD & INJ & EP2 & NEG, i]
+    #a_TDP[OD & INJ & EP3 & NEG, OD & INJ & EP3 & POS, i] <- m_TDP[OD & INJ & EP3 & NEG, i]
+    
+    # ABS
+    a_TDP[ABS & INJ & EP1 & NEG, ABS & INJ & EP1 & HIV, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
+    a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & HIV, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
+    a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & HIV, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
+    
+    a_TDP[ABS & INJ & EP1 & NEG, ABS & INJ & EP1 & HCV, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
+    a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & HCV, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
+    a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & HCV, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
+    
+    a_TDP[ABS & INJ & EP1 & NEG, ABS & INJ & EP1 & COI, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
+    a_TDP[ABS & INJ & EP2 & NEG, ABS & INJ & EP2 & COI, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
+    a_TDP[ABS & INJ & EP3 & NEG, ABS & INJ & EP3 & COI, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
+    
+    a_TDP[ABS & INJ & EP1 & HIV, ABS & INJ & EP1 & COI, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
+    a_TDP[ABS & INJ & EP2 & HIV, ABS & INJ & EP2 & COI, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
+    a_TDP[ABS & INJ & EP3 & HIV, ABS & INJ & EP3 & COI, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
+    
+    a_TDP[ABS & INJ & EP1 & HCV, ABS & INJ & EP1 & COI, i] <- m_TDP[ABS & INJ & EP1 & NEG, i]
+    a_TDP[ABS & INJ & EP2 & HCV, ABS & INJ & EP2 & COI, i] <- m_TDP[ABS & INJ & EP2 & NEG, i]
+    a_TDP[ABS & INJ & EP3 & HCV, ABS & INJ & EP3 & COI, i] <- m_TDP[ABS & INJ & EP3 & NEG, i]
   }
 
   #### Seroconversion ####
   # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
   # Probabilities applied equally across POS/NEG initially, re-weight by sero prob
   # Currently applies to HIV, need to expand state-space for HCV
+  
   # Non-injection
-  a_TDP[NEG & NI, BUP & NI & NEG, ]  <- a_TDP[NEG & NI, BUP & NI & NEG, ] * (1 - p_sero_BUP_NI)
-  a_TDP[NEG & NI, BUP & NI & POS, ]  <- a_TDP[NEG & NI, BUP & NI & POS, ] * p_sero_BUP_NI
-  a_TDP[NEG & NI, MET & NI & NEG, ]  <- a_TDP[NEG & NI, MET & NI & NEG, ] * (1 - p_sero_MET_NI)
-  a_TDP[NEG & NI, MET & NI & POS, ]  <- a_TDP[NEG & NI, MET & NI & POS, ] * p_sero_MET_NI
-  a_TDP[NEG & NI, REL & NI & NEG, ]  <- a_TDP[NEG & NI, REL & NI & NEG, ] * (1 - p_sero_REL_NI)
-  a_TDP[NEG & NI, REL & NI & POS, ]  <- a_TDP[NEG & NI, REL & NI & POS, ] * p_sero_REL_NI
-  a_TDP[NEG & NI, OD & NI & NEG, ]   <- a_TDP[NEG & NI, OD & NI & NEG, ] * (1 - p_sero_OD_NI)
-  a_TDP[NEG & NI, OD & NI & POS, ]   <- a_TDP[NEG & NI, OD & NI & POS, ] * p_sero_OD_NI
-  a_TDP[NEG & NI, ABS & NI & NEG, ]  <- a_TDP[NEG & NI, ABS & NI & NEG, ] * (1 - p_sero_ABS_NI)
-  a_TDP[NEG & NI, ABS & NI & POS, ]  <- a_TDP[NEG & NI, ABS & NI & POS, ] * p_sero_ABS_NI
+  # BUP
+  # From NEG
+  a_TDP[NEG & NI, BUP & NI & NEG, ]  <- a_TDP[NEG & NI, BUP & NI & NEG, ] * (1 - p_HIV_BUP_NI - p_HCV_BUP_NI)
+  a_TDP[NEG & NI, BUP & NI & HIV, ]  <- a_TDP[NEG & NI, BUP & NI & HIV, ] * p_HIV_BUP_NI
+  a_TDP[NEG & NI, BUP & NI & HCV, ]  <- a_TDP[NEG & NI, BUP & NI & HCV, ] * p_HCV_BUP_NI
+  # From HIV
+  a_TDP[HIV & NI, BUP & NI & HIV, ]  <- a_TDP[HIV & NI, BUP & NI & HIV, ] * (1 - p_HIV_HCV_BUP_NI)
+  a_TDP[HIV & NI, BUP & NI & COI, ]  <- a_TDP[HIV & NI, BUP & NI & COI, ] * p_HIV_HCV_BUP_NI # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & NI, BUP & NI & HCV, ]  <- a_TDP[HCV & NI, BUP & NI & HCV, ] * (1 - p_HCV_HIV_BUP_NI)
+  a_TDP[HCV & NI, BUP & NI & COI, ]  <- a_TDP[HCV & NI, BUP & NI & COI, ] * p_HCV_HIV_BUP_NI # Probability of HIV conditional on HCV
+  
+  # MET
+  # From NEG
+  a_TDP[NEG & NI, MET & NI & NEG, ]  <- a_TDP[NEG & NI, MET & NI & NEG, ] * (1 - p_HIV_MET_NI - p_HCV_MET_NI)
+  a_TDP[NEG & NI, MET & NI & HIV, ]  <- a_TDP[NEG & NI, MET & NI & HIV, ] * p_HIV_MET_NI
+  a_TDP[NEG & NI, MET & NI & HCV, ]  <- a_TDP[NEG & NI, MET & NI & HCV, ] * p_HCV_MET_NI
+  # From HIV
+  a_TDP[HIV & NI, MET & NI & HIV, ]  <- a_TDP[HIV & NI, MET & NI & HIV, ] * (1 - p_HIV_HCV_MET_NI)
+  a_TDP[HIV & NI, MET & NI & COI, ]  <- a_TDP[HIV & NI, MET & NI & COI, ] * p_HIV_HCV_MET_NI # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & NI, MET & NI & HCV, ]  <- a_TDP[HCV & NI, MET & NI & HCV, ] * (1 - p_HCV_HIV_MET_NI)
+  a_TDP[HCV & NI, MET & NI & COI, ]  <- a_TDP[HCV & NI, MET & NI & COI, ] * p_HCV_HIV_MET_NI # Probability of HIV conditional on HCV
+  
+  # REL
+  # From NEG
+  a_TDP[NEG & NI, REL & NI & NEG, ]  <- a_TDP[NEG & NI, REL & NI & NEG, ] * (1 - p_HIV_REL_NI - p_HCV_REL_NI)
+  a_TDP[NEG & NI, REL & NI & HIV, ]  <- a_TDP[NEG & NI, REL & NI & HIV, ] * p_HIV_REL_NI
+  a_TDP[NEG & NI, REL & NI & HCV, ]  <- a_TDP[NEG & NI, REL & NI & HCV, ] * p_HCV_REL_NI
+  # From HIV
+  a_TDP[HIV & NI, REL & NI & HIV, ]  <- a_TDP[HIV & NI, REL & NI & HIV, ] * (1 - p_HIV_HCV_REL_NI)
+  a_TDP[HIV & NI, REL & NI & COI, ]  <- a_TDP[HIV & NI, REL & NI & COI, ] * p_HIV_HCV_REL_NI # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & NI, REL & NI & HCV, ]  <- a_TDP[HCV & NI, REL & NI & HCV, ] * (1 - p_HCV_HIV_REL_NI)
+  a_TDP[HCV & NI, REL & NI & COI, ]  <- a_TDP[HCV & NI, REL & NI & COI, ] * p_HCV_HIV_REL_NI # Probability of HIV conditional on HCV
+  
+  # ODN
+  # From NEG
+  a_TDP[NEG & NI, ODN & NI & NEG, ]  <- a_TDP[NEG & NI, ODN & NI & NEG, ] * (1 - p_HIV_ODN_NI - p_HCV_ODN_NI)
+  a_TDP[NEG & NI, ODN & NI & HIV, ]  <- a_TDP[NEG & NI, ODN & NI & HIV, ] * p_HIV_ODN_NI
+  a_TDP[NEG & NI, ODN & NI & HCV, ]  <- a_TDP[NEG & NI, ODN & NI & HCV, ] * p_HCV_ODN_NI
+  # From HIV
+  a_TDP[HIV & NI, ODN & NI & HIV, ]  <- a_TDP[HIV & NI, ODN & NI & HIV, ] * (1 - p_HIV_HCV_ODN_NI)
+  a_TDP[HIV & NI, ODN & NI & COI, ]  <- a_TDP[HIV & NI, ODN & NI & COI, ] * p_HIV_HCV_ODN_NI # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & NI, ODN & NI & HCV, ]  <- a_TDP[HCV & NI, ODN & NI & HCV, ] * (1 - p_HCV_HIV_ODN_NI)
+  a_TDP[HCV & NI, ODN & NI & COI, ]  <- a_TDP[HCV & NI, ODN & NI & COI, ] * p_HCV_HIV_ODN_NI # Probability of HIV conditional on HCV
 
+  # ABS
+  # From NEG
+  a_TDP[NEG & NI, ABS & NI & NEG, ]  <- a_TDP[NEG & NI, ABS & NI & NEG, ] * (1 - p_HIV_ABS_NI - p_HCV_ABS_NI)
+  a_TDP[NEG & NI, ABS & NI & HIV, ]  <- a_TDP[NEG & NI, ABS & NI & HIV, ] * p_HIV_ABS_NI
+  a_TDP[NEG & NI, ABS & NI & HCV, ]  <- a_TDP[NEG & NI, ABS & NI & HCV, ] * p_HCV_ABS_NI
+  # From HIV
+  a_TDP[HIV & NI, ABS & NI & HIV, ]  <- a_TDP[HIV & NI, ABS & NI & HIV, ] * (1 - p_HIV_HCV_ABS_NI)
+  a_TDP[HIV & NI, ABS & NI & COI, ]  <- a_TDP[HIV & NI, ABS & NI & COI, ] * p_HIV_HCV_ABS_NI # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & NI, ABS & NI & HCV, ]  <- a_TDP[HCV & NI, ABS & NI & HCV, ] * (1 - p_HCV_HIV_ABS_NI)
+  a_TDP[HCV & NI, ABS & NI & COI, ]  <- a_TDP[HCV & NI, ABS & NI & COI, ] * p_HCV_HIV_ABS_NI # Probability of HIV conditional on HCV
+
+  
   # Injection
-  a_TDP[NEG & INJ, BUP & INJ & NEG, ]  <- a_TDP[NEG & INJ, BUP & INJ & NEG, ] * (1 - p_sero_BUP_INJ)
-  a_TDP[NEG & INJ, BUP & INJ & POS, ]  <- a_TDP[NEG & INJ, BUP & INJ & POS, ] * p_sero_BUP_INJ
-  a_TDP[NEG & INJ, MET & INJ & NEG, ]  <- a_TDP[NEG & INJ, MET & INJ & NEG, ] * (1 - p_sero_MET_INJ)
-  a_TDP[NEG & INJ, MET & INJ & POS, ]  <- a_TDP[NEG & INJ, MET & INJ & POS, ] * p_sero_MET_INJ
-  a_TDP[NEG & INJ, REL & INJ & NEG, ]  <- a_TDP[NEG & INJ, REL & INJ & NEG, ] * (1 - p_sero_REL_INJ)
-  a_TDP[NEG & INJ, REL & INJ & POS, ]  <- a_TDP[NEG & INJ, REL & INJ & POS, ] * p_sero_REL_INJ
-  a_TDP[NEG & INJ, OD & INJ & NEG, ]   <- a_TDP[NEG & INJ, OD & INJ & NEG, ] * (1 - p_sero_OD_INJ)
-  a_TDP[NEG & INJ, OD & INJ & POS, ]   <- a_TDP[NEG & INJ, OD & INJ & POS, ] * p_sero_OD_INJ
-  a_TDP[NEG & INJ, ABS & INJ & NEG, ]  <- a_TDP[NEG & INJ, ABS & INJ & NEG, ] * (1 - p_sero_ABS_INJ)
-  a_TDP[NEG & INJ, ABS & INJ & POS, ]  <- a_TDP[NEG & INJ, ABS & INJ & POS, ] * p_sero_ABS_INJ
+  # BUP
+  # From NEG
+  a_TDP[NEG & INJ, BUP & INJ & NEG, ]  <- a_TDP[NEG & INJ, BUP & INJ & NEG, ] * (1 - p_HIV_BUP_INJ - p_HCV_BUP_INJ)
+  a_TDP[NEG & INJ, BUP & INJ & HIV, ]  <- a_TDP[NEG & INJ, BUP & INJ & HIV, ] * p_HIV_BUP_INJ
+  a_TDP[NEG & INJ, BUP & INJ & HCV, ]  <- a_TDP[NEG & INJ, BUP & INJ & HCV, ] * p_HCV_BUP_INJ
+  # From HIV
+  a_TDP[HIV & INJ, BUP & INJ & HIV, ]  <- a_TDP[HIV & INJ, BUP & INJ & HIV, ] * (1 - p_HIV_HCV_BUP_INJ)
+  a_TDP[HIV & INJ, BUP & INJ & COI, ]  <- a_TDP[HIV & INJ, BUP & INJ & COI, ] * p_HIV_HCV_BUP_INJ # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & INJ, BUP & INJ & HCV, ]  <- a_TDP[HCV & INJ, BUP & INJ & HCV, ] * (1 - p_HCV_HIV_BUP_INJ)
+  a_TDP[HCV & INJ, BUP & INJ & COI, ]  <- a_TDP[HCV & INJ, BUP & INJ & COI, ] * p_HCV_HIV_BUP_INJ # Probability of HIV conditional on HCV
+  
+  # MET
+  # From NEG
+  a_TDP[NEG & INJ, MET & INJ & NEG, ]  <- a_TDP[NEG & INJ, MET & INJ & NEG, ] * (1 - p_HIV_MET_INJ - p_HCV_MET_INJ)
+  a_TDP[NEG & INJ, MET & INJ & HIV, ]  <- a_TDP[NEG & INJ, MET & INJ & HIV, ] * p_HIV_MET_INJ
+  a_TDP[NEG & INJ, MET & INJ & HCV, ]  <- a_TDP[NEG & INJ, MET & INJ & HCV, ] * p_HCV_MET_INJ
+  # From HIV
+  a_TDP[HIV & INJ, MET & INJ & HIV, ]  <- a_TDP[HIV & INJ, MET & INJ & HIV, ] * (1 - p_HIV_HCV_MET_INJ)
+  a_TDP[HIV & INJ, MET & INJ & COI, ]  <- a_TDP[HIV & INJ, MET & INJ & COI, ] * p_HIV_HCV_MET_INJ # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & INJ, MET & INJ & HCV, ]  <- a_TDP[HCV & INJ, MET & INJ & HCV, ] * (1 - p_HCV_HIV_MET_INJ)
+  a_TDP[HCV & INJ, MET & INJ & COI, ]  <- a_TDP[HCV & INJ, MET & INJ & COI, ] * p_HCV_HIV_MET_INJ # Probability of HIV conditional on HCV
+  
+  # REL
+  # From NEG
+  a_TDP[NEG & INJ, REL & INJ & NEG, ]  <- a_TDP[NEG & INJ, REL & INJ & NEG, ] * (1 - p_HIV_REL_INJ - p_HCV_REL_INJ)
+  a_TDP[NEG & INJ, REL & INJ & HIV, ]  <- a_TDP[NEG & INJ, REL & INJ & HIV, ] * p_HIV_REL_INJ
+  a_TDP[NEG & INJ, REL & INJ & HCV, ]  <- a_TDP[NEG & INJ, REL & INJ & HCV, ] * p_HCV_REL_INJ
+  # From HIV
+  a_TDP[HIV & INJ, REL & INJ & HIV, ]  <- a_TDP[HIV & INJ, REL & INJ & HIV, ] * (1 - p_HIV_HCV_REL_INJ)
+  a_TDP[HIV & INJ, REL & INJ & COI, ]  <- a_TDP[HIV & INJ, REL & INJ & COI, ] * p_HIV_HCV_REL_INJ # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & INJ, REL & INJ & HCV, ]  <- a_TDP[HCV & INJ, REL & INJ & HCV, ] * (1 - p_HCV_HIV_REL_INJ)
+  a_TDP[HCV & INJ, REL & INJ & COI, ]  <- a_TDP[HCV & INJ, REL & INJ & COI, ] * p_HCV_HIV_REL_INJ # Probability of HIV conditional on HCV
+  
+  # ODN
+  # From NEG
+  a_TDP[NEG & INJ, ODN & INJ & NEG, ]  <- a_TDP[NEG & INJ, ODN & INJ & NEG, ] * (1 - p_HIV_ODN_INJ - p_HCV_ODN_INJ)
+  a_TDP[NEG & INJ, ODN & INJ & HIV, ]  <- a_TDP[NEG & INJ, ODN & INJ & HIV, ] * p_HIV_ODN_INJ
+  a_TDP[NEG & INJ, ODN & INJ & HCV, ]  <- a_TDP[NEG & INJ, ODN & INJ & HCV, ] * p_HCV_ODN_INJ
+  # From HIV
+  a_TDP[HIV & INJ, ODN & INJ & HIV, ]  <- a_TDP[HIV & INJ, ODN & INJ & HIV, ] * (1 - p_HIV_HCV_ODN_INJ)
+  a_TDP[HIV & INJ, ODN & INJ & COI, ]  <- a_TDP[HIV & INJ, ODN & INJ & COI, ] * p_HIV_HCV_ODN_INJ # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & INJ, ODN & INJ & HCV, ]  <- a_TDP[HCV & INJ, ODN & INJ & HCV, ] * (1 - p_HCV_HIV_ODN_INJ)
+  a_TDP[HCV & INJ, ODN & INJ & COI, ]  <- a_TDP[HCV & INJ, ODN & INJ & COI, ] * p_HCV_HIV_ODN_INJ # Probability of HIV conditional on HCV
+  
+  # ABS
+  # From NEG
+  a_TDP[NEG & INJ, ABS & INJ & NEG, ]  <- a_TDP[NEG & INJ, ABS & INJ & NEG, ] * (1 - p_HIV_ABS_INJ - p_HCV_ABS_INJ)
+  a_TDP[NEG & INJ, ABS & INJ & HIV, ]  <- a_TDP[NEG & INJ, ABS & INJ & HIV, ] * p_HIV_ABS_INJ
+  a_TDP[NEG & INJ, ABS & INJ & HCV, ]  <- a_TDP[NEG & INJ, ABS & INJ & HCV, ] * p_HCV_ABS_INJ
+  # From HIV
+  a_TDP[HIV & INJ, ABS & INJ & HIV, ]  <- a_TDP[HIV & INJ, ABS & INJ & HIV, ] * (1 - p_HIV_HCV_ABS_INJ)
+  a_TDP[HIV & INJ, ABS & INJ & COI, ]  <- a_TDP[HIV & INJ, ABS & INJ & COI, ] * p_HIV_HCV_ABS_INJ # Probability of HCV conditional on HIV
+  # From HCV
+  a_TDP[HCV & INJ, ABS & INJ & HCV, ]  <- a_TDP[HCV & INJ, ABS & INJ & HCV, ] * (1 - p_HCV_HIV_ABS_INJ)
+  a_TDP[HCV & INJ, ABS & INJ & COI, ]  <- a_TDP[HCV & INJ, ABS & INJ & COI, ] * p_HCV_HIV_ABS_INJ # Probability of HIV conditional on HCV
 
   # Episode rules
   # Disallowed transitions
@@ -493,7 +734,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[EP2, EP1, ] = 0
   a_TDP[EP3, EP1, ] = 0
   a_TDP[EP3, EP2, ] = 0
-  a_TDP[POS, NEG, ] = 0
+  a_TDP[HIV, NEG, ] = 0
+  a_TDP[HCV, NEG, ] = 0 # disallowing potential transitions from COI to HIV-only (i.e. HCV cure), calculated within overall HCV infection rate
+  a_TDP[COI, NEG, ] = 0
+  a_TDP[HIV, HCV, ] = 0
+  a_TDP[HCV, HIV, ] = 0
+  a_TDP[COI, HIV, ] = 0 # disallowing potential transitions from COI to HIV-only (i.e. HCV cure), calculated within overall HCV infection rate
+  a_TDP[COI, HCV, ] = 0
+  a_TDP[COI, NEG, ] = 0
   a_TDP[ABS, TX, ]  = 0
   #a_TDP[BUP1, BUP1, ]  = 0
   #a_TDP[MET1, MET1, ]  = 0
@@ -531,9 +779,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_s_init[NI]  <- v_s_init[NI] * (1 - n_INJ)
   v_s_init[INJ] <- v_s_init[INJ] * n_INJ
   
-  # Distribute HIV+/-
-  v_s_init[NEG] <- v_s_init[NEG] * (1 - n_HIV_POS)
-  v_s_init[POS] <- v_s_init[POS] * n_HIV_POS
+  # Distribute HIV/HCV/COI
+  v_s_init[NEG] <- v_s_init[NEG] * (1 - n_HIV - n_HCV - n_COI)
+  v_s_init[HIV] <- v_s_init[HIV] * n_HIV
+  v_s_init[HCV] <- v_s_init[HCV] * n_HCV
+  v_s_init[COI] <- v_s_init[COI] * n_COI
 
   # Create Markov Trace
     # Initialize population

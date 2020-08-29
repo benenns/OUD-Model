@@ -73,7 +73,9 @@ load_all_params <- function(file.init = NULL,
     n_discount = df_init_params["pe", "discount"], # discount rate
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "inj_prop"], # % injection
-    n_HIV_POS = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
+    n_HIV = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
+    n_HCV = df_init_params["pe", "hcv_prop"], # % of HCV-positive individuals
+    n_COI = df_init_params["pe", "coi_prop"], # % of co-infected individuals
     n_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
     
     # Initial state distribution
