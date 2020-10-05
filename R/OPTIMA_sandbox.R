@@ -99,3 +99,26 @@ one_year <- sum(v_test[1:12])
 five_year <- sum(v_test[1:60])
 
 v_test3 <- (v_test * 0.6) + (v_test2 * 0.4)
+
+
+a_TDP <- array(0, dim = c(144, 144, 3120))
+a_TDP2 <- array(0, dim = c(144, 144, 3120))
+a_TDP3 <- array(0, dim = c(3120, 144, 3120))
+
+l_dim_s  <- list() # list of health states
+# Base health states
+BASE <- l_dim_s[[1]] <- c("MET", "BUP", "ABS", "REL", "ODN", "ODF")
+# Injection/non-injection stratification
+INJECT <- l_dim_s[[2]] <- c("NI", "INJ")
+# Episodes (1-3)
+EP <-  l_dim_s[[3]] <- c("1", "2", "3")
+# HIV/HCV status
+SERO <- l_dim_s[[4]] <- c("NEG", "HIV", "HCV", "COI")
+
+n_BASE <- length(BASE)
+n_INJECT <- length(INJECT)
+n_EP <- length(EP)
+n_SERO <- length(SERO)
+
+te <- n_BASE * n_INJECT * n_EP
+te

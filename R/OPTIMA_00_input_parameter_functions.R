@@ -29,7 +29,8 @@ load_mort_params <- function(file.mort = NULL, n_male){
 #' @param file.weibull_shape String with the location and name of the file with weibull shape
 #' @param file.unconditional String with the location and name of the file with empirical destination states
 #' @param file.overdose String with the location and name of the file with overdose/fentanyl-related parameters
-#' @param file.sero String with the location and name of the file with seroconversion probabilities
+#' @param file.hiv String with the location and name of the file with HIV seroconversion probabilities
+#' @param file.hcv String with the location and name of the file with HCV seroconversion probabilities
 #' @param file.costs String with the location and name of the file with costs (excluding crime costs)
 #' @param file.crime_costs String with the location and name of the file with age-specific crime costs
 #' @param file.qalys String with the location and name of the file with HRQoL weights
@@ -46,7 +47,8 @@ load_all_params <- function(file.init = NULL,
                             file.weibull_shape = NULL,
                             file.unconditional = NULL,
                             file.overdose = NULL,
-                            file.sero = NULL,
+                            file.hiv = NULL,
+                            file.hcv = NULL,
                             file.costs = NULL,
                             file.crime_costs = NULL,
                             file.qalys = NULL){ # User defined
@@ -60,7 +62,8 @@ load_all_params <- function(file.init = NULL,
   df_weibull_shape <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
-  df_sero <- read.csv(file = file.sero, row.names = 1, header = TRUE) # Seroconversion probs
+  df_hiv <- read.csv(file = file.hiv, row.names = 1, header = TRUE) # HIV seroconversion probs
+  df_hcv <- read.csv(file = file.hcv, row.names = 1, header = TRUE) # HCV seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
   df_crime_costs <- read.csv(file = file.crime_costs, header = TRUE) # Age-dependent crime costs
   df_qalys <- read.csv(file = file.qalys, row.names = 1, header = TRUE) # QALYs
@@ -69,7 +72,8 @@ load_all_params <- function(file.init = NULL,
     # Initial parameters
     n_age_init = df_init_params["pe", "age_init"], # age at baseline
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
-    n_t = (df_init_params["pe", "age_max"] - df_init_params["pe", "age_init"]) * 52, # modeling time horizon in weeks
+    n_per = df_init_params["pe", "period_yr"], # periods per year (12-months/52-weeks)
+    #n_t = (df_init_params["pe", "age_max"] - df_init_params["pe", "age_init"]) * 52, # modeling time horizon in weeks
     n_discount = df_init_params["pe", "discount"], # discount rate
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "inj_prop"], # % injection
@@ -77,6 +81,7 @@ load_all_params <- function(file.init = NULL,
     n_HCV = df_init_params["pe", "hcv_prop"], # % of HCV-positive individuals
     n_COI = df_init_params["pe", "coi_prop"], # % of co-infected individuals
     n_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
+    n_HCV_DAA = df_init_params["pe", "daa_prop"], # % of HIV-positive on-ART (used to calculate costs)
     
     # Initial state distribution
     v_init_dist = as.vector(df_init_dist["pe", ]),
@@ -95,7 +100,9 @@ load_all_params <- function(file.init = NULL,
     hr_ODF_NI   = df_death_hr["pe", "ODF_NI"],
     hr_ABS_NI  = df_death_hr["pe", "ABS_NI"],
     hr_HIV_NI  = df_death_hr["pe", "HIV_NI"],
-    hr_HIV_OD_NI = df_death_hr["pe", "HIV_OD_NI"],
+    hr_HCV_NI  = df_death_hr["pe", "HCV_NI"],
+    hr_COI_NI  = df_death_hr["pe", "COI_NI"],
+    #hr_HIV_OD_NI = df_death_hr["pe", "HIV_OD_NI"],
     
     #hr_BUP1_INJ = df_death_hr["pe", "BUP1_INJ"],
     hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
@@ -107,7 +114,9 @@ load_all_params <- function(file.init = NULL,
     hr_ODF_INJ   = df_death_hr["pe", "ODF_INJ"],
     hr_ABS_INJ  = df_death_hr["pe", "ABS_INJ"],
     hr_HIV_INJ  = df_death_hr["pe", "HIV_INJ"],
-    hr_HIV_OD_INJ = df_death_hr["pe", "HIV_OD_INJ"],
+    hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
+    hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
+    #hr_HIV_OD_INJ = df_death_hr["pe", "HIV_OD_INJ"],
 
     # Survival analysis
     p_frailty_BUP_NI_1 = 1,
@@ -188,7 +197,7 @@ load_all_params <- function(file.init = NULL,
     #p_MET1_OD_NI   = df_UP["MET_NI", "OD_NI"],
     #p_MET_OD_NI    = df_UP["MET_NI", "OD_NI"],
     # From ABS
-    p_ABS_REL_NI = df_UP["ABS_NI", "REL1_NI"],
+    p_ABS_REL_NI = df_UP["ABS_NI", "REL_NI"],
     #p_ABS_OD_NI   = df_UP["ABS_NI", "OD_NI"],
     # From REL1 & REL
     #p_REL1_MET1_NI = df_UP["REL_NI", "MET1_NI"],
@@ -225,7 +234,7 @@ load_all_params <- function(file.init = NULL,
     #p_MET1_OD_INJ   = df_UP["MET_INJ", "OD_INJ"],
     #p_MET_OD_INJ    = df_UP["MET_INJ", "OD_INJ"],
     # From ABS
-    p_ABS_REL_INJ = df_UP["ABS_INJ", "REL1_INJ"],
+    p_ABS_REL_INJ = df_UP["ABS_INJ", "REL_INJ"],
     #p_ABS_OD_INJ   = df_UP["ABS_INJ", "OD_INJ"],
     # From REL1
     #p_REL1_MET1_INJ = df_UP["REL_INJ", "MET1_INJ"],
@@ -273,25 +282,62 @@ load_all_params <- function(file.init = NULL,
     p_NX_success = df_overdose["pe", "NX_success_prob"],
     
     # HIV Seroconversion
+    # From negative
     # Non-injection
-    #p_sero_BUP1_NI = df_sero["pe", "BUP_NI"],
-    p_sero_BUP_NI  = df_sero["pe", "BUP_NI"],
-    #p_sero_MET1_NI = df_sero["pe", "MET_NI"],
-    p_sero_MET_NI  = df_sero["pe", "MET_NI"],
-    #p_sero_REL1_NI = df_sero["pe", "REL_NI"],
-    p_sero_REL_NI  = df_sero["pe", "REL_NI"],
-    p_sero_ODN_NI   = df_sero["pe", "REL_NI"],
-    p_sero_ABS_NI  = df_sero["pe", "ABS_NI"],
-    
+    p_HIV_BUP_NI  = df_hiv["pe", "HIV_BUP_NI"],
+    p_HIV_MET_NI  = df_hiv["pe", "HIV_MET_NI"],
+    p_HIV_REL_NI  = df_hiv["pe", "HIV_REL_NI"],
+    p_HIV_ODN_NI  = df_hiv["pe", "HIV_REL_NI"],
+    p_HIV_ABS_NI  = df_hiv["pe", "HIV_ABS_NI"],
     # Injection
-    #p_sero_BUP1_INJ = df_sero["pe", "BUP_INJ"],
-    p_sero_BUP_INJ  = df_sero["pe", "BUP_INJ"],
-    #p_sero_MET1_INJ = df_sero["pe", "MET_INJ"],
-    p_sero_MET_INJ  = df_sero["pe", "MET_INJ"],
-    #p_sero_REL1_INJ = df_sero["pe", "REL_INJ"],
-    p_sero_REL_INJ  = df_sero["pe", "REL_INJ"],
-    p_sero_ODN_INJ   = df_sero["pe", "REL_INJ"],
-    p_sero_ABS_INJ  = df_sero["pe", "ABS_INJ"],
+    p_HIV_BUP_INJ  = df_hiv["pe", "HIV_BUP_INJ"],
+    p_HIV_MET_INJ  = df_hiv["pe", "HIV_MET_INJ"],
+    p_HIV_REL_INJ  = df_hiv["pe", "HIV_REL_INJ"],
+    p_HIV_ODN_INJ  = df_hiv["pe", "HIV_REL_INJ"],
+    p_HIV_ABS_INJ  = df_hiv["pe", "HIV_ABS_INJ"],
+    
+    # Co-infection conditional on HCV
+    # Non-injection
+    p_HCV_HIV_BUP_NI  = df_hiv["pe", "COI_BUP_NI"],
+    p_HCV_HIV_MET_NI  = df_hiv["pe", "COI_MET_NI"],
+    p_HCV_HIV_REL_NI  = df_hiv["pe", "COI_REL_NI"],
+    p_HCV_HIV_ODN_NI  = df_hiv["pe", "COI_REL_NI"],
+    p_HCV_HIV_ABS_NI  = df_hiv["pe", "COI_ABS_NI"],
+    # Injection
+    p_HCV_HIV_BUP_INJ  = df_hiv["pe", "COI_BUP_INJ"],
+    p_HCV_HIV_MET_INJ  = df_hiv["pe", "COI_MET_INJ"],
+    p_HCV_HIV_REL_INJ  = df_hiv["pe", "COI_REL_INJ"],
+    p_HCV_HIV_ODN_INJ  = df_hiv["pe", "COI_REL_INJ"],
+    p_HCV_HIV_ABS_INJ  = df_hiv["pe", "COI_ABS_INJ"],
+    
+    # HCV Seroconversion
+    # From negative
+    # Non-injection
+    p_HCV_BUP_NI  = df_hcv["pe", "HCV_BUP_NI"],
+    p_HCV_MET_NI  = df_hcv["pe", "HCV_MET_NI"],
+    p_HCV_REL_NI  = df_hcv["pe", "HCV_REL_NI"],
+    p_HCV_ODN_NI  = df_hcv["pe", "HCV_REL_NI"],
+    p_HCV_ABS_NI  = df_hcv["pe", "HCV_ABS_NI"],
+    # Injection
+    p_HCV_BUP_INJ  = df_hcv["pe", "HCV_BUP_INJ"],
+    p_HCV_MET_INJ  = df_hcv["pe", "HCV_MET_INJ"],
+    p_HCV_REL_INJ  = df_hcv["pe", "HCV_REL_INJ"],
+    p_HCV_ODN_INJ  = df_hcv["pe", "HCV_REL_INJ"],
+    p_HCV_ABS_INJ  = df_hcv["pe", "HCV_ABS_INJ"],
+    
+    # Co-infection conditional on HIV
+    # Non-injection
+    p_HIV_HCV_BUP_NI  = df_hcv["pe", "COI_BUP_NI"],
+    p_HIV_HCV_MET_NI  = df_hcv["pe", "COI_MET_NI"],
+    p_HIV_HCV_REL_NI  = df_hcv["pe", "COI_REL_NI"],
+    p_HIV_HCV_ODN_NI  = df_hcv["pe", "COI_REL_NI"],
+    p_HIV_HCV_ABS_NI  = df_hcv["pe", "COI_ABS_NI"],
+    # Injection
+    p_HIV_HCV_BUP_INJ  = df_hcv["pe", "COI_BUP_INJ"],
+    p_HIV_HCV_MET_INJ  = df_hcv["pe", "COI_MET_INJ"],
+    p_HIV_HCV_REL_INJ  = df_hcv["pe", "COI_REL_INJ"],
+    p_HIV_HCV_ODN_INJ  = df_hcv["pe", "COI_REL_INJ"],
+    p_HIV_HCV_ABS_INJ  = df_hcv["pe", "COI_ABS_INJ"],
 
     # Costs
     # Treatment Costs

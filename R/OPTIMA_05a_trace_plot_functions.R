@@ -10,14 +10,16 @@ source("R/OPTIMA_01_model_setup_functions.R")
 
 # Load parameters
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist.csv",
+                                file.init_dist = "data/init_dist.csv", # Change initial distributions (100% in BUP)
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
                                 file.weibull_scale = "data/weibull_scale.csv",
                                 file.weibull_shape = "data/weibull_shape.csv",
-                                file.unconditional = "data/unconditional_TP.csv",
-                                file.sero = "data/hiv_sero.csv",
+                                file.unconditional = "data/unconditional.csv",
+                                file.overdose = "data/overdose.csv",
+                                file.hiv = "data/hiv_sero.csv",
+                                file.hcv = "data/hcv_sero.csv",
                                 file.costs = "data/costs.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
@@ -29,21 +31,21 @@ l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verb
 # Prepare data
 df_M_agg_trace <- as.data.frame(l_out_markov$m_M_agg_trace)
 df_M_agg_trace$month <- as.numeric(rownames(df_M_agg_trace))
-df_M_agg_trace_plot <- df_M_agg_trace %>% gather(state, proportion, "Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # health states to plot
-df_M_agg_state_time <- df_M_agg_trace %>% gather(state, proportion, "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS") # alive health states to plot
+df_M_agg_trace_plot <- df_M_agg_trace %>% gather(state, proportion, "Death", "ODF", "ODN", "REL", "BUP", "MET", "ABS") # health states to plot
+df_M_agg_state_time <- df_M_agg_trace %>% gather(state, proportion, "ODN", "REL", "BUP", "MET", "ABS") # alive health states to plot
 df_M_agg_state_time <- df_M_agg_state_time %>% 
   group_by(state) %>% 
   summarise_each(funs(sum), proportion) %>%
   mutate(percentage = round((proportion / sum(proportion)) * 100,1))
 
 # Preserve order for plotting
-state_order_trace <- factor(df_M_agg_trace_plot$state, levels = c("Death", "OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS"))
-state_order_time  <- factor(df_M_agg_state_time$state, levels = c("OD", "REL1", "REL", "BUP1", "BUP", "MET1", "MET", "ABS"))
-state_colours_trace <- c("#d9d9d9", "#d53e4f", "#f46d43", "#fdae61", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd") # colour pallette 1
-state_colours_trace2 <- c("#d9d9d9", "#b2182b", "#fddbc7", "#d6604d", "#d9f0d3", "#1b7837", "#d1e5f0", "#2166ac", "#e7d4e8") # colour pallette 2
+state_order_trace <- factor(df_M_agg_trace_plot$state, levels = c("Death", "ODF", "ODN", "REL", "BUP", "MET", "ABS"))
+state_order_time  <- factor(df_M_agg_state_time$state, levels = c("ODN", "REL", "BUP", "MET", "ABS"))
+state_colours_trace <- c("#d9d9d9", "#d53e4f", "#f46d43", "#fdae61", "#ffffbf", "#e6f598", "#abdda4") # colour pallette 1
+state_colours_trace2 <- c("#d9d9d9", "#b2182b", "#fddbc7", "#d6604d", "#d9f0d3", "#1b7837", "#d1e5f0") # colour pallette 2
 
-state_colours_time <- c("#d53e4f", "#f46d43", "#fdae61", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd")
-state_colours_time2 <- c("#b2182b", "#fddbc7", "#d6604d", "#d9f0d3", "#1b7837", "#d1e5f0", "#2166ac", "#e7d4e8") # colour pallette 2
+state_colours_time <- c("#d53e4f", "#f46d43", "#fdae61", "#ffffbf", "#e6f598")
+state_colours_time2 <- c("#b2182b", "#fddbc7", "#d6604d", "#d9f0d3", "#1b7837") # colour pallette 2
 
 ### Markov trace plots ###
 main_states_trace_plot <- ggplot(df_M_agg_trace_plot, aes(x = month, y = proportion, fill = state_order_trace)) + 

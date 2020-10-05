@@ -7,7 +7,6 @@ library(tidyverse)
 # To-do: Move into package eventually
 source("R/OPTIMA_00_input_parameter_functions.R")
 source("R/OPTIMA_01_model_setup_functions.R")
-source("R/OPTIMA_05b_ICER_functions.R")
 
 # Load parameters
 # BNX scenario
@@ -44,10 +43,5 @@ l_params_MET <- load_all_params(file.init = "data/init_params.csv",
 
 ### Main deterministic model outputs ###
 # Run Markov model and return outputs
-outcomes_MET <- outcomes(l_params_all = l_params_MET)
-outcomes_BUP  <- outcomes(l_params_all = l_params_BUP)
-
-# Calculate ICERs
-ICER <- ICER(outcomes_comp = outcomes_MET, outcomes_int = outcomes_BUP)
-
-### Run PSA ###
+MET <- l_out_markov <- markov_model(l_params_all = l_params_MET, err_stop = FALSE, verbose = TRUE)
+BUP  <- l_out_markov <- markov_model(l_params_all = l_params_BUP, err_stop = FALSE, verbose = TRUE)

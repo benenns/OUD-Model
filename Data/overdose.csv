@@ -1,4 +1,4 @@
-,fatal_OD_prob,fent_exp_prob,fent_OD_prob,NX_prob,witness_prob,NX_success_prob,BUP_OD_mult,MET_OD_mult,REL_OD_mult
-pe,0.002,0.4,0.2,0.5,0.75,0.75,15,15,30
-low,,,,,,,,,
-high,,,,,,,,,
+,fatal_OD_prob,fent_exp_prob,fent_OD_prob,NX_prob,witness_prob,NX_success_prob,BUP_OD_NI,MET_OD_NI,ABS_OD_NI,REL_OD_NI,BUP_OD_INJ,MET_OD_INJ,ABS_OD_INJ,REL_OD_INJ,BUP_OD_mult,MET_OD_mult,REL_OD_mult
+pe,0.002,0.4,0.2,0.5,0.75,0.75,0.009088448,0.009088448,0.009088448,0.009088448,0.009088448,0.009088448,0.009088448,0.009088448,1.1,1.1,1.2
+low,,,,,,,,,,,,,,,,,
+high,,,,,,,,,,,,,,,,,
