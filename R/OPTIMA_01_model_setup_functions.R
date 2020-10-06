@@ -167,7 +167,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
     # Probability of remaining in health state
     # All transition out of non-fatal overdose after 1 week, probs already set to zero
-    # All remain in fatal overdose, absorbing state
+    # All remain in fatal overdose, transition to death = 0
     for(i in 1:n_t){
       # Non-injection
         # Episode 1
@@ -221,9 +221,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   #' \code{v_mort} is used to populate mortality probability vectors.
   #'
   #' @param hr
+  #' @param per
   #' @return 
   #' Mortality vectors for each age applied to model periods (months or weeks), includes state-specific hr.
-  #' Overdose deaths tracked separately as "ODF"
+  #' Overdose deaths tracked as "ODF"
+  #' Each person who dies of overdose spends one cycle in ODF before moving to death
   #' @export
   v_mort <- function(hr = hr, per = per){
     v_mort <- rep((1 - exp(-v_r_mort_by_age[n_age_init:(n_age_max - 1), ] * (1/per) * hr)), each = per) #currently working in months
@@ -234,7 +236,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_mort_MET_NI     <- v_mort(hr = hr_MET_NI, per = n_per)
   v_mort_REL_NI     <- v_mort(hr = hr_REL_NI, per = n_per)
   v_mort_ODN_NI     <- v_mort(hr = hr_ODN_NI, per = n_per) # Mortality equal for REL/ODN (fatal overdoses counted separately)
-  v_mort_ODF_NI     <- rep(0, n_t) # mortality transition = 0 as death already tracked in ODF
+  v_mort_ODF_NI     <- rep(0, n_t) # stay in ODF, not tracked in "death"
   v_mort_ABS_NEG_NI <- v_mort(hr = hr_ABS_NI, per = n_per)
   v_mort_ABS_HIV_NI <- v_mort(hr = hr_HIV_NI, per = n_per)
   v_mort_ABS_HCV_NI <- v_mort(hr = hr_HCV_NI, per = n_per)
@@ -245,7 +247,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_mort_MET_INJ     <- v_mort(hr = hr_MET_INJ, per = n_per)
   v_mort_REL_INJ     <- v_mort(hr = hr_REL_INJ, per = n_per)
   v_mort_ODN_INJ     <- v_mort(hr = hr_ODN_INJ, per = n_per) # Mortality equal for REL/ODN (fatal overdoses counted separately)
-  v_mort_ODF_INJ     <- rep(0, n_t) # mortality transition = 0 as death already tracked in ODF
+  v_mort_ODF_INJ     <- rep(0, n_t) # stay in ODF, not tracked in "death"
   v_mort_ABS_NEG_INJ <- v_mort(hr = hr_ABS_INJ, per = n_per)
   v_mort_ABS_HIV_INJ <- v_mort(hr = hr_HIV_INJ, per = n_per)
   v_mort_ABS_HCV_INJ <- v_mort(hr = hr_HCV_INJ, per = n_per)
@@ -254,14 +256,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Create empty mortality matrix
   m_mort <- array(0, dim = c(n_states, n_t),
                   dimnames = list(v_n_states, 1:n_t))
-  # Populate mortality matrix (weekly death probability from each state)
+  # Populate mortality matrix (death probability from each state)
   for (i in 1:n_t){
     # Non-injection
     m_mort[BUP & NI, i]       <- v_mort_BUP_NI[i]
     m_mort[MET & NI, i]       <- v_mort_MET_NI[i]
     m_mort[REL & NI, i]       <- v_mort_REL_NI[i]
     m_mort[ODN & NI, i]       <- v_mort_ODN_NI[i] # using background excess mortality for relapse in non-fatal overdose
-    m_mort[ODF & NI, i]       <- v_mort_ODF_NI[i] # already counted as fatal overdoses, e.g. transition to death = 1
+    m_mort[ODF & NI, i]       <- v_mort_ODF_NI[i] # transition to death = 0
     m_mort[ABS & NI & NEG, i] <- v_mort_ABS_NEG_NI[i]
     m_mort[ABS & NI & HIV, i] <- v_mort_ABS_HIV_NI[i]
     m_mort[ABS & NI & HCV, i] <- v_mort_ABS_HCV_NI[i]
@@ -271,7 +273,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     m_mort[MET & INJ, i]       <- v_mort_MET_INJ[i]
     m_mort[REL & INJ, i]       <- v_mort_REL_INJ[i]
     m_mort[ODN & INJ, i]       <- v_mort_ODN_INJ[i] # using background excess mortality for relapse in non-fatal overdose
-    m_mort[ODF & INJ, i]       <- v_mort_ODF_INJ[i] # already counted as fatal overdoses, e.g. transition to death = 1
+    m_mort[ODF & INJ, i]       <- v_mort_ODF_INJ[i] # transition to death = 0
     m_mort[ABS & INJ & NEG, i] <- v_mort_ABS_NEG_INJ[i]
     m_mort[ABS & INJ & HIV, i] <- v_mort_ABS_HIV_INJ[i]
     m_mort[ABS & INJ & HCV, i] <- v_mort_ABS_HCV_INJ[i]
@@ -464,7 +466,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   #### Seroconversion ####
   # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
   # Probabilities applied equally across POS/NEG initially, re-weight by sero prob
-  
   # Non-injection
   # BUP
   # From NEG
@@ -719,25 +720,26 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_M_trace_death <- array(0, dim = c((n_t + 1), n_states),
                            dimnames = list(0:n_t, v_n_states))
   for (i in 2:n_t){
-    m_M_trace_death[i, ] <- m_M_trace[i - 1, ] * m_mort[, i - 1] # State-specific deaths at each time point as function of alive in t-1
+    m_M_trace_death[i, ] <- m_M_trace[i - 1, ] * m_mort[, i - 1] # State-specific deaths at each time point as function of state-occupancy in t-1
+    #m_M_trace_death[i, ODF] <- m_M_trace[i - 1, ODF] * 1 # Count fatal overdoses 
   }
-  m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative deaths at each time point (use m_M_trace_death for individual period deaths)
+  m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative non-overdose deaths at each time point (use m_M_trace_death for individual period deaths)
 
   #### Create aggregated trace matrices ####
   v_agg_trace_states <- c("Alive", "Death", "ODN", "ODF", "REL", "BUP", "MET", "ABS") # states to aggregate
   v_agg_trace_death_states <- c("Total", "ODN", "ODF", "REL", "BUP", "MET", "ABS") # states to aggregate
-  #v_agg_trace_sero_states <- c("HIV - Alive", "HIV - Dead") # states to aggregate
+  v_agg_trace_sero_states <- c("NEG-Alive", "HIV-Alive", "HCV-Alive", "COI-Alive", "NEG-Dead", "HIV-Dead", "HCV-Dead", "COI-Dead") # states to aggregate
   
   n_agg_trace_states <- length(v_agg_trace_states)
   n_agg_trace_death_states <- length(v_agg_trace_death_states)
-  #n_agg_trace_sero_states <- length(v_agg_trace_sero_states)
+  n_agg_trace_sero_states <- length(v_agg_trace_sero_states)
   
-  m_M_agg_trace <- array(0, dim = c((n_t + 1), n_agg_trace_states),
-                         dimnames = list(0:n_t, v_agg_trace_states))
+  m_M_agg_trace       <- array(0, dim = c((n_t + 1), n_agg_trace_states),
+                               dimnames = list(0:n_t, v_agg_trace_states))
   m_M_agg_trace_death <- array(0, dim = c((n_t + 1), n_agg_trace_death_states),
                                dimnames = list(0:n_t, v_agg_trace_death_states))
-  #m_M_agg_trace_sero  <- array(0, dim = c((n_t + 1), n_agg_trace_sero_states),
-   #                            dimnames = list(0:n_t, v_agg_trace_sero_states))
+  m_M_agg_trace_sero  <- array(0, dim = c((n_t + 1), n_agg_trace_sero_states),
+                               dimnames = list(0:n_t, v_agg_trace_sero_states))
   
   for (i in 1:n_t){
     #m_M_agg_trace[i, "Alive"] <- sum(m_M_trace[i, ])
@@ -745,8 +747,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     m_M_agg_trace[i, "MET"]   <- sum(m_M_trace[i, MET])
     m_M_agg_trace[i, "REL"]   <- sum(m_M_trace[i, REL])
     m_M_agg_trace[i, "ABS"]   <- sum(m_M_trace[i, ABS])
-    m_M_agg_trace[i, "ODN"]    <- sum(m_M_trace[i, ODN])
-    m_M_agg_trace[i, "ODF"]    <- sum(m_M_trace[i, ODF])
+    m_M_agg_trace[i, "ODN"]   <- sum(m_M_trace[i, ODN])
+    m_M_agg_trace[i, "ODF"]   <- sum(m_M_trace[i, ODF])
     m_M_agg_trace[i, "Death"] <- 1 - sum(m_M_trace[i, ])
   }
   
@@ -760,17 +762,23 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     m_M_agg_trace_death[i, "ABS"]   <- sum(m_M_trace_cumsum_death[i, ABS])
   }
   
-  #for (i in 1:n_t){
-  #  m_M_agg_trace_sero[i, "HIV - Alive"] <- sum(m_M_trace[i, POS])
-  #  m_M_agg_trace_sero[i, "HIV - Dead"]  <- sum(m_M_trace_cumsum_death[i, POS])
-  #}
+  for (i in 1:n_t){
+    m_M_agg_trace_sero[i, "NEG-Alive"] <- sum(m_M_trace[i, NEG])
+    m_M_agg_trace_sero[i, "HIV-Alive"] <- sum(m_M_trace[i, HIV])
+    m_M_agg_trace_sero[i, "HCV-Alive"] <- sum(m_M_trace[i, HCV])
+    m_M_agg_trace_sero[i, "COI-Alive"] <- sum(m_M_trace[i, COI])
+    m_M_agg_trace_sero[i, "NEG-Dead"]  <- sum(m_M_trace_cumsum_death[i, NEG])
+    m_M_agg_trace_sero[i, "HIV-Dead"]  <- sum(m_M_trace_cumsum_death[i, HIV])
+    m_M_agg_trace_sero[i, "HCV-Dead"]  <- sum(m_M_trace_cumsum_death[i, HCV])
+    m_M_agg_trace_sero[i, "COI-Dead"]  <- sum(m_M_trace_cumsum_death[i, COI])
+  }
   
   return(list(l_index_s = l_index_s,
               a_TDP = a_TDP,
               m_M_trace = m_M_trace,
               m_M_agg_trace = m_M_agg_trace,
-              m_M_agg_trace_death = m_M_agg_trace_death))
-              #m_M_agg_trace_sero = m_M_agg_trace_sero))
+              m_M_agg_trace_death = m_M_agg_trace_death,
+              m_M_agg_trace_sero = m_M_agg_trace_sero))
   }
  )
 }
