@@ -8,7 +8,13 @@
 #' @return 
 #' A list with all cause deaths, and non-fatal overdoses.
 #' @export
-calibration_out <- function(v_params_calib, l_params_all){ # User defined
+calibration_out <- function(v_params_calib, 
+                            l_params_all){
+  
+  #Load file with calibration parameters and priors
+  #df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
+  #df_targets <- read.csv(file = file.targets, row.names = 1, header = TRUE) # Overdose and fatal overdose targets
+  
   # Substitute values of calibrated parameters in base-case with 
   # calibrated values
   l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
@@ -18,27 +24,51 @@ calibration_out <- function(v_params_calib, l_params_all){ # User defined
   
   #### Epidemiological Output ####
   ### Overdose deaths ###
-  v_ODF <- l_out_markov$m_M_agg_trace[, "ODF"] # cumulative deaths at year i
+  v_ODF <- l_out_markov$m_M_agg_trace[, "ODF"] # cumulative deaths at time i
 
   ### Non-fatal overdoses ###
-  v_ODN <- l_out_markov$m_M_agg_trace[, "ODN"] # cumulative non-fatal overdoses at year i
+  v_ODN <- l_out_markov$m_M_agg_trace[, "ODN"] # cumulative non-fatal overdoses at time i
   
   #### Return Output ####
-  l_out <- list(deaths = v_death[c(i, j, k)], # deaths at i, j ,k time periods
-                overdose = v_ODN[c(i, j, k)])
+  l_out <- list(fatal_overdose = v_ODF[c(l_cali_targets$ODF$Time[1], l_cali_targets$ODF$Time[2], l_cali_targets$ODF$Time[3])], # cumulative deaths at t1, t2 , t3 time periods (for yearly deaths: (i + 12) - i where i = first month of year, 1 + 12 = last month)
+                overdose = v_ODN[c(l_cali_targets$ODN$Time[1], l_cali_targets$ODN$Time[2], l_cali_targets$ODN$Time[3])])
   return(l_out)
 }
 
-#' Sample from prior distributions of calibrated parameters
+#' Sample from prior distributions of calibrated parameters (THIS ASSUMES UNIFORM PRIORS)
 sample.prior <- function(n_samp,
-                         v_param_names = c("p_S1S2", "hr_S1", "hr_S2"),
-                         v_lb = c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5),
-                         v_ub = c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15)){
+                         v_param_names = c("p_BUP_OD_NI", 
+                                           "p_MET_OD_NI", 
+                                           "p_REL_OD_NI", 
+                                           "p_ABS_OD_NI", 
+                                           "p_BUP_OD_INJ", 
+                                           "p_MET_OD_INJ", 
+                                           "p_REL_OD_INJ", 
+                                           "p_ABS_OD_INJ"),
+                         v_lb = c(p_BUP_OD_NI_lb = l_params_all$p_BUP_OD_NI_lb, 
+                                  p_MET_OD_NI_lb = l_params_all$p_MET_OD_NI_lb, 
+                                  p_REL_OD_NI_lb = l_params_all$p_REL_OD_NI_lb, 
+                                  p_ABS_OD_NI_lb = l_params_all$p_ABS_OD_NI_lb, 
+                                  p_BUP_OD_INJ_lb = l_params_all$p_BUP_OD_INJ_lb, 
+                                  p_MET_OD_INJ_lb = l_params_all$p_MET_OD_INJ_lb, 
+                                  p_REL_OD_INJ_lb = l_params_all$p_REL_OD_INJ_lb, 
+                                  p_ABS_OD_INJ_lb = l_params_all$p_ABS_OD_INJ_lb), # lower bound estimate for each param
+                         v_ub = c(p_BUP_OD_NI_ub = l_params_all$p_BUP_OD_NI_ub, 
+                                  p_MET_OD_NI_ub = l_params_all$p_MET_OD_NI_ub, 
+                                  p_REL_OD_NI_ub = l_params_all$p_REL_OD_NI_ub, 
+                                  p_ABS_OD_NI_ub = l_params_all$p_ABS_OD_NI_ub, 
+                                  p_BUP_OD_INJ_ub = l_params_all$p_BUP_OD_INJ_ub, 
+                                  p_MET_OD_INJ_ub = l_params_all$p_MET_OD_INJ_ub, 
+                                  p_REL_OD_INJ_ub = l_params_all$p_REL_OD_INJ_ub, 
+                                  p_ABS_OD_INJ_ub = l_params_all$p_ABS_OD_INJ_ub)){ # higher bound estimate for each param
+                         
+                         
+                         #v_ub = c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15)){
   n_param <- length(v_param_names)
-  m_lhs_unit   <- lhs::randomLHS(n = n_samp, k = n_param)
+  m_lhs_unit   <- lhs::randomLHS(n = n_samp, k = n_param) # random latin hypercube sampling
   m_param_samp <- matrix(nrow = n_samp, ncol = n_param)
   colnames(m_param_samp) <- v_param_names
-  for (i in 1:n_param){
+  for (i in 1:n_param){ # draw parameters
     m_param_samp[, i] <- qunif(m_lhs_unit[,i],
                                min = v_lb[i],
                                max = v_ub[i])
@@ -52,9 +82,30 @@ sample.prior <- function(n_samp,
 
 #' Evaluate log-prior of calibrated parameters
 log_prior <- function(v_params, 
-                      v_param_names = c("p_S1S2", "hr_S1", "hr_S2"),
-                      v_lb = c(p_S1S2 = 0.01, hr_S1 = 1.0, hr_S2 = 5),
-                      v_ub = c(p_S1S2 = 0.50, hr_S1 = 4.5, hr_S2 = 15)){
+                      v_param_names = c("p_BUP_OD_NI", 
+                                        "p_MET_OD_NI", 
+                                        "p_REL_OD_NI", 
+                                        "p_ABS_OD_NI", 
+                                        "p_BUP_OD_INJ", 
+                                        "p_MET_OD_INJ", 
+                                        "p_REL_OD_INJ", 
+                                        "p_ABS_OD_INJ"), # Calibrated params: baseline overdose probability from each health state
+                      v_lb = c(p_BUP_OD_NI_lb = l_params_all$p_BUP_OD_NI_lb, 
+                               p_MET_OD_NI_lb = l_params_all$p_MET_OD_NI_lb, 
+                               p_REL_OD_NI_lb = l_params_all$p_REL_OD_NI_lb, 
+                               p_ABS_OD_NI_lb = l_params_all$p_ABS_OD_NI_lb, 
+                               p_BUP_OD_INJ_lb = l_params_all$p_BUP_OD_INJ_lb, 
+                               p_MET_OD_INJ_lb = l_params_all$p_MET_OD_INJ_lb, 
+                               p_REL_OD_INJ_lb = l_params_all$p_REL_OD_INJ_lb, 
+                               p_ABS_OD_INJ_lb = l_params_all$p_ABS_OD_INJ_lb), # lower bound estimate for each param
+                      v_ub = c(p_BUP_OD_NI_ub = l_params_all$p_BUP_OD_NI_ub, 
+                               p_MET_OD_NI_ub = l_params_all$p_MET_OD_NI_ub, 
+                               p_REL_OD_NI_ub = l_params_all$p_REL_OD_NI_ub, 
+                               p_ABS_OD_NI_ub = l_params_all$p_ABS_OD_NI_ub, 
+                               p_BUP_OD_INJ_ub = l_params_all$p_BUP_OD_INJ_ub, 
+                               p_MET_OD_INJ_ub = l_params_all$p_MET_OD_INJ_ub, 
+                               p_REL_OD_INJ_ub = l_params_all$p_REL_OD_INJ_ub, 
+                               p_ABS_OD_INJ_ub = l_params_all$p_ABS_OD_INJ_ub)){ # higher bound estimate for each param
   if(is.null(dim(v_params))) { # If vector, change to matrix
     v_params <- t(v_params) 
   }
@@ -90,42 +141,39 @@ log_lik <- function(v_params,
   }
   
   n_samp <- nrow(v_params)
-  v_target_names <- c("Surv", "Prev", "PropSick")
+  v_target_names <- c("Overdoses", "Fatal Overdoses")
   n_target       <- length(v_target_names)
   v_llik <- matrix(0, nrow = n_samp, ncol = n_target) 
   colnames(v_llik) <- v_target_names
   v_llik_overall <- numeric(n_samp)
   for(j in 1:n_samp) { # j=1
     jj <- tryCatch( { 
-      ###   Run model for parametr set "v_params" ###
+      
+      ###   Run model for parameter set "v_params" ###
       l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
                                      l_params_all = l_params_all)
       
       ###  Calculate log-likelihood of model outputs to targets  ###
-      ## TARGET 1: Survival ("Surv")
+      ## TARGET 1: Fatal overdoses ("fatal_overdose")
       ## Normal log-likelihood  
-      v_llik[j, "Surv"] <- sum(dnorm(x = SickSicker_targets$Surv$value,
-                                     mean = l_model_res$Surv,
-                                     sd = SickSicker_targets$Surv$se,
-                                     log = T))
+      v_llik[j, "fatal_overdose"] <- sum(dnorm(x = l_cali_targets$ODF$pe,
+                                               mean = l_model_res$fatal_overdose,
+                                               sd = l_cali_targets$ODF$se,
+                                               log = T))
       
-      ## TARGET 2: Prevalence ("Prev")
+      ## TARGET 2: Non-fatal overdoses ("overdose")
       ## Normal log-likelihood
-      v_llik[j, "Prev"] <- sum(dnorm(x = SickSicker_targets$Prev$value,
-                                     mean = l_model_res$Prev,
-                                     sd = SickSicker_targets$Prev$se,
-                                     log = T))
-      
-      ## TARGET 3: Proportion Sick+Sicker who are Sick ("PropSick")
-      ## Normal log-likelihood
-      v_llik[j, "PropSick"] <- sum(dnorm(x = SickSicker_targets$PropSick$value,
-                                         mean = l_model_res$PropSick,
-                                         sd = SickSicker_targets$PropSick$se,
+      v_llik[j, "overdose"] <- sum(dnorm(x = l_cali_targets$ODN$pe,
+                                         mean = l_model_res$overdose,
+                                         sd = l_cali_targets$ODN$se,
                                          log = T))
       
+
       ## OVERALL
       ## can give different targets different weights (user must change this)
-      v_weights <- rep(1, n_target)
+      # To-do: Confirm this calculation
+      v_weights <- rep(1, n_target) # weight fatal overdoses 1:1 to overall overdoses
+      
       ## weighted sum
       v_llik_overall[j] <- v_llik[j, ] %*% v_weights
     }, error = function(e) NA) 

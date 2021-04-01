@@ -222,47 +222,58 @@ load_all_params <- function(file.init = NULL,
     p_BUP_ABS_INJ   = df_UP["BUP_INJ", "ABS_INJ"],
     #p_BUP1_REL1_INJ = df_UP["BUP_INJ", "REL1_INJ"],
     p_BUP_REL_INJ  = df_UP["BUP_INJ", "REL_INJ"],
-    #p_BUP1_OD_INJ   = df_UP["BUP_INJ", "OD_INJ"],
-    #p_BUP_OD_INJ    = df_UP["BUP_INJ", "OD_INJ"],
-    # From MET1 & MET
-    #p_MET1_BUP1_INJ = df_UP["MET_INJ", "BUP1_INJ"],
+    # From MET
     p_MET_BUP_INJ  = df_UP["MET_INJ", "BUP_INJ"],
-    #p_MET1_ABS_INJ  = df_UP["MET_INJ", "ABS_INJ"],
     p_MET_ABS_INJ   = df_UP["MET_INJ", "ABS_INJ"],
-    #p_MET1_REL1_INJ = df_UP["MET_INJ", "REL1_INJ"],
     p_MET_REL_INJ  = df_UP["MET_INJ", "REL_INJ"],
-    #p_MET1_OD_INJ   = df_UP["MET_INJ", "OD_INJ"],
-    #p_MET_OD_INJ    = df_UP["MET_INJ", "OD_INJ"],
     # From ABS
     p_ABS_REL_INJ = df_UP["ABS_INJ", "REL_INJ"],
-    #p_ABS_OD_INJ   = df_UP["ABS_INJ", "OD_INJ"],
-    # From REL1
-    #p_REL1_MET1_INJ = df_UP["REL_INJ", "MET1_INJ"],
+    # From REL
     p_REL_MET_INJ  = df_UP["REL_INJ", "MET_INJ"],
-    #p_REL1_BUP1_INJ = df_UP["REL_INJ", "BUP1_INJ"],
     p_REL_BUP_INJ  = df_UP["REL_INJ", "BUP_INJ"],
-    #p_REL1_ABS_INJ  = df_UP["REL_INJ", "ABS_INJ"],
     p_REL_ABS_INJ   = df_UP["REL_INJ", "ABS_INJ"],
-    #p_REL1_OD_INJ   = df_UP["REL_INJ", "OD_INJ"],
-    #p_REL_OD_INJ    = df_UP["REL_INJ", "OD_INJ"],
     # From OD
     p_ODN_MET_INJ  = df_UP["ODN_INJ", "MET_INJ"],
     p_ODN_BUP_INJ  = df_UP["ODN_INJ", "BUP_INJ"],
     p_ODN_ABS_INJ  = df_UP["ODN_INJ", "ABS_INJ"],
     p_ODN_REL_INJ  = df_UP["ODN_INJ", "REL_INJ"],
     
-    # Overdose
+    #### Overdose ####
+    # Includes additional calibration related parameters
+    
     # Non-injection
+    # Mean
     p_BUP_OD_NI = df_overdose["pe", "BUP_OD_NI"],
     p_MET_OD_NI = df_overdose["pe", "MET_OD_NI"],
     p_ABS_OD_NI = df_overdose["pe", "ABS_OD_NI"],
     p_REL_OD_NI = df_overdose["pe", "REL_OD_NI"],
+    # Lower bound
+    p_BUP_OD_NI_lb = df_overdose["low", "BUP_OD_NI"], 
+    p_MET_OD_NI_lb = df_overdose["low", "MET_OD_NI"],
+    p_REL_OD_NI_lb = df_overdose["low", "REL_OD_NI"],
+    p_ABS_OD_NI_lb = df_overdose["low", "ABS_OD_NI"],
+    # Upper bound
+    p_BUP_OD_NI_ub = df_overdose["high", "BUP_OD_NI"],
+    p_MET_OD_NI_ub = df_overdose["high", "MET_OD_NI"],
+    p_REL_OD_NI_ub = df_overdose["high", "REL_OD_NI"],
+    p_ABS_OD_NI_ub = df_overdose["high", "ABS_OD_NI"],
     
     # Injection
+    # Mean
     p_BUP_OD_INJ = df_overdose["pe", "BUP_OD_INJ"],
     p_MET_OD_INJ = df_overdose["pe", "MET_OD_INJ"],
     p_ABS_OD_INJ = df_overdose["pe", "ABS_OD_INJ"],
     p_REL_OD_INJ = df_overdose["pe", "REL_OD_INJ"],
+    # Lower bound
+    p_BUP_OD_INJ_lb = df_overdose["low", "BUP_OD_INJ"],
+    p_MET_OD_INJ_lb = df_overdose["low", "MET_OD_INJ"],
+    p_REL_OD_INJ_lb = df_overdose["low", "REL_OD_INJ"],
+    p_ABS_OD_INJ_lb = df_overdose["low", "ABS_OD_INJ"],
+    # Upper bound
+    p_BUP_OD_INJ_ub = df_overdose["high", "BUP_OD_INJ"],
+    p_MET_OD_INJ_ub = df_overdose["high", "MET_OD_INJ"],
+    p_REL_OD_INJ_ub = df_overdose["high", "REL_OD_INJ"],
+    p_ABS_OD_INJ_ub = df_overdose["high", "ABS_OD_INJ"],
     
     # Overdose transition multipliers for first 4 weeks of treatment and relapse
     p_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
@@ -280,6 +291,8 @@ load_all_params <- function(file.init = NULL,
     p_witness = df_overdose["pe", "witness_prob"],
     p_NX_used = df_overdose["pe", "NX_prob"],
     p_NX_success = df_overdose["pe", "NX_success_prob"],
+    
+    #### Seroconversion ####
     
     # HIV Seroconversion
     # From negative
@@ -339,7 +352,8 @@ load_all_params <- function(file.init = NULL,
     p_HIV_HCV_ODN_INJ  = df_hcv["pe", "COI_REL_INJ"],
     p_HIV_HCV_ABS_INJ  = df_hcv["pe", "COI_ABS_INJ"],
 
-    # Costs
+    #### Costs ####
+    
     # Treatment Costs
     c_BUP_TX  = df_costs["pe", "BUP_TX"],
     c_MET_TX  = df_costs["pe", "MET_TX"],
@@ -377,7 +391,8 @@ load_all_params <- function(file.init = NULL,
     v_c_ODN_INJ_crime = df_crime_costs %>% select(ODN_INJ) %>% as.matrix(),
     v_c_ABS_INJ_crime = df_crime_costs %>% select(ABS_INJ) %>% as.matrix(), 
 
-    # QALYs
+    #### QALYs ####
+    
     u_BUP_NI_NEG = df_qalys["pe", "BUP_NI_NEG"],
     u_MET_NI_NEG = df_qalys["pe", "MET_NI_NEG"],
     u_REL_NI_NEG = df_qalys["pe", "REL_NI_NEG"],
@@ -418,7 +433,16 @@ load_all_params <- function(file.init = NULL,
 #' @return 
 #' A modifed list with all parameters updated.
 #' @export
+
+#update_param_list <- function(l_params_all, params_updated){
+#  l_params_all <- modifyList(l_params_all, params_updated) #update values
+#  return(l_params_all)
+#}
 update_param_list <- function(l_params_all, params_updated){
-  l_params_all <- modifyList(l_params_all, params_updated) #update values
+  
+  if (typeof(params_updated)!="list"){
+    params_updated <- split(unname(params_updated),names(params_updated)) #convert the named vector to a list
+  }
+  l_params_all <- modifyList(l_params_all, params_updated) #update the values
   return(l_params_all)
 }

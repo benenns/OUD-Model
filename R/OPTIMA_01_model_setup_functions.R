@@ -614,12 +614,13 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[HCV & INJ, ABS & INJ & HCV, ]  <- a_TDP[HCV & INJ, ABS & INJ & HCV, ] * (1 - p_HCV_HIV_ABS_INJ)
   a_TDP[HCV & INJ, ABS & INJ & COI, ]  <- a_TDP[HCV & INJ, ABS & INJ & COI, ] * p_HCV_HIV_ABS_INJ # Probability of HIV conditional on HCV
 
+  # Disallowed transitions (ensure that impossible transitions are set to zero)
   # Episode rules
-  # Disallowed transitions
   a_TDP[EP1, EP3, ] = 0
   a_TDP[EP2, EP1, ] = 0
   a_TDP[EP3, EP1, ] = 0
   a_TDP[EP3, EP2, ] = 0
+  # Seroconversions
   a_TDP[HIV, NEG, ] = 0
   a_TDP[HCV, NEG, ] = 0 # disallowing potential transitions from COI to HIV-only (i.e. HCV cure), calculated within overall HCV infection rate
   a_TDP[COI, NEG, ] = 0
@@ -629,6 +630,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[COI, HCV, ] = 0
   a_TDP[COI, NEG, ] = 0
   a_TDP[NEG, COI, ] = 0
+  # Abstinence directly to treatment
   a_TDP[ABS, TX, ]  = 0
   # Conditional transitions
   # Next episode with out-of-treatment(OOT) EPi -> treatment(TX) EP(i+1)

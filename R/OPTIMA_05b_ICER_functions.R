@@ -53,8 +53,8 @@ outcomes <- function(l_params_all){
     m_M_trace <- l_out_markov$m_M_trace # Load full markov trace output
     m_TX_costs <- m_HRU_costs <- m_HIV_costs <- m_crime_costs <- m_qalys <- m_M_trace # All state occupancy to apply costs
     
-    # Calculate monthly discount rate
-    n_mo_discount <- (1 + l_params_all$n_discount)^(1/12) - 1
+    # Calculate periodic discount rate
+    n_per_discount <- (1 + l_params_all$n_discount)^(1/n_per) - 1 # Convert yearly rate to model periods
     
     ### Costs ###
     # Treatment
@@ -65,7 +65,7 @@ outcomes <- function(l_params_all){
       m_TX_costs[i, OD]      <- m_TX_costs[i, OD] * c_OD_TX # If adding detox costs to OD
       m_TX_costs[i, ABS]     <- m_TX_costs[i, ABS] * 0
       
-      m_TX_costs[i, ] <- m_TX_costs[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount
+      m_TX_costs[i, ] <- m_TX_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
 
       # Health resource use
       m_HRU_costs[i, all_BUP & NI] <- m_HRU_costs[i, all_BUP & NI] * c_BUP_NI_HRU
@@ -79,13 +79,13 @@ outcomes <- function(l_params_all){
       m_HRU_costs[i, OD & INJ]      <- m_HRU_costs[i, OD & INJ] * c_OD_INJ_HRU
       m_HRU_costs[i, ABS & INJ]     <- m_HRU_costs[i, ABS & INJ] * c_ABS_INJ_HRU
       
-      m_HRU_costs[i, ] <- m_HRU_costs[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount
+      m_HRU_costs[i, ] <- m_HRU_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
 
       # HIV
       m_HIV_costs[i, POS] <- m_HIV_costs[i, POS] * (c_HIV_HRU + (c_HIV_ART * n_HIV_ART)) # Can disaggregate ART costs
       m_HIV_costs[i, NEG] <- m_HIV_costs[i, NEG] * 0
       
-      m_HIV_costs[i, ] <- m_HIV_costs[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount
+      m_HIV_costs[i, ] <- m_HIV_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
       
       # Crime costs
       # Create vectors of crime costs for every time period
@@ -111,7 +111,7 @@ outcomes <- function(l_params_all){
       m_crime_costs[i, OD & INJ]      <- m_crime_costs[i, OD & INJ] * v_OD_INJ_crime[i]
       m_crime_costs[i, ABS & INJ]     <- m_crime_costs[i, ABS & INJ] * v_ABS_INJ_crime[i]
       
-      m_crime_costs[i, ] <- m_crime_costs[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount
+      m_crime_costs[i, ] <- m_crime_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
       
       ### QALY weights ###
       # HIV negative
@@ -140,7 +140,7 @@ outcomes <- function(l_params_all){
       m_qalys[i, OD & INJ & POS]  <- m_qalys[i, OD & INJ & POS] * u_OD_INJ_POS
       m_qalys[i, ABS & INJ & POS] <- m_qalys[i, ABS & INJ & POS] * u_BUP_INJ_POS
       
-      m_qalys[i, ] <- m_qalys[i, ] / ((1 + n_mo_discount)^i) # apply monthly discount
+      m_qalys[i, ] <- m_qalys[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
     }
     
     m_TOTAL_costs_states = (m_TX_costs + m_HRU_costs + m_HIV_costs + m_crime_costs)

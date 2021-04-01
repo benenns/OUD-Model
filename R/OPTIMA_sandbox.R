@@ -122,3 +122,31 @@ n_SERO <- length(SERO)
 
 te <- n_BASE * n_INJECT * n_EP
 te
+
+
+params_updated1 <- c(p_BUP_OD_NI  = l_params_all$p_BUP_OD_NI, 
+                     p_MET_OD_NI  = l_params_all$p_MET_OD_NI, 
+                     p_REL_OD_NI  = l_params_all$p_REL_OD_NI, 
+                     p_ABS_OD_NI  = l_params_all$p_ABS_OD_NI, 
+                     p_BUP_OD_INJ = l_params_all$p_BUP_OD_INJ, 
+                     p_MET_OD_INJ = l_params_all$p_MET_OD_INJ, 
+                     p_REL_OD_INJ = l_params_all$p_REL_OD_INJ, 
+                     p_ABS_OD_INJ = l_params_all$p_ABS_OD_INJ)
+
+params_updated2 <- c(p_BUP_OD_NI = 0.6, 
+                    p_MET_OD_NI = 0.6, 
+                    p_REL_OD_NI = 0.6, 
+                    p_ABS_OD_NI = 0.6, 
+                    p_BUP_OD_INJ = 0.6, 
+                    p_MET_OD_INJ = 0.6, 
+                    p_REL_OD_INJ = 0.6, 
+                    p_ABS_OD_INJ = 0.6)
+
+p_BUP_OD_NI2 = 0.6
+
+if (typeof(params_updated)!="list"){
+  params_updated <- split(unname(params_updated),names(params_updated)) #convert the named vector to a list
+}
+
+est1 <- l_params_all$p_BUP_OD_NI
+est2 <- p_BUP_OD_NI2
