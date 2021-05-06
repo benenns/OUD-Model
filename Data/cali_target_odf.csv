@@ -1,4 +1,4 @@
 Target,Time,Num,Pop,pe,se,low,high
-Fatal Overdose,12,,,1000,10,800,1200
-Fatal Overdose,24,,,4000,10,3600,4400
-Fatal Overdose,36,,,6000,10,5400,6600
+Fatal Overdose,12,,,0.00005,0.05,0.00004,0.00006
+Fatal Overdose,24,,,0.0002,0.05,0.00018,0.00022
+Fatal Overdose,36,,,0.0003,0.05,0.00027,0.00033

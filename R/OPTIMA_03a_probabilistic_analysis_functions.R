@@ -127,21 +127,10 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     
     ### Transition probabilities conditional on leaving (use Dirichlet)
     # Non-Injection
-    # From BUP1
-    p_BUP1_MET1_NI = rdirichlet(),
-    p_BUP1_ABS_NI  = rdirichlet(),
-    p_BUP1_REL1_NI = rdirichlet(),
-    p_BUP1_OD_NI   = rdirichlet(),
     # From BUP
-    p_BUP_MET1_NI = rdirichlet(),
+    p_BUP_MET_NI  = rdirichlet(),
     p_BUP_ABS_NI  = rdirichlet(),
-    p_BUP_REL1_NI = rdirichlet(),
     p_BUP_OD_NI   = rdirichlet(),
-    # From MET1
-    p_MET1_BUP1_NI = rdirichlet(),
-    p_MET1_ABS_NI  = rdirichlet(),
-    p_MET1_REL1_NI = rdirichlet(),
-    p_MET1_OD_NI   = rdirichlet(),
     # From MET
     p_MET_BUP1_NI = rdirichlet(),
     p_MET_ABS_NI  = rdirichlet(),
@@ -150,11 +139,6 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     # From ABS
     p_ABS_REL1_NI = rdirichlet(),
     p_ABS_OD_NI   = rdirichlet(),
-    # From REL1
-    p_REL1_MET1_NI = rdirichlet(),
-    p_REL1_BUP1_NI = rdirichlet(),
-    p_REL1_ABS_NI  = rdirichlet(),
-    p_REL1_OD_NI   = rdirichlet(),
     # From REL
     p_REL_MET1_NI = rdirichlet(),
     p_REL_BUP1_NI = rdirichlet(),

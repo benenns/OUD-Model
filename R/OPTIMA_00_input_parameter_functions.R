@@ -90,11 +90,8 @@ load_all_params <- function(file.init = NULL,
     v_r_mort_by_age = load_mort_params(file = file.mort, n_male = df_init_params["pe", "male_prop"]), # vector of age-specific mortality
     
     # Hazard ratios for death probability
-    #hr_BUP1_NI = df_death_hr["pe", "BUP1_NI"],
     hr_BUP_NI  = df_death_hr["pe", "BUP_NI"],
-    #hr_MET1_NI = df_death_hr["pe", "MET1_NI"],
     hr_MET_NI  = df_death_hr["pe", "MET_NI"],
-    #hr_REL1_NI = df_death_hr["pe", "REL1_NI"],
     hr_REL_NI  = df_death_hr["pe", "REL_NI"],
     hr_ODN_NI   = df_death_hr["pe", "ODN_NI"],
     hr_ODF_NI   = df_death_hr["pe", "ODF_NI"],
@@ -102,13 +99,9 @@ load_all_params <- function(file.init = NULL,
     hr_HIV_NI  = df_death_hr["pe", "HIV_NI"],
     hr_HCV_NI  = df_death_hr["pe", "HCV_NI"],
     hr_COI_NI  = df_death_hr["pe", "COI_NI"],
-    #hr_HIV_OD_NI = df_death_hr["pe", "HIV_OD_NI"],
     
-    #hr_BUP1_INJ = df_death_hr["pe", "BUP1_INJ"],
     hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
-    #hr_MET1_INJ = df_death_hr["pe", "MET1_INJ"],
     hr_MET_INJ  = df_death_hr["pe", "MET_INJ"],
-    #hr_REL1_INJ = df_death_hr["pe", "REL1_INJ"],
     hr_REL_INJ  = df_death_hr["pe", "REL_INJ"],
     hr_ODN_INJ   = df_death_hr["pe", "ODN_INJ"],
     hr_ODF_INJ   = df_death_hr["pe", "ODF_INJ"],
@@ -116,8 +109,7 @@ load_all_params <- function(file.init = NULL,
     hr_HIV_INJ  = df_death_hr["pe", "HIV_INJ"],
     hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
     hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
-    #hr_HIV_OD_INJ = df_death_hr["pe", "HIV_OD_INJ"],
-
+    
     # Survival analysis
     p_frailty_BUP_NI_1 = 1,
     p_frailty_BUP_NI_2 = df_frailty["pe", "BUP_NI_2"],
@@ -131,10 +123,7 @@ load_all_params <- function(file.init = NULL,
     p_frailty_REL_NI_1 = 1,
     p_frailty_REL_NI_2 = df_frailty["pe", "REL_NI_2"],
     p_frailty_REL_NI_3 = df_frailty["pe", "REL_NI_3"],
-    #p_frailty_OD_NI_1  = 1,
-    #p_frailty_OD_NI_2  = df_frailty["pe", "OD_NI_2"],
-    #p_frailty_OD_NI_3  = df_frailty["pe", "OD_NI_3"],
-
+    
     p_frailty_BUP_INJ_1 = 1,
     p_frailty_BUP_INJ_2 = df_frailty["pe", "BUP_INJ_2"],
     p_frailty_BUP_INJ_3 = df_frailty["pe", "BUP_INJ_3"],
@@ -147,67 +136,44 @@ load_all_params <- function(file.init = NULL,
     p_frailty_REL_INJ_1 = 1,
     p_frailty_REL_INJ_2 = df_frailty["pe", "REL_INJ_2"],
     p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
-    #p_frailty_OD_INJ_1  = 1,
-    #p_frailty_OD_INJ_2  = df_frailty["pe", "OD_INJ_2"],
-    #p_frailty_OD_INJ_3  = df_frailty["pe", "OD_INJ_3"],
-
+    
     # Load weibull parameters
     # Weibull scale
     p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
     p_weibull_scale_MET_NI = df_weibull_scale["pe", "MET_NI"],
     p_weibull_scale_REL_NI = df_weibull_scale["pe", "REL_NI"],
-    #p_weibull_scale_OD_NI  = df_weibull_scale["pe", "OD_NI"],
     p_weibull_scale_ABS_NI = df_weibull_scale["pe", "ABS_NI"],
     p_weibull_scale_BUP_INJ = df_weibull_scale["pe", "BUP_INJ"],
     p_weibull_scale_MET_INJ = df_weibull_scale["pe", "MET_INJ"],
     p_weibull_scale_REL_INJ = df_weibull_scale["pe", "REL_INJ"],
-    #p_weibull_scale_OD_INJ  = df_weibull_scale["pe", "OD_INJ"],
     p_weibull_scale_ABS_INJ = df_weibull_scale["pe", "ABS_INJ"],
 
     # Weibull shape
     p_weibull_shape_BUP_NI = df_weibull_shape["pe", "BUP_NI"],
     p_weibull_shape_MET_NI = df_weibull_shape["pe", "MET_NI"],
     p_weibull_shape_REL_NI = df_weibull_shape["pe", "REL_NI"],
-    #p_weibull_shape_OD_NI  = df_weibull_shape["pe", "OD_NI"],
     p_weibull_shape_ABS_NI = df_weibull_shape["pe", "ABS_NI"],
     p_weibull_shape_BUP_INJ = df_weibull_shape["pe", "BUP_INJ"],
     p_weibull_shape_MET_INJ = df_weibull_shape["pe", "MET_INJ"],
     p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
-    #p_weibull_shape_OD_INJ  = df_weibull_shape["pe", "OD_INJ"],
     p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
 
     # Unconditional transition probabilities
     # Non-Injection
     # From BUP1 & BUP
-    #p_BUP1_MET1_NI = df_UP["BUP_NI", "MET1_NI"],
     p_BUP_MET_NI  = df_UP["BUP_NI", "MET_NI"],
-    #p_BUP1_ABS_NI  = df_UP["BUP_NI", "ABS_NI"],
     p_BUP_ABS_NI   = df_UP["BUP_NI", "ABS_NI"],
-    #p_BUP1_REL1_NI = df_UP["BUP_NI", "REL1_NI"],
     p_BUP_REL_NI  = df_UP["BUP_NI", "REL_NI"],
-    #p_BUP1_OD_NI   = df_UP["BUP_NI", "OD_NI"],
-    #p_BUP_OD_NI    = df_UP["BUP_NI", "OD_NI"],
     # From MET1 & MET
-    #p_MET1_BUP1_NI = df_UP["MET_NI", "BUP1_NI"],
     p_MET_BUP_NI  = df_UP["MET_NI", "BUP_NI"],
-    #p_MET1_ABS_NI  = df_UP["MET_NI", "ABS_NI"],
     p_MET_ABS_NI   = df_UP["MET_NI", "ABS_NI"],
-    #p_MET1_REL1_NI = df_UP["MET_NI", "REL1_NI"],
     p_MET_REL_NI  = df_UP["MET_NI", "REL_NI"],
-    #p_MET1_OD_NI   = df_UP["MET_NI", "OD_NI"],
-    #p_MET_OD_NI    = df_UP["MET_NI", "OD_NI"],
     # From ABS
     p_ABS_REL_NI = df_UP["ABS_NI", "REL_NI"],
-    #p_ABS_OD_NI   = df_UP["ABS_NI", "OD_NI"],
     # From REL1 & REL
-    #p_REL1_MET1_NI = df_UP["REL_NI", "MET1_NI"],
     p_REL_MET_NI  = df_UP["REL_NI", "MET_NI"],
-    #p_REL1_BUP1_NI = df_UP["REL_NI", "BUP1_NI"],
     p_REL_BUP_NI  = df_UP["REL_NI", "BUP_NI"],
-    #p_REL1_ABS_NI  = df_UP["REL_NI", "ABS_NI"],
     p_REL_ABS_NI   = df_UP["REL_NI", "ABS_NI"],
-    #p_REL1_OD_NI   = df_UP["REL_NI", "OD_NI"],
-    #p_REL_OD_NI    = df_UP["REL_NI", "OD_NI"],
     # From OD
     p_ODN_MET_NI  = df_UP["ODN_NI", "MET_NI"],
     p_ODN_BUP_NI  = df_UP["ODN_NI", "BUP_NI"],
@@ -216,11 +182,8 @@ load_all_params <- function(file.init = NULL,
 
     # Inj
     # From BUP1 & BUP
-    #p_BUP1_MET1_INJ = df_UP["BUP_INJ", "MET1_INJ"],
     p_BUP_MET_INJ  = df_UP["BUP_INJ", "MET_INJ"],
-    #p_BUP1_ABS_INJ  = df_UP["BUP_INJ", "ABS_INJ"],
     p_BUP_ABS_INJ   = df_UP["BUP_INJ", "ABS_INJ"],
-    #p_BUP1_REL1_INJ = df_UP["BUP_INJ", "REL1_INJ"],
     p_BUP_REL_INJ  = df_UP["BUP_INJ", "REL_INJ"],
     # From MET
     p_MET_BUP_INJ  = df_UP["MET_INJ", "BUP_INJ"],

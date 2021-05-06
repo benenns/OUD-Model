@@ -12,6 +12,8 @@ library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(tidyverse)
+library(lhs)
+library(IMIS)
 
 # To-do: Move into package eventually
 source("R/OPTIMA_00_input_parameter_functions.R")
@@ -33,6 +35,32 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.costs = "data/costs.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
+
+# Load calibration inputs #
+v_cali_param_names <- c("p_BUP_OD_NI", 
+                  "p_MET_OD_NI", 
+                  "p_REL_OD_NI", 
+                  "p_ABS_OD_NI", 
+                  "p_BUP_OD_INJ", 
+                  "p_MET_OD_INJ", 
+                  "p_REL_OD_INJ", 
+                  "p_ABS_OD_INJ")
+v_lower_bound <- c(p_BUP_OD_NI_lb = l_params_all$p_BUP_OD_NI_lb, 
+         p_MET_OD_NI_lb = l_params_all$p_MET_OD_NI_lb, 
+         p_REL_OD_NI_lb = l_params_all$p_REL_OD_NI_lb, 
+         p_ABS_OD_NI_lb = l_params_all$p_ABS_OD_NI_lb, 
+         p_BUP_OD_INJ_lb = l_params_all$p_BUP_OD_INJ_lb, 
+         p_MET_OD_INJ_lb = l_params_all$p_MET_OD_INJ_lb, 
+         p_REL_OD_INJ_lb = l_params_all$p_REL_OD_INJ_lb, 
+         p_ABS_OD_INJ_lb = l_params_all$p_ABS_OD_INJ_lb) # lower bound estimate for each param
+v_upper_bound <- c(p_BUP_OD_NI_ub = l_params_all$p_BUP_OD_NI_ub, 
+         p_MET_OD_NI_ub = l_params_all$p_MET_OD_NI_ub, 
+         p_REL_OD_NI_ub = l_params_all$p_REL_OD_NI_ub, 
+         p_ABS_OD_NI_ub = l_params_all$p_ABS_OD_NI_ub, 
+         p_BUP_OD_INJ_ub = l_params_all$p_BUP_OD_INJ_ub, 
+         p_MET_OD_INJ_ub = l_params_all$p_MET_OD_INJ_ub, 
+         p_REL_OD_INJ_ub = l_params_all$p_REL_OD_INJ_ub, 
+         p_ABS_OD_INJ_ub = l_params_all$p_ABS_OD_INJ_ub)
 
 #### Load calibration targets ####
 #data("03_calibration_targets")
@@ -59,22 +87,23 @@ plotrix::plotCI(x    = l_cali_targets$ODN$Time,
 
 #### Run calibration algorithms ####
 # Check that it works
-v_params_calib <- c(p_BUP_OD_NI = l_params_all$p_BUP_OD_NI, 
-                    p_MET_OD_NI = l_params_all$p_MET_OD_NI, 
-                    p_REL_OD_NI = l_params_all$p_REL_OD_NI, 
-                    p_ABS_OD_NI = l_params_all$p_ABS_OD_NI, 
-                    p_BUP_OD_INJ = l_params_all$p_BUP_OD_INJ, 
-                    p_MET_OD_INJ = l_params_all$p_MET_OD_INJ, 
-                    p_REL_OD_INJ = l_params_all$p_REL_OD_INJ, 
-                    p_ABS_OD_INJ = l_params_all$p_ABS_OD_INJ)
-calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all)
+#v_params_calib <- c(p_BUP_OD_NI = l_params_all$p_BUP_OD_NI, 
+#              p_MET_OD_NI = l_params_all$p_MET_OD_NI, 
+#              p_REL_OD_NI = l_params_all$p_REL_OD_NI, 
+#              p_ABS_OD_NI = l_params_all$p_ABS_OD_NI, 
+#              p_BUP_OD_INJ = l_params_all$p_BUP_OD_INJ, 
+#              p_MET_OD_INJ = l_params_all$p_MET_OD_INJ, 
+#              p_REL_OD_INJ = l_params_all$p_REL_OD_INJ, 
+#              p_ABS_OD_INJ = l_params_all$p_ABS_OD_INJ)
+
+#test <- calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all)
 
 #### Specify calibration parameters ####
 ### Specify seed (for reproducible sequence of random numbers)
 set.seed(3730687)
 
 ### Number of random samples to obtain from the posterior distribution 
-n_resamp <- 1000
+n_resamp <- 100
 
 ### Names and number of input parameters to be calibrated
 v_param_names  <- c("p_BUP_OD_NI", 
@@ -85,7 +114,8 @@ v_param_names  <- c("p_BUP_OD_NI",
                     "p_MET_OD_INJ", 
                     "p_REL_OD_INJ", 
                     "p_ABS_OD_INJ")
-n_param        <- length(v_param_names)
+
+#n_param        <- length(v_param_names)
 
 ### Vector with range on input search space
 v_lb = c(p_BUP_OD_NI_lb = l_params_all$p_BUP_OD_NI_lb, 
@@ -110,10 +140,11 @@ v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
 n_target       <- length(v_target_names)
 
 #### Run IMIS algorithm ####
-l_fit_imis <- IMIS::IMIS(B        =  1000,      # incremental sample size at each iteration of IMIS
-                         B.re     =  n_resamp,  # desired posterior sample size
-                         number_k =  10,        # maximum number of iterations in IMIS
-                         D        =  0)
+# CHECK THIS STEP
+l_fit_imis <- IMIS(B = 100,      # n_samp = B*10 (was 1000 incremental sample size at each iteration of IMIS)
+                   B.re = n_resamp,      # "n_resamp" desired posterior sample size
+                   number_k = 10,      # maximum number of iterations in IMIS
+                   D = 0)
 ### Obtain posterior
 m_calib_post <- l_fit_imis$resample
 
