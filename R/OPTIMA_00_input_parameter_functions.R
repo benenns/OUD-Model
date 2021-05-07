@@ -203,52 +203,54 @@ load_all_params <- function(file.init = NULL,
     
     #### Overdose ####
     # Includes additional calibration related parameters
-    
     # Non-injection
     # Mean
-    p_BUP_OD_NI = df_overdose["pe", "BUP_OD_NI"],
-    p_MET_OD_NI = df_overdose["pe", "MET_OD_NI"],
-    p_ABS_OD_NI = df_overdose["pe", "ABS_OD_NI"],
-    p_REL_OD_NI = df_overdose["pe", "REL_OD_NI"],
+    n_BUP_OD_NI = df_overdose["pe", "BUP_OD_NI"],
+    n_MET_OD_NI = df_overdose["pe", "MET_OD_NI"],
+    n_ABS_OD_NI = df_overdose["pe", "ABS_OD_NI"],
+    n_REL_OD_NI = df_overdose["pe", "REL_OD_NI"],
     # Lower bound
-    p_BUP_OD_NI_lb = df_overdose["low", "BUP_OD_NI"], 
-    p_MET_OD_NI_lb = df_overdose["low", "MET_OD_NI"],
-    p_REL_OD_NI_lb = df_overdose["low", "REL_OD_NI"],
-    p_ABS_OD_NI_lb = df_overdose["low", "ABS_OD_NI"],
+    n_BUP_OD_NI_lb = df_overdose["low", "BUP_OD_NI"], 
+    n_MET_OD_NI_lb = df_overdose["low", "MET_OD_NI"],
+    n_REL_OD_NI_lb = df_overdose["low", "REL_OD_NI"],
+    n_ABS_OD_NI_lb = df_overdose["low", "ABS_OD_NI"],
     # Upper bound
-    p_BUP_OD_NI_ub = df_overdose["high", "BUP_OD_NI"],
-    p_MET_OD_NI_ub = df_overdose["high", "MET_OD_NI"],
-    p_REL_OD_NI_ub = df_overdose["high", "REL_OD_NI"],
-    p_ABS_OD_NI_ub = df_overdose["high", "ABS_OD_NI"],
+    n_BUP_OD_NI_ub = df_overdose["high", "BUP_OD_NI"],
+    n_MET_OD_NI_ub = df_overdose["high", "MET_OD_NI"],
+    n_REL_OD_NI_ub = df_overdose["high", "REL_OD_NI"],
+    n_ABS_OD_NI_ub = df_overdose["high", "ABS_OD_NI"],
     
     # Injection
     # Mean
-    p_BUP_OD_INJ = df_overdose["pe", "BUP_OD_INJ"],
-    p_MET_OD_INJ = df_overdose["pe", "MET_OD_INJ"],
-    p_ABS_OD_INJ = df_overdose["pe", "ABS_OD_INJ"],
-    p_REL_OD_INJ = df_overdose["pe", "REL_OD_INJ"],
+    n_BUP_OD_INJ = df_overdose["pe", "BUP_OD_INJ"],
+    n_MET_OD_INJ = df_overdose["pe", "MET_OD_INJ"],
+    n_ABS_OD_INJ = df_overdose["pe", "ABS_OD_INJ"],
+    n_REL_OD_INJ = df_overdose["pe", "REL_OD_INJ"],
     # Lower bound
-    p_BUP_OD_INJ_lb = df_overdose["low", "BUP_OD_INJ"],
-    p_MET_OD_INJ_lb = df_overdose["low", "MET_OD_INJ"],
-    p_REL_OD_INJ_lb = df_overdose["low", "REL_OD_INJ"],
-    p_ABS_OD_INJ_lb = df_overdose["low", "ABS_OD_INJ"],
+    n_BUP_OD_INJ_lb = df_overdose["low", "BUP_OD_INJ"],
+    n_MET_OD_INJ_lb = df_overdose["low", "MET_OD_INJ"],
+    n_REL_OD_INJ_lb = df_overdose["low", "REL_OD_INJ"],
+    n_ABS_OD_INJ_lb = df_overdose["low", "ABS_OD_INJ"],
     # Upper bound
-    p_BUP_OD_INJ_ub = df_overdose["high", "BUP_OD_INJ"],
-    p_MET_OD_INJ_ub = df_overdose["high", "MET_OD_INJ"],
-    p_REL_OD_INJ_ub = df_overdose["high", "REL_OD_INJ"],
-    p_ABS_OD_INJ_ub = df_overdose["high", "ABS_OD_INJ"],
+    n_BUP_OD_INJ_ub = df_overdose["high", "BUP_OD_INJ"],
+    n_MET_OD_INJ_ub = df_overdose["high", "MET_OD_INJ"],
+    n_REL_OD_INJ_ub = df_overdose["high", "REL_OD_INJ"],
+    n_ABS_OD_INJ_ub = df_overdose["high", "ABS_OD_INJ"],
     
     # Overdose transition multipliers for first 4 weeks of treatment and relapse
-    p_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
-    p_MET_OD_mult = df_overdose["pe", "MET_OD_mult"],
-    p_REL_OD_mult = df_overdose["pe", "REL_OD_mult"],
+    n_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
+    n_MET_OD_mult = df_overdose["pe", "MET_OD_mult"],
+    n_REL_OD_mult = df_overdose["pe", "REL_OD_mult"],
+    n_ABS_OD_mult = df_overdose["pe", "ABS_OD_mult"],
     
     # Fatal overdose
-    p_fatal_OD = df_overdose["pe", "fatal_OD_prob"],
+    n_fatal_OD = df_overdose["pe", "fatal_OD_rate"],
     
     # Fentanyl
-    p_fent_OD = df_overdose["pe", "fent_OD_prob"],
-    p_fent_exp = df_overdose["pe", "fent_exp_prob"], # prob of fentanyl exposure
+    # Rate of fentanyl overdose
+    n_fent_OD = df_overdose["pe", "fent_OD_rate"],
+    # Probability of fentanyl exposure
+    p_fent_exp = df_overdose["pe", "fent_exp_prob"],
     
     # Naloxone
     p_witness = df_overdose["pe", "witness_prob"],
@@ -256,7 +258,6 @@ load_all_params <- function(file.init = NULL,
     p_NX_success = df_overdose["pe", "NX_success_prob"],
     
     #### Seroconversion ####
-    
     # HIV Seroconversion
     # From negative
     # Non-injection

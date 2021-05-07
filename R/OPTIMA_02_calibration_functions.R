@@ -12,13 +12,8 @@
 #' @export
 calibration_out <- function(v_params_calib, 
                             l_params_all){
-  
-  #Load file with calibration parameters and priors
-  #df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
-  #df_targets <- read.csv(file = file.targets, row.names = 1, header = TRUE) # Overdose and fatal overdose targets
-  
-  # Substitute values of calibrated parameters in base-case with 
-  # calibrated values
+
+  # Substitute values of calibrated parameters in base-case with calibrated values 
   l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
   
   # Run model with updated calibrated parameters
@@ -37,36 +32,7 @@ calibration_out <- function(v_params_calib,
   return(l_out)
 }
 
-#TEST
-#l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
-#                               l_params_all = l_params_all)
-
-#' Sample from prior distributions of calibrated parameters (THIS ASSUMES UNIFORM PRIORS)
-### MENZIES CODE ####
-#sample.prior <- function(n_samp) {
-#  # n: the number of samples desired
-#  n_param <- length(v_param_names)
-#  draws0 <- lhs::randomLHS(n = n_samp, k = n_param)
-#  draws <- data.frame( p_BUP_OD_NI  =  qlnorm(draws0[,1],log(0.05)-1/2*0.5^2,0.5),
-#                       p_MET_OD_NI  =  qlnorm(draws0[,2],log(0.25)-1/2*0.5^2,0.5),
-#                       p_REL_OD_NI  =  qlnorm(draws0[,3],log(0.025)-1/2*0.5^2,0.5),
-#                       p_ABS_OD_NI  =  qlnorm(draws0[,4],log(0.1)-1/2*0.5^2,0.5),
-#                       p_BUP_OD_INJ =  qlnorm(draws0[,5],log(0.5)-1/2*0.5^2,0.5),
-#                       p_MET_OD_INJ =  qlnorm(draws0[,6],log(0.5)-1/2*0.5^2,0.5),
-#                       p_REL_OD_INJ =  qlnorm(draws0[,7],log(0.025)-1/2*0.5^2,0.5),
-#                       p_ABS_OD_INJ =  qlnorm(draws0[,8],log(0.1)-1/2*0.5^2,0.5)
-#  )
-#  return(as.matrix(draws))
-#}
-#sample.prior <- sample.prior.lhs # use the lhs version as this is more efficient
- #Test it
-#library(lhs)
-#samp <- sample.prior(100)
-#v_params <- samp
-
-
-
-## DARTH CODE ##
+## Sample prior distribution ##
 sample.prior <- function(n_samp, 
                          v_param_names = v_cali_param_names, 
                          v_lb = v_lower_bound, 
@@ -74,18 +40,13 @@ sample.prior <- function(n_samp,
   n_param <- length(v_param_names)
   # random latin hypercube sampling
   m_lhs_unit   <- lhs::randomLHS(n = n_samp, k = n_param) 
-  
-  #### CHECK THIS SECTION ####
   m_param_samp <- matrix(nrow = n_samp, ncol = n_param)
-  
   colnames(m_param_samp) <- v_param_names
   # draw parameters (uniform distribution)
   for (i in 1:n_param){ 
     m_param_samp[, i] <- qunif(m_lhs_unit[,i],
                                min = v_lb[i],
                                max = v_ub[i])
-
-    
     # ALTERNATIVE prior using beta (or other) distributions
     # m_param_samp[, i] <- qbeta(m_lhs_unit[,i],
     #                            min = 1,
@@ -93,36 +54,8 @@ sample.prior <- function(n_samp,
   }
   return(m_param_samp)
 }
-#
-#samp <- sample.prior(1000)
-#samp
 
-#' Evaluate log-prior of calibrated parameters
-
-# To-do: Create read-in file for calibration params
-### Menzies code ####
-#log_prior <- function(v_params) {
-#  # par_vector: a vector (or matrix) of model parameters (omits c)
-#  if(is.null(dim(v_params))) v_params <- t(v_params)
-#    lprior <- rep(0,nrow(v_params))
-#    lprior <- lprior + dlnorm(v_params[,1],log(0.05 )-1/2*0.5^2,0.5,log=TRUE)    # p_BUP_OD_NI
-#    lprior <- lprior + dlnorm(v_params[,2],log(0.25 )-1/2*0.5^2,0.5,log=TRUE)    # p_MET_OD_NI
-#    lprior <- lprior + dlnorm(v_params[,3],log(0.025)-1/2*0.5^2,0.5,log=TRUE)    # p_REL_OD_NI
-#    lprior <- lprior + dlnorm(v_params[,4],log(0.1  )-1/2*0.5^2,0.5,log=TRUE)    # p_ABS_OD_NI
-#    lprior <- lprior + dlnorm(v_params[,5],log(0.5  )-1/2*0.5^2,0.5,log=TRUE)    # p_BUP_OD_INJ
-#    lprior <- lprior + dlnorm(v_params[,6],log(0.5  )-1/2*0.5^2,0.5,log=TRUE)    # p_MET_OD_INJ
-#    lprior <- lprior + dlnorm(v_params[,7],log(0.025)-1/2*0.5^2,0.5,log=TRUE)                       # p_REL_OD_INJ
-#    lprior <- lprior + dlnorm(v_params[,8],log(0.1)-1/2*0.5^2,0.5,log=TRUE)                       # p_ABS_OD_INJ
-#  return(lprior)
-#}
-#
-## Test it
-#v_params <- samp
-#log_prior(v_params) # works
-#f <- v_params
-
-
-#### DARTH CODE ####
+#### Log prior ####
 log_prior <- function(v_params, v_param_names = v_cali_param_names, v_lb = v_lower_bound, v_ub = v_upper_bound){
   if(is.null(dim(v_params))) { # If vector, change to matrix
     v_params <- t(v_params) 
@@ -145,41 +78,12 @@ log_prior <- function(v_params, v_param_names = v_cali_param_names, v_lb = v_low
   return(lprior)
 }
 
-#v_params <- samp
-#log_prior(samp) # works
-#log_prior(rbind(rep(0.5,8),rep(0.6,8)))
-
 #' Evaluate prior of calibrated parameters
 prior <- function(v_params) { 
   v_prior <- exp(log_prior(v_params)) 
   return(v_prior)
 }
 
-# Test it 
-#prior(samp) # works
-
-
-#### MEZIES CODE ####
-#log_lik <- function(v_params) {
-#  # v_params: a vector (or matrix) of model parameters
-#  if(is.null(dim(v_params))) v_params <- t(v_params)
-#  llik <- rep(0,nrow(v_params))
-#  for(j in 1:nrow(v_params)) {
-#    jj <- tryCatch( {
-#      
-#      l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
-#                                     l_params_all = l_params_all) 
-#      
-#      llik[j] <- llik[j] + sum(dnorm(x = l_cali_targets$ODF$pe, mean = l_model_res$fatal_overdose, sd = l_cali_targets$ODF$se, log = T)) # fatal overdose likelihood
-#      llik[j] <- llik[j] + sum(dnorm(x = l_cali_targets$ODN$pe, mean = l_model_res$overdose, sd = l_cali_targets$ODN$se, log = T))            # overdose likelihood
-#
-#    }, error = function(e) NA)
-#    if(is.na(jj)) { llik[j] <- -Inf } 
-#  }
-#  return(llik)
-#}
-
-#### DARTH CODE ####
 #' Log-likelihood function for a parameter set
 log_lik <- function(v_params){ # User defined
   if(is.null(dim(v_params))) { # If vector, change to matrix

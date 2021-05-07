@@ -490,11 +490,7 @@ v_llik_overall <- numeric(n_samp)
 
     res_j_1 <- mod(c(as.numeric(prior_mez[1,]),1)) 
     
-    butt <- llik[1] <- llik[1] + sum(dbinom(c(25,75,50),500,            res_j_1[["prev"]], log=TRUE)) # prevalence likelihood
-    dick <- llik[1] <- llik[1] + dnorm(10,              res_j_1[["surv"]],2/1.96, log=TRUE)             # survival likelihood
-    poop <- llik[1] <- llik[1] + dnorm(75000,           res_j_1[["tx"]],  5000/1.96, log=TRUE)         # treatment volume likelihood    
-    llik
-    
+
     # llik = -41 approx
 
 
@@ -503,6 +499,8 @@ v_llik_overall <- numeric(n_samp)
 
 
 p_OD <- function(rate = rate,
+                 rate_fatal = n_fatal_OD,
+                 rate_fent = n_fent_OD,
                  multiplier = multiplier,
                  first_month = FALSE,
                  fatal = FALSE){
@@ -512,7 +510,12 @@ p_OD <- function(rate = rate,
   
   # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
   # Subsets overdose into fatal and non-fatal, conditional on different parameters
-  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
+  
+  # Convert fatal overdose rate into probability
+  p_fatal_OD <- 1 - exp(-(rate_fatal))
+  
+  # Convert fentanyl overdose rate into probability
+  p_fent_OD <- 1 - exp(-(rate_fent))
   
   #convert rates to probabilities - multiply rates by first month multiplier before converting
   # from_state = monthly overdose rate in starting state
@@ -522,6 +525,9 @@ p_OD <- function(rate = rate,
       p_base_OD <- 1 - exp(-rate)
     }
   }
+  
+  #Naloxone effect on fatal overdose
+  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
   
   if (fatal){
     p_OD <- ((p_base_OD * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
@@ -617,3 +623,223 @@ n_MET_OD_mult = df_overdose["pe", "MET_OD_mult"]
 n_REL_OD_mult = df_overdose["pe", "REL_OD_mult"]
 n_ABS_OD_mult = df_overdose["pe", "ABS_OD_mult"]
 
+
+
+
+#### Overdose probability ####
+#' Probability of non-fatal and fatal overdose
+#'
+#' \code{p_OD} is used to calculate weekly overdose probabilities from health states. This function also requires additional overdose/fentanyl/naloxone parameters included in `l_params_all`
+#'
+#' @param rate Baseline overdose rate for health states
+#' @param rate_fatal Fatal overdose rate
+#' @param rate_fent Fentanyl overdose rate
+#' @param multiplier Multiplier for elevated overdose in first month of health state
+#' @param first_month Logical parameter to switch between month 1 and month 2+ for parameter estimation
+#' @param fatal Logical parameter to switch between fatal/non-fatal overdose
+#' 
+#' @return 
+#' `p_OD` weekly probability of fatal or non-fatal overdose from a given health state
+#' @export
+p_OD <- function(rate = rate,
+                 rate_fatal = n_fatal_OD,
+                 rate_fent = n_fent_OD,
+                 multiplier = multiplier,
+                 first_month = FALSE,
+                 fatal = FALSE){
+  
+  # Probability of successful naloxone use
+  p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
+  
+  # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
+  # Subsets overdose into fatal and non-fatal, conditional on different parameters
+  
+  # Convert fatal overdose rate into probability
+  p_fatal_OD <- 1 - exp(-(rate_fatal))
+  
+  # Convert fentanyl overdose rate into probability
+  p_fent_OD <- 1 - exp(-(rate_fent))
+  
+  #convert rates to probabilities - multiply rates by first month multiplier before converting
+  # from_state = monthly overdose rate in starting state
+  if (first_month){
+    p_base_OD <- 1 - exp(-(rate * multiplier)) # check calculation: monthly rate * month should cancel out as long as rates are monthly
+  }  else{
+       p_base_OD <- 1 - exp(-rate)
+     }
+
+  
+  #Naloxone effect on fatal overdose
+  p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
+  
+  if (fatal){
+    p_OD <- ((p_base_OD * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  } else{
+      p_OD <- ((p_base_OD * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+    }
+  return(p_OD)
+}
+
+# Module to calculate probability of overdose from states
+# Probability of overdose
+# Non-injection
+p_BUP_ODN_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = FALSE)
+p_MET_ODN_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = FALSE)
+p_REL_ODN_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = FALSE)
+p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = FALSE)
+p_BUP_ODF_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = TRUE)
+p_MET_ODF_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = TRUE)
+p_REL_ODF_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = TRUE)
+p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = TRUE)
+
+# Injection
+p_BUP_ODN_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = FALSE)
+p_MET_ODN_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = FALSE)
+p_REL_ODN_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = FALSE)
+p_ABS_ODN_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = FALSE)
+p_BUP_ODF_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = TRUE)
+p_MET_ODF_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = TRUE)
+p_REL_ODF_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = TRUE)
+p_ABS_ODF_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = TRUE)
+
+# Probability of overdose (first month multiplier)
+# Non-injection
+p_BUP_ODN_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE)
+p_MET_ODN_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE)
+p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE)
+p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE)
+p_BUP_ODF_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE)
+p_MET_ODF_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE)
+p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE)
+p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE)
+
+# Injection
+p_BUP_ODN_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE)
+p_MET_ODN_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE)
+p_REL_ODN_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE)
+p_ABS_ODN_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE)
+p_BUP_ODF_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE)
+p_MET_ODF_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE)
+p_REL_ODF_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE)
+p_ABS_ODF_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE)
+
+
+
+p_OD <- function(rate = rate,
+                 rate_fatal = n_fatal_OD,
+                 rate_fent = n_fent_OD,
+                 multiplier = multiplier,
+                 first_month = FALSE,
+                 fatal = FALSE){
+  
+  # Probability of successful naloxone use
+  p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
+  
+  # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
+  # Subsets overdose into fatal and non-fatal, conditional on different parameters
+  # Convert fatal overdose rate into probability
+  p_fatal_OD <- 1 - exp(-(rate_fatal))
+  
+  # Convert fentanyl overdose rate into probability
+  p_fent_OD <- 1 - exp(-(rate_fent))
+  
+  if (fatal){
+    p_OD <- ((from_state * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+  } else{
+    p_OD <- ((from_state * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+  }
+  return(p_OD)
+}
+
+# Module to calculate probability of overdose from states
+# Probability of overdose
+# Non-injection
+p_BUP_ODN_NI  <- p_OD(from_state = p_BUP_OD_NI, fatal = FALSE)
+p_MET_ODN_NI  <- p_OD(from_state = p_MET_OD_NI, fatal = FALSE)
+p_REL_ODN_NI  <- p_OD(from_state = p_REL_OD_NI, fatal = FALSE)
+p_ABS_ODN_NI  <- p_OD(from_state = p_ABS_OD_NI, fatal = FALSE)
+p_BUP_ODF_NI  <- p_OD(from_state = p_BUP_OD_NI, fatal = TRUE)
+p_MET_ODF_NI  <- p_OD(from_state = p_MET_OD_NI, fatal = TRUE)
+p_REL_ODF_NI  <- p_OD(from_state = p_REL_OD_NI, fatal = TRUE)
+p_ABS_ODF_NI  <- p_OD(from_state = p_ABS_OD_NI, fatal = TRUE)
+
+# Injection
+p_BUP_ODN_INJ <- p_OD(from_state = p_BUP_OD_INJ, fatal = FALSE)
+p_MET_ODN_INJ <- p_OD(from_state = p_MET_OD_INJ, fatal = FALSE)
+p_REL_ODN_INJ <- p_OD(from_state = p_REL_OD_INJ, fatal = FALSE)
+p_ABS_ODN_INJ <- p_OD(from_state = p_ABS_OD_INJ, fatal = FALSE)
+p_BUP_ODF_INJ <- p_OD(from_state = p_BUP_OD_INJ, fatal = TRUE)
+p_MET_ODF_INJ <- p_OD(from_state = p_MET_OD_INJ, fatal = TRUE)
+p_REL_ODF_INJ <- p_OD(from_state = p_REL_OD_INJ, fatal = TRUE)
+p_ABS_ODF_INJ <- p_OD(from_state = p_ABS_OD_INJ, fatal = TRUE)
+
+#TEST
+#l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
+#                               l_params_all = l_params_all)
+
+#' Sample from prior distributions of calibrated parameters (THIS ASSUMES UNIFORM PRIORS)
+### MENZIES CODE ####
+#sample.prior <- function(n_samp) {
+#  # n: the number of samples desired
+#  n_param <- length(v_param_names)
+#  draws0 <- lhs::randomLHS(n = n_samp, k = n_param)
+#  draws <- data.frame( p_BUP_OD_NI  =  qlnorm(draws0[,1],log(0.05)-1/2*0.5^2,0.5),
+#                       p_MET_OD_NI  =  qlnorm(draws0[,2],log(0.25)-1/2*0.5^2,0.5),
+#                       p_REL_OD_NI  =  qlnorm(draws0[,3],log(0.025)-1/2*0.5^2,0.5),
+#                       p_ABS_OD_NI  =  qlnorm(draws0[,4],log(0.1)-1/2*0.5^2,0.5),
+#                       p_BUP_OD_INJ =  qlnorm(draws0[,5],log(0.5)-1/2*0.5^2,0.5),
+#                       p_MET_OD_INJ =  qlnorm(draws0[,6],log(0.5)-1/2*0.5^2,0.5),
+#                       p_REL_OD_INJ =  qlnorm(draws0[,7],log(0.025)-1/2*0.5^2,0.5),
+#                       p_ABS_OD_INJ =  qlnorm(draws0[,8],log(0.1)-1/2*0.5^2,0.5)
+#  )
+#  return(as.matrix(draws))
+#}
+#sample.prior <- sample.prior.lhs # use the lhs version as this is more efficient
+#Test it
+#library(lhs)
+#samp <- sample.prior(100)
+#v_params <- samp
+
+#' Evaluate log-prior of calibrated parameters
+
+# To-do: Create read-in file for calibration params
+### Menzies code ####
+#log_prior <- function(v_params) {
+#  # par_vector: a vector (or matrix) of model parameters (omits c)
+#  if(is.null(dim(v_params))) v_params <- t(v_params)
+#    lprior <- rep(0,nrow(v_params))
+#    lprior <- lprior + dlnorm(v_params[,1],log(0.05 )-1/2*0.5^2,0.5,log=TRUE)    # p_BUP_OD_NI
+#    lprior <- lprior + dlnorm(v_params[,2],log(0.25 )-1/2*0.5^2,0.5,log=TRUE)    # p_MET_OD_NI
+#    lprior <- lprior + dlnorm(v_params[,3],log(0.025)-1/2*0.5^2,0.5,log=TRUE)    # p_REL_OD_NI
+#    lprior <- lprior + dlnorm(v_params[,4],log(0.1  )-1/2*0.5^2,0.5,log=TRUE)    # p_ABS_OD_NI
+#    lprior <- lprior + dlnorm(v_params[,5],log(0.5  )-1/2*0.5^2,0.5,log=TRUE)    # p_BUP_OD_INJ
+#    lprior <- lprior + dlnorm(v_params[,6],log(0.5  )-1/2*0.5^2,0.5,log=TRUE)    # p_MET_OD_INJ
+#    lprior <- lprior + dlnorm(v_params[,7],log(0.025)-1/2*0.5^2,0.5,log=TRUE)                       # p_REL_OD_INJ
+#    lprior <- lprior + dlnorm(v_params[,8],log(0.1)-1/2*0.5^2,0.5,log=TRUE)                       # p_ABS_OD_INJ
+#  return(lprior)
+#}
+#
+## Test it
+#v_params <- samp
+#log_prior(v_params) # works
+#f <- v_params
+
+#### MEZIES CODE ####
+#log_lik <- function(v_params) {
+#  # v_params: a vector (or matrix) of model parameters
+#  if(is.null(dim(v_params))) v_params <- t(v_params)
+#  llik <- rep(0,nrow(v_params))
+#  for(j in 1:nrow(v_params)) {
+#    jj <- tryCatch( {
+#      
+#      l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
+#                                     l_params_all = l_params_all) 
+#      
+#      llik[j] <- llik[j] + sum(dnorm(x = l_cali_targets$ODF$pe, mean = l_model_res$fatal_overdose, sd = l_cali_targets$ODF$se, log = T)) # fatal overdose likelihood
+#      llik[j] <- llik[j] + sum(dnorm(x = l_cali_targets$ODN$pe, mean = l_model_res$overdose, sd = l_cali_targets$ODN$se, log = T))            # overdose likelihood
+#
+#    }, error = function(e) NA)
+#    if(is.na(jj)) { llik[j] <- -Inf } 
+#  }
+#  return(llik)
+#}

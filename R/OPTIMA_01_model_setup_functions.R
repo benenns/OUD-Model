@@ -114,13 +114,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   #'
   #' \code{p_OD} is used to calculate weekly overdose probabilities from health states. This function also requires additional overdose/fentanyl/naloxone parameters included in `l_params_all`
   #'
-  #' @param p_from_state_OD Baseline overdose probability from each health state
+  #' @param rate Baseline overdose rate for health states
+  #' @param rate_fatal Fatal overdose rate
+  #' @param rate_fent Fentanyl overdose rate
+  #' @param multiplier Multiplier for elevated overdose in first month of health state
+  #' @param first_month Logical parameter to switch between month 1 and month 2+ for parameter estimation
   #' @param fatal Logical parameter to switch between fatal/non-fatal overdose
   #' 
   #' @return 
   #' `p_OD` weekly probability of fatal or non-fatal overdose from a given health state
   #' @export
-  p_OD <- function(from_state = from_state,
+  p_OD <- function(rate = rate,
+                   rate_fatal = n_fatal_OD,
+                   rate_fent = n_fent_OD,
+                   multiplier = multiplier,
+                   first_month = FALSE,
                    fatal = FALSE){
     
     # Probability of successful naloxone use
@@ -128,12 +136,26 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     
     # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
     # Subsets overdose into fatal and non-fatal, conditional on different parameters
+    
+    # Convert fatal overdose rate into probability of death following overdose
+    p_fatal_OD <- 1 - exp(-(rate_fatal))
+    # Convert fentanyl overdose rate into probability
+    p_fent_OD <- 1 - exp(-(rate_fent))
+    # Convert input monthly rates to monthly probabilities - multiply rates by first month multiplier before converting
+    if (first_month){
+      p_base_OD <- 1 - exp(-(rate * multiplier)) # check calculation: monthly rate * month should cancel out as long as rates are monthly
+    }  else{
+      p_base_OD <- 1 - exp(-(rate))
+    }
+    
+    #Naloxone effect on fatal overdose
     p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
     
+    # Calculate fatal and non-fatal overdose probabilities
     if (fatal){
-      p_OD <- ((from_state * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
+      p_OD <- ((p_base_OD * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * p_fatal_OD_NX
     } else{
-        p_OD <- ((from_state * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
+      p_OD <- ((p_base_OD * (1 - p_fent_exp)) + (p_fent_OD * (p_fent_exp))) * (1 - p_fatal_OD_NX)
     }
     return(p_OD)
   }
@@ -141,24 +163,45 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Module to calculate probability of overdose from states
   # Probability of overdose
   # Non-injection
-  p_BUP_ODN_NI  <- p_OD(from_state = p_BUP_OD_NI, fatal = FALSE)
-  p_MET_ODN_NI  <- p_OD(from_state = p_MET_OD_NI, fatal = FALSE)
-  p_REL_ODN_NI  <- p_OD(from_state = p_REL_OD_NI, fatal = FALSE)
-  p_ABS_ODN_NI  <- p_OD(from_state = p_ABS_OD_NI, fatal = FALSE)
-  p_BUP_ODF_NI  <- p_OD(from_state = p_BUP_OD_NI, fatal = TRUE)
-  p_MET_ODF_NI  <- p_OD(from_state = p_MET_OD_NI, fatal = TRUE)
-  p_REL_ODF_NI  <- p_OD(from_state = p_REL_OD_NI, fatal = TRUE)
-  p_ABS_ODF_NI  <- p_OD(from_state = p_ABS_OD_NI, fatal = TRUE)
+  p_BUP_ODN_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = FALSE)
+  p_MET_ODN_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = FALSE)
+  p_REL_ODN_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = FALSE)
+  p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = FALSE)
+  p_BUP_ODF_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = TRUE)
+  p_MET_ODF_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = TRUE)
+  p_REL_ODF_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = TRUE)
+  p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = TRUE)
   
   # Injection
-  p_BUP_ODN_INJ <- p_OD(from_state = p_BUP_OD_INJ, fatal = FALSE)
-  p_MET_ODN_INJ <- p_OD(from_state = p_MET_OD_INJ, fatal = FALSE)
-  p_REL_ODN_INJ <- p_OD(from_state = p_REL_OD_INJ, fatal = FALSE)
-  p_ABS_ODN_INJ <- p_OD(from_state = p_ABS_OD_INJ, fatal = FALSE)
-  p_BUP_ODF_INJ <- p_OD(from_state = p_BUP_OD_INJ, fatal = TRUE)
-  p_MET_ODF_INJ <- p_OD(from_state = p_MET_OD_INJ, fatal = TRUE)
-  p_REL_ODF_INJ <- p_OD(from_state = p_REL_OD_INJ, fatal = TRUE)
-  p_ABS_ODF_INJ <- p_OD(from_state = p_ABS_OD_INJ, fatal = TRUE)
+  p_BUP_ODN_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = FALSE)
+  p_MET_ODN_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = FALSE)
+  p_REL_ODN_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = FALSE)
+  p_ABS_ODN_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = FALSE)
+  p_BUP_ODF_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = TRUE)
+  p_MET_ODF_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = TRUE)
+  p_REL_ODF_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = TRUE)
+  p_ABS_ODF_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = TRUE)
+  
+  # Probability of overdose (first month multiplier)
+  # Non-injection
+  p_BUP_ODN_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_MET_ODN_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_BUP_ODF_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_MET_ODF_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE)
+  
+  # Injection
+  p_BUP_ODN_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_MET_ODN_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_REL_ODN_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_ABS_ODN_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE)
+  p_BUP_ODF_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_MET_ODF_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_REL_ODF_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_ABS_ODF_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE)
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -210,7 +253,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
         m_TDP[EP3 & ODF & INJ, i] <- 1
   }
 
-  write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
+  #write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
   
   # Probability of state-exit
   m_leave <- 1 - m_TDP
@@ -299,11 +342,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[BUP & NI, ODN & NI] <- p_BUP_ODN_NI
   m_UP[BUP & NI, ODF & NI] <- p_BUP_ODF_NI
   # First 4 weeks
-  m_UP_4wk[BUP & NI, MET & NI] <- p_BUP_MET_NI * (1 - (p_BUP_ODN_NI * p_BUP_OD_mult) - (p_BUP_ODF_NI * p_BUP_OD_mult))
-  m_UP_4wk[BUP & NI, ABS & NI] <- p_BUP_ABS_NI * (1 - (p_BUP_ODN_NI * p_BUP_OD_mult) - (p_BUP_ODF_NI * p_BUP_OD_mult))
-  m_UP_4wk[BUP & NI, REL & NI] <- p_BUP_REL_NI * (1 - (p_BUP_ODN_NI * p_BUP_OD_mult) - (p_BUP_ODF_NI * p_BUP_OD_mult))
-  m_UP_4wk[BUP & NI, ODN & NI] <- p_BUP_ODN_NI * p_BUP_OD_mult # Consider estimating probability directly to avoid multiplier issue
-  m_UP_4wk[BUP & NI, ODF & NI] <- p_BUP_ODF_NI * p_BUP_OD_mult # Consider estimating probability directly to avoid multiplier issue
+  m_UP_4wk[BUP & NI, MET & NI] <- p_BUP_MET_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  m_UP_4wk[BUP & NI, ABS & NI] <- p_BUP_ABS_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  m_UP_4wk[BUP & NI, REL & NI] <- p_BUP_REL_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  m_UP_4wk[BUP & NI, ODN & NI] <- p_BUP_ODN_NI_4wk
+  m_UP_4wk[BUP & NI, ODF & NI] <- p_BUP_ODF_NI_4wk
   
   # From MET
   # Overall
@@ -313,16 +356,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[MET & NI, ODN & NI] <- p_MET_ODN_NI
   m_UP[MET & NI, ODF & NI] <- p_MET_ODF_NI
   # First 4 weeks
-  m_UP_4wk[MET & NI, BUP & NI] <- p_MET_BUP_NI * (1 - (p_MET_ODN_NI * p_MET_OD_mult) - (p_MET_ODF_NI * p_MET_OD_mult))
-  m_UP_4wk[MET & NI, ABS & NI] <- p_MET_ABS_NI * (1 - (p_MET_ODN_NI * p_MET_OD_mult) - (p_MET_ODF_NI * p_MET_OD_mult))
-  m_UP_4wk[MET & NI, REL & NI] <- p_MET_REL_NI * (1 - (p_MET_ODN_NI * p_MET_OD_mult) - (p_MET_ODF_NI * p_MET_OD_mult))
-  m_UP_4wk[MET & NI, ODN & NI] <- p_MET_ODN_NI * p_MET_OD_mult # Consider estimating probability directly to avoid multiplier issue
-  m_UP_4wk[MET & NI, ODF & NI] <- p_MET_ODF_NI * p_MET_OD_mult # Consider estimating probability directly to avoid multiplier issue
+  m_UP_4wk[MET & NI, BUP & NI] <- p_MET_BUP_NI * (1 - p_MET_ODN_NI_4wk - p_MET_ODF_NI_4wk)
+  m_UP_4wk[MET & NI, ABS & NI] <- p_MET_ABS_NI * (1 - p_MET_ODN_NI_4wk - p_MET_ODF_NI_4wk)
+  m_UP_4wk[MET & NI, REL & NI] <- p_MET_REL_NI * (1 - p_MET_ODN_NI_4wk - p_MET_ODF_NI_4wk)
+  m_UP_4wk[MET & NI, ODN & NI] <- p_MET_ODN_NI_4wk
+  m_UP_4wk[MET & NI, ODF & NI] <- p_MET_ODF_NI_4wk
   
-  # From ABS (first 4 wks same)
-  m_UP[ABS & NI, REL & NI] <- m_UP_4wk[ABS & NI, REL & NI] <- p_ABS_REL_NI * (1 - p_ABS_ODN_NI - p_ABS_ODF_NI)
-  m_UP[ABS & NI, ODN & NI] <- m_UP_4wk[ABS & NI, ODN & NI] <- p_ABS_ODN_NI
-  m_UP[ABS & NI, ODF & NI] <- m_UP_4wk[ABS & NI, ODF & NI] <- p_ABS_ODF_NI
+  # From ABS
+  # Overall
+  m_UP[ABS & NI, REL & NI] <- p_ABS_REL_NI * (1 - p_ABS_ODN_NI - p_ABS_ODF_NI)
+  m_UP[ABS & NI, ODN & NI] <- p_ABS_ODN_NI
+  m_UP[ABS & NI, ODF & NI] <- p_ABS_ODF_NI
+  # First 4 weeks
+  m_UP_4wk[ABS & NI, REL & NI] <- p_ABS_REL_NI * (1 - p_ABS_ODN_NI_4wk - p_ABS_ODF_NI_4wk)
+  m_UP_4wk[ABS & NI, ODN & NI] <- p_ABS_ODN_NI_4wk
+  m_UP_4wk[ABS & NI, ODF & NI] <- p_ABS_ODF_NI_4wk
   
   # From REL
   # Overall
@@ -332,13 +380,13 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[REL & NI, ODN & NI] <- p_REL_ODN_NI
   m_UP[REL & NI, ODF & NI] <- p_REL_ODF_NI
   # First 4 weeks
-  m_UP_4wk[REL & NI, MET & NI] <- p_REL_MET_NI * (1 - (p_REL_ODN_NI * p_REL_OD_mult) - (p_REL_ODF_NI * p_REL_OD_mult))
-  m_UP_4wk[REL & NI, BUP & NI] <- p_REL_BUP_NI * (1 - (p_REL_ODN_NI * p_REL_OD_mult) - (p_REL_ODF_NI * p_REL_OD_mult))
-  m_UP_4wk[REL & NI, ABS & NI] <- p_REL_ABS_NI * (1 - (p_REL_ODN_NI * p_REL_OD_mult) - (p_REL_ODF_NI * p_REL_OD_mult))
-  m_UP_4wk[REL & NI, ODN & NI] <- p_REL_ODN_NI * p_REL_OD_mult # Consider estimating probability directly to avoid multiplier issue
-  m_UP_4wk[REL & NI, ODF & NI] <- p_REL_ODF_NI * p_REL_OD_mult # Consider estimating probability directly to avoid multiplier issue
+  m_UP_4wk[REL & NI, MET & NI] <- p_REL_MET_NI * (1 - p_REL_ODN_NI_4wk - p_REL_ODF_NI_4wk)
+  m_UP_4wk[REL & NI, BUP & NI] <- p_REL_BUP_NI * (1 - p_REL_ODN_NI_4wk - p_REL_ODF_NI_4wk)
+  m_UP_4wk[REL & NI, ABS & NI] <- p_REL_ABS_NI * (1 - p_REL_ODN_NI_4wk - p_REL_ODF_NI_4wk)
+  m_UP_4wk[REL & NI, ODN & NI] <- p_REL_ODN_NI_4wk
+  m_UP_4wk[REL & NI, ODF & NI] <- p_REL_ODF_NI_4wk
   
-  # From OD (first 4wks same)
+  # From OD (first 4 weeks same)
   m_UP[ODN & NI, MET & NI] <- m_UP_4wk[ODN & NI, MET & NI] <- p_ODN_MET_NI
   m_UP[ODN & NI, BUP & NI] <- m_UP_4wk[ODN & NI, BUP & NI] <- p_ODN_BUP_NI
   m_UP[ODN & NI, ABS & NI] <- m_UP_4wk[ODN & NI, ABS & NI] <- p_ODN_ABS_NI
@@ -353,11 +401,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[BUP & INJ, ODN & INJ] <- p_BUP_ODN_INJ
   m_UP[BUP & INJ, ODF & INJ] <- p_BUP_ODF_INJ
   # First 4 weeks
-  m_UP_4wk[BUP & INJ, MET & INJ] <- p_BUP_MET_INJ * (1 - (p_BUP_ODN_INJ * p_BUP_OD_mult) - (p_BUP_ODF_INJ * p_BUP_OD_mult))
-  m_UP_4wk[BUP & INJ, ABS & INJ] <- p_BUP_ABS_INJ * (1 - (p_BUP_ODN_INJ * p_BUP_OD_mult) - (p_BUP_ODF_INJ * p_BUP_OD_mult))
-  m_UP_4wk[BUP & INJ, REL & INJ] <- p_BUP_REL_INJ * (1 - (p_BUP_ODN_INJ * p_BUP_OD_mult) - (p_BUP_ODF_INJ * p_BUP_OD_mult))
-  m_UP_4wk[BUP & INJ, ODN & INJ] <- p_BUP_ODN_INJ * p_BUP_OD_mult # Consider estimating probability directly to avoid multiplier issue
-  m_UP_4wk[BUP & INJ, ODF & INJ] <- p_BUP_ODF_INJ * p_BUP_OD_mult # Consider estimating probability directly to avoid multiplier issue
+  m_UP_4wk[BUP & INJ, MET & INJ] <- p_BUP_MET_INJ * (1 - p_BUP_ODN_INJ_4wk - p_BUP_ODF_INJ_4wk)
+  m_UP_4wk[BUP & INJ, ABS & INJ] <- p_BUP_ABS_INJ * (1 - p_BUP_ODN_INJ_4wk - p_BUP_ODF_INJ_4wk)
+  m_UP_4wk[BUP & INJ, REL & INJ] <- p_BUP_REL_INJ * (1 - p_BUP_ODN_INJ_4wk - p_BUP_ODF_INJ_4wk)
+  m_UP_4wk[BUP & INJ, ODN & INJ] <- p_BUP_ODN_INJ_4wk
+  m_UP_4wk[BUP & INJ, ODF & INJ] <- p_BUP_ODF_INJ_4wk
   
   # From MET
   # Overall
@@ -367,16 +415,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[MET & INJ, ODN & INJ] <- p_MET_ODN_INJ
   m_UP[MET & INJ, ODF & INJ] <- p_MET_ODF_INJ
   # First 4 weeks
-  m_UP_4wk[MET & INJ, BUP & INJ] <- p_MET_BUP_INJ * (1 - (p_MET_ODN_INJ * p_MET_OD_mult) - (p_MET_ODF_INJ * p_MET_OD_mult))
-  m_UP_4wk[MET & INJ, ABS & INJ] <- p_MET_ABS_INJ * (1 - (p_MET_ODN_INJ * p_MET_OD_mult) - (p_MET_ODF_INJ * p_MET_OD_mult))
-  m_UP_4wk[MET & INJ, REL & INJ] <- p_MET_REL_INJ * (1 - (p_MET_ODN_INJ * p_MET_OD_mult) - (p_MET_ODF_INJ * p_MET_OD_mult))
-  m_UP_4wk[MET & INJ, ODN & INJ] <- p_MET_ODN_INJ * p_MET_OD_mult # Consider estimating probability directly to avoid multiplier issue
-  m_UP_4wk[MET & INJ, ODF & INJ] <- p_MET_ODF_INJ * p_MET_OD_mult # Consider estimating probability directly to avoid multiplier issue
+  m_UP_4wk[MET & INJ, BUP & INJ] <- p_MET_BUP_INJ * (1 - p_MET_ODN_INJ_4wk - p_MET_ODF_INJ_4wk)
+  m_UP_4wk[MET & INJ, ABS & INJ] <- p_MET_ABS_INJ * (1 - p_MET_ODN_INJ_4wk - p_MET_ODF_INJ_4wk)
+  m_UP_4wk[MET & INJ, REL & INJ] <- p_MET_REL_INJ * (1 - p_MET_ODN_INJ_4wk - p_MET_ODF_INJ_4wk)
+  m_UP_4wk[MET & INJ, ODN & INJ] <- p_MET_ODN_INJ_4wk
+  m_UP_4wk[MET & INJ, ODF & INJ] <- p_MET_ODF_INJ_4wk
   
-  # From ABS (first 4 wks same)
-  m_UP[ABS & INJ, REL & INJ] <- m_UP_4wk[ABS & INJ, REL & INJ] <- p_ABS_REL_INJ * (1 - p_ABS_ODN_INJ - p_ABS_ODF_INJ)
-  m_UP[ABS & INJ, ODN & INJ] <- m_UP_4wk[ABS & INJ, ODN & INJ] <- p_ABS_ODN_INJ
-  m_UP[ABS & INJ, ODF & INJ] <- m_UP_4wk[ABS & INJ, ODF & INJ] <- p_ABS_ODF_INJ
+  # From ABS
+  # Overall
+  m_UP[ABS & INJ, REL & INJ] <- p_ABS_REL_INJ * (1 - p_ABS_ODN_INJ - p_ABS_ODF_INJ)
+  m_UP[ABS & INJ, ODN & INJ] <- p_ABS_ODN_INJ
+  m_UP[ABS & INJ, ODF & INJ] <- p_ABS_ODF_INJ
+  # First 4 weeks
+  m_UP_4wk[ABS & INJ, REL & INJ] <- p_ABS_REL_INJ * (1 - p_ABS_ODN_INJ_4wk - p_ABS_ODF_INJ_4wk)
+  m_UP_4wk[ABS & INJ, ODN & INJ] <- p_ABS_ODN_INJ_4wk
+  m_UP_4wk[ABS & INJ, ODF & INJ] <- p_ABS_ODF_INJ_4wk
   
   # From REL
   # Overall
@@ -386,11 +439,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[REL & INJ, ODN & INJ] <- p_REL_ODN_INJ
   m_UP[REL & INJ, ODF & INJ] <- p_REL_ODF_INJ
   # First 4 weeks
-  m_UP_4wk[REL & INJ, MET & INJ] <- p_REL_MET_INJ * (1 - (p_REL_ODN_INJ * p_REL_OD_mult) - (p_REL_ODF_INJ * p_REL_OD_mult))
-  m_UP_4wk[REL & INJ, BUP & INJ] <- p_REL_BUP_INJ * (1 - (p_REL_ODN_INJ * p_REL_OD_mult) - (p_REL_ODF_INJ * p_REL_OD_mult))
-  m_UP_4wk[REL & INJ, ABS & INJ] <- p_REL_ABS_INJ * (1 - (p_REL_ODN_INJ * p_REL_OD_mult) - (p_REL_ODF_INJ * p_REL_OD_mult))
-  m_UP_4wk[REL & INJ, ODN & INJ] <- p_REL_ODN_INJ * p_REL_OD_mult # Consider estimating probability directly to avoid multiplier issue
-  m_UP_4wk[REL & INJ, ODF & INJ] <- p_REL_ODF_INJ * p_REL_OD_mult # Consider estimating probability directly to avoid multiplier issue
+  m_UP_4wk[REL & INJ, MET & INJ] <- p_REL_MET_INJ * (1 - p_REL_ODN_INJ_4wk - p_REL_ODF_INJ_4wk)
+  m_UP_4wk[REL & INJ, BUP & INJ] <- p_REL_BUP_INJ * (1 - p_REL_ODN_INJ_4wk - p_REL_ODF_INJ_4wk)
+  m_UP_4wk[REL & INJ, ABS & INJ] <- p_REL_ABS_INJ * (1 - p_REL_ODN_INJ_4wk - p_REL_ODF_INJ_4wk)
+  m_UP_4wk[REL & INJ, ODN & INJ] <- p_REL_ODN_INJ_4wk
+  m_UP_4wk[REL & INJ, ODF & INJ] <- p_REL_ODF_INJ_4wk
   
   # From OD (first 4 wks same)
   m_UP[ODN & INJ, MET & INJ] <- m_UP_4wk[ODN & INJ, MET & INJ] <- p_ODN_MET_INJ
@@ -399,8 +452,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_UP[ODN & INJ, REL & INJ] <- m_UP_4wk[ODN & INJ, REL & INJ] <- p_ODN_REL_INJ
 
   # Checks
-  write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
-  write.csv(m_UP_4wk,"C:/Users/Benjamin/Desktop/m_UP_4wk.csv", row.names = TRUE)
+  #write.csv(m_UP,"C:/Users/Benjamin/Desktop/m_UP.csv", row.names = TRUE)
+  #write.csv(m_UP_4wk,"C:/Users/Benjamin/Desktop/m_UP_4wk.csv", row.names = TRUE)
   
   #### Create full time-dependent transition array ####
   # Empty 3-D array
@@ -460,8 +513,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     a_TDP[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP[EP3 & ODF & INJ, i]
   }
   
-  initial <- a_TDP[, , 1]
-  write.csv(initial,"C:/Users/Benjamin/Desktop/initial_full.csv", row.names = TRUE)
+  #initial <- a_TDP[, , 1]
+  #write.csv(initial,"C:/Users/Benjamin/Desktop/initial_full.csv", row.names = TRUE)
 
   #### Seroconversion ####
   # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
@@ -645,11 +698,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[OOT & EP1, TX & EP1, ] = 0
   a_TDP[OOT & EP2, TX & EP2, ] = 0
 
-  k_hiv <- a_TDP[, , 50]
-  k_hiv2<- a_TDP[, , 710]
+  #k_hiv <- a_TDP[, , 50]
+  #k_hiv2<- a_TDP[, , 710]
   
-  write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
-  write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
+  #write.csv(k_hiv,"C:/Users/Benjamin/Desktop/K2.csv", row.names = TRUE)
+  #write.csv(k_hiv2,"C:/Users/Benjamin/Desktop/K3.csv", row.names = TRUE)
 
   #### Check transition array ####
   #check_transition_probability(a_P = a_TDP, err_stop = err_stop, verbose = verbose) # check all probs [0, 1]
@@ -680,7 +733,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   v_s_init[HCV] <- v_s_init[HCV] * n_HCV
   v_s_init[COI] <- v_s_init[COI] * n_COI
   
-  write.csv(v_s_init,"C:/Users/Benjamin/Desktop/v_s_init.csv", row.names = TRUE)
+  #write.csv(v_s_init,"C:/Users/Benjamin/Desktop/v_s_init.csv", row.names = TRUE)
 
   # Create Markov Trace
     # Initialize population
@@ -716,7 +769,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   }
   
   # Check
-  write.csv(m_M_trace,"C:/Users/Benjamin/Desktop/m_trace.csv", row.names = TRUE)
+  #write.csv(m_M_trace,"C:/Users/Benjamin/Desktop/m_trace.csv", row.names = TRUE)
   
   # Count cumulative state-specific deaths
   m_M_trace_death <- array(0, dim = c((n_t + 1), n_states),
