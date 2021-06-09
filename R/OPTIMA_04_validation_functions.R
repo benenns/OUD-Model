@@ -21,3 +21,16 @@ data_summary <- function(data, varname, groupnames){
   data_sum <- plyr::rename(data_sum, c("mean" = varname))
   return(data_sum)
 }
+
+## Check model outputs compared to trial outputs
+
+#' Check time spent in model states compared to trial data
+#'
+#' \code{data_summary} is used to to calculate the mean, standard deviation and 
+#' 95% credible interval.
+#' @param data Data frame.
+#' @param varname Name of a column containing the variable.
+#' @param groupnames Vector of column names to be used as grouping variables.
+#' @return 
+#' A data frame containing the posterior output.
+#' @export

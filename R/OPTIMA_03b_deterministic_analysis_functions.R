@@ -16,12 +16,12 @@ calculate_ce_out <- function(l_params_all = load_all_params(),
     v_dwe <- 1 / ((1 + d_c) ^ (0:(n_t))) # vector with discount weights for QALYs
     
     ## Run STM model at a parameter set for each intervention
-    l_model_out_no_trt <- decision_model(l_params_all = l_params_all)
-    l_model_out_trt    <- decision_model(l_params_all = l_params_all)
+    l_out_markov_met <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
+    l_out_markov_bnx <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
     
     ## Cohort trace by treatment
-    m_M_no_trt <- l_model_out_no_trt$m_M # No treatment
-    m_M_trt    <- l_model_out_trt$m_M    # Treatment
+    m_M_trace_met <- l_model_out_met$m_M_agg_trace # MET
+    m_M_trace_bnx <- l_model_out_bnx$m_M_agg_trace # BNX
     
     ## Vectors with costs and utilities by treatment
     v_u_no_trt <- c(u_H, u_S1, u_S2, u_D)

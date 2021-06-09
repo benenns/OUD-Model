@@ -129,7 +129,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                    rate_fent = n_fent_OD,
                    multiplier = multiplier,
                    first_month = FALSE,
-                   fatal = FALSE){
+                   fatal = FALSE,
+                   injection = FALSE){
     
     # Probability of successful naloxone use
     p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
@@ -147,9 +148,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     }  else{
       p_base_OD <- 1 - exp(-(rate))
     }
-    
-    #Naloxone effect on fatal overdose
+    # Naloxone effect on fatal overdose
     p_fatal_OD_NX <- p_fatal_OD * (1 - p_NX_rev)
+    # Probability of fentanyl exposure (adjusted for injection/non-injection)
+    if (injection){
+    p_fent_exp <- p_fent_exp
+    }  else{
+      p_fent_exp <- p_fent_exp * p_ni_fent_reduction
+    }
     
     # Calculate fatal and non-fatal overdose probabilities
     if (fatal){
@@ -163,45 +169,54 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   # Module to calculate probability of overdose from states
   # Probability of overdose
   # Non-injection
-  p_BUP_ODN_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = FALSE)
-  p_MET_ODN_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = FALSE)
-  p_REL_ODN_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = FALSE)
-  p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = FALSE)
-  p_BUP_ODF_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = TRUE)
-  p_MET_ODF_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = TRUE)
-  p_REL_ODF_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = TRUE)
-  p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = TRUE)
+  # Non-fatal
+  p_BUP_ODN_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  p_MET_ODN_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  p_REL_ODN_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  p_ODN_ODN_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = FALSE, injection = FALSE) # same prob as relapse
+  # Fatal
+  p_BUP_ODF_NI  <- p_OD(rate = n_BUP_OD_NI, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  p_MET_ODF_NI  <- p_OD(rate = n_MET_OD_NI, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  p_REL_ODF_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD_NI, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  p_ODN_ODF_NI  <- p_OD(rate = n_REL_OD_NI, first_month = FALSE, fatal = TRUE, injection = FALSE) # same prob as relapse
   
   # Injection
-  p_BUP_ODN_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = FALSE)
-  p_MET_ODN_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = FALSE)
-  p_REL_ODN_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = FALSE)
-  p_ABS_ODN_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = FALSE)
-  p_BUP_ODF_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = TRUE)
-  p_MET_ODF_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = TRUE)
-  p_REL_ODF_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = TRUE)
-  p_ABS_ODF_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = TRUE)
+  # Non-fatal
+  p_BUP_ODN_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  p_MET_ODN_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  p_REL_ODN_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  p_ABS_ODN_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  p_ODN_ODN_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = FALSE, injection = TRUE) # same prob as relapse
+  # Fatal
+  p_BUP_ODF_INJ <- p_OD(rate = n_BUP_OD_INJ, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  p_MET_ODF_INJ <- p_OD(rate = n_MET_OD_INJ, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  p_REL_ODF_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  p_ABS_ODF_INJ <- p_OD(rate = n_ABS_OD_INJ, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  p_ODN_ODF_INJ <- p_OD(rate = n_REL_OD_INJ, first_month = FALSE, fatal = TRUE, injection = TRUE) # same prob as relapse
   
   # Probability of overdose (first month multiplier)
+  # No multiplier for OD -> OD as individuals have already spent at least 1 month in relapse
   # Non-injection
-  p_BUP_ODN_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_MET_ODN_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_BUP_ODF_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE)
-  p_MET_ODF_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE)
-  p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE)
-  p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_BUP_ODN_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  p_MET_ODN_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  p_BUP_ODF_NI_4wk  <- p_OD(rate = n_BUP_OD_NI, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  p_MET_ODF_NI_4wk  <- p_OD(rate = n_MET_OD_NI, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD_NI, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD_NI, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
   
   # Injection
-  p_BUP_ODN_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_MET_ODN_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_REL_ODN_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_ABS_ODN_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE)
-  p_BUP_ODF_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE)
-  p_MET_ODF_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE)
-  p_REL_ODF_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE)
-  p_ABS_ODF_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE)
+  p_BUP_ODN_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  p_MET_ODN_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  p_REL_ODN_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  p_ABS_ODN_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  p_BUP_ODF_INJ_4wk <- p_OD(rate = n_BUP_OD_INJ, multiplier = n_BUP_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  p_MET_ODF_INJ_4wk <- p_OD(rate = n_MET_OD_INJ, multiplier = n_MET_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  p_REL_ODF_INJ_4wk <- p_OD(rate = n_REL_OD_INJ, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  p_ABS_ODF_INJ_4wk <- p_OD(rate = n_ABS_OD_INJ, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -209,8 +224,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
                       dimnames = list(v_n_states, 1:n_t))
 
     # Probability of remaining in health state
-    # All transition out of non-fatal overdose after 1 week, probs already set to zero
-    # All remain in fatal overdose, transition to death = 0
+    # All transition out of non-fatal overdose after 1 week, probs already set to zero (IF MONTHLY TRANSITIONS, ADD MODULE TO CALCULATE REMAIN PROB IN ODN)
+    # All remain in fatal overdose, remain probability = 1
     for(i in 1:n_t){
       # Non-injection
         # Episode 1
@@ -218,18 +233,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
         m_TDP[EP1 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
         m_TDP[EP1 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
         m_TDP[EP1 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-        m_TDP[EP1 & ODF & NI, i] <- 1  
+        m_TDP[EP1 & ODN & NI, i] <- p_ODN_ODN_NI #use same probability as overdose from relapse (no episode multipliers at this point)
+        m_TDP[EP1 & ODF & NI, i] <- 1 # all remain in ODF
         # Episode 2
         m_TDP[EP2 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
         m_TDP[EP2 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
         m_TDP[EP2 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_2 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
         m_TDP[EP2 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+        m_TDP[EP2 & ODN & NI, i] <- p_ODN_ODN_NI #use same probability as overdose from relapse (no episode multipliers at this point)
         m_TDP[EP2 & ODF & NI, i] <- 1
         # Episode 3
         m_TDP[EP3 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
         m_TDP[EP3 & MET & NI, i] <- as.vector(exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
         m_TDP[EP3 & ABS & NI, i] <- as.vector(exp(p_frailty_ABS_NI_3 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
         m_TDP[EP3 & REL & NI, i] <- as.vector(exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+        m_TDP[EP3 & ODN & NI, i] <- p_ODN_ODN_NI #use same probability as overdose from relapse (no episode multipliers at this point)
         m_TDP[EP3 & ODF & NI, i] <- 1
         
     # Injection
@@ -238,18 +256,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
         m_TDP[EP1 & MET & INJ, i] <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
         m_TDP[EP1 & ABS & INJ, i] <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
         m_TDP[EP1 & REL & INJ, i] <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+        m_TDP[EP1 & ODN & INJ, i] <- p_ODN_ODN_INJ #use same probability as overdose from relapse (no episode multipliers at this point)
         m_TDP[EP1 & ODF & INJ, i] <- 1
         # Episode 2
         m_TDP[EP2 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
         m_TDP[EP2 & MET & INJ, i] <- as.vector(exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
         m_TDP[EP2 & ABS & INJ, i] <- as.vector(exp(p_frailty_ABS_INJ_2 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
         m_TDP[EP2 & REL & INJ, i] <- as.vector(exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+        m_TDP[EP2 & ODN & INJ, i] <- p_ODN_ODN_INJ #use same probability as overdose from relapse (no episode multipliers at this point)
         m_TDP[EP2 & ODF & INJ, i] <- 1
         # Episode 3
         m_TDP[EP3 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
         m_TDP[EP3 & MET & INJ, i] <- as.vector(exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
         m_TDP[EP3 & ABS & INJ, i] <- as.vector(exp(p_frailty_ABS_INJ_3 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
         m_TDP[EP3 & REL & INJ, i] <- as.vector(exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+        m_TDP[EP3 & ODN & INJ, i] <- p_ODN_ODN_INJ #use same probability as overdose from relapse (no episode multipliers at this point)
         m_TDP[EP3 & ODF & INJ, i] <- 1
   }
 
@@ -259,7 +280,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   m_leave <- 1 - m_TDP
   
   #### Mortality ####
-  #' Weekly mortality estimates
+  #' Mortality probability estimates
   #'
   #' \code{v_mort} is used to populate mortality probability vectors.
   #'
@@ -478,18 +499,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     a_TDP[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP[EP1 & MET & NI, i]
     a_TDP[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP[EP1 & ABS & NI, i]
     a_TDP[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP[EP1 & REL & NI, i]
+    a_TDP[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP[EP1 & ODN & NI, i]
     a_TDP[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP[EP1 & ODF & NI, i]
     # Episode 2
     a_TDP[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP[EP2 & BUP & NI, i]
     a_TDP[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP[EP2 & MET & NI, i]
     a_TDP[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP[EP2 & ABS & NI, i]
     a_TDP[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP[EP2 & REL & NI, i]
+    a_TDP[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP[EP2 & ODN & NI, i]
     a_TDP[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP[EP2 & ODF & NI, i]
     # Episode 3
     a_TDP[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP[EP3 & BUP & NI, i]
     a_TDP[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP[EP3 & MET & NI, i]
     a_TDP[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP[EP3 & ABS & NI, i]
     a_TDP[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP[EP3 & REL & NI, i]
+    a_TDP[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP[EP3 & ODN & NI, i]
     a_TDP[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP[EP3 & ODF & NI, i]
     
     # Injection
@@ -498,18 +522,21 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
     a_TDP[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP[EP1 & MET & INJ, i]
     a_TDP[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP[EP1 & ABS & INJ, i]
     a_TDP[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP[EP1 & REL & INJ, i]
+    a_TDP[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP[EP1 & ODN & INJ, i]
     a_TDP[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP[EP1 & ODF & INJ, i]
     # Episode 2
     a_TDP[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP[EP2 & BUP & INJ, i]
     a_TDP[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP[EP2 & MET & INJ, i]
     a_TDP[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP[EP2 & ABS & INJ, i]
     a_TDP[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP[EP2 & REL & INJ, i]
+    a_TDP[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP[EP2 & ODN & INJ, i]
     a_TDP[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP[EP2 & ODF & INJ, i]
     # Episode 3
     a_TDP[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP[EP3 & BUP & INJ, i]
     a_TDP[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP[EP3 & MET & INJ, i]
     a_TDP[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP[EP3 & ABS & INJ, i]
     a_TDP[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP[EP3 & REL & INJ, i]
+    a_TDP[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP[EP3 & ODN & INJ, i]
     a_TDP[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP[EP3 & ODF & INJ, i]
   }
   
@@ -669,10 +696,10 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
   # Disallowed transitions (ensure that impossible transitions are set to zero)
   # Episode rules
-  a_TDP[EP1, EP3, ] = 0
-  a_TDP[EP2, EP1, ] = 0
-  a_TDP[EP3, EP1, ] = 0
-  a_TDP[EP3, EP2, ] = 0
+  #a_TDP[EP1, EP3, ] = 0
+  #a_TDP[EP2, EP1, ] = 0
+  #a_TDP[EP3, EP1, ] = 0
+  #a_TDP[EP3, EP2, ] = 0
   # Seroconversions
   a_TDP[HIV, NEG, ] = 0
   a_TDP[HCV, NEG, ] = 0 # disallowing potential transitions from COI to HIV-only (i.e. HCV cure), calculated within overall HCV infection rate
@@ -684,7 +711,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
   a_TDP[COI, NEG, ] = 0
   a_TDP[NEG, COI, ] = 0
   # Abstinence directly to treatment
-  a_TDP[ABS, TX, ]  = 0
+  #a_TDP[ABS, TX, ]  = 0
   # Conditional transitions
   # Next episode with out-of-treatment(OOT) EPi -> treatment(TX) EP(i+1)
   a_TDP[TX & EP1, TX & EP2, ] = 0
@@ -715,13 +742,31 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE){
 
   #### Set initial state vector ####
   # Baseline
-  # Populate first episode in base states
+  # Populate baseline states
+  # Think about this e.g. (all start in EP1, or according to observed %'s in each episode)
+  # Episode 1
   v_s_init[BUP & EP1] <- v_init_dist["pe", "BUP"] # Empirically observed proportions from base states
   v_s_init[MET & EP1] <- v_init_dist["pe", "MET"]
   v_s_init[REL & EP1] <- v_init_dist["pe", "REL"]
   v_s_init[ODN & EP1] <- v_init_dist["pe", "ODN"]
   v_s_init[ODF & EP1] <- v_init_dist["pe", "ODF"]
   v_s_init[ABS & EP1] <- v_init_dist["pe", "ABS"]
+  
+  # Episode 2
+  #v_s_init[BUP & EP2] <- v_init_dist["pe", "BUP"] # Empirically observed proportions from base states
+  #v_s_init[MET & EP2] <- v_init_dist["pe", "MET"]
+  #v_s_init[REL & EP2] <- v_init_dist["pe", "REL"]
+  #v_s_init[ODN & EP2] <- v_init_dist["pe", "ODN"]
+  #v_s_init[ODF & EP2] <- v_init_dist["pe", "ODF"]
+  #v_s_init[ABS & EP2] <- v_init_dist["pe", "ABS"]
+  
+  # Episode 3+
+  #v_s_init[BUP & EP3] <- v_init_dist["pe", "BUP"] # Empirically observed proportions from base states
+  #v_s_init[MET & EP3] <- v_init_dist["pe", "MET"]
+  #v_s_init[REL & EP3] <- v_init_dist["pe", "REL"]
+  #v_s_init[ODN & EP3] <- v_init_dist["pe", "ODN"]
+  #v_s_init[ODF & EP3] <- v_init_dist["pe", "ODF"]
+  #v_s_init[ABS & EP3] <- v_init_dist["pe", "ABS"]
   
   # Distribute by injection/non-injection
   v_s_init[NI]  <- v_s_init[NI] * (1 - n_INJ)

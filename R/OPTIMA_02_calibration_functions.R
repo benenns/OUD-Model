@@ -3,8 +3,6 @@
 #' \code{calibration_out} computes model outputs to be used for calibration 
 #' routines.
 #' 
-#' **NOTE** Error in DARTH code for IMIS routine, use code from Menzies et al. (2018) appendix
-#'
 #' @param v_params_calib is a vector of parameters that need to be calibrated.   
 #' @param l_params_all is a list with all parameters of the decision model.
 #' @return 

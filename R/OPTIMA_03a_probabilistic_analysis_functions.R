@@ -54,11 +54,8 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     hr_HCV_NI  = rnorm(n_sim, mean = df_death_hr["pe", "HCV_NI"] , sd = df_death_hr["sd", "HCV_NI"] ),
     hr_COI_NI  = rnorm(n_sim, mean = df_death_hr["pe", "COI_NI"] , sd = df_death_hr["sd", "COI_NI"] ),
     
-    #hr_BUP1_INJ = rnorm(n_sim, mean = df_death_hr["pe", "BUP1_INJ"], sd = df_death_hr["sd", "BUP1_INJ"]),
     hr_BUP_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "BUP_INJ"] , sd = df_death_hr["sd", "BUP_INJ"] ),
-    #hr_MET1_INJ = rnorm(n_sim, mean = df_death_hr["pe", "MET1_INJ"], sd = df_death_hr["sd", "MET1_INJ"]),
     hr_MET_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "MET_INJ"] , sd = df_death_hr["sd", "MET_INJ"] ),
-    #hr_REL1_INJ = rnorm(n_sim, mean = df_death_hr["pe", "REL1_INJ"], sd = df_death_hr["sd", "REL1_INJ"]),
     hr_REL_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "REL_INJ"] , sd = df_death_hr["sd", "REL_INJ"] ),
     hr_OD_INJ   = rnorm(n_sim, mean = df_death_hr["pe", "OD_INJ"]  , sd = df_death_hr["sd", "OD_INJ"]  ),
     hr_ABS_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "ABS_INJ"] , sd = df_death_hr["sd", "ABS_INJ"] ),
@@ -104,26 +101,26 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     p_weibull_scale_MET_NI = runif(),
     p_weibull_scale_ABS_NI = runif(),
     p_weibull_scale_REL_NI = runif(),
-    p_weibull_scale_OD_NI  = runif(),
+    #p_weibull_scale_OD_NI  = runif(),
     
     p_weibull_scale_BUP_INJ = runif(),
     p_weibull_scale_MET_INJ = runif(),
     p_weibull_scale_ABS_INJ = runif(),
     p_weibull_scale_REL_INJ = runif(),
-    p_weibull_scale_OD_INJ  = runif(),
+    #p_weibull_scale_OD_INJ  = runif(),
     
     # Weibull shape
     p_weibull_shape_BUP_NI = runif(),
     p_weibull_shape_MET_NI = runif(),
     p_weibull_shape_ABS_NI = runif(),
     p_weibull_shape_REL_NI = runif(),
-    p_weibull_shape_OD_NI  = runif(),
+    #p_weibull_shape_OD_NI  = runif(),
     
     p_weibull_shape_BUP_INJ = runif(),
     p_weibull_shape_MET_INJ = runif(),
     p_weibull_shape_ABS_INJ = runif(),
     p_weibull_shape_REL_INJ = runif(),
-    p_weibull_shape_OD_INJ  = runif(),
+    #p_weibull_shape_OD_INJ  = runif(),
     
     ### Transition probabilities conditional on leaving (use Dirichlet)
     # Non-Injection
@@ -132,9 +129,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     p_BUP_ABS_NI  = rdirichlet(),
     p_BUP_OD_NI   = rdirichlet(),
     # From MET
-    p_MET_BUP1_NI = rdirichlet(),
     p_MET_ABS_NI  = rdirichlet(),
-    p_MET_REL1_NI = rdirichlet(),
     p_MET_OD_NI   = rdirichlet(),
     # From ABS
     p_ABS_REL1_NI = rdirichlet(),
