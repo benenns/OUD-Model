@@ -45,10 +45,14 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     # Hazard ratios for death probability
     # HIV-negative
     hr_BUP_NI  = rnorm(n_sim, mean = df_death_hr["pe", "BUP_NI"] , sd = df_death_hr["sd", "BUP_NI"] ),
+    hr_BUPC_NI  = rnorm(n_sim, mean = df_death_hr["pe", "BUPC_NI"] , sd = df_death_hr["sd", "BUPC_NI"] ),
+    
     hr_MET_NI  = rnorm(n_sim, mean = df_death_hr["pe", "MET_NI"] , sd = df_death_hr["sd", "MET_NI"] ),
+    hr_METC_NI  = rnorm(n_sim, mean = df_death_hr["pe", "METC_NI"] , sd = df_death_hr["sd", "METC_NI"] ),
+    
     hr_REL_NI  = rnorm(n_sim, mean = df_death_hr["pe", "REL_NI"] , sd = df_death_hr["sd", "REL_NI"] ),
     hr_ODN_NI  = rnorm(n_sim, mean = df_death_hr["pe", "ODN_NI"] , sd = df_death_hr["sd", "ODN_NI"] ),
-    hr_ODF_NI  = rnorm(n_sim, mean = df_death_hr["pe", "ODF_NI"] , sd = df_death_hr["sd", "ODF_NI"] ),
+    
     hr_ABS_NI  = rnorm(n_sim, mean = df_death_hr["pe", "ABS_NI"] , sd = df_death_hr["sd", "ABS_NI"] ),
     hr_HIV_NI  = rnorm(n_sim, mean = df_death_hr["pe", "HIV_NI"] , sd = df_death_hr["sd", "HIV_NI"] ),
     hr_HCV_NI  = rnorm(n_sim, mean = df_death_hr["pe", "HCV_NI"] , sd = df_death_hr["sd", "HCV_NI"] ),
@@ -57,7 +61,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed,
     hr_BUP_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "BUP_INJ"] , sd = df_death_hr["sd", "BUP_INJ"] ),
     hr_MET_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "MET_INJ"] , sd = df_death_hr["sd", "MET_INJ"] ),
     hr_REL_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "REL_INJ"] , sd = df_death_hr["sd", "REL_INJ"] ),
-    hr_OD_INJ   = rnorm(n_sim, mean = df_death_hr["pe", "OD_INJ"]  , sd = df_death_hr["sd", "OD_INJ"]  ),
+    hr_ODN_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "ODN_INJ"] , sd = df_death_hr["sd", "ODN_INJ"] ),
     hr_ABS_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "ABS_INJ"] , sd = df_death_hr["sd", "ABS_INJ"] ),
     hr_HIV_INJ  = rnorm(n_sim, mean = df_death_hr["pe", "HIV_INJ"] , sd = df_death_hr["sd", "HIV_INJ"] ),
   

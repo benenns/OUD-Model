@@ -31,30 +31,42 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.qalys = "data/qalys.csv")
 
 # Load calibration inputs #
-v_cali_param_names <- c("n_BUP_OD_NI", 
-                  "n_MET_OD_NI", 
-                  "n_REL_OD_NI", 
-                  "n_ABS_OD_NI", 
-                  "n_BUP_OD_INJ", 
-                  "n_MET_OD_INJ", 
-                  "n_REL_OD_INJ", 
-                  "n_ABS_OD_INJ")
-v_lower_bound <- c(n_BUP_OD_NI_lb = l_params_all$n_BUP_OD_NI_lb, 
-         n_MET_OD_NI_lb = l_params_all$n_MET_OD_NI_lb, 
-         n_REL_OD_NI_lb = l_params_all$n_REL_OD_NI_lb, 
-         n_ABS_OD_NI_lb = l_params_all$n_ABS_OD_NI_lb, 
-         n_BUP_OD_INJ_lb = l_params_all$n_BUP_OD_INJ_lb, 
-         n_MET_OD_INJ_lb = l_params_all$n_MET_OD_INJ_lb, 
-         n_REL_OD_INJ_lb = l_params_all$n_REL_OD_INJ_lb, 
-         n_ABS_OD_INJ_lb = l_params_all$n_ABS_OD_INJ_lb) # lower bound estimate for each param
-v_upper_bound <- c(n_BUP_OD_NI_ub = l_params_all$n_BUP_OD_NI_ub, 
-         n_MET_OD_NI_ub = l_params_all$n_MET_OD_NI_ub, 
-         n_REL_OD_NI_ub = l_params_all$n_REL_OD_NI_ub, 
-         n_ABS_OD_NI_ub = l_params_all$n_ABS_OD_NI_ub, 
-         n_BUP_OD_INJ_ub = l_params_all$n_BUP_OD_INJ_ub, 
-         n_MET_OD_INJ_ub = l_params_all$n_MET_OD_INJ_ub, 
-         n_REL_OD_INJ_ub = l_params_all$n_REL_OD_INJ_ub, 
-         n_ABS_OD_INJ_ub = l_params_all$n_ABS_OD_INJ_ub)
+v_cali_param_names <- c("n_BUP_OD_NI",
+                        "n_BUPC_OD_NI",
+                        "n_MET_OD_NI",
+                        "n_METC_OD_NI",
+                        "n_REL_OD_NI", 
+                        "n_ABS_OD_NI", 
+                        "n_BUP_OD_INJ",
+                        "n_BUPC_OD_INJ",
+                        "n_MET_OD_INJ",
+                        "n_METC_OD_INJ",
+                        "n_REL_OD_INJ", 
+                        "n_ABS_OD_INJ")
+v_lower_bound <- c(n_BUP_OD_NI_lb   = l_params_all$n_BUP_OD_NI_lb,
+                   n_BUPC_OD_NI_lb  = l_params_all$n_BUPC_OD_NI_lb,
+                   n_MET_OD_NI_lb   = l_params_all$n_MET_OD_NI_lb, 
+                   n_METC_OD_NI_lb  = l_params_all$n_METC_OD_NI_lb,
+                   n_REL_OD_NI_lb   = l_params_all$n_REL_OD_NI_lb, 
+                   n_ABS_OD_NI_lb   = l_params_all$n_ABS_OD_NI_lb, 
+                   n_BUP_OD_INJ_lb  = l_params_all$n_BUP_OD_INJ_lb,
+                   n_BUPC_OD_INJ_lb = l_params_all$n_BUPC_OD_INJ_lb,
+                   n_MET_OD_INJ_lb  = l_params_all$n_MET_OD_INJ_lb,
+                   n_METC_OD_INJ_lb = l_params_all$n_METC_OD_INJ_lb,
+                   n_REL_OD_INJ_lb  = l_params_all$n_REL_OD_INJ_lb, 
+                   n_ABS_OD_INJ_lb  = l_params_all$n_ABS_OD_INJ_lb) # lower bound estimate for each param
+v_upper_bound <- c(n_BUP_OD_NI_ub   = l_params_all$n_BUP_OD_NI_ub,
+                   n_BUPC_OD_NI_ub  = l_params_all$n_BUPC_OD_NI_ub,
+                   n_MET_OD_NI_ub   = l_params_all$n_MET_OD_NI_ub,
+                   n_METC_OD_NI_ub  = l_params_all$n_METC_OD_NI_ub,
+                   n_REL_OD_NI_ub   = l_params_all$n_REL_OD_NI_ub, 
+                   n_ABS_OD_NI_ub   = l_params_all$n_ABS_OD_NI_ub, 
+                   n_BUP_OD_INJ_ub  = l_params_all$n_BUP_OD_INJ_ub,
+                   n_BUPC_OD_INJ_ub = l_params_all$n_BUPC_OD_INJ_ub,
+                   n_MET_OD_INJ_ub  = l_params_all$n_MET_OD_INJ_ub,
+                   n_METC_OD_INJ_ub = l_params_all$n_METC_OD_INJ_ub,
+                   n_REL_OD_INJ_ub  = l_params_all$n_REL_OD_INJ_ub, 
+                   n_ABS_OD_INJ_ub  = l_params_all$n_ABS_OD_INJ_ub)
 
 #### Load calibration targets ####
 #data("03_calibration_targets")
@@ -100,34 +112,46 @@ set.seed(3730687)
 n_resamp <- 100
 
 ### Names and number of input parameters to be calibrated
-v_param_names  <- c("n_BUP_OD_NI", 
-                    "n_MET_OD_NI", 
+v_param_names  <- c("n_BUP_OD_NI",
+                    "n_BUPC_OD_NI",
+                    "n_MET_OD_NI",
+                    "n_METC_OD_NI",
                     "n_REL_OD_NI", 
                     "n_ABS_OD_NI", 
-                    "n_BUP_OD_INJ", 
-                    "n_MET_OD_INJ", 
+                    "n_BUP_OD_INJ",
+                    "n_BUPC_OD_INJ",
+                    "n_MET_OD_INJ",
+                    "n_METC_OD_INJ",
                     "n_REL_OD_INJ", 
                     "n_ABS_OD_INJ")
 
 #n_param        <- length(v_param_names)
 
 ### Vector with range on input search space
-v_lb = c(n_BUP_OD_NI_lb = l_params_all$n_BUP_OD_NI_lb, 
-         n_MET_OD_NI_lb = l_params_all$n_MET_OD_NI_lb, 
-         n_REL_OD_NI_lb = l_params_all$n_REL_OD_NI_lb, 
-         n_ABS_OD_NI_lb = l_params_all$n_ABS_OD_NI_lb, 
-         n_BUP_OD_INJ_lb = l_params_all$n_BUP_OD_INJ_lb, 
-         n_MET_OD_INJ_lb = l_params_all$n_MET_OD_INJ_lb, 
-         n_REL_OD_INJ_lb = l_params_all$n_REL_OD_INJ_lb, 
-         n_ABS_OD_INJ_lb = l_params_all$n_ABS_OD_INJ_lb) # lower bound estimate for each param
-v_ub = c(n_BUP_OD_NI_ub = l_params_all$n_BUP_OD_NI_ub, 
-         n_MET_OD_NI_ub = l_params_all$n_MET_OD_NI_ub, 
-         n_REL_OD_NI_ub = l_params_all$n_REL_OD_NI_ub, 
-         n_ABS_OD_NI_ub = l_params_all$n_ABS_OD_NI_ub, 
-         n_BUP_OD_INJ_ub = l_params_all$n_BUP_OD_INJ_ub, 
-         n_MET_OD_INJ_ub = l_params_all$n_MET_OD_INJ_ub, 
-         n_REL_OD_INJ_ub = l_params_all$n_REL_OD_INJ_ub, 
-         n_ABS_OD_INJ_ub = l_params_all$n_ABS_OD_INJ_ub) # higher bound estimate for each param
+v_lb = c(n_BUP_OD_NI_lb   = l_params_all$n_BUP_OD_NI_lb,
+         n_BUPC_OD_NI_lb  = l_params_all$n_BUPC_OD_NI_lb,
+         n_MET_OD_NI_lb   = l_params_all$n_MET_OD_NI_lb,
+         n_METC_OD_NI_lb  = l_params_all$n_METC_OD_NI_lb,
+         n_REL_OD_NI_lb   = l_params_all$n_REL_OD_NI_lb, 
+         n_ABS_OD_NI_lb   = l_params_all$n_ABS_OD_NI_lb, 
+         n_BUP_OD_INJ_lb  = l_params_all$n_BUP_OD_INJ_lb,
+         n_BUPC_OD_INJ_lb = l_params_all$n_BUPC_OD_INJ_lb,
+         n_MET_OD_INJ_lb  = l_params_all$n_MET_OD_INJ_lb,
+         n_METC_OD_INJ_lb = l_params_all$n_METC_OD_INJ_lb,
+         n_REL_OD_INJ_lb  = l_params_all$n_REL_OD_INJ_lb, 
+         n_ABS_OD_INJ_lb  = l_params_all$n_ABS_OD_INJ_lb) # lower bound estimate for each param
+v_ub = c(n_BUP_OD_NI_ub   = l_params_all$n_BUP_OD_NI_ub,
+         n_BUPC_OD_NI_ub  = l_params_all$n_BUPC_OD_NI_ub,
+         n_MET_OD_NI_ub   = l_params_all$n_MET_OD_NI_ub,
+         n_METC_OD_NI_ub  = l_params_all$n_METC_OD_NI_ub,
+         n_REL_OD_NI_ub   = l_params_all$n_REL_OD_NI_ub, 
+         n_ABS_OD_NI_ub   = l_params_all$n_ABS_OD_NI_ub, 
+         n_BUP_OD_INJ_ub  = l_params_all$n_BUP_OD_INJ_ub,
+         n_BUPC_OD_INJ_ub = l_params_all$n_BUPC_OD_INJ_ub,
+         n_MET_OD_INJ_ub  = l_params_all$n_MET_OD_INJ_ub,
+         n_METC_OD_INJ_ub = l_params_all$n_METC_OD_INJ_ub,
+         n_REL_OD_INJ_ub  = l_params_all$n_REL_OD_INJ_ub, 
+         n_ABS_OD_INJ_ub  = l_params_all$n_ABS_OD_INJ_ub) # higher bound estimate for each param
 
 ### Number of calibration targets
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
