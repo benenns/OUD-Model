@@ -1,0 +1,50 @@
+---
+title: "Introduction"
+# output: rmarkdown::html_vignette
+output:
+  bookdown::html_document2
+pkgdown:
+  as_is: true
+vignette: >
+  %\VignetteIndexEntry{aa-introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography:
+- book.bib
+- packages.bib  
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE, warning=FALSE}
+# automatically create a bib database for R packages
+# list all R packages that are required by LEM model at this point
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown', 'dplyr', 'truncnorm', 
+                           'lhs', 'IMIS', 'matrixStats',
+                           'plotrix', 'psych', "survival",
+                           "scatterplot3d", "reshape2",
+                           "BiocManager", "devtools",
+                           "shiny", "rstudioapi", 'nlme'
+), 'packages.bib')
+```
+
+```{r load-inputs, include=FALSE}
+library(NAME)
+l_params_all <- load_all_params()
+```
+
+# The OUD model {-}
+
+BLAH BLAH
+
+![State-transition diagram of the model. \label{fig:model-diagram}](../figs/model_diagram.png)
+
+![Overdose decision tree. \label{fig:overdose}](../figs/overdose.png)
+
+# References {-}
