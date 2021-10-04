@@ -1,0 +1,30 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figs/"
+)
+```
+
+# OUD Model <img src='figs/logo.jpg' align="right" height="139" />
+<!-- <img src="figs/logo.jpg" align="center" alt="" width="360" /> -->
+
+[`OUD-Model`](https://github.com/benenns/OUD-Model) is an R package with necessary code and data to run a semi-Markov cohort model to evaluate interventions for people with opioid use disorders.
+
+The development of the OUD model is detailed in the following manuscripts:
+
+OPTIMA CEA
+
+OPTIMA Prelim
+
+Variations of the OUD model have been used in previous manuscripts:
+
+Xnational
+
+NAOMI
