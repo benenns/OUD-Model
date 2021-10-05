@@ -134,35 +134,4 @@ v_params_calib <- c(n_BUP_OD = l_params_all$n_BUP_OD,
 
 #test <- calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all)
 
-l_model_res <- calibration_out(v_params_calib = v_params_calib, 
-                               l_params_all = l_params_all)
-
-x <- l_cali_targets$ODF$pe
-mean_x <- l_model_res$fatal_overdose
-sd_x <- l_cali_targets$ODF$se
-
-y <- l_cali_targets$ODN$pe
-mean_y <- l_model_res$overdose
-sd_y <- l_cali_targets$ODN$se
-
-
-v_params <- c(1,2,3,4)
-v_lb <- c(0.5,1.5,2.5,3.5)
-v_ub <- c(1.5,2.5,3.5,4.5)
-
-n_param <- length(v_params)
-
-n_samp <- 10
-lprior <- rep(0, n_samp)
-for (i in 1:n_param){
-  lprior <- lprior + dunif(v_params[, i],
-                           min = v_lb[i],
-                           max = v_ub[i], 
-                           log = T)
-}
-
-g <- dgamma(4, shape = 2, scale = 0.5, log = T)
-f <- dgamma(4, shape = 2, scale = 0.5, log = F)
-
-
-m_lhs_unit   <- lhs::randomLHS(n = 100, k = 9)
+test2 <- sample.prior(n_samp = 100)

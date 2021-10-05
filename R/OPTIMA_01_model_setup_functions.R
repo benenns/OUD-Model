@@ -198,8 +198,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
   #p_ODN_ODN_NI  <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = FALSE, injection = FALSE) # same prob as relapse
   # Fatal
-  p_BUP_ODF_NI  <- p_MET_ODF_NI <- p_OD(rate = n_BUP_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  p_BUPC_ODF_NI <- p_METC_ODF_NI <- p_OD(rate = n_BUPC_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  p_BUP_ODF_NI  <- p_MET_ODF_NI <- p_OD(rate = n_TX_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  p_BUPC_ODF_NI <- p_METC_ODF_NI <- p_OD(rate = n_TXC_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
   #p_MET_ODF_NI  <- p_OD(rate = n_MET_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
   #p_METC_ODF_NI <- p_OD(rate = n_METC_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
   p_REL_ODF_NI  <- p_ODN_ODF_NI <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
@@ -216,8 +216,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   p_ABS_ODN_INJ  <- p_OD(rate = n_ABS_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
   #p_ODN_ODN_INJ  <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = FALSE, injection = TRUE) # same prob as relapse
   # Fatal
-  p_BUP_ODF_INJ  <- p_MET_ODF_INJ <- p_OD(rate = n_BUP_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  p_BUPC_ODF_INJ <- p_METC_ODF_INJ <- p_OD(rate = n_BUPC_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  p_BUP_ODF_INJ  <- p_MET_ODF_INJ <- p_OD(rate = n_TX_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  p_BUPC_ODF_INJ <- p_METC_ODF_INJ <- p_OD(rate = n_TXC_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
   #p_MET_ODF_INJ  <- p_OD(rate = n_MET_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
   #p_METC_ODF_INJ <- p_OD(rate = n_METC_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
   p_REL_ODF_INJ  <- p_ODN_ODF_INJ <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
