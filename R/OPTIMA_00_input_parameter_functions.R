@@ -330,9 +330,9 @@ load_all_params <- function(file.init = NULL,
     n_INJ_OD_mult_scale = df_overdose["scale", "INJ_OD_mult"],
     
     # Fatal overdose
-    n_fatal_OD = df_overdose["pe", "fatal_OD_rate"],
-    n_fatal_OD_shape = df_overdose["shape", "fatal_OD_rate"],
-    n_fatal_OD_scale = df_overdose["scale", "fatal_OD_rate"],
+    n_fatal_OD = df_overdose["pe", "fatal_OD"],
+    n_fatal_OD_shape = df_overdose["shape", "fatal_OD"],
+    n_fatal_OD_scale = df_overdose["scale", "fatal_OD"],
     
     # Fentanyl
     # Rate of fentanyl overdose

@@ -122,29 +122,29 @@ v_param_names  <- c("n_TX_OD",
 #n_param        <- length(v_param_names)
 
 ### Vector with range on input search space
-v_lb = c(n_TX_OD_lb   = l_params_all$n_TX_OD_lb,
-         n_TXC_OD_lb  = l_params_all$n_TXC_OD_lb,
-         #n_MET_OD_lb   = l_params_all$n_MET_OD_lb,
-         #n_METC_OD_lb  = l_params_all$n_METC_OD_lb,
-         n_REL_OD_lb   = l_params_all$n_REL_OD_lb, 
-         #n_ABS_OD_lb   = l_params_all$n_ABS_OD_lb, 
-         n_TX_OD_mult_lb  = l_params_all$n_TX_OD_mult_lb,
-         n_TXC_OD_mult_lb = l_params_all$n_TXC_OD_mult_lb,
-         n_REL_OD_mult_lb = l_params_all$n_REL_OD_mult_lb,
-         n_INJ_OD_mult_lb = l_params_all$n_INJ_OD_mult_lb,
-         n_fatal_OD_lb    = l_params_all$n_fatal_OD_lb) # lower bound estimate for each param
-
-v_ub = c(n_TX_OD_ub   = l_params_all$n_TX_OD_ub,
-         n_TXC_OD_ub  = l_params_all$n_TXC_OD_ub,
-         #n_MET_OD_ub   = l_params_all$n_MET_OD_ub,
-         #n_METC_OD_ub  = l_params_all$n_METC_OD_ub,
-         n_REL_OD_ub   = l_params_all$n_REL_OD_ub, 
-         #n_ABS_OD_ub   = l_params_all$n_ABS_OD_ub, 
-         n_TX_OD_mult_ub  = l_params_all$n_TX_OD_mult_ub,
-         n_TXC_OD_mult_ub = l_params_all$n_TXC_OD_mult_ub,
-         n_REL_OD_mult_ub = l_params_all$n_REL_OD_mult_ub,
-         n_INJ_OD_mult_ub = l_params_all$n_INJ_OD_mult_ub,
-         n_fatal_OD_ub    = l_params_all$n_fatal_OD_ub) # higher bound estimate for each param
+#v_lb = c(n_TX_OD_lb   = l_params_all$n_TX_OD_lb,
+#         n_TXC_OD_lb  = l_params_all$n_TXC_OD_lb,
+#         #n_MET_OD_lb   = l_params_all$n_MET_OD_lb,
+#         #n_METC_OD_lb  = l_params_all$n_METC_OD_lb,
+#         n_REL_OD_lb   = l_params_all$n_REL_OD_lb, 
+#         #n_ABS_OD_lb   = l_params_all$n_ABS_OD_lb, 
+#         n_TX_OD_mult_lb  = l_params_all$n_TX_OD_mult_lb,
+#         n_TXC_OD_mult_lb = l_params_all$n_TXC_OD_mult_lb,
+#         n_REL_OD_mult_lb = l_params_all$n_REL_OD_mult_lb,
+#         n_INJ_OD_mult_lb = l_params_all$n_INJ_OD_mult_lb,
+#         n_fatal_OD_lb    = l_params_all$n_fatal_OD_lb) # lower bound estimate for each param
+#
+#v_ub = c(n_TX_OD_ub   = l_params_all$n_TX_OD_ub,
+#         n_TXC_OD_ub  = l_params_all$n_TXC_OD_ub,
+#         #n_MET_OD_ub   = l_params_all$n_MET_OD_ub,
+#         #n_METC_OD_ub  = l_params_all$n_METC_OD_ub,
+#         n_REL_OD_ub   = l_params_all$n_REL_OD_ub, 
+#         #n_ABS_OD_ub   = l_params_all$n_ABS_OD_ub, 
+#         n_TX_OD_mult_ub  = l_params_all$n_TX_OD_mult_ub,
+#         n_TXC_OD_mult_ub = l_params_all$n_TXC_OD_mult_ub,
+#         n_REL_OD_mult_ub = l_params_all$n_REL_OD_mult_ub,
+#         n_INJ_OD_mult_ub = l_params_all$n_INJ_OD_mult_ub,
+#         n_fatal_OD_ub    = l_params_all$n_fatal_OD_ub) # higher bound estimate for each param
 
 ### Number of calibration targets
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
