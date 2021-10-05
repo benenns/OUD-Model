@@ -279,97 +279,60 @@ load_all_params <- function(file.init = NULL,
     n_REL_OD = df_overdose["pe", "REL_OD"],
     n_ABS_OD = df_overdose["pe", "ABS_OD"],
     
-    # Lower bound
-    n_TX_OD_lb = df_overdose["low", "TX_OD"],
-    n_TXC_OD_lb = df_overdose["low", "TXC_OD"],
-    n_REL_OD_lb = df_overdose["low", "REL_OD"],
-    n_ABS_OD_lb = df_overdose["low", "ABS_OD"],
+    # Gamma shape parameter (prior)
+    n_TX_OD_shape = df_overdose["shape", "TX_OD"],
+    n_TXC_OD_shape = df_overdose["shape", "TXC_OD"],
+    n_REL_OD_shape = df_overdose["shape", "REL_OD"],
+    n_ABS_OD_shape = df_overdose["shape", "ABS_OD"],
     
-    # Upper bound
-    n_TX_OD_ub = df_overdose["high", "TX_OD"],
-    n_TXC_OD_ub = df_overdose["high", "TXC_OD"],
-    n_REL_OD_ub = df_overdose["high", "REL_OD"],
-    n_ABS_OD_ub = df_overdose["high", "ABS_OD"],
+    # Gamma scale parameter (prior)
+    n_TX_OD_scale = df_overdose["scale", "TX_OD"],
+    n_TXC_OD_scale = df_overdose["scale", "TXC_OD"],
+    n_REL_OD_scale = df_overdose["scale", "REL_OD"],
+    n_ABS_OD_scale = df_overdose["scale", "ABS_OD"],
     
-    # Non-injection
-    # Mean
-    #n_BUP_OD = df_overdose["pe", "BUP_OD"],
-    #n_BUPC_OD = df_overdose["pe", "BUPC_OD"],
-    #n_MET_OD = df_overdose["pe", "MET_OD"],
-    #n_METC_OD = df_overdose["pe", "METC_OD"],
-    #n_ABS_OD = df_overdose["pe", "ABS_OD"],
-    #n_REL_OD = df_overdose["pe", "REL_OD"],
     # Lower bound
-    #n_BUP_OD_lb = df_overdose["low", "BUP_OD"],
-    #n_BUPC_OD_lb = df_overdose["low", "BUPC_OD"],
-    #n_MET_OD_lb = df_overdose["low", "MET_OD"],
-    #n_METC_OD_lb = df_overdose["low", "METC_OD"],
+    #n_TX_OD_lb = df_overdose["low", "TX_OD"],
+    #n_TXC_OD_lb = df_overdose["low", "TXC_OD"],
     #n_REL_OD_lb = df_overdose["low", "REL_OD"],
     #n_ABS_OD_lb = df_overdose["low", "ABS_OD"],
+    
     # Upper bound
-    #n_BUP_OD_ub = df_overdose["high", "BUP_OD"],
-    #n_BUPC_OD_ub = df_overdose["high", "BUPC_OD"],
-    #n_MET_OD_ub = df_overdose["high", "MET_OD"],
-    #n_METC_OD_ub = df_overdose["high", "METC_OD"],
+    #n_TX_OD_ub = df_overdose["high", "TX_OD"],
+    #n_TXC_OD_ub = df_overdose["high", "TXC_OD"],
     #n_REL_OD_ub = df_overdose["high", "REL_OD"],
     #n_ABS_OD_ub = df_overdose["high", "ABS_OD"],
     
-    # Injection
-    ## Mean
-    #n_BUP_OD_INJ  = df_overdose["pe", "BUP_OD_INJ"],
-    #n_BUPC_OD_INJ = df_overdose["pe", "BUPC_OD_INJ"],
-    #n_MET_OD_INJ  = df_overdose["pe", "MET_OD_INJ"],
-    #n_METC_OD_INJ = df_overdose["pe", "METC_OD_INJ"],
-    #n_ABS_OD_INJ  = df_overdose["pe", "ABS_OD_INJ"],
-    #n_REL_OD_INJ  = df_overdose["pe", "REL_OD_INJ"],
-    ## Lower bound
-    #n_BUP_OD_INJ_lb  = df_overdose["low", "BUP_OD_INJ"],
-    #n_BUPC_OD_INJ_lb = df_overdose["low", "BUPC_OD_INJ"],
-    #n_MET_OD_INJ_lb  = df_overdose["low", "MET_OD_INJ"],
-    #n_METC_OD_INJ_lb = df_overdose["low", "METC_OD_INJ"],
-    #n_REL_OD_INJ_lb  = df_overdose["low", "REL_OD_INJ"],
-    #n_ABS_OD_INJ_lb  = df_overdose["low", "ABS_OD_INJ"],
-    ## Upper bound
-    #n_BUP_OD_INJ_ub  = df_overdose["high", "BUP_OD_INJ"],
-    #n_BUPC_OD_INJ_ub = df_overdose["high", "BUPC_OD_INJ"],
-    #n_MET_OD_INJ_ub  = df_overdose["high", "MET_OD_INJ"],
-    #n_METC_OD_INJ_ub = df_overdose["high", "METC_OD_INJ"],
-    #n_REL_OD_INJ_ub  = df_overdose["high", "REL_OD_INJ"],
-    #n_ABS_OD_INJ_ub  = df_overdose["high", "ABS_OD_INJ"],
-    
     # Overdose transition multipliers for first 4 weeks of treatment and relapse
-    # First month
-    #n_BUP_OD_mult  = df_overdose["pe", "BUP_OD_mult"],
-    #n_BUPC_OD_mult = df_overdose["pe", "BUPC_OD_mult"],
-    #n_MET_OD_mult  = df_overdose["pe", "MET_OD_mult"],
-    #n_METC_OD_mult = df_overdose["pe", "METC_OD_mult"],
     # Treatment states
     n_TX_OD_mult = df_overdose["pe", "TX_OD_mult"],
-    n_TX_OD_mult_lb = df_overdose["low", "TX_OD_mult"],
-    n_TX_OD_mult_ub = df_overdose["high", "TX_OD_mult"],
+    n_TX_OD_mult_shape = df_overdose["shape", "TX_OD_mult"],
+    n_TX_OD_mult_scale = df_overdose["scale", "TX_OD_mult"],
     
     # Treatment + concurrent opioid
     n_TXC_OD_mult = df_overdose["pe", "TXC_OD_mult"],
-    n_TXC_OD_mult_lb = df_overdose["low", "TXC_OD_mult"],
-    n_TXC_OD_mult_ub = df_overdose["high", "TXC_OD_mult"],
+    n_TXC_OD_mult_shape = df_overdose["shape", "TXC_OD_mult"],
+    n_TXC_OD_mult_scale = df_overdose["scale", "TXC_OD_mult"],
     
     # Relapse
     n_REL_OD_mult  = df_overdose["pe", "REL_OD_mult"],
-    n_REL_OD_mult_lb  = df_overdose["low", "REL_OD_mult"],
-    n_REL_OD_mult_ub  = df_overdose["high", "REL_OD_mult"],
+    n_REL_OD_mult_shape  = df_overdose["shape", "REL_OD_mult"],
+    n_REL_OD_mult_scale  = df_overdose["scale", "REL_OD_mult"],
     
     # Abstinence
     n_ABS_OD_mult  = df_overdose["pe", "ABS_OD_mult"],
+    n_ABS_OD_mult_shape  = df_overdose["shape", "ABS_OD_mult"],
+    n_ABS_OD_mult_scale  = df_overdose["scale", "ABS_OD_mult"],
     
     # Injection
     n_INJ_OD_mult = df_overdose["pe", "INJ_OD_mult"],
-    n_INJ_OD_mult_lb = df_overdose["low", "INJ_OD_mult"],
-    n_INJ_OD_mult_ub = df_overdose["high", "INJ_OD_mult"],
+    n_INJ_OD_mult_shape = df_overdose["shape", "INJ_OD_mult"],
+    n_INJ_OD_mult_scale = df_overdose["scale", "INJ_OD_mult"],
     
     # Fatal overdose
     n_fatal_OD = df_overdose["pe", "fatal_OD_rate"],
-    n_fatal_OD_lb = df_overdose["low", "fatal_OD_rate"],
-    n_fatal_OD_ub = df_overdose["high", "fatal_OD_rate"],
+    n_fatal_OD_shape = df_overdose["shape", "fatal_OD_rate"],
+    n_fatal_OD_scale = df_overdose["scale", "fatal_OD_rate"],
     
     # Fentanyl
     # Rate of fentanyl overdose

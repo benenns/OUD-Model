@@ -68,15 +68,15 @@ sample.prior <- function(n_samp,
   #m_param_samp [, 1] <- qgamma(p, shape = , scale = )
   
   #draws0 <- randomLHS(n=n,k=8)
-  draws  <- data.frame(e  = qgamma(m_lhs_unit[,1], log(0.05)-1/2*0.5^2,0.5),  # n_TX_OD
-                       l  = qgamma(m_lhs_unit[,2], log(0.25)-1/2*0.5^2,0.5),  # n_TXC_OD
-                       t  = qgamma(m_lhs_unit[,3], log(0.025)-1/2*0.5^2,0.5), # n_REL_OD
-                       p  = qgamma(m_lhs_unit[,4], log(0.1)-1/2*0.5^2,0.5),   # n_ABS_OD
-                       l  = qgamma(m_lhs_unit[,5], log(0.5)-1/2*0.5^2,0.5),   # n_TX_OD_mult
-                       o  = qgamma(m_lhs_unit[,6], log(0.5)-1/2*0.5^2,0.5),   # n_TXC_OD_mult
-                       b  = qgamma(m_lhs_unit[,7], 2,8),                      # n_REL_OD_mult
-                       c  = qgamma(m_lhs_unit[,8], log(1000)-1/2*0.2^2,0.2),  # n_INJ_OD_mult
-                       c  = qgamma(m_lhs_unit[,9], log(1000)-1/2*0.2^2,0.2))  # n_fatal_OD
+  draws  <- data.frame(n_TX_OD  = qgamma(m_lhs_unit[,1], shape = n_TX_OD_shape, scale = n_TX_OD_scale),  # n_TX_OD
+                       n_TXC_OD  = qgamma(m_lhs_unit[,2], shape = n_TXC_OD_shape, scale = n_TXC_OD_scale),  # n_TXC_OD
+                       n_REL_OD  = qgamma(m_lhs_unit[,3], shape = n_REL_OD_shape, scale = n_REL_OD_scale), # n_REL_OD
+                       #n_ABS_OD  = qgamma(m_lhs_unit[,4], shape = n_ABS_OD_shape, scale = n_ABS_OD_scale),   # n_ABS_OD
+                       n_TX_OD_mult  = qgamma(m_lhs_unit[,4], shape = n_TX_OD_mult_shape, scale = n_TX_OD_mult_scale),   # n_TX_OD_mult
+                       n_TXC_OD_mult  = qgamma(m_lhs_unit[,5], shape = n_TXC_OD_mult_shape, scale = n_TXC_OD_mult_scale),   # n_TXC_OD_mult
+                       n_REL_OD_mult  = qgamma(m_lhs_unit[,6], shape = n_REL_OD_mult_shape, scale = n_REL_OD_mult_scale),                      # n_REL_OD_mult
+                       n_INJ_OD_mult  = qgamma(m_lhs_unit[,7], shape = n_INJ_OD_mult_shape, scale = n_INJ_OD_mult_scale),  # n_INJ_OD_mult
+                       n_fatal_od  = qgamma(m_lhs_unit[,8], shape = n_fatal_OD_shape, scale = n_fatal_OD_scale))  # n_fatal_OD
   
   # draw parameters (uniform distribution)
   #for (i in 1:n_param){ 
@@ -103,15 +103,15 @@ log_prior <- function(v_params, v_param_names = v_cali_param_names, v_lb = v_low
   lprior <- rep(0, n_samp)
   
   #lprior <- rep(0,nrow(par_vector))
-  lprior <- lprior + dgamma(v_params[, 1], shape = ((mean)^2 / ((high - low) / 2 / 1.96)^2), scale = (((high - low) / 2 / 1.96)^2 / mean), log = TRUE)    # n_TX_OD
-  lprior <- lprior + dgamma(v_params[, 2], shape = , scale = , log = TRUE)    # n_TXC_OD
-  lprior <- lprior + dgamma(v_params[, 3], shape = , scale = , log = TRUE)    # n_REL_OD
-  lprior <- lprior + dunif(v_params[, 4], min = v_lb[4], max = v_ub, log = TRUE)    # n_ABS_OD
-  lprior <- lprior + dgamma(v_params[, 5], log(0.5  )-1/2*0.5^2,0.5, log = TRUE)    # n_TX_OD_mult
-  lprior <- lprior + dgamma(v_params[, 6], log(0.5  )-1/2*0.5^2,0.5, log = TRUE)    # n_TXC_OD_mult
-  lprior <- lprior + dgamma(v_params[, 7], 2,8,log = TRUE)                          # n_REL_OD_mult
-  lprior <- lprior + dgamma(v_params[, 8], 2,8,log = TRUE)                          # n_INJ_OD_mult
-  lprior <- lprior + dgamma(v_params[, 9], 2,8,log = TRUE)                          # n_fatal_OD
+  lprior <- lprior + dgamma(v_params[, 1], shape = n_TX_OD_shape, scale = n_TX_OD_scale, log = TRUE)    # n_TX_OD
+  lprior <- lprior + dgamma(v_params[, 2], shape = n_TXC_OD_shape, scale = n_TXC_OD_scale, log = TRUE)    # n_TXC_OD
+  lprior <- lprior + dgamma(v_params[, 3], shape = n_REL_OD_shape, scale = n_REL_OD_scale, log = TRUE)    # n_REL_OD
+  #lprior <- lprior + dunif(v_params[, 4], min = v_lb[4], max = v_ub, log = TRUE)    # n_ABS_OD
+  lprior <- lprior + dgamma(v_params[, 4], shape = n_TX_OD_mult_shape, scale = n_TX_OD_mult_scale, log = TRUE)    # n_TX_OD_mult
+  lprior <- lprior + dgamma(v_params[, 5], shape = n_TXC_OD_mult_shape, scale = n_TXC_OD_mult_scale, log = TRUE)    # n_TXC_OD_mult
+  lprior <- lprior + dgamma(v_params[, 6], shape = n_REL_OD_mult_shape, scale = n_REL_OD_mult_scale, log = TRUE)                          # n_REL_OD_mult
+  lprior <- lprior + dgamma(v_params[, 7], shape = n_INJ_OD_mult_shape, scale = n_INJ_OD_mult_scale, log = TRUE)                          # n_INJ_OD_mult
+  lprior <- lprior + dgamma(v_params[, 8], shape = n_fatal_OD_shape, scale = n_fatal_OD_scale, log = TRUE)                          # n_fatal_OD
   
   
   #for (i in 1:n_param){
@@ -124,7 +124,7 @@ log_prior <- function(v_params, v_param_names = v_cali_param_names, v_lb = v_low
     #                          min = 1,
     #                          max = 1, 
     #                          log = T)
-  }
+  #}
   return(lprior)
 }
 
