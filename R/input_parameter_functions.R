@@ -69,11 +69,12 @@ load_all_params <- function(file.init = NULL,
   df_qalys <- read.csv(file = file.qalys, row.names = 1, header = TRUE) # QALYs
   
   l_params_all <- list(
-    # Initial parameters
+    
+    #### Initial parameters ####
+    
     n_age_init = df_init_params["pe", "age_init"], # age at baseline
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
-    n_per = df_init_params["pe", "period_yr"], # periods per year (12-months/52-weeks)
-    #n_t = (df_init_params["pe", "age_max"] - df_init_params["pe", "age_init"]) * 52, # modeling time horizon in weeks
+    n_per = df_init_params["pe", "period_yr"], # periods per year (e.g. 12-months)
     n_discount = df_init_params["pe", "discount"], # discount rate
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "inj_prop"], # % injection
@@ -83,13 +84,16 @@ load_all_params <- function(file.init = NULL,
     n_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
     n_HCV_DAA = df_init_params["pe", "daa_prop"], # % of HIV-positive on-ART (used to calculate costs)
     
-    # Initial state distribution
+    #### Initial state distribution ####
+    
     v_init_dist = as.vector(df_init_dist["pe", ]),
     
-    # Mortality
+    #### Mortality ####
+    
     v_r_mort_by_age = load_mort_params(file = file.mort, n_male = df_init_params["pe", "male_prop"]), # vector of age-specific mortality
     
-    # Hazard ratios for death probability
+    #### Hazard ratios for death probability ####
+    # Non-injection
     hr_BUP_NI  = df_death_hr["pe", "BUP_NI"],
     hr_BUPC_NI = df_death_hr["pe", "BUPC_NI"],
     hr_MET_NI  = df_death_hr["pe", "MET_NI"],
@@ -101,6 +105,7 @@ load_all_params <- function(file.init = NULL,
     hr_HCV_NI  = df_death_hr["pe", "HCV_NI"],
     hr_COI_NI  = df_death_hr["pe", "COI_NI"],
     
+    # Injection
     hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
     hr_BUPC_INJ  = df_death_hr["pe", "BUPC_INJ"],
     hr_MET_INJ  = df_death_hr["pe", "MET_INJ"],
@@ -112,7 +117,8 @@ load_all_params <- function(file.init = NULL,
     hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
     hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
     
-    # Survival analysis
+    #### Hazard ratios for successive episodes ####
+    # Non-injection
     p_frailty_BUP_NI_1 = 1,
     p_frailty_BUP_NI_2 = df_frailty["pe", "BUP_NI_2"],
     p_frailty_BUP_NI_3 = df_frailty["pe", "BUP_NI_3"],
@@ -132,6 +138,7 @@ load_all_params <- function(file.init = NULL,
     p_frailty_REL_NI_2 = df_frailty["pe", "REL_NI_2"],
     p_frailty_REL_NI_3 = df_frailty["pe", "REL_NI_3"],
     
+    # Injection
     p_frailty_BUP_INJ_1 = 1,
     p_frailty_BUP_INJ_2 = df_frailty["pe", "BUP_INJ_2"],
     p_frailty_BUP_INJ_3 = df_frailty["pe", "BUP_INJ_3"],
@@ -151,7 +158,8 @@ load_all_params <- function(file.init = NULL,
     p_frailty_REL_INJ_2 = df_frailty["pe", "REL_INJ_2"],
     p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
     
-    # Load weibull parameters
+    #### Load weibull parameters ####
+    
     # Weibull scale
     p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
     p_weibull_scale_BUPC_NI = df_weibull_scale["pe", "BUPC_NI"],
@@ -182,7 +190,8 @@ load_all_params <- function(file.init = NULL,
     p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
     p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
 
-    # Unconditional transition probabilities
+    #### Unconditional transition probabilities ####
+    
     # Non-Injection
     # From BUP
     p_BUP_BUPC_NI  = df_UP["BUP_NI", "BUPC_NI"],
@@ -272,6 +281,7 @@ load_all_params <- function(file.init = NULL,
     p_ODN_REL_INJ  = df_UP["ODN_INJ", "REL_INJ"],
     
     #### Overdose ####
+    # Overdose parameters loaded as rates and converted to probabilities in model
     # Includes additional calibration related parameters
     # Base overdose params
     n_TX_OD = df_overdose["pe", "TX_OD"],
@@ -290,20 +300,9 @@ load_all_params <- function(file.init = NULL,
     n_TXC_OD_scale = df_overdose["scale", "TXC_OD"],
     n_REL_OD_scale = df_overdose["scale", "REL_OD"],
     n_ABS_OD_scale = df_overdose["scale", "ABS_OD"],
-    
-    # Lower bound
-    #n_TX_OD_lb = df_overdose["low", "TX_OD"],
-    #n_TXC_OD_lb = df_overdose["low", "TXC_OD"],
-    #n_REL_OD_lb = df_overdose["low", "REL_OD"],
-    #n_ABS_OD_lb = df_overdose["low", "ABS_OD"],
-    
-    # Upper bound
-    #n_TX_OD_ub = df_overdose["high", "TX_OD"],
-    #n_TXC_OD_ub = df_overdose["high", "TXC_OD"],
-    #n_REL_OD_ub = df_overdose["high", "REL_OD"],
-    #n_ABS_OD_ub = df_overdose["high", "ABS_OD"],
-    
-    # Overdose transition multipliers for first 4 weeks of treatment and relapse
+
+    # Overdose transition multipliers
+    # First 4 weeks of treatment and relapse
     # Treatment states
     n_TX_OD_mult = df_overdose["pe", "TX_OD_mult"],
     n_TX_OD_mult_shape = df_overdose["shape", "TX_OD_mult"],
@@ -324,12 +323,12 @@ load_all_params <- function(file.init = NULL,
     n_ABS_OD_mult_shape  = df_overdose["shape", "ABS_OD_mult"],
     n_ABS_OD_mult_scale  = df_overdose["scale", "ABS_OD_mult"],
     
-    # Injection
+    # Injection (vs. non-injection)
     n_INJ_OD_mult = df_overdose["pe", "INJ_OD_mult"],
     n_INJ_OD_mult_shape = df_overdose["shape", "INJ_OD_mult"],
     n_INJ_OD_mult_scale = df_overdose["scale", "INJ_OD_mult"],
     
-    # Fatal overdose
+    # Fatal overdose (conditional on overdose)
     n_fatal_OD = df_overdose["pe", "fatal_OD"],
     n_fatal_OD_shape = df_overdose["shape", "fatal_OD"],
     n_fatal_OD_scale = df_overdose["scale", "fatal_OD"],
@@ -360,14 +359,6 @@ load_all_params <- function(file.init = NULL,
     p_HIV_ODN_NI = df_hiv["pe", "HIV_NI"],
     p_HIV_ABS_NI = df_hiv["pe", "HIV_NI"],
     
-    #p_HIV_BUP_NI  = df_hiv["pe", "HIV_BUP_NI"],
-    #p_HIV_BUPC_NI = df_hiv["pe", "HIV_BUPC_NI"],
-    #p_HIV_MET_NI  = df_hiv["pe", "HIV_MET_NI"],
-    #p_HIV_METC_NI = df_hiv["pe", "HIV_METC_NI"],
-    #p_HIV_REL_NI  = df_hiv["pe", "HIV_REL_NI"],
-    #p_HIV_ODN_NI  = df_hiv["pe", "HIV_REL_NI"],
-    #p_HIV_ABS_NI  = df_hiv["pe", "HIV_ABS_NI"],
-    
     # Injection
     p_HIV_BUP_INJ = df_hiv["pe", "HIV_TX_INJ"],
     p_HIV_MET_INJ = df_hiv["pe", "HIV_TX_INJ"],
@@ -376,14 +367,6 @@ load_all_params <- function(file.init = NULL,
     p_HIV_REL_INJ = df_hiv["pe", "HIV_REL_INJ"],
     p_HIV_ODN_INJ = df_hiv["pe", "HIV_REL_INJ"],
     p_HIV_ABS_INJ = df_hiv["pe", "HIV_NI"],
-    
-    #p_HIV_BUP_INJ  = df_hiv["pe", "HIV_BUP_INJ"],
-    #p_HIV_BUPC_INJ = df_hiv["pe", "HIV_BUPC_INJ"],
-    #p_HIV_MET_INJ  = df_hiv["pe", "HIV_MET_INJ"],
-    #p_HIV_METC_INJ = df_hiv["pe", "HIV_METC_INJ"],
-    #p_HIV_REL_INJ  = df_hiv["pe", "HIV_REL_INJ"],
-    #p_HIV_ODN_INJ  = df_hiv["pe", "HIV_REL_INJ"],
-    #p_HIV_ABS_INJ  = df_hiv["pe", "HIV_ABS_INJ"],
     
     # Co-infection conditional on HCV
     # Non-injection
@@ -395,13 +378,6 @@ load_all_params <- function(file.init = NULL,
     p_HCV_HIV_ODN_NI = df_hiv["pe", "COI_HIV_NI"],
     p_HCV_HIV_ABS_NI = df_hiv["pe", "COI_HIV_NI"],
     
-    #p_HCV_HIV_BUP_NI  = df_hiv["pe", "COI_BUP_NI"],
-    #p_HCV_HIV_BUPC_NI = df_hiv["pe", "COI_BUPC_NI"],
-    #p_HCV_HIV_MET_NI  = df_hiv["pe", "COI_MET_NI"],
-    #p_HCV_HIV_METC_NI = df_hiv["pe", "COI_METC_NI"],
-    #p_HCV_HIV_REL_NI  = df_hiv["pe", "COI_REL_NI"],
-    #p_HCV_HIV_ODN_NI  = df_hiv["pe", "COI_REL_NI"],
-    #p_HCV_HIV_ABS_NI  = df_hiv["pe", "COI_ABS_NI"],
     # Injection
     p_HCV_HIV_BUP_INJ = df_hiv["pe", "COI_HIV_TX_INJ"],
     p_HCV_HIV_MET_INJ = df_hiv["pe", "COI_HIV_TX_INJ"],
@@ -410,15 +386,7 @@ load_all_params <- function(file.init = NULL,
     p_HCV_HIV_REL_INJ = df_hiv["pe", "COI_HIV_REL_INJ"],
     p_HCV_HIV_ODN_INJ = df_hiv["pe", "COI_HIV_REL_INJ"],
     p_HCV_HIV_ABS_INJ  = df_hiv["pe", "COI_HIV_NI"], # ABS same as non-injection
-    
-    #p_HCV_HIV_BUP_INJ  = df_hiv["pe", "COI_BUP_INJ"],
-    #p_HCV_HIV_BUPC_INJ = df_hiv["pe", "COI_BUPC_INJ"],
-    #p_HCV_HIV_MET_INJ  = df_hiv["pe", "COI_MET_INJ"],
-    #p_HCV_HIV_METC_INJ = df_hiv["pe", "COI_METC_INJ"],
-    #p_HCV_HIV_REL_INJ  = df_hiv["pe", "COI_REL_INJ"],
-    #p_HCV_HIV_ODN_INJ  = df_hiv["pe", "COI_REL_INJ"],
-    #p_HCV_HIV_ABS_INJ  = df_hiv["pe", "COI_ABS_INJ"],
-    
+
     # HCV Seroconversion
     # From negative
     # Non-injection
@@ -430,14 +398,6 @@ load_all_params <- function(file.init = NULL,
     p_HCV_ODN_NI = df_hcv["pe", "HCV_NI"],
     p_HCV_ABS_NI = df_hcv["pe", "HCV_NI"],
     
-    #p_HCV_BUP_NI  = df_hcv["pe", "HCV_BUP_NI"],
-    #p_HCV_BUPC_NI = df_hcv["pe", "HCV_BUPC_NI"],
-    #p_HCV_MET_NI  = df_hcv["pe", "HCV_MET_NI"],
-    #p_HCV_METC_NI = df_hcv["pe", "HCV_METC_NI"],
-    #p_HCV_REL_NI  = df_hcv["pe", "HCV_REL_NI"],
-    #p_HCV_ODN_NI  = df_hcv["pe", "HCV_REL_NI"],
-    #p_HCV_ABS_NI  = df_hcv["pe", "HCV_ABS_NI"],
-    
     # Injection
     p_HCV_BUP_INJ = df_hcv["pe", "HCV_TX_INJ"],
     p_HCV_MET_INJ = df_hcv["pe", "HCV_TX_INJ"],
@@ -446,15 +406,7 @@ load_all_params <- function(file.init = NULL,
     p_HCV_REL_INJ = df_hcv["pe", "HCV_REL_INJ"],
     p_HCV_ODN_INJ = df_hcv["pe", "HCV_REL_INJ"],
     p_HCV_ABS_INJ = df_hcv["pe", "HCV_NI"], # ABS same as non-injection
-    
-    #p_HCV_BUP_INJ  = df_hcv["pe", "HCV_BUP_INJ"],
-    #p_HCV_BUPC_INJ = df_hcv["pe", "HCV_BUPC_INJ"],
-    #p_HCV_MET_INJ  = df_hcv["pe", "HCV_MET_INJ"],
-    #p_HCV_METC_INJ = df_hcv["pe", "HCV_METC_INJ"],
-    #p_HCV_REL_INJ  = df_hcv["pe", "HCV_REL_INJ"],
-    #p_HCV_ODN_INJ  = df_hcv["pe", "HCV_REL_INJ"],
-    #p_HCV_ABS_INJ  = df_hcv["pe", "HCV_ABS_INJ"],
-    
+
     # Co-infection conditional on HIV
     # Non-injection
     p_HIV_HCV_BUP_NI = df_hcv["pe", "COI_HCV_NI"],
@@ -465,13 +417,6 @@ load_all_params <- function(file.init = NULL,
     p_HIV_HCV_ODN_NI = df_hcv["pe", "COI_HCV_NI"],
     p_HIV_HCV_ABS_NI = df_hcv["pe", "COI_HCV_NI"],
     
-    #p_HIV_HCV_BUP_NI  = df_hcv["pe", "COI_BUP_NI"],
-    #p_HIV_HCV_BUPC_NI = df_hcv["pe", "COI_BUPC_NI"],
-    #p_HIV_HCV_MET_NI  = df_hcv["pe", "COI_MET_NI"],
-    #p_HIV_HCV_METC_NI = df_hcv["pe", "COI_METC_NI"],
-    #p_HIV_HCV_REL_NI  = df_hcv["pe", "COI_REL_NI"],
-    #p_HIV_HCV_ODN_NI  = df_hcv["pe", "COI_REL_NI"],
-    #p_HIV_HCV_ABS_NI  = df_hcv["pe", "COI_ABS_NI"],
     # Injection
     p_HIV_HCV_BUP_INJ = df_hcv["pe", "COI_HCV_TX_INJ"],
     p_HIV_HCV_MET_INJ = df_hcv["pe", "COI_HCV_TX_INJ"],
@@ -532,25 +477,6 @@ load_all_params <- function(file.init = NULL,
     c_ODN_INJ_crime  = df_crime_costs["pe", "REL"],
     c_ABS_INJ_crime  = df_crime_costs["pe", "ABS"],
     
-    # Age-specific
-    #df_crime_costs = subset(df_crime_costs, type=="pe"),
-
-    #v_c_BUP_NI_crime  = df_crime_costs %>% select(BUP_NI) %>% as.matrix(),
-    #v_c_BUPC_NI_crime = df_crime_costs %>% select(BUPC_NI) %>% as.matrix(),
-    #v_c_MET_NI_crime  = df_crime_costs %>% select(MET_NI) %>% as.matrix(),
-    #v_c_METC_NI_crime = df_crime_costs %>% select(METC_NI) %>% as.matrix(),
-    #v_c_REL_NI_crime  = df_crime_costs %>% select(REL_NI) %>% as.matrix(),
-    #v_c_ODN_NI_crime  = df_crime_costs %>% select(ODN_NI) %>% as.matrix(),
-    #v_c_ABS_NI_crime  = df_crime_costs %>% select(ABS_NI) %>% as.matrix(),
-    
-    #v_c_BUP_INJ_crime  = df_crime_costs %>% select(BUP_INJ) %>% as.matrix(),
-    #v_c_BUPC_INJ_crime = df_crime_costs %>% select(BUPC_INJ) %>% as.matrix(),
-    #v_c_MET_INJ_crime  = df_crime_costs %>% select(MET_INJ) %>% as.matrix(),
-    #v_c_METC_INJ_crime = df_crime_costs %>% select(METC_INJ) %>% as.matrix(),
-    #v_c_REL_INJ_crime  = df_crime_costs %>% select(REL_INJ) %>% as.matrix(),
-    #v_c_ODN_INJ_crime  = df_crime_costs %>% select(ODN_INJ) %>% as.matrix(),
-    #v_c_ABS_INJ_crime  = df_crime_costs %>% select(ABS_INJ) %>% as.matrix(), 
-
     #### QALYs ####
     # HIV/HCV negative
     u_BUP_NI_NEG  = df_qalys["pe", "BUP_NI_NEG"],

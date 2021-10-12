@@ -5,14 +5,15 @@ rm(list = ls()) # to clean the workspace
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
+library(ggridges) # specialized ridge plots
 library(tidyverse)
 library(lhs)
 library(IMIS)
 
 # To-do: Move functions into R package for OUD model
-source("R/OPTIMA_00_input_parameter_functions.R")
-source("R/OPTIMA_01_model_setup_functions.R")
-source("R/OPTIMA_02_calibration_functions.R")
+source("R/input_parameter_functions.R")
+source("R/model_setup_functions.R")
+source("R/calibration_functions.R")
 
 # Load model inputs #
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
@@ -34,7 +35,6 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
 v_cali_param_names <- c("n_TX_OD",
                         "n_TXC_OD",
                         "n_REL_OD", 
-                        #"n_ABS_OD",
                         "n_TX_OD_mult",
                         "n_TXC_OD_mult",
                         "n_REL_OD_mult",
@@ -42,10 +42,7 @@ v_cali_param_names <- c("n_TX_OD",
                         "n_fatal_OD")
 v_shape <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
-             #n_MET_OD_shape   = l_params_all$n_MET_OD_shape,
-             #n_METC_OD_shape  = l_params_all$n_METC_OD_shape,
              n_REL_OD_shape   = l_params_all$n_REL_OD_shape, 
-             #n_ABS_OD_shape   = l_params_all$n_ABS_OD_shape, 
              n_TX_OD_mult_shape  = l_params_all$n_TX_OD_mult_shape,
              n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
              n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
@@ -53,10 +50,7 @@ v_shape <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
 v_scale <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
              n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
-             #n_MET_OD_scale   = l_params_all$n_MET_OD_scale,
-             #n_METC_OD_scale  = l_params_all$n_METC_OD_scale,
              n_REL_OD_scale   = l_params_all$n_REL_OD_scale, 
-             #n_ABS_OD_scale   = l_params_all$n_ABS_OD_scale, 
              n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
              n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
              n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
@@ -64,7 +58,6 @@ v_scale <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
              n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
 
 #### Load calibration targets ####
-#data("03_calibration_targets")
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
                        ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
 
@@ -85,66 +78,22 @@ plotrix::plotCI(x    = l_cali_targets$ODN$Time,
                 #ylim = c(0, 1), 
                 xlab = "Month", ylab = "Non-fatal Overdoses")
 
-
-#### Run calibration algorithms ####
-# Check that it works
-#v_params_calib <- c(p_BUP_OD_NI = l_params_all$p_BUP_OD_NI, 
-#              p_MET_OD_NI = l_params_all$p_MET_OD_NI, 
-#              p_REL_OD_NI = l_params_all$p_REL_OD_NI, 
-#              p_ABS_OD_NI = l_params_all$p_ABS_OD_NI, 
-#              p_BUP_OD_INJ = l_params_all$p_BUP_OD_INJ, 
-#              p_MET_OD_INJ = l_params_all$p_MET_OD_INJ, 
-#              p_REL_OD_INJ = l_params_all$p_REL_OD_INJ, 
-#              p_ABS_OD_INJ = l_params_all$p_ABS_OD_INJ)
-
-#test <- calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all)
-
 #### Specify calibration parameters ####
 ### Specify seed (for reproducible sequence of random numbers)
 set.seed(3730687)
 
 ### Number of random samples to obtain from the posterior distribution 
-n_resamp <- 1000
+n_resamp <- 2000 # to match number of PSA draws
 
 ### Names and number of input parameters to be calibrated
 v_param_names  <- c("n_TX_OD",
                     "n_TXC_OD",
-                    #"n_MET_OD",
-                    #"n_METC_OD",
-                    "n_REL_OD", 
-                    #"n_ABS_OD",
+                    "n_REL_OD",
                     "n_TX_OD_mult",
                     "n_TXC_OD_mult",
                     "n_REL_OD_mult",
                     "n_INJ_OD_mult",
                     "n_fatal_OD")
-
-#n_param        <- length(v_param_names)
-
-### Vector with range on input search space
-#v_lb = c(n_TX_OD_lb   = l_params_all$n_TX_OD_lb,
-#         n_TXC_OD_lb  = l_params_all$n_TXC_OD_lb,
-#         #n_MET_OD_lb   = l_params_all$n_MET_OD_lb,
-#         #n_METC_OD_lb  = l_params_all$n_METC_OD_lb,
-#         n_REL_OD_lb   = l_params_all$n_REL_OD_lb, 
-#         #n_ABS_OD_lb   = l_params_all$n_ABS_OD_lb, 
-#         n_TX_OD_mult_lb  = l_params_all$n_TX_OD_mult_lb,
-#         n_TXC_OD_mult_lb = l_params_all$n_TXC_OD_mult_lb,
-#         n_REL_OD_mult_lb = l_params_all$n_REL_OD_mult_lb,
-#         n_INJ_OD_mult_lb = l_params_all$n_INJ_OD_mult_lb,
-#         n_fatal_OD_lb    = l_params_all$n_fatal_OD_lb) # lower bound estimate for each param
-#
-#v_ub = c(n_TX_OD_ub   = l_params_all$n_TX_OD_ub,
-#         n_TXC_OD_ub  = l_params_all$n_TXC_OD_ub,
-#         #n_MET_OD_ub   = l_params_all$n_MET_OD_ub,
-#         #n_METC_OD_ub  = l_params_all$n_METC_OD_ub,
-#         n_REL_OD_ub   = l_params_all$n_REL_OD_ub, 
-#         #n_ABS_OD_ub   = l_params_all$n_ABS_OD_ub, 
-#         n_TX_OD_mult_ub  = l_params_all$n_TX_OD_mult_ub,
-#         n_TXC_OD_mult_ub = l_params_all$n_TXC_OD_mult_ub,
-#         n_REL_OD_mult_ub = l_params_all$n_REL_OD_mult_ub,
-#         n_INJ_OD_mult_ub = l_params_all$n_INJ_OD_mult_ub,
-#         n_fatal_OD_ub    = l_params_all$n_fatal_OD_ub) # higher bound estimate for each param
 
 ### Number of calibration targets
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
@@ -229,3 +178,31 @@ dev.off()
 save(m_calib_post,
      v_calib_post_map,
      file = "outputs/imis_output.RData")
+
+#### Plot prior vs. posterior distribution for calibration parameters ####
+# Draw sample prior
+m_calib_prior <- sample.prior(n_samp = 2000)
+
+# Prepare data
+df_calib_post  <- as.data.frame(m_calib_post)
+df_calib_prior <- as.data.frame(m_calib_prior)
+# Base overdose rates
+df_calib_post_plot_base  <- gather(df_calib_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_BUP_OD" | parameter == "n_BUPC_OD" | parameter == "n_MET_OD" | parameter == "n_METC_OD" | parameter == "n_REL_OD")
+# Overdose rate multipliers
+df_calib_post_plot_mult  <- gather(df_calib_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult" | parameter == "n_TXC_OD_mult" | parameter == "n_REL_OD_mult" | parameter == "n_INJ_OD_mult")
+# Fatal overdose rate
+df_calib_post_plot_fatal <- gather(df_calib_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult" | parameter == "n_TXC_OD_mult" | parameter == "n_REL_OD_mult" | parameter == "n_INJ_OD_mult")
+
+# Base overdose rates
+cali_base_od_prior_post <- ggplot(df_calib_post_plot_base, 
+                                  aes(x = draw, y = parameter, fill = stat(x))) +
+                                  geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+                                  scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+                                  labs(title = 'Base Overdose Rates')
+pdf("Plots/Calibration/cali_base_od_prior_post.pdf", width = 8, height = 6)
+cali_base_od_prior_post
+dev.off()
+
+# Overdose rate multipliers
+
+# Fatal overdose rate

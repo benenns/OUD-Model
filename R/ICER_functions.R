@@ -117,19 +117,6 @@ outcomes <- function(l_params_all){
       
       # Crime costs
       # Create vectors of crime costs for every time period
-      # Age specific (vector for different costs by age)
-      #v_BUP_NI_crime <- rep(v_c_BUP_NI_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_MET_NI_crime <- rep(v_c_MET_NI_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_REL_NI_crime <- rep(v_c_REL_NI_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_OD_NI_crime  <- rep(v_c_OD_NI_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_ABS_NI_crime <- rep(v_c_ABS_NI_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_BUP_INJ_crime <- rep(v_c_BUP_INJ_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_MET_INJ_crime <- rep(v_c_MET_INJ_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_REL_INJ_crime <- rep(v_c_REL_INJ_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_OD_INJ_crime  <- rep(v_c_OD_INJ_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      #v_ABS_INJ_crime <- rep(v_c_ABS_INJ_crime[n_age_init:(n_age_max - 1), ], each = 12)
-      
-      # Not age-specific
       m_crime_costs[i, BUP & NI]  <- m_crime_costs[i, BUP & NI] * c_BUP_NI_crime
       m_crime_costs[i, BUPC & NI] <- m_crime_costs[i, BUPC & NI] * c_BUPC_NI_crime
       m_crime_costs[i, MET & NI]  <- m_crime_costs[i, MET & NI] * c_MET_NI_crime

@@ -192,53 +192,40 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   # Non-fatal
   p_BUP_ODN_NI  <- p_MET_ODN_NI <- p_OD(rate = n_TX_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
   p_BUPC_ODN_NI <- p_METC_ODN_NI <- p_OD(rate = n_TXC_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  #p_MET_ODN_NI  <- p_OD(rate = n_MET_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  #p_METC_ODN_NI <- p_OD(rate = n_METC_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
   p_REL_ODN_NI  <- p_ODN_ODN_NI <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
   p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  #p_ODN_ODN_NI  <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = FALSE, injection = FALSE) # same prob as relapse
+
   # Fatal
   p_BUP_ODF_NI  <- p_MET_ODF_NI <- p_OD(rate = n_TX_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
   p_BUPC_ODF_NI <- p_METC_ODF_NI <- p_OD(rate = n_TXC_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  #p_MET_ODF_NI  <- p_OD(rate = n_MET_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  #p_METC_ODF_NI <- p_OD(rate = n_METC_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
   p_REL_ODF_NI  <- p_ODN_ODF_NI <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
   p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  #p_ODN_ODF_NI  <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = TRUE, injection = FALSE) # same prob as relapse
-  
+
   # Injection
   # Non-fatal
   p_BUP_ODN_INJ  <- p_MET_ODN_INJ <- p_OD(rate = n_TX_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
   p_BUPC_ODN_INJ <- p_METC_ODN_INJ <- p_OD(rate = n_TXC_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  #p_MET_ODN_INJ  <- p_OD(rate = n_MET_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  #p_METC_ODN_INJ <- p_OD(rate = n_METC_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
   p_REL_ODN_INJ  <- p_ODN_ODN_INJ <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
   p_ABS_ODN_INJ  <- p_OD(rate = n_ABS_OD, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  #p_ODN_ODN_INJ  <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = FALSE, injection = TRUE) # same prob as relapse
+
   # Fatal
   p_BUP_ODF_INJ  <- p_MET_ODF_INJ <- p_OD(rate = n_TX_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
   p_BUPC_ODF_INJ <- p_METC_ODF_INJ <- p_OD(rate = n_TXC_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  #p_MET_ODF_INJ  <- p_OD(rate = n_MET_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  #p_METC_ODF_INJ <- p_OD(rate = n_METC_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
   p_REL_ODF_INJ  <- p_ODN_ODF_INJ <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
   p_ABS_ODF_INJ  <- p_OD(rate = n_ABS_OD, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  #p_ODN_ODF_INJ  <- p_OD(rate = n_REL_OD, first_month = FALSE, fatal = TRUE, injection = TRUE) # same prob as relapse
-  
+
   # Probability of overdose (first month multiplier)
   # No multiplier for OD -> OD as individuals have already spent at least 1 month in relapse
   # Non-injection
   # Non-fatal
   p_BUP_ODN_NI_4wk  <- p_MET_ODN_NI_4wk <- p_OD(rate = n_TX_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
   p_BUPC_ODN_NI_4wk <- p_METC_ODN_NI_4wk <- p_OD(rate = n_TXC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  #p_MET_ODN_NI_4wk  <- p_OD(rate = n_MET_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  #p_METC_ODN_NI_4wk <- p_OD(rate = n_METC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
   p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
   p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  
   # Fatal
   p_BUP_ODF_NI_4wk  <- p_MET_ODF_NI_4wk <- p_OD(rate = n_TX_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
   p_BUPC_ODF_NI_4wk <- p_METC_ODF_NI_4wk <- p_OD(rate = n_TXC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  #p_MET_ODF_NI_4wk  <- p_OD(rate = n_MET_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  #p_METC_ODF_NI_4wk <- p_OD(rate = n_METC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
   p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
   p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
   
@@ -246,15 +233,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   # Non-fatal
   p_BUP_ODN_INJ_4wk  <- p_MET_ODN_INJ_4wk <- p_OD(rate = n_TX_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
   p_BUPC_ODN_INJ_4wk <- p_METC_ODN_INJ_4wk <- p_OD(rate = n_TXC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  #p_MET_ODN_INJ_4wk  <- p_OD(rate = n_MET_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  #p_METC_ODN_INJ_4wk <- p_OD(rate = n_METC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
   p_REL_ODN_INJ_4wk  <- p_OD(rate = n_REL_OD, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
   p_ABS_ODN_INJ_4wk  <- p_OD(rate = n_ABS_OD, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  
   # Fatal
   p_BUP_ODF_INJ_4wk  <- p_MET_ODF_INJ_4wk <- p_OD(rate = n_TX_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
   p_BUPC_ODF_INJ_4wk <- p_METC_ODF_INJ_4wk <- p_OD(rate = n_TXC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  #p_MET_ODF_INJ_4wk  <- p_OD(rate = n_MET_OD, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  #p_METC_ODF_INJ_4wk <- p_OD(rate = n_METC_OD, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
   p_REL_ODF_INJ_4wk  <- p_OD(rate = n_REL_OD, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
   p_ABS_ODF_INJ_4wk  <- p_OD(rate = n_ABS_OD, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
 
@@ -325,8 +309,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
         m_TDP[EP3 & ODF & INJ, i] <- 1
   }
 
-  #write.csv(m_TDP,"C:/Users/Benjamin/Desktop/m_TDP.csv", row.names = TRUE)
-  
   # Probability of state-exit
   m_leave <- 1 - m_TDP
   
@@ -404,9 +386,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
 
   # Alive probability in each period
   m_alive <- 1 - m_mort
-  
-  # Checks
-  #write.csv(m_mort,"checks/m_mort.csv", row.names = TRUE)
 
   #### Unconditional transition probabilities ####
   # Empty 2-D unconditional transition matrix (from states, to states)
@@ -649,21 +628,17 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   m_UP[ODN & INJ, ABS & INJ]  <- m_UP_4wk[ODN & INJ, ABS & INJ] <- p_ODN_ABS_INJ
   m_UP[ODN & INJ, REL & INJ]  <- m_UP_4wk[ODN & INJ, REL & INJ] <- p_ODN_REL_INJ
 
-  # Checks
-  #write.csv(m_UP,"checks/m_UP.csv", row.names = TRUE)
-  #write.csv(m_UP_4wk,"checks/m_UP_4wk.csv", row.names = TRUE)
-
   #### Create full time-dependent transition array ####
   # Empty 3-D array
   a_TDP <- array(0, dim = c(n_states, n_states, n_t),
                    dimnames = list(v_n_states, v_n_states, 1:n_t))
   
   # Add transitions conditional on state-exit (m_leave = 1 - remain)
-  # Modified transitions for first 4-weeks
+  # Modified transitions for first month
   for (i in 1:4){
     a_TDP[, , i] <- m_UP_4wk * m_leave[, i]
   }
-  # All transitions 5+ weeks
+  # All transitions 1+ months
   for (i in 5:n_t){
     a_TDP[, , i] <- m_UP * m_leave[, i]
   }
@@ -730,7 +705,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   }
   
   initial <- a_TDP[, , 1]
-  #write.csv(initial,"checks/initial_full.csv", row.names = TRUE)
 
   #### Seroconversion ####
   # Apply seroconversion probability to re-weight NEG -> POS for to-states each time period
@@ -964,9 +938,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
 
   k_hiv <- a_TDP[, , 50]
   k_hiv2<- a_TDP[, , 710]
-  
-  #write.csv(k_hiv,"checks/K2.csv", row.names = TRUE)
-  #write.csv(k_hiv2,"checks/K3.csv", row.names = TRUE)
 
   #### Check transition array ####
   #check_transition_probability(a_P = a_TDP, err_stop = err_stop, verbose = verbose) # check all probs [0, 1]
@@ -1016,8 +987,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   v_s_init[HIV] <- v_s_init[HIV] * n_HIV
   v_s_init[HCV] <- v_s_init[HCV] * n_HCV
   v_s_init[COI] <- v_s_init[COI] * n_COI
-  
-  #write.csv(v_s_init,"checks/v_s_init.csv", row.names = TRUE)
 
   # Create Markov Trace
     # Initialize population
@@ -1051,16 +1020,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   for (i in 1:n_t){
     m_M_trace[i, ] <- rowSums(a_M_trace[i, ,])
   }
-  
-  # Check
-  #write.csv(m_M_trace,"C:/Users/Benjamin/Desktop/m_trace.csv", row.names = TRUE)
-  
+
   # Count cumulative state-specific deaths
   m_M_trace_death <- array(0, dim = c((n_t + 1), n_states),
                            dimnames = list(0:n_t, v_n_states))
   for (i in 2:n_t){
     m_M_trace_death[i, ] <- m_M_trace[i - 1, ] * m_mort[, i - 1] # State-specific deaths at each time point as function of state-occupancy in t-1
-    #m_M_trace_death[i, ODF] <- m_M_trace[i - 1, ODF] * 1 # Count fatal overdoses 
   }
   m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative non-overdose deaths at each time point (use m_M_trace_death for individual period deaths)
 

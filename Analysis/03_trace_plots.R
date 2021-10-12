@@ -5,8 +5,8 @@ library(scales)   # for dollar signs and commas
 library(tidyverse)
 
 # Call model setup functions
-source("R/OPTIMA_00_input_parameter_functions.R")
-source("R/OPTIMA_01_model_setup_functions.R")
+source("R/input_parameter_functions.R")
+source("R/model_setup_functions.R")
 
 # Load parameters
 l_params_all <- load_all_params(file.init = "data/init_params.csv",

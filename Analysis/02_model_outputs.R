@@ -5,9 +5,9 @@ library(tidyverse)
 
 # Call model setup functions
 # To-do: Move into package eventually
-source("R/OPTIMA_00_input_parameter_functions.R")
-source("R/OPTIMA_01_model_setup_functions.R")
-source("R/OPTIMA_05b_ICER_functions.R")
+source("R/input_parameter_functions.R")
+source("R/model_setup_functions.R")
+source("R/ICER_functions.R")
 
 # Load parameters
 # BNX scenario

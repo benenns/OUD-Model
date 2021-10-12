@@ -64,10 +64,8 @@ sample.prior <- function(n_samp,
   m_lhs_unit   <- lhs::randomLHS(n = n_samp, k = n_param) 
   m_param_samp <- matrix(nrow = n_samp, ncol = n_param)
   colnames(m_param_samp) <- v_param_names
-  # draw parameters
-  #m_param_samp [, 1] <- qgamma(p, shape = , scale = )
   
-  #draws0 <- randomLHS(n=n,k=8)
+  # draw parameters
   draws  <- data.frame(n_TX_OD  = qgamma(m_lhs_unit[,1], shape = v_alpha[1], scale = v_beta[1]),  # n_TX_OD
                        n_TXC_OD  = qgamma(m_lhs_unit[,2], shape = v_alpha[2], scale = v_beta[2]),  # n_TXC_OD
                        n_REL_OD  = qgamma(m_lhs_unit[,3], shape = v_alpha[3], scale = v_beta[3]), # n_REL_OD
