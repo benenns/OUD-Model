@@ -103,16 +103,14 @@ log_prior <- function(v_params,
   colnames(v_params) <- v_param_names
   lprior <- rep(0, n_samp)
   
-  #lprior <- rep(0,nrow(par_vector))
-  lprior <- lprior + dgamma(v_params[, 1], shape = v_alpha[1], scale = v_beta[1], log = TRUE)    # n_TX_OD
-  lprior <- lprior + dgamma(v_params[, 2], shape = v_alpha[2], scale = v_beta[2], log = TRUE)    # n_TXC_OD
-  lprior <- lprior + dgamma(v_params[, 3], shape = v_alpha[3], scale = v_beta[3], log = TRUE)    # n_REL_OD
-  #lprior <- lprior + dunif(v_params[, 4], min = v_lb[4], max = v_ub, log = TRUE)    # n_ABS_OD
-  lprior <- lprior + dgamma(v_params[, 4], shape = v_alpha[4], scale = v_beta[4], log = TRUE)    # n_TX_OD_mult
-  lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE)    # n_TXC_OD_mult
-  lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE)                          # n_REL_OD_mult
-  lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE)                          # n_INJ_OD_mult
-  lprior <- lprior + dgamma(v_params[, 8], shape = v_alpha[8], scale = v_beta[8], log = TRUE)                          # n_fatal_OD
+  lprior <- lprior + dgamma(v_params[, 1], shape = v_alpha[1], scale = v_beta[1], log = TRUE) # n_TX_OD
+  lprior <- lprior + dgamma(v_params[, 2], shape = v_alpha[2], scale = v_beta[2], log = TRUE) # n_TXC_OD
+  lprior <- lprior + dgamma(v_params[, 3], shape = v_alpha[3], scale = v_beta[3], log = TRUE) # n_REL_OD
+  lprior <- lprior + dgamma(v_params[, 4], shape = v_alpha[4], scale = v_beta[4], log = TRUE) # n_TX_OD_mult
+  lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TXC_OD_mult
+  lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE) # n_REL_OD_mult
+  lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_INJ_OD_mult
+  lprior <- lprior + dgamma(v_params[, 8], shape = v_alpha[8], scale = v_beta[8], log = TRUE) # n_fatal_OD
   
   
   #for (i in 1:n_param){
@@ -152,6 +150,7 @@ log_lik <- function(v_params){ # User defined
       ###   Run model for parameter set "v_params" ###
       l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
                                      l_params_all = l_params_all)
+      
       ###  Calculate log-likelihood of model outputs to targets  ###
       ## TARGET 1: Fatal overdoses ("fatal_overdose")
       ## Normal log-likelihood  
@@ -166,7 +165,6 @@ log_lik <- function(v_params){ # User defined
                                           sd = l_cali_targets$ODN$se,
                                           log = T))
       ## can give different targets different weights
-      # To-do: Confirm this calculation
       v_weights <- rep(1, n_target) # currently weight fatal overdoses 1:1 to overall overdoses
       ## weighted sum
       v_llik_overall[j] <- v_llik[j, ] %*% v_weights

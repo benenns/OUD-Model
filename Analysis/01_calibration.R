@@ -101,7 +101,7 @@ n_target       <- length(v_target_names)
 
 #### Run IMIS algorithm ####
 # CHECK THIS STEP
-l_fit_imis <- IMIS(B = 10,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
+l_fit_imis <- IMIS(B = 100,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
                    number_k = 10,      # maximum number of iterations in IMIS
                    D = 0)
@@ -184,21 +184,43 @@ save(m_calib_post,
 m_calib_prior <- sample.prior(n_samp = 2000)
 
 # Prepare data
-df_calib_post  <- as.data.frame(m_calib_post)
-df_calib_prior <- as.data.frame(m_calib_prior)
+df_calib_post  <- as.data.frame(m_calib_post) %>% mutate(ID = row_number()) %>% rename(n_TX_OD_post  = n_TX_OD,
+                                                                                       n_TXC_OD_post = n_TXC_OD,
+                                                                                       n_REL_OD_post = n_REL_OD,
+                                                                                       n_TX_OD_mult_post = n_TX_OD_mult,
+                                                                                       n_TXC_OD_mult_post = n_TXC_OD_mult,
+                                                                                       n_REL_OD_mult_post = n_REL_OD_mult,
+                                                                                       n_INJ_OD_mult_post = n_INJ_OD_mult,
+                                                                                       n_fatal_OD_post = n_fatal_OD)
+df_calib_prior <- as.data.frame(m_calib_prior) %>% mutate(ID = row_number()) %>% rename(n_TX_OD_prior  = n_TX_OD,
+                                                                                        n_TXC_OD_prior = n_TXC_OD,
+                                                                                        n_REL_OD_prior = n_REL_OD,
+                                                                                        n_TX_OD_mult_prior = n_TX_OD_mult,
+                                                                                        n_TXC_OD_mult_prior = n_TXC_OD_mult,
+                                                                                        n_REL_OD_mult_prior = n_REL_OD_mult,
+                                                                                        n_INJ_OD_mult_prior = n_INJ_OD_mult,
+                                                                                        n_fatal_OD_prior = n_fatal_OD)
+df_calib_prior_post <- merge(df_calib_prior, df_calib_post, by.x = "ID", by.y = "ID")
 # Base overdose rates
-df_calib_post_plot_base  <- gather(df_calib_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_BUP_OD" | parameter == "n_BUPC_OD" | parameter == "n_MET_OD" | parameter == "n_METC_OD" | parameter == "n_REL_OD")
+df_calib_post_plot_base  <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_post" | parameter == "n_TX_OD_prior" | parameter == "n_TXC_OD_post" | parameter == "n_TXC_OD_prior" | parameter == "n_REL_OD_post" | parameter == "n_REL_OD_prior")
+base_order <- factor(df_calib_post_plot_base$parameter, levels = c("n_TX_OD_post", "n_TX_OD_prior", "n_TXC_OD_post", "n_TXC_OD_prior", "n_REL_OD_post", "n_REL_OD_prior"))
+
 # Overdose rate multipliers
-df_calib_post_plot_mult  <- gather(df_calib_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult" | parameter == "n_TXC_OD_mult" | parameter == "n_REL_OD_mult" | parameter == "n_INJ_OD_mult")
+df_calib_post_plot_mult  <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult_post" | parameter == "n_TX_OD_mult_prior" | parameter == "n_TXC_OD_mult_prior" | parameter == "n_TXC_OD_mult_prior" | parameter == "n_REL_OD_mult_post" | parameter == "n_REL_OD_mult_prior" | parameter == "n_INJ_OD_mult_post" | parameter == "n_INJ_OD_mult_prior")
+
 # Fatal overdose rate
-df_calib_post_plot_fatal <- gather(df_calib_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult" | parameter == "n_TXC_OD_mult" | parameter == "n_REL_OD_mult" | parameter == "n_INJ_OD_mult")
+df_calib_post_plot_fatal <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_fatal_OD_post" | parameter == "n_fatal_OD_prior")
 
 # Base overdose rates
 cali_base_od_prior_post <- ggplot(df_calib_post_plot_base, 
-                                  aes(x = draw, y = parameter, fill = stat(x))) +
-                                  geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
-                                  scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+                                  aes(x = draw, y = parameter)) +
+                                  #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+                                  geom_density_ridges(aes(fill = parameter)) +
+                                  #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+                                  scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
                                   labs(title = 'Base Overdose Rates')
+
+
 pdf("Plots/Calibration/cali_base_od_prior_post.pdf", width = 8, height = 6)
 cali_base_od_prior_post
 dev.off()
@@ -206,3 +228,42 @@ dev.off()
 # Overdose rate multipliers
 
 # Fatal overdose rate
+
+#### Plot model fit against calibration targets ####
+# Run model for n_samp posterior distribution draws
+# Output list of fatal and total overdoses at T = 1, T = 2, T = 3
+m_model_targets <- matrix(0, nrow = n_samp, ncol = (n_target * 3)) 
+
+for(j in 1:n_samp){
+  l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[j, ], 
+                                        l_params_all = l_params_all)
+  m_model_targets[j, 1] <- l_model_target_fit$fatal_overdose[1]
+  m_model_targets[j, 2] <- l_model_target_fit$fatal_overdose[2]
+  m_model_targets[j, 3] <- l_model_target_fit$fatal_overdose[3]
+  
+  m_model_targets[j, 4] <- l_model_target_fit$overdose[1]
+  m_model_targets[j, 5] <- l_model_target_fit$overdose[2]
+  m_model_targets[j, 6] <- l_model_target_fit$overdose[3]
+}
+
+### CODE FROM DARTH GITHUB
+v.out.post.map <- markov_crs(v.calib.post.map)
+
+# TARGET 1: Survival ("Surv")
+plotrix::plotCI(x = CRS.targets$Surv$Time, y = CRS.targets$Surv$value, 
+                ui = CRS.targets$Surv$ub,
+                li = CRS.targets$Surv$lb,
+                ylim = c(0, 1), 
+                xlab = "Time", ylab = "Pr Survive")
+grid()
+for (i in 1:nrow(m.calib.post)){
+  mod_output <- markov_crs(m.calib.post[i, ])
+  lines(x = CRS.targets$Surv$Time, 
+        y = mod_output$Surv,
+        col = "darkorange",
+        lwd = 0.1)
+}
+lines(x = CRS.targets$Surv$Time, 
+      y = v.out.post.map$Surv,
+      col = "dodgerblue",
+      lwd = 2)

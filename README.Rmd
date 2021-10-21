@@ -12,19 +12,24 @@ knitr::opts_chunk$set(
 )
 ```
 
-# OUD Model <img src='figs/logo.jpg' align="right" height="139" />
-<!-- <img src="figs/logo.jpg" align="center" alt="" width="360" /> -->
+# OUD Markov Model (OPTIMA trial CEA) 
 
-[`OUD-Model`](https://github.com/benenns/OUD-Model) is an R package with necessary code and data to run a semi-Markov cohort model to evaluate interventions for people with opioid use disorders.
 
-The development of the OUD model is detailed in the following manuscripts:
+[`OPTIMA-Model`](https://github.com/benenns/OPTIMA-Model) is an R package with necessary code and data to run a semi-Markov cohort model to evaluate interventions for people with opioid use disorders.
 
-OPTIMA CEA
+# Preliminaries
+- Install [RStudio](https://www.rstudio.com/products/rstudio/download/)
+- Install `devtools`
+```{r, eval=FALSE}
+install.packages("devtools")
+```
+- [Clone github repository](https://docs.github.com/en/enterprise/2.13/user/articles/cloning-a-repository)
+  - Cloning [this](https://github.com/benenns/OPTIMA-Model) github repository will give users access to all necessary code and data to run the model and conduct the analysis.
 
-OPTIMA Prelim
+# R code modules
 
-Variations of the OUD model have been used in previous manuscripts:
-
-Xnational
-
-NAOMI
+The R scripts to run the model and conduct the analysis are organized into two sections:
+  
+i. [Model Functions](https://github.com/benenns/OPTIMA-Model/tree/main/R) contains R functions for core modules.
+  
+ii. [Analysis](https://github.com/benenns/OPTIMA-Model/tree/main/Analysis) contains R scripts to run the primary analyses.
