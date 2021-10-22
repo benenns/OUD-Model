@@ -27,8 +27,11 @@
 #' n_TOTAL_qalys_10yr:
 #' n_TOTAL_qalys_life:
 #' @export
-outcomes <- function(l_params_all){
+outcomes <- function(l_params_all, v_params_calib){
   
+  # Substitute values of calibrated parameters in base-case with calibrated values 
+  l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
+
   # Run model
   l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
   

@@ -220,14 +220,30 @@ cali_base_od_prior_post <- ggplot(df_calib_post_plot_base,
                                   scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
                                   labs(title = 'Base Overdose Rates')
 
+# Overdose rate multipliers
+cali_mult_od_prior_post <- ggplot(df_calib_post_plot_mult, 
+                                  aes(x = draw, y = parameter)) +
+  #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+  geom_density_ridges(aes(fill = parameter)) +
+  #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+  scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
+  labs(title = 'Base Overdose Rates')
 
+# Fatal overdose rates
+cali_fatal_od_prior_post <- ggplot(df_calib_post_plot_fatal, 
+                                   aes(x = draw, y = parameter)) +
+  #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+  geom_density_ridges(aes(fill = parameter)) +
+  #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+  scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
+  labs(title = 'Base Overdose Rates')
+
+# Output plots
 pdf("Plots/Calibration/cali_base_od_prior_post.pdf", width = 8, height = 6)
 cali_base_od_prior_post
 dev.off()
 
-# Overdose rate multipliers
 
-# Fatal overdose rate
 
 #### Plot model fit against calibration targets ####
 # Run model for n_samp posterior distribution draws

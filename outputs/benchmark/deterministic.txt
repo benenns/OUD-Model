@@ -1,0 +1,4 @@
+                                                                                         test replications elapsed relative user.self sys.self user.child sys.child
+1 l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)           10 2072.65        1   1523.28   516.76         NA        NA
+                                                                                    test replications elapsed relative user.self sys.self user.child sys.child
+1 l_outcomes <- outcomes(l_params_all = l_params_all, v_params_calib = v_calib_post_map)           10 2042.39        1    1630.4      372         NA        NA

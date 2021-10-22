@@ -24,7 +24,7 @@ load_mort_params <- function(file.mort = NULL, n_male){
 #' @param file.init_dist String with the location and name of the file with initial distributions
 #' @param file.mort String with the location and name of the file with mortality data
 #' @param file.death_hr String with the location and name of death hazard ratios
-#' @param file.frailty String with the location and name of the file with frailty estimates
+#' @param file.frailty String with the location and name of the file with frailty estimates for subsequent episodes in health states
 #' @param file.weibull_scale String with the location and name of the file with weibull scale
 #' @param file.weibull_shape String with the location and name of the file with weibull shape
 #' @param file.unconditional String with the location and name of the file with empirical destination states
@@ -516,10 +516,6 @@ load_all_params <- function(file.init = NULL,
 #' A modifed list with all parameters updated.
 #' @export
 
-#update_param_list <- function(l_params_all, params_updated){
-#  l_params_all <- modifyList(l_params_all, params_updated) #update values
-#  return(l_params_all)
-#}
 update_param_list <- function(l_params_all, params_updated){
   
   if (typeof(params_updated)!="list"){

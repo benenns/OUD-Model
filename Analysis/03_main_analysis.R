@@ -6,11 +6,16 @@ library(tidyverse)
 # Call model setup functions
 # To-do: Move into package eventually
 source("R/input_parameter_functions.R")
+source("R/generate_psa_parameter_functions.R")
 source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
 
 # Load parameters
-# BNX scenario
+# Calibrated parameter values
+load(file = "outputs/imis_output.RData")
+
+# All parameters
+# BNX scenario (primary model definition)
 l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
                                 file.init_dist = "data/init_dist_bup.csv", # Change initial distributions (100% in BUP)
                                 file.mort = "data/all_cause_mortality.csv",
@@ -26,7 +31,7 @@ l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
 
-# Methadone scenario
+# Methadone scenario (primary model definition)
 l_params_MET <- load_all_params(file.init = "data/init_params.csv",
                                 file.init_dist = "data/init_dist_met.csv", # Change initial distributions (100% in MET)
                                 file.mort = "data/all_cause_mortality.csv",
@@ -43,12 +48,12 @@ l_params_MET <- load_all_params(file.init = "data/init_params.csv",
                                 file.qalys = "data/qalys.csv")
 
 ### Main deterministic model outputs ###
-# Run Markov model and return outputs
-outcomes_MET <- outcomes(l_params_all = l_params_MET)
-outcomes_BUP <- outcomes(l_params_all = l_params_BUP)
+# Run Markov model and return outputs (using MAP point estimates from posterior distribution for calibrated params)
+l_outcomes_MET <- outcomes(l_params_all = l_params_MET, v_params_calib = v_calib_post_map)
+l_outcomes_BUP <- outcomes(l_params_all = l_params_BUP, v_params_calib = v_calib_post_map)
 
 # Calculate ICERs
-ICER <- ICER(outcomes_comp = outcomes_MET, outcomes_int = outcomes_BUP)
+ICER <- ICER(outcomes_comp = l_outcomes_MET, outcomes_int = l_outcomes_BUP)
 
 # Output to csv files
 # Full model trace
@@ -85,3 +90,18 @@ write.csv(ICER$v_icer,"outputs/ICER/ICER.csv", row.names = TRUE)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
+# Generate PSA parameter draws
+df_psa_params <- generate_psa_params(n_sim = 2000, seed = 3730687, n_samp = 250,
+                                     file.death_hr = NULL,
+                                     file.frailty = NULL,
+                                     file.weibull_scale = NULL,
+                                     file.weibull_shape = NULL,
+                                     file.unconditional = NULL,
+                                     file.overdose = NULL,
+                                     file.hiv = NULL,
+                                     file.hcv = NULL,
+                                     file.costs = NULL,
+                                     file.crime_costs = NULL,
+                                     file.qalys = NULL,
+                                     file.imis_output = NULL)
+

@@ -4,6 +4,9 @@
 #' model parameters from their distributions. The sample of the calibrated
 #' parameters is a draw from their posterior distribution obtained with the
 #' IMIS algorithm.
+#' 
+#' Parameters that are not sampled in PSA do not need to be defined here, they will
+#' default to their original input value for each simulation.
 #' @param n_sim Number of PSA samples.
 #' @param seed Seed for reproducibility of Monte Carlo sampling.
 #' @return 
@@ -24,7 +27,8 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
                                 file.hcv = NULL,
                                 file.costs = NULL,
                                 file.crime_costs = NULL,
-                                file.qalys = NULL){
+                                file.qalys = NULL,
+                                file.imis_output = NULL){
   
   #Load files with parameter distribution values
   df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
@@ -36,15 +40,25 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
   df_hiv <- read.csv(file = file.hiv, row.names = 1, header = TRUE) # HIV seroconversion probs
   df_hcv <- read.csv(file = file.hcv, row.names = 1, header = TRUE) # HCV seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
-  df_crime_costs <- read.csv(file = file.crime_costs, row.names = 1, header = TRUE) # Age-dependent crime costs
+  df_crime_costs <- read.csv(file = file.crime_costs, row.names = 1, header = TRUE) # Crime costs
   df_qalys <- read.csv(file = file.qalys, row.names = 1, header = TRUE) # QALYs
   
   ## Load calibrated parameters
-  n_sim <- nrow(m_calib_post)
+  load(file = file.imis_output)
+  df_calib_post <- as.data.frame(m_calib_post)
+  
+  # Number of simulations
+  n_sim <- n_sim
+  if(n_sim != nrow(df_calib_post)){
+    warning("Number of PSA simulations and posterior draws not equal")
+  }
+  
+  # Set seed for random number generator
   set_seed <- seed
+  
   df_psa_params <- data.frame(
     ### Calibrated parameters
-    m_calib_post, # Matrix of calibration parameters drawn from posterior distribution
+    df_calib_post, # Matrix of calibration parameters drawn from posterior distribution
     
     # Hazard ratios for death probability
     # Log-normal distribution
@@ -84,53 +98,53 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     p_frailty_BUPC_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_NI_2"], sd = df_frailty["sd", "BUPC_NI_2"]),
     p_frailty_BUPC_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_NI_3"], sd = df_frailty["sd", "BUPC_NI_3"]),
     # MET
-    p_frailty_MET_NI_1 = rep(1, n_sim),
+    #p_frailty_MET_NI_1 = rep(1, n_sim),
     p_frailty_MET_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "MET_NI_2"], sd = df_frailty["sd", "MET_NI_2"]),
     p_frailty_MET_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "MET_NI_3"], sd = df_frailty["sd", "MET_NI_3"]),
     # MET + concurrent opioid
-    p_frailty_METC_NI_1 = rep(1, n_sim),
+    #p_frailty_METC_NI_1 = rep(1, n_sim),
     p_frailty_METC_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "METC_NI_2"], sd = df_frailty["sd", "METC_NI_2"]),
     p_frailty_METC_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "METC_NI_3"], sd = df_frailty["sd", "METC_NI_3"]),
     # ABS
-    p_frailty_ABS_NI_1 = rep(1, n_sim),
+    #p_frailty_ABS_NI_1 = rep(1, n_sim),
     p_frailty_ABS_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "ABS_NI_2"], sd = df_frailty["sd", "ABS_NI_2"]),
     p_frailty_ABS_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "ABS_NI_3"], sd = df_frailty["sd", "ABS_NI_3"]),
     # REL
-    p_frailty_REL_NI_1 = rep(1, n_sim),
+    #p_frailty_REL_NI_1 = rep(1, n_sim),
     p_frailty_REL_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "REL_NI_2"], sd = df_frailty["sd", "REL_NI_2"]),
     p_frailty_REL_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "REL_NI_3"], sd = df_frailty["sd", "REL_NI_3"]),
     # OD
-    p_frailty_OD_NI_1  = rep(1, n_sim),
+    #p_frailty_OD_NI_1  = rep(1, n_sim),
     p_frailty_OD_NI_2  = rnorm(n_sim, mean = df_frailty["pe", "OD_NI_2"], sd = df_frailty["sd", "OD_NI_2"]),
     p_frailty_OD_NI_3  = rnorm(n_sim, mean = df_frailty["pe", "OD_NI_3"], sd = df_frailty["sd", "OD_NI_3"]),
     
     # Injection
     # BUP
-    p_frailty_BUP_INJ_1 = rep(1, n_sim),
+    #p_frailty_BUP_INJ_1 = rep(1, n_sim),
     p_frailty_BUP_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "BUP_INJ_2"], sd = df_frailty["sd", "BUP_INJ_2"]),
     p_frailty_BUP_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "BUP_INJ_3"], sd = df_frailty["sd", "BUP_INJ_3"]),
     # BUP + concurrent opioid
-    p_frailty_BUPC_INJ_1 = rep(1, n_sim),
+    #p_frailty_BUPC_INJ_1 = rep(1, n_sim),
     p_frailty_BUPC_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_INJ_2"], sd = df_frailty["sd", "BUPC_INJ_2"]),
     p_frailty_BUPC_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_INJ_3"], sd = df_frailty["sd", "BUPC_INJ_3"]),
     # MET
-    p_frailty_MET_INJ_1 = rep(1, n_sim),
+    #p_frailty_MET_INJ_1 = rep(1, n_sim),
     p_frailty_MET_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "MET_INJ_2"], sd = df_frailty["sd", "MET_INJ_2"]),
     p_frailty_MET_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "MET_INJ_3"], sd = df_frailty["sd", "MET_INJ_3"]),
     # MET + concurrent opioid
-    p_frailty_METC_INJ_1 = rep(1, n_sim),
+    #p_frailty_METC_INJ_1 = rep(1, n_sim),
     p_frailty_METC_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "METC_INJ_2"], sd = df_frailty["sd", "METC_INJ_2"]),
     p_frailty_METC_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "METC_INJ_3"], sd = df_frailty["sd", "METC_INJ_3"]),
     # ABS
-    p_frailty_ABS_INJ_1 = rep(1, n_sim),
+    #p_frailty_ABS_INJ_1 = rep(1, n_sim),
     p_frailty_ABS_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "ABS_INJ_2"], sd = df_frailty["sd", "ABS_INJ_2"]),
     p_frailty_ABS_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "ABS_INJ_3"], sd = df_frailty["sd", "ABS_INJ_3"]),
     # REL
-    p_frailty_REL_INJ_1 = rep(1, n_sim),
+    #p_frailty_REL_INJ_1 = rep(1, n_sim),
     p_frailty_REL_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "REL_INJ_2"], sd = df_frailty["sd", "REL_INJ_2"]),
     p_frailty_REL_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "REL_INJ_3"], sd = df_frailty["sd", "REL_INJ_3"]),
     # OD
-    p_frailty_OD_INJ_1  = rep(1, n_sim),
+    #p_frailty_OD_INJ_1  = rep(1, n_sim),
     p_frailty_OD_INJ_2  = rnorm(n_sim, mean = df_frailty["pe", "OD_INJ_2"], sd = df_frailty["sd", "OD_INJ_2"]),
     p_frailty_OD_INJ_3  = rnorm(n_sim, mean = df_frailty["pe", "OD_INJ_3"], sd = df_frailty["sd", "OD_INJ_3"]),
     

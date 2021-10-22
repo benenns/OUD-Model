@@ -11,7 +11,7 @@ source("R/OPTIMA_00_input_parameter_functions.R")
 source("R/OPTIMA_01_model_setup_functions.R")
 
 # Load parameters
-benchmark(l_params_all <- load_all_params(file.init = "data/init_params.csv",
+l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                           file.init_dist = "data/init_dist.csv", # Change initial distributions (100% in BUP)
                                           file.mort = "data/all_cause_mortality.csv",
                                           file.death_hr = "data/death_hr.csv",
@@ -24,7 +24,15 @@ benchmark(l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                           file.hcv = "data/hcv_sero.csv",
                                           file.costs = "data/costs.csv",
                                           file.crime_costs = "data/crime_costs.csv",
-                                          file.qalys = "data/qalys.csv"), replications = 1)
+                                          file.qalys = "data/qalys.csv")
 
+#sink(file = "outputs/benchmark/deterministic.txt")
 # Run model
-benchmark(l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE), replications = 1)
+df_markov_benchmark <- benchmark(l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE), replications = 10)
+
+# Deterministic model runs
+df_det_outcomes_benchmark <- benchmark(l_outcomes <- outcomes(l_params_all = l_params_all, v_params_calib = v_calib_post_map), replications = 10)
+#sink()
+
+# Run PSA
+#benchmark(l_out_markov_psa <- outcomes)
