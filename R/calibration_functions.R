@@ -74,7 +74,7 @@ sample.prior <- function(n_samp,
                        n_TXC_OD_mult  = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TXC_OD_mult
                        n_REL_OD_mult  = qgamma(m_lhs_unit[,6], shape = v_alpha[6], scale = v_beta[6]),                      # n_REL_OD_mult
                        n_INJ_OD_mult  = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),  # n_INJ_OD_mult
-                       n_fatal_od  = qgamma(m_lhs_unit[,8], shape = v_alpha[8], scale = v_beta[8]))  # n_fatal_OD
+                       n_fatal_OD  = qgamma(m_lhs_unit[,8], shape = v_alpha[8], scale = v_beta[8]))  # n_fatal_OD
   
   # draw parameters (uniform distribution)
   #for (i in 1:n_param){ 

@@ -86,21 +86,20 @@ set.seed(3730687)
 n_resamp <- 2000 # to match number of PSA draws
 
 ### Names and number of input parameters to be calibrated
-v_param_names  <- c("n_TX_OD",
-                    "n_TXC_OD",
-                    "n_REL_OD",
-                    "n_TX_OD_mult",
-                    "n_TXC_OD_mult",
-                    "n_REL_OD_mult",
-                    "n_INJ_OD_mult",
-                    "n_fatal_OD")
+v_param_names  <- c("Overdose Rate (TX)",
+                    "Overdose Rate (TXC)",
+                    "Overdose Rate (REL)",
+                    "First-month Mult (TX)",
+                    "First-month Mult (TXC)",
+                    "First-month Mult (REL)",
+                    "Injection Mult",
+                    "Fatal Overdose Rate")
 
 ### Number of calibration targets
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
 n_target       <- length(v_target_names)
 
 #### Run IMIS algorithm ####
-# CHECK THIS STEP
 l_fit_imis <- IMIS(B = 100,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
                    number_k = 10,      # maximum number of iterations in IMIS
@@ -181,67 +180,68 @@ save(m_calib_post,
 
 #### Plot prior vs. posterior distribution for calibration parameters ####
 # Draw sample prior
-m_calib_prior <- sample.prior(n_samp = 2000)
+m_calib_prior <- sample.prior(n_samp = 1000)
 
 # Prepare data
-df_calib_post  <- as.data.frame(m_calib_post) %>% mutate(ID = row_number()) %>% rename(n_TX_OD_post  = n_TX_OD,
-                                                                                       n_TXC_OD_post = n_TXC_OD,
-                                                                                       n_REL_OD_post = n_REL_OD,
-                                                                                       n_TX_OD_mult_post = n_TX_OD_mult,
-                                                                                       n_TXC_OD_mult_post = n_TXC_OD_mult,
-                                                                                       n_REL_OD_mult_post = n_REL_OD_mult,
-                                                                                       n_INJ_OD_mult_post = n_INJ_OD_mult,
-                                                                                       n_fatal_OD_post = n_fatal_OD)
-df_calib_prior <- as.data.frame(m_calib_prior) %>% mutate(ID = row_number()) %>% rename(n_TX_OD_prior  = n_TX_OD,
-                                                                                        n_TXC_OD_prior = n_TXC_OD,
-                                                                                        n_REL_OD_prior = n_REL_OD,
-                                                                                        n_TX_OD_mult_prior = n_TX_OD_mult,
-                                                                                        n_TXC_OD_mult_prior = n_TXC_OD_mult,
-                                                                                        n_REL_OD_mult_prior = n_REL_OD_mult,
-                                                                                        n_INJ_OD_mult_prior = n_INJ_OD_mult,
-                                                                                        n_fatal_OD_prior = n_fatal_OD)
-df_calib_prior_post <- merge(df_calib_prior, df_calib_post, by.x = "ID", by.y = "ID")
-# Base overdose rates
-df_calib_post_plot_base  <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_post" | parameter == "n_TX_OD_prior" | parameter == "n_TXC_OD_post" | parameter == "n_TXC_OD_prior" | parameter == "n_REL_OD_post" | parameter == "n_REL_OD_prior")
-base_order <- factor(df_calib_post_plot_base$parameter, levels = c("n_TX_OD_post", "n_TX_OD_prior", "n_TXC_OD_post", "n_TXC_OD_prior", "n_REL_OD_post", "n_REL_OD_prior"))
 
-# Overdose rate multipliers
-df_calib_post_plot_mult  <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult_post" | parameter == "n_TX_OD_mult_prior" | parameter == "n_TXC_OD_mult_prior" | parameter == "n_TXC_OD_mult_prior" | parameter == "n_REL_OD_mult_post" | parameter == "n_REL_OD_mult_prior" | parameter == "n_INJ_OD_mult_post" | parameter == "n_INJ_OD_mult_prior")
+colnames(m_calib_post)[8] <- "n_fatal_OD" #This step just for now due to naming discrepancy (remove later)
 
-# Fatal overdose rate
-df_calib_post_plot_fatal <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_fatal_OD_post" | parameter == "n_fatal_OD_prior")
+df_samp_prior <- melt(cbind(Distribution = "Prior", 
+                            as.data.frame(m_calib_prior[1:1000, ])), 
+                      variable.name = "Parameter")
+df_samp_post_imis  <- melt(cbind(Distribution = "Posterior", 
+                                 as.data.frame(m_calib_post[1:1000, ])), 
+                           variable.name = "Parameter")
 
-# Base overdose rates
-cali_base_od_prior_post <- ggplot(df_calib_post_plot_base, 
-                                  aes(x = draw, y = parameter)) +
-                                  #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
-                                  geom_density_ridges(aes(fill = parameter)) +
-                                  #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
-                                  scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
-                                  labs(title = 'Base Overdose Rates')
+df_calib_prior_post <- rbind(df_samp_prior, df_samp_post_imis)
 
-# Overdose rate multipliers
-cali_mult_od_prior_post <- ggplot(df_calib_post_plot_mult, 
-                                  aes(x = draw, y = parameter)) +
-  #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
-  geom_density_ridges(aes(fill = parameter)) +
-  #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
-  scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
-  labs(title = 'Base Overdose Rates')
 
-# Fatal overdose rates
-cali_fatal_od_prior_post <- ggplot(df_calib_post_plot_fatal, 
-                                   aes(x = draw, y = parameter)) +
-  #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
-  geom_density_ridges(aes(fill = parameter)) +
-  #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
-  scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
-  labs(title = 'Base Overdose Rates')
+df_calib_prior_post$Distribution <- ordered(df_calib_prior_post$Distribution, 
+                                            levels = c("Prior", 
+                                                      "Posterior"))
 
-# Output plots
-pdf("Plots/Calibration/cali_base_od_prior_post.pdf", width = 8, height = 6)
-cali_base_od_prior_post
-dev.off()
+df_calib_prior_post$Parameter <- factor(df_calib_prior_post$Parameter,
+                                       levels = levels(df_calib_prior_post$Parameter),
+                                       ordered = TRUE,
+                                       labels = v_param_names)
+
+### Plot priors and IMIS posteriors
+# TO-DO: Add vertical lines for prior mean and MAP
+prior_v_posterior <- ggplot(df_calib_prior_post, 
+                         aes(x = value, y = ..density.., fill = Distribution)) +
+  facet_wrap(~Parameter, scales = "free", 
+             ncol = 3,
+             labeller = label_parsed) +
+  #geom_vline(data = df_posterior_summ,
+  #           aes(xintercept = value, linetype = Type, color = Type)) +
+  #scale_x_continuous(breaks = dampack::number_ticks(5)) +
+  scale_color_manual("", values = c("black", "navy blue", "tomato")) +
+  geom_density(alpha=0.5) +
+  theme_bw(base_size = 16) +
+  guides(fill = guide_legend(title = "", order = 1),
+         linetype = guide_legend(title = "", order = 2),
+         color = guide_legend(title = "", order = 2)) +
+  theme(legend.position = "bottom",
+        legend.box = "vertical",
+        legend.margin=margin(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        strip.background = element_rect(fill = "white",
+                                        color = "white"),
+        strip.text = element_text(hjust = 0))
+prior_v_posterior
+
+ggsave(prior_v_posterior, 
+       filename = "Plots/Calibration/prior-v-posterior.pdf", 
+       width = 10, height = 7)
+ggsave(prior_v_posterior, 
+       filename = "Plots/Calibration/prior-v-posterior.png", 
+       width = 10, height = 7)
+#ggsave(prior_v_posterior, 
+#       filename = "Plots/Calibration/prior-v-posterior.jpeg", 
+#       width = 10, height = 7)
 
 
 

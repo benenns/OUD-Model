@@ -1117,3 +1117,66 @@ for(i in 1:n_t){
   #a_TDP[j, j + (2 * n_BASE_INJECT_EP), i] <- m_TDP[j, i]
   #a_TDP[j, j + (3 * n_BASE_INJECT_EP), i] <- m_TDP[j, i]
   #} 
+  
+  
+  
+  #PLOTTING CALIBRATION PARAMETER ESTIMATES
+  # Base overdose rates
+  df_calib_post_plot_base  <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_post" | parameter == "n_TX_OD_prior" | parameter == "n_TXC_OD_post" | parameter == "n_TXC_OD_prior" | parameter == "n_REL_OD_post" | parameter == "n_REL_OD_prior")
+  base_order <- factor(df_calib_post_plot_base$parameter, levels = c("n_TX_OD_post", "n_TX_OD_prior", "n_TXC_OD_post", "n_TXC_OD_prior", "n_REL_OD_post", "n_REL_OD_prior"))
+  
+  # Overdose rate multipliers
+  df_calib_post_plot_mult  <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_TX_OD_mult_post" | parameter == "n_TX_OD_mult_prior" | parameter == "n_TXC_OD_mult_prior" | parameter == "n_TXC_OD_mult_prior" | parameter == "n_REL_OD_mult_post" | parameter == "n_REL_OD_mult_prior" | parameter == "n_INJ_OD_mult_post" | parameter == "n_INJ_OD_mult_prior")
+  
+  # Fatal overdose rate
+  df_calib_post_plot_fatal <- gather(df_calib_prior_post, parameter, draw, factor_key = TRUE) %>% filter(parameter == "n_fatal_OD_post" | parameter == "n_fatal_OD_prior")
+  
+  # Base overdose rates
+  cali_base_od_prior_post <- ggplot(df_calib_post_plot_base, 
+                                    aes(x = draw, y = parameter)) +
+    #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+    geom_density_ridges(aes(fill = parameter)) +
+    #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+    scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
+    labs(title = 'Base Overdose Rates')
+  
+  # Overdose rate multipliers
+  cali_mult_od_prior_post <- ggplot(df_calib_post_plot_mult, 
+                                    aes(x = draw, y = parameter)) +
+    #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+    geom_density_ridges(aes(fill = parameter)) +
+    #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+    scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
+    labs(title = 'Base Overdose Rates')
+  
+  # Fatal overdose rates
+  cali_fatal_od_prior_post <- ggplot(df_calib_post_plot_fatal, 
+                                     aes(x = draw, y = parameter)) +
+    #geom_density_ridges_gradient(scale = 3, size = 0.3, rel_min_height = 0.01) +
+    geom_density_ridges(aes(fill = parameter)) +
+    #scale_fill_viridis_c(name = "Monthly rate", option = "C") +
+    scale_fill_manual(values = c("#2ca25f", "#e5f5f9", "#3182bd", "#deebf7", "#e6550d", "#fee6ce")) +
+    labs(title = 'Base Overdose Rates')
+  
+  # Output plots
+  pdf("Plots/Calibration/cali_base_od_prior_post.pdf", width = 8, height = 6)
+  cali_base_od_prior_post
+  dev.off()
+  
+  df_calib_post  <- as.data.frame(m_calib_post) %>% mutate(ID = row_number()) %>% rename(n_TX_OD_post  = n_TX_OD,
+                                                                                         n_TXC_OD_post = n_TXC_OD,
+                                                                                         n_REL_OD_post = n_REL_OD,
+                                                                                         n_TX_OD_mult_post = n_TX_OD_mult,
+                                                                                         n_TXC_OD_mult_post = n_TXC_OD_mult,
+                                                                                         n_REL_OD_mult_post = n_REL_OD_mult,
+                                                                                         n_INJ_OD_mult_post = n_INJ_OD_mult,
+                                                                                         n_fatal_OD_post = n_fatal_od) #make sure this label is changed in next iteration ("OD")
+  df_calib_prior <- as.data.frame(m_calib_prior) %>% mutate(ID = row_number()) %>% rename(n_TX_OD_prior  = n_TX_OD,
+                                                                                          n_TXC_OD_prior = n_TXC_OD,
+                                                                                          n_REL_OD_prior = n_REL_OD,
+                                                                                          n_TX_OD_mult_prior = n_TX_OD_mult,
+                                                                                          n_TXC_OD_mult_prior = n_TXC_OD_mult,
+                                                                                          n_REL_OD_mult_prior = n_REL_OD_mult,
+                                                                                          n_INJ_OD_mult_prior = n_INJ_OD_mult,
+                                                                                          n_fatal_OD_prior = n_fatal_OD)
+  #df_calib_prior_post <- merge(df_calib_prior, df_calib_post, by.x = "ID", by.y = "ID") #merge prior and posterior estimates
