@@ -9,6 +9,7 @@
 #' default to their original input value for each simulation.
 #' @param n_sim Number of PSA samples.
 #' @param seed Seed for reproducibility of Monte Carlo sampling.
+#' @param n_samp Sample size to determine dirichlet distribution variance.
 #' @return 
 #' A data frame with \code{n_sim} rows and {n_states} columns of parameters for PSA. 
 #' Each row is a parameter set sampled from distributions that characterize 
@@ -90,63 +91,49 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     # Log-normal distribution (mean, sd)
     # Non-injection
     # BUP
-    #p_frailty_BUP_NI_1 = rep(1, n_sim),
-    p_frailty_BUP_NI_2 = rnorm(n_sim, mean = log(df_frailty["pe", "BUP_NI_2"]), sd = ((log(df_frailty["high", "BUP_NI_2"]) - log(df_frailty["low", "BUP_NI_2"])) / 2 / 1.96)),
-    p_frailty_BUP_NI_3 = rnorm(n_sim, mean = log(df_frailty["pe", "BUP_NI_3"]), sd = ((log(df_frailty["high", "BUP_NI_3"]) - log(df_frailty["low", "BUP_NI_3"])) / 2 / 1.96)),
-    # BUP + concurrent opioid
-    #p_frailty_BUPC_NI_1 = rep(1, n_sim),
-    p_frailty_BUPC_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_NI_2"], sd = df_frailty["sd", "BUPC_NI_2"]),
-    p_frailty_BUPC_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_NI_3"], sd = df_frailty["sd", "BUPC_NI_3"]),
+    p_frailty_BUP_NI_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUP_NI_2"]), sd = log(df_frailty["sd", "BUP_NI_2"]))),
+    p_frailty_BUP_NI_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUP_NI_3"]), sd = log(df_frailty["sd", "BUP_NI_3"]))),
+    # BUPC
+    p_frailty_BUPC_NI_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUPC_NI_2"]), sd = log(df_frailty["sd", "BUPC_NI_2"]))),
+    p_frailty_BUPC_NI_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUPC_NI_3"]), sd = log(df_frailty["sd", "BUPC_NI_3"]))),
     # MET
-    #p_frailty_MET_NI_1 = rep(1, n_sim),
-    p_frailty_MET_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "MET_NI_2"], sd = df_frailty["sd", "MET_NI_2"]),
-    p_frailty_MET_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "MET_NI_3"], sd = df_frailty["sd", "MET_NI_3"]),
-    # MET + concurrent opioid
-    #p_frailty_METC_NI_1 = rep(1, n_sim),
-    p_frailty_METC_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "METC_NI_2"], sd = df_frailty["sd", "METC_NI_2"]),
-    p_frailty_METC_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "METC_NI_3"], sd = df_frailty["sd", "METC_NI_3"]),
+    p_frailty_MET_NI_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "MET_NI_2"]), sd = log(df_frailty["sd", "MET_NI_2"]))),
+    p_frailty_MET_NI_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "MET_NI_3"]), sd = log(df_frailty["sd", "MET_NI_3"]))),
+    # METC
+    p_frailty_METC_NI_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "METC_NI_2"]), sd = log(df_frailty["sd", "METC_NI_2"]))),
+    p_frailty_METC_NI_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "METC_NI_3"]), sd = log(df_frailty["sd", "METC_NI_3"]))),
     # ABS
-    #p_frailty_ABS_NI_1 = rep(1, n_sim),
-    p_frailty_ABS_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "ABS_NI_2"], sd = df_frailty["sd", "ABS_NI_2"]),
-    p_frailty_ABS_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "ABS_NI_3"], sd = df_frailty["sd", "ABS_NI_3"]),
+    p_frailty_ABS_NI_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "ABS_NI_2"]), sd = log(df_frailty["sd", "ABS_NI_2"]))),
+    p_frailty_ABS_NI_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "ABS_NI_3"]), sd = log(df_frailty["sd", "ABS_NI_3"]))),
     # REL
-    #p_frailty_REL_NI_1 = rep(1, n_sim),
-    p_frailty_REL_NI_2 = rnorm(n_sim, mean = df_frailty["pe", "REL_NI_2"], sd = df_frailty["sd", "REL_NI_2"]),
-    p_frailty_REL_NI_3 = rnorm(n_sim, mean = df_frailty["pe", "REL_NI_3"], sd = df_frailty["sd", "REL_NI_3"]),
+    p_frailty_REL_NI_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "REL_NI_2"]), sd = log(df_frailty["sd", "REL_NI_2"]))),
+    p_frailty_REL_NI_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "REL_NI_3"]), sd = log(df_frailty["sd", "REL_NI_3"]))),
     # OD
-    #p_frailty_OD_NI_1  = rep(1, n_sim),
-    p_frailty_OD_NI_2  = rnorm(n_sim, mean = df_frailty["pe", "OD_NI_2"], sd = df_frailty["sd", "OD_NI_2"]),
-    p_frailty_OD_NI_3  = rnorm(n_sim, mean = df_frailty["pe", "OD_NI_3"], sd = df_frailty["sd", "OD_NI_3"]),
+    p_frailty_OD_NI_2  = exp(rnorm(n_sim, mean = log(df_frailty["pe", "OD_NI_2"]), sd = log(df_frailty["sd", "OD_NI_2"]))),
+    p_frailty_OD_NI_3  = exp(rnorm(n_sim, mean = log(df_frailty["pe", "OD_NI_3"]), sd = log(df_frailty["sd", "OD_NI_3"]))),
     
     # Injection
     # BUP
-    #p_frailty_BUP_INJ_1 = rep(1, n_sim),
-    p_frailty_BUP_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "BUP_INJ_2"], sd = df_frailty["sd", "BUP_INJ_2"]),
-    p_frailty_BUP_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "BUP_INJ_3"], sd = df_frailty["sd", "BUP_INJ_3"]),
-    # BUP + concurrent opioid
-    #p_frailty_BUPC_INJ_1 = rep(1, n_sim),
-    p_frailty_BUPC_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_INJ_2"], sd = df_frailty["sd", "BUPC_INJ_2"]),
-    p_frailty_BUPC_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "BUPC_INJ_3"], sd = df_frailty["sd", "BUPC_INJ_3"]),
+    p_frailty_BUP_INJ_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUP_INJ_2"]), sd = log(df_frailty["sd", "BUP_INJ_2"]))),
+    p_frailty_BUP_INJ_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUP_INJ_3"]), sd = log(df_frailty["sd", "BUP_INJ_3"]))),
+    # BUPC
+    p_frailty_BUPC_INJ_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUPC_INJ_2"]), sd = log(df_frailty["sd", "BUPC_INJ_2"]))),
+    p_frailty_BUPC_INJ_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "BUPC_INJ_3"]), sd = log(df_frailty["sd", "BUPC_INJ_3"]))),
     # MET
-    #p_frailty_MET_INJ_1 = rep(1, n_sim),
-    p_frailty_MET_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "MET_INJ_2"], sd = df_frailty["sd", "MET_INJ_2"]),
-    p_frailty_MET_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "MET_INJ_3"], sd = df_frailty["sd", "MET_INJ_3"]),
-    # MET + concurrent opioid
-    #p_frailty_METC_INJ_1 = rep(1, n_sim),
-    p_frailty_METC_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "METC_INJ_2"], sd = df_frailty["sd", "METC_INJ_2"]),
-    p_frailty_METC_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "METC_INJ_3"], sd = df_frailty["sd", "METC_INJ_3"]),
+    p_frailty_MET_INJ_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "MET_INJ_2"]), sd = log(df_frailty["sd", "MET_INJ_2"]))),
+    p_frailty_MET_INJ_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "MET_INJ_3"]), sd = log(df_frailty["sd", "MET_INJ_3"]))),
+    # METC
+    p_frailty_METC_INJ_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "METC_INJ_2"]), sd = log(df_frailty["sd", "METC_INJ_2"]))),
+    p_frailty_METC_INJ_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "METC_INJ_3"]), sd = log(df_frailty["sd", "METC_INJ_3"]))),
     # ABS
-    #p_frailty_ABS_INJ_1 = rep(1, n_sim),
-    p_frailty_ABS_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "ABS_INJ_2"], sd = df_frailty["sd", "ABS_INJ_2"]),
-    p_frailty_ABS_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "ABS_INJ_3"], sd = df_frailty["sd", "ABS_INJ_3"]),
+    p_frailty_ABS_INJ_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "ABS_INJ_2"]), sd = log(df_frailty["sd", "ABS_INJ_2"]))),
+    p_frailty_ABS_INJ_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "ABS_INJ_3"]), sd = log(df_frailty["sd", "ABS_INJ_3"]))),
     # REL
-    #p_frailty_REL_INJ_1 = rep(1, n_sim),
-    p_frailty_REL_INJ_2 = rnorm(n_sim, mean = df_frailty["pe", "REL_INJ_2"], sd = df_frailty["sd", "REL_INJ_2"]),
-    p_frailty_REL_INJ_3 = rnorm(n_sim, mean = df_frailty["pe", "REL_INJ_3"], sd = df_frailty["sd", "REL_INJ_3"]),
+    p_frailty_REL_INJ_2 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "REL_INJ_2"]), sd = log(df_frailty["sd", "REL_INJ_2"]))),
+    p_frailty_REL_INJ_3 = exp(rnorm(n_sim, mean = log(df_frailty["pe", "REL_INJ_3"]), sd = log(df_frailty["sd", "REL_INJ_3"]))),
     # OD
-    #p_frailty_OD_INJ_1  = rep(1, n_sim),
-    p_frailty_OD_INJ_2  = rnorm(n_sim, mean = df_frailty["pe", "OD_INJ_2"], sd = df_frailty["sd", "OD_INJ_2"]),
-    p_frailty_OD_INJ_3  = rnorm(n_sim, mean = df_frailty["pe", "OD_INJ_3"], sd = df_frailty["sd", "OD_INJ_3"]),
+    p_frailty_OD_INJ_2  = exp(rnorm(n_sim, mean = log(df_frailty["pe", "OD_INJ_2"]), sd = log(df_frailty["sd", "OD_INJ_2"]))),
+    p_frailty_OD_INJ_3  = exp(rnorm(n_sim, mean = log(df_frailty["pe", "OD_INJ_3"]), sd = log(df_frailty["sd", "OD_INJ_3"]))),
     
     # Weibull scale
     # Uniform distribution (low, high)
@@ -322,53 +309,91 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     p_OD_REL_INJ  = m_OD_UP_INJ[6,],
     
     ### Overdose ###
-    n_fent_OD = runif(n_sim, df_overdose["low", "fent_OD_rate"], df_overdose["high", "fent_OD_rate"]),
-    p_fent_exp = runif(n_sim, df_overdose["low", "fent_exp_prob"], df_overdose["high", "fent_exp_prob"]),
-    p_witness = runif(n_sim, df_overdose["low", "witness_prob"], df_overdose["high", "witness_prob"]),
-    p_attended = runif(n_sim, df_overdose["low", "attended_prob"], df_overdose["low", "attended_prob"]),
-    p_NX_used = runif(n_sim, df_overdose["low", "NX_prob"], df_overdose["high", "NX_prob"]),
-    p_NX_success = runif(n_sim, df_overdose["low", "NX_success_prob"], df_overdose["high", "NX_success_prob"]),
+    n_fent_OD = rgamma(n_sim, shape = df_overdose["shape", "fent_OD_rate"], scale = df_overdose["scale", "fent_OD_rate"]),
+    p_fent_exp = rbeta(n_sim, shape1 = df_overdose["shape1", "fent_exp_prob"], shape2 = df_overdose["shape2", "fent_exp_prob"]),
+    p_witness = rbeta(n_sim, shape1 = df_overdose["shape1", "witness_prob"], shape2 = df_overdose["shape2", "witness_prob"]),
+    p_attended = rbeta(n_sim, shape1 = df_overdose["shape1", "attended_prob"], shape2 = df_overdose["shape2", "attended_prob"]),
+    p_NX_used = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_prob"], shape2 = df_overdose["shape2", "NX_prob"]),
+    p_NX_success = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_success_prob"], shape2 = df_overdose["shape2", "NX_success_prob"]),
     
     ### HIV seroconversion ###
-    # ** DOUBLE-CHECK SEROCONVERSION PSA PROBS IF WE WANT TO HAVE THE EXACT SAME VALUES FOR BUP/BUPC, etc. **
-    # CHANGE TO BETA PROBS
-    # HIV Seroconversion
     # From negative
     # Non-injection
-    p_HIV_NI = rbeta(),
-    p_HIV_BUP_NI  = df_hiv["pe", "HIV_BUP_NI"],
-    p_HIV_BUPC_NI = df_hiv["pe", "HIV_BUPC_NI"],
-    p_HIV_MET_NI  = df_hiv["pe", "HIV_MET_NI"],
-    p_HIV_METC_NI = df_hiv["pe", "HIV_METC_NI"],
-    p_HIV_REL_NI  = df_hiv["pe", "HIV_REL_NI"],
-    p_HIV_ODN_NI  = df_hiv["pe", "HIV_REL_NI"],
-    p_HIV_ABS_NI  = df_hiv["pe", "HIV_ABS_NI"],
+    p_HIV_NI = rbeta(n_sim, shape1 = df_hiv["shape1", "HIV_NI"], shape2 = df_hiv["shape2", "HIV_NI"]),
+    p_HIV_BUP_NI  = p_HIV_NI,
+    p_HIV_BUPC_NI = p_HIV_NI,
+    p_HIV_MET_NI  = p_HIV_NI,
+    p_HIV_METC_NI = p_HIV_NI,
+    p_HIV_REL_NI  = p_HIV_NI,
+    p_HIV_ODN_NI  = p_HIV_NI,
+    p_HIV_ABS_NI  = p_HIV_NI,
     # Injection
-    p_HIV_BUP_INJ  = df_hiv["pe", "HIV_BUP_INJ"],
-    p_HIV_BUPC_INJ = df_hiv["pe", "HIV_BUPC_INJ"],
-    p_HIV_MET_INJ  = df_hiv["pe", "HIV_MET_INJ"],
-    p_HIV_METC_INJ = df_hiv["pe", "HIV_METC_INJ"],
-    p_HIV_REL_INJ  = df_hiv["pe", "HIV_REL_INJ"],
-    p_HIV_ODN_INJ  = df_hiv["pe", "HIV_REL_INJ"],
-    p_HIV_ABS_INJ  = df_hiv["pe", "HIV_ABS_INJ"],
+    p_HIV_BUP_INJ  = rbeta(n_sim, shape1 = df_hiv["shape1", "HIV_TX_INJ"], shape2 = df_hiv["shape2", "HIV_TX_INJ"]),
+    p_HIV_BUPC_INJ = rbeta(n_sim, shape1 = df_hiv["shape1", "HIV_TXC_INJ"], shape2 = df_hiv["shape2", "HIV_TXC_INJ"]),
+    p_HIV_MET_INJ  = p_HIV_BUP_INJ,
+    p_HIV_METC_INJ = p_HIV_BUPC_INJ,
+    p_HIV_REL_INJ  = rbeta(n_sim, shape1 = df_hiv["shape1", "HIV_REL_INJ"], shape2 = df_hiv["shape2", "HIV_REL_INJ"]),
+    p_HIV_ODN_INJ  = p_HIV_REL_INJ,
+    p_HIV_ABS_INJ  = p_HIV_NI,
     
     # Co-infection conditional on HCV
+    # Same as HIV from negative by assumption
     # Non-injection
-    p_HCV_HIV_BUP_NI  = df_hiv["pe", "COI_BUP_NI"],
-    p_HCV_HIV_BUPC_NI = df_hiv["pe", "COI_BUPC_NI"],
-    p_HCV_HIV_MET_NI  = df_hiv["pe", "COI_MET_NI"],
-    p_HCV_HIV_METC_NI = df_hiv["pe", "COI_METC_NI"],
-    p_HCV_HIV_REL_NI  = df_hiv["pe", "COI_REL_NI"],
-    p_HCV_HIV_ODN_NI  = df_hiv["pe", "COI_REL_NI"],
-    p_HCV_HIV_ABS_NI  = df_hiv["pe", "COI_ABS_NI"],
+    p_HCV_HIV_BUP_NI  = p_HIV_BUP_NI,
+    p_HCV_HIV_BUPC_NI = p_HIV_BUPC_NI,
+    p_HCV_HIV_MET_NI  = p_HIV_MET_NI,
+    p_HCV_HIV_METC_NI = p_HIV_METC_NI,
+    p_HCV_HIV_REL_NI  = p_HIV_REL_NI,
+    p_HCV_HIV_ODN_NI  = p_HIV_ODN_NI,
+    p_HCV_HIV_ABS_NI  = p_HIV_ABS_NI,
     # Injection
-    p_HCV_HIV_BUP_INJ  = df_hiv["pe", "COI_BUP_INJ"],
-    p_HCV_HIV_BUPC_INJ = df_hiv["pe", "COI_BUPC_INJ"],
-    p_HCV_HIV_MET_INJ  = df_hiv["pe", "COI_MET_INJ"],
-    p_HCV_HIV_METC_INJ = df_hiv["pe", "COI_METC_INJ"],
-    p_HCV_HIV_REL_INJ  = df_hiv["pe", "COI_REL_INJ"],
-    p_HCV_HIV_ODN_INJ  = df_hiv["pe", "COI_REL_INJ"],
-    p_HCV_HIV_ABS_INJ  = df_hiv["pe", "COI_ABS_INJ"],
+    p_HCV_HIV_BUP_INJ  = p_HIV_BUP_INJ,
+    p_HCV_HIV_BUPC_INJ = p_HIV_BUPC_INJ,
+    p_HCV_HIV_MET_INJ  = p_HIV_MET_INJ,
+    p_HCV_HIV_METC_INJ = p_HIV_METC_INJ,
+    p_HCV_HIV_REL_INJ  = p_HIV_REL_INJ,
+    p_HCV_HIV_ODN_INJ  = p_HIV_ODN_INJ,
+    p_HCV_HIV_ABS_INJ  = p_HIV_ABS_INJ,
+    
+    ### HCV seroconversion ###
+    # HCV Seroconversion
+    # From negative
+    # Non-injection
+    p_HCV_NI = rbeta(n_sim, shape1 = df_hcv["shape1", "HCV_NI"], shape2 = df_hcv["shape2", "HCV_NI"]),
+    p_HCV_BUP_NI  = p_HCV_NI,
+    p_HCV_BUPC_NI = p_HCV_NI,
+    p_HCV_MET_NI  = p_HCV_NI,
+    p_HCV_METC_NI = p_HCV_NI,
+    p_HCV_REL_NI  = p_HCV_NI,
+    p_HCV_ODN_NI  = p_HCV_NI,
+    p_HCV_ABS_NI  = p_HCV_NI,
+    # Injection
+    p_HCV_BUP_INJ  = rbeta(n_sim, shape1 = df_hcv["shape1", "HCV_TX_INJ"], shape2 = df_hcv["shape2", "HCV_TX_INJ"]),
+    p_HCV_BUPC_INJ = rbeta(n_sim, shape1 = df_hcv["shape1", "HCV_TXC_INJ"], shape2 = df_hcv["shape2", "HCV_TXC_INJ"]),
+    p_HCV_MET_INJ  = p_HCV_BUP_INJ,
+    p_HCV_METC_INJ = p_HCV_BUPC_INJ,
+    p_HCV_REL_INJ  = rbeta(n_sim, shape1 = df_hcv["shape1", "HCV_REL_INJ"], shape2 = df_hcv["shape2", "HCV_REL_INJ"]),
+    p_HCV_ODN_INJ  = p_HCV_REL_INJ,
+    p_HCV_ABS_INJ  = p_HCV_NI,
+    
+    # Co-infection conditional on HIV
+    # Same as HCV from negative by assumption
+    # Non-injection
+    p_HIV_HCV_BUP_NI  = p_HCV_BUP_NI,
+    p_HIV_HCV_BUPC_NI = p_HCV_BUPC_NI,
+    p_HIV_HCV_MET_NI  = p_HCV_MET_NI,
+    p_HIV_HCV_METC_NI = p_HCV_METC_NI,
+    p_HIV_HCV_REL_NI  = p_HCV_REL_NI,
+    p_HIV_HCV_ODN_NI  = p_HCV_ODN_NI,
+    p_HIV_HCV_ABS_NI  = p_HCV_ABS_NI,
+    # Injection
+    p_HIV_HCV_BUP_INJ  = p_HCV_BUP_INJ,
+    p_HIV_HCV_BUPC_INJ = p_HCV_BUPC_INJ,
+    p_HIV_HCV_MET_INJ  = p_HCV_MET_INJ,
+    p_HIV_HCV_METC_INJ = p_HCV_METC_INJ,
+    p_HIV_HCV_REL_INJ  = p_HCV_REL_INJ,
+    p_HIV_HCV_ODN_INJ  = p_HCV_ODN_INJ,
+    p_HIV_HCV_ABS_INJ  = p_HCV_ABS_INJ,
     
     ### Costs ###
     # Treatment Costs

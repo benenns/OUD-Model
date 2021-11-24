@@ -34,10 +34,6 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
 # Calibrated parameter values
 load(file = "outputs/imis_output.RData")
 
-#### Load calibration targets ####
-l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
-                       ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
-
 # Benchmark baseline deterministic model
 df_model_benchmark <- microbenchmark("Markov Model (Base)"    = markov_model(l_params_all = l_params_all),
                                      "Markov Model (Outputs)" = outcomes(l_params_all = l_params_all, v_params_calib = v_calib_post_map),

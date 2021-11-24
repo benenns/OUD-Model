@@ -2,6 +2,7 @@ library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(tidyverse)
+library(xlsx)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -55,7 +56,7 @@ l_outcomes_BUP <- outcomes(l_params_all = l_params_BUP, v_params_calib = v_calib
 # Calculate ICERs
 ICER <- ICER(outcomes_comp = l_outcomes_MET, outcomes_int = l_outcomes_BUP)
 
-# Output to csv files
+#### OUTPUT RESULTS ####
 # Full model trace
 write.csv(outcomes_MET$m_M_trace,"outputs/trace/trace_MET.csv", row.names = TRUE)
 write.csv(outcomes_BUP$m_M_trace,"outputs/trace/trace_BUP.csv", row.names = TRUE)
@@ -64,8 +65,26 @@ write.csv(outcomes_BUP$m_M_trace,"outputs/trace/trace_BUP.csv", row.names = TRUE
 write.csv(outcomes_MET$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_MET.csv", row.names = TRUE)
 write.csv(outcomes_BUP$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_BUP.csv", row.names = TRUE)
 
+# Outcomes
+# Disaggregated
+df_outcomes <- data.frame(l_outcomes_BUP$v_outcomes, l_outcomes_MET$v_outcomes)
+df_outcomes <- df_costs %>% rename("Early take-home BNX" = l_outcomes_BUP.v_outcomes, "Methadone" = l_outcomes_MET.v_outcomes)
+
+# ICER
+df_icer <- data.frame(ICER$v_icer)
+df_icer <- df_icer %>% rename("Early take-home BNX vs. Methadone" = ICER.v_icer)
+
+# Output
+write.csv(df_outcomes,"outputs/main_output_det.csv", row.names = TRUE)
+write.csv(df_icer,"outputs/icer_det.csv", row.names = TRUE)
+
+#write.xlsx2(df_outcomes, file = "outputs/main_output_det.xlsx", sheetName = "Outcomes",
+#            col.names = TRUE, row.names = TRUE, append = FALSE)
+#write.xlsx2(df_icer, file = "outputs/main_output_det.xlsx", sheetName = "ICER",
+#            col.names = TRUE, row.names = TRUE, append = TRUE)
+
+# Raw outputs
 # Costs
-# Total
 write.csv(outcomes_MET$v_costs,"outputs/costs/costs_MET.csv", row.names = TRUE)
 write.csv(outcomes_BUP$v_costs,"outputs/costs/costs_BUP.csv", row.names = TRUE)
 
@@ -87,21 +106,4 @@ write.csv(outcomes_BUP$v_qalys,"outputs/qalys/qalys_BUP.csv", row.names = TRUE)
 
 # ICER
 write.csv(ICER$v_icer,"outputs/ICER/ICER.csv", row.names = TRUE)
-
-### PSA model outputs
-### Run Markov model for PSA draws and return outputs ###
-# Generate PSA parameter draws
-df_psa_params <- generate_psa_params(n_sim = 2000, seed = 3730687, n_samp = 250,
-                                     file.death_hr = NULL,
-                                     file.frailty = NULL,
-                                     file.weibull_scale = NULL,
-                                     file.weibull_shape = NULL,
-                                     file.unconditional = NULL,
-                                     file.overdose = NULL,
-                                     file.hiv = NULL,
-                                     file.hcv = NULL,
-                                     file.costs = NULL,
-                                     file.crime_costs = NULL,
-                                     file.qalys = NULL,
-                                     file.imis_output = NULL)
 

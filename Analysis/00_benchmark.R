@@ -1,43 +1,38 @@
-#' Markov model
-#'
-#' \code{markov_model} implements the main model functions to calculate Markov trace.
-#'
-#' @param l_params_all List with all parameters
-#' @param err_stop Logical variable to stop model run if transition array is invalid, if TRUE. Default = FALSE.
-#' @param verbose Logical variable to indicate print out of messages. Default = FALSE
-#' @return 
-#' a_TDP: Transition probability array
-#' m_M_trace: Fully stratified markov cohort trace
-#' m_M_agg_trace: Aggregated markov trace over base health states
-#' m_M_agg_trace_death: State-specific mortality from each health state
-#' m_M_agg_trace_sero: HIV seroconversions from each health state
-#' @export
-markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks = FALSE){
-  ### Definition:
-  ##   Markov model implementation function
-  ### Prefixes:
-  ##   l_* denotes list
-  ##   n_* denotes number
-  ##   a_* denotes 3-D array
-  ##   m_* denotes 2-D matrix
-  ##   v_* denotes vector
-  ##   df_* denotes data frame
-  ##   p_* denotes transition parameters
-  ##   c_* denotes costs
-  ##   u_* denotes utilities
-  ### Arguments:  
-  ##   l_params_all: List with all parameters
-  ##   verbose: Logical variable to indicate print out of messages
-  ### Returns:
-  ##   a_TDP: Transition probability array.
-  ##   m_M_trace: Fully disaggregated matrix cohort trace.
-  ##   m_M_agg_trace: Aggregated trace over selected base health states.
-  ##   m_M_agg_trace_death: State-specific mortality from each health state.
-  ##   m_M_agg_trace_sero: HIV seroconversions from each health state.
-  ##
-  with(as.list(l_params_all), {
+library(dplyr)    # to manipulate data
+library(reshape2) # to transform data
+library(ggplot2)  # for nice looking plots
+library(scales)   # for dollar signs and commas
+library(tidyverse)
 
-  #### Set up model states ####
+# Call model setup functions
+source("R/input_parameter_functions.R")
+source("R/model_setup_functions.R")
+source("R/calibration_functions.R")
+source("R/ICER_functions.R")
+
+# Load parameters
+l_params_all <- load_all_params(file.init = "data/init_params.csv",
+                                file.init_dist = "data/init_dist.csv",
+                                file.mort = "data/all_cause_mortality.csv",
+                                file.death_hr = "data/death_hr.csv",
+                                file.frailty = "data/frailty.csv",
+                                file.weibull_scale = "data/weibull_scale.csv",
+                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.unconditional = "data/unconditional.csv",
+                                file.overdose = "data/overdose.csv",
+                                file.hiv = "data/hiv_sero.csv",
+                                file.hcv = "data/hcv_sero.csv",
+                                file.costs = "data/costs.csv",
+                                file.crime_costs = "data/crime_costs.csv",
+                                file.qalys = "data/qalys.csv")
+list2env(l_params_all, .GlobalEnv)
+
+# Calibrated parameter values
+load(file = "outputs/imis_output.RData")
+
+  #### Benchmark setup ####
+  df_benchmark_setup <- microbenchmark(  
+    
   l_dim_s  <- list() # list of health states
   
   # Base health states
@@ -114,7 +109,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
                      ABS = ABS, 
                      NEG = NEG, HIV = HIV, HCV = HCV, COI = COI, 
                      INJ = INJ, NI = NI, 
-                     EP1 = EP1, EP2 = EP2, EP3 = EP3)
+                     EP1 = EP1, EP2 = EP2, EP3 = EP3), times = 100)
   
   #### Overdose probability ####
   #' Probability of non-fatal and fatal overdose
@@ -913,11 +908,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_TDP[EP3, EP2, ] = 0
   # Seroconversions
   a_TDP[HIV, NEG, ] = 0
-  a_TDP[HCV, NEG, ] = 0 
+  a_TDP[HCV, NEG, ] = 0 # disallowing potential transitions from COI to HIV-only (i.e. HCV cure), calculated within overall HCV infection rate
   a_TDP[COI, NEG, ] = 0
   a_TDP[HIV, HCV, ] = 0
   a_TDP[HCV, HIV, ] = 0
-  a_TDP[COI, HIV, ] = 0 
+  a_TDP[COI, HIV, ] = 0 # disallowing potential transitions from COI to HIV-only (i.e. HCV cure), calculated within overall HCV infection rate
   a_TDP[COI, HCV, ] = 0
   a_TDP[COI, NEG, ] = 0
   a_TDP[NEG, COI, ] = 0
@@ -983,23 +978,10 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   v_s_init[INJ] <- v_s_init[INJ] * n_INJ
   
   # Distribute HIV/HCV/COI
-  # Injection
-  v_s_init[NEG & INJ] <- v_s_init[NEG & INJ] * (1 - n_HIV_INJ - n_HCV_INJ - n_COI_INJ)
-  v_s_init[HIV & INJ] <- v_s_init[HIV & INJ] * n_HIV_INJ
-  v_s_init[HCV & INJ] <- v_s_init[HCV & INJ] * n_HCV_INJ
-  v_s_init[COI & INJ] <- v_s_init[COI & INJ] * n_COI_INJ
-  
-  # Non-injection
-  v_s_init[NEG & NI] <- v_s_init[NEG & NI] * (1 - n_HIV_NI - n_HCV_NI - n_COI_NI)
-  v_s_init[HIV & NI] <- v_s_init[HIV & NI] * n_HIV_NI
-  v_s_init[HCV & NI] <- v_s_init[HCV & NI] * n_HCV_NI
-  v_s_init[COI & NI] <- v_s_init[COI & NI] * n_COI_NI
-  
-  # Overall
-  #v_s_init[NEG] <- v_s_init[NEG] * (1 - n_HIV - n_HCV - n_COI)
-  #v_s_init[HIV] <- v_s_init[HIV] * n_HIV
-  #v_s_init[HCV] <- v_s_init[HCV] * n_HCV
-  #v_s_init[COI] <- v_s_init[COI] * n_COI
+  v_s_init[NEG] <- v_s_init[NEG] * (1 - n_HIV - n_HCV - n_COI)
+  v_s_init[HIV] <- v_s_init[HIV] * n_HIV
+  v_s_init[HCV] <- v_s_init[HCV] * n_HCV
+  v_s_init[COI] <- v_s_init[COI] * n_COI
 
   # Create Markov Trace
     # Initialize population

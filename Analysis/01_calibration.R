@@ -250,20 +250,46 @@ ggsave(prior_v_posterior,
 # Output list of fatal and total overdoses at T = 1, T = 2, T = 3
 m_model_targets <- matrix(0, nrow = n_samp, ncol = (n_target * 3)) 
 
-for(j in 1:n_samp){
-  l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[j, ], 
+for(i in 1:n_samp){
+  l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[i, ], 
                                         l_params_all = l_params_all)
-  m_model_targets[j, 1] <- l_model_target_fit$fatal_overdose[1]
-  m_model_targets[j, 2] <- l_model_target_fit$fatal_overdose[2]
-  m_model_targets[j, 3] <- l_model_target_fit$fatal_overdose[3]
+  m_model_targets[i, 1] <- l_model_target_fit$fatal_overdose[1]
+  m_model_targets[i, 2] <- l_model_target_fit$fatal_overdose[2]
+  m_model_targets[i, 3] <- l_model_target_fit$fatal_overdose[3]
   
-  m_model_targets[j, 4] <- l_model_target_fit$overdose[1]
-  m_model_targets[j, 5] <- l_model_target_fit$overdose[2]
-  m_model_targets[j, 6] <- l_model_target_fit$overdose[3]
+  m_model_targets[i, 4] <- l_model_target_fit$overdose[1]
+  m_model_targets[i, 5] <- l_model_target_fit$overdose[2]
+  m_model_targets[i, 6] <- l_model_target_fit$overdose[3]
 }
 
 ### CODE FROM DARTH GITHUB
-v.out.post.map <- markov_crs(v.calib.post.map)
+v_out_post_map <- markov_crs(v.calib.post.map)
+
+# Fatal overdoses
+plotrix::plotCI(x  = l_cali_targets$ODF$Time, 
+                y  = l_cali_targets$ODF$pe, 
+                ui = l_cali_targets$ODF$high,
+                li = l_cali_targets$ODF$low,
+                #ylim = c(0, 1), 
+                xlab = "Month", ylab = "Fatal Overdoses")
+grid()
+for (i in 1:nrow(m_calib_post)){
+  l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[i, ], 
+                                        l_params_all = l_params_all)
+  
+  lines(x = l_cali_targets$ODF$Time, 
+        y = l_model_target_fit$fatal_overdose,
+        col = "darkorange",
+        lwd = 0.1)
+}
+lines(x = l_cali_targets$ODF$Time, 
+      y = v_out_post_map$ODF,
+      col = "dodgerblue",
+      lwd = 2)
+
+
+
+
 
 # TARGET 1: Survival ("Surv")
 plotrix::plotCI(x = CRS.targets$Surv$Time, y = CRS.targets$Surv$value, 
@@ -272,14 +298,3 @@ plotrix::plotCI(x = CRS.targets$Surv$Time, y = CRS.targets$Surv$value,
                 ylim = c(0, 1), 
                 xlab = "Time", ylab = "Pr Survive")
 grid()
-for (i in 1:nrow(m.calib.post)){
-  mod_output <- markov_crs(m.calib.post[i, ])
-  lines(x = CRS.targets$Surv$Time, 
-        y = mod_output$Surv,
-        col = "darkorange",
-        lwd = 0.1)
-}
-lines(x = CRS.targets$Surv$Time, 
-      y = v.out.post.map$Surv,
-      col = "dodgerblue",
-      lwd = 2)

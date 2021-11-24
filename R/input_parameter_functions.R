@@ -77,12 +77,21 @@ load_all_params <- function(file.init = NULL,
     n_per = df_init_params["pe", "period_yr"], # periods per year (e.g. 12-months)
     n_discount = df_init_params["pe", "discount"], # discount rate
     n_male = df_init_params["pe", "male_prop"], # % male
-    n_INJ = df_init_params["pe", "inj_prop"], # % injection
-    n_HIV = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
-    n_HCV = df_init_params["pe", "hcv_prop"], # % of HCV-positive individuals
-    n_COI = df_init_params["pe", "coi_prop"], # % of co-infected individuals
-    n_HIV_ART = df_init_params["pe", "art_prop"], # % of HIV-positive on-ART (used to calculate costs)
-    n_HCV_DAA = df_init_params["pe", "daa_prop"], # % of HIV-positive on-ART (used to calculate costs)
+    n_INJ = df_init_params["pe", "INJ_prop"], # % injection
+    #n_HIV = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
+    #n_HCV = df_init_params["pe", "hcv_prop"], # % of HCV-positive individuals
+    #n_COI = df_init_params["pe", "coi_prop"], # % of co-infected individuals
+    #Injection
+    n_HIV_INJ = df_init_params["pe", "HIV_prop_INJ"], # % of HIV-positive individuals
+    n_HCV_INJ = df_init_params["pe", "HCV_prop_INJ"], # % of HCV-positive individuals
+    n_COI_INJ = df_init_params["pe", "COI_prop_INJ"], # % of co-infected individuals
+    # Non-injection
+    n_HIV_NI = df_init_params["pe", "HIV_prop_NI"], # % of HIV-positive individuals
+    n_HCV_NI = df_init_params["pe", "HCV_prop_NI"], # % of HCV-positive individuals
+    n_COI_NI = df_init_params["pe", "COI_prop_NI"], # % of co-infected individuals
+    
+    n_HIV_ART = df_init_params["pe", "ART_prop"], # % of HIV-positive on-ART (used to calculate costs)
+    n_HCV_DAA = df_init_params["pe", "DAA_prop"], # % of HIV-positive on-ART (used to calculate costs)
     
     #### Initial state distribution ####
     

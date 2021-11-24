@@ -27,10 +27,24 @@
 #' n_TOTAL_qalys_10yr:
 #' n_TOTAL_qalys_life:
 #' @export
-outcomes <- function(l_params_all, v_params_calib){
+outcomes <- function(l_params_all, 
+                     v_params_calib,
+                     v_params_dsa = NULL){
+  
+  # Substitute values of calibrated parameters in base-case with calibrated values
+  # Combine with DSA ranges
+  dsa_check <- !is.null(v_params_dsa)
+  
+  if(dsa_check){
+  v_params_updated <- c(v_params_dsa, v_params_calib)
+  } else{
+    v_params_updated <- v_params_calib
+  }
+  
+  l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_updated)
   
   # Substitute values of calibrated parameters in base-case with calibrated values 
-  l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
+  #l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
 
   # Run model
   l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
@@ -248,6 +262,14 @@ outcomes <- function(l_params_all, v_params_calib){
     ## Combined QALYs ##
     v_qalys <- c(n_TOTAL_qalys_1yr, n_TOTAL_qalys_5yr, n_TOTAL_qalys_10yr, n_TOTAL_qalys_life)
     names(v_qalys) <- c("Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
+    
+    ## Combined outcomes ##
+    v_outcomes <- c(n_TOTAL_costs_1yr, n_TOTAL_costs_5yr, n_TOTAL_costs_10yr, n_TOTAL_costs_life, n_HEALTH_SECTOR_costs_1yr, n_HEALTH_SECTOR_costs_5yr, n_HEALTH_SECTOR_costs_10yr, n_HEALTH_SECTOR_costs_life,
+                    n_CRIMINAL_costs_1yr, n_CRIMINAL_costs_5yr, n_CRIMINAL_costs_10yr, n_CRIMINAL_costs_life, n_TX_costs_1yr, n_TX_costs_5yr, n_TX_costs_10yr, n_TX_costs_life,
+                    n_TOTAL_qalys_1yr, n_TOTAL_qalys_5yr, n_TOTAL_qalys_10yr, n_TOTAL_qalys_life)
+    names(v_outcomes) <- c("Total Costs (1-year)", "Total Costs (5-year)", "Total Costs (10-year)", "Total Costs (Lifetime)", "Health Sector Costs (1-year)", "Health Sector Costs (5-year)", "Health Sector Costs (10-year)", "Health Sector Costs (Lifetime)",
+                           "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)",
+                           "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
 
     return(list(m_M_trace = m_M_trace,
                 m_TX_costs = m_TX_costs,
@@ -282,7 +304,8 @@ outcomes <- function(l_params_all, v_params_calib){
                 n_TOTAL_qalys_5yr = n_TOTAL_qalys_5yr,
                 n_TOTAL_qalys_10yr = n_TOTAL_qalys_10yr,
                 n_TOTAL_qalys_life = n_TOTAL_qalys_life,
-                v_qalys = v_qalys))
+                v_qalys = v_qalys,
+                v_outcomes = v_outcomes))
   }
  )
 }

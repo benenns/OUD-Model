@@ -97,6 +97,79 @@ v_dirichlet_UP_BUP = m_dirichlet_UP["BUP_NI",]
 m_BUP_state = rdirichlet(50, c(v_dirichlet_UP_BUP["BUP_NI", "BUPC_NI"], v_dirichlet_UP_BUP["BUP_NI", "MET_NI"], v_dirichlet_UP_BUP["BUP_NI", "METC_NI"], v_dirichlet_UP_BUP["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP["BUP_NI", "REL_NI"]))
 p_BUP_BUPC_NI = m_BUP_state[,1]
 
+library(rBeta2009)
+
+v_b <- matrix(0, nrow = 1, ncol = 5)
+g <- ncol(v_b)
+v_c <- matrix(0, nrow = 1, ncol = ncol(v_b))
+
+n_sim <- 50
+
+m_mort <- array(0, dim = c(n_sim, n_t),
+                dimnames = list(v_n_states, 1:n_t))
+
+m_dir <- as.matrix(rdirichlet(n_sim, c(1,2,3,4,5)))
+
+v_1 <- matrix(1, nrow = n_sim, ncol = 1)
+
+p_OD_MET_INJ  = m_dir[,1]
+n_fent_OD = rgamma(n_sim, shape = 2, scale = 45)
+u_BUP_NI_NEG  = truncnorm::rtruncnorm(n_sim, mean = 0.8, sd = 0.1, b = 1)
+
+
+# Function to generate lognormal parameter
+location <- function(m = m, s = s){
+  log(m^2 / sqrt(s^2 + m^2))
+}
+shape <- function(m = m, s = s){
+  shape <- sqrt(log(1 + (s^2 / m^2)))
+}
+hr_BUP_NI  = rlnorm(n_sim, location(m = 3, s = 0.5), shape(m = 3, s = 0.5))
+
+
+df_2 <- data.frame(p_OD_MET_INJ, n_fent_OD, hr_BUP_NI, u_BUP_NI_NEG)
+
+n_sim = 1000 
+seed = 3730687 
+n_samp = 250
+file.death_hr = "data/death_hr.csv"
+file.frailty = "data/frailty.csv"
+file.weibull_scale = "data/weibull_scale.csv"
+file.weibull_shape = "data/weibull_shape.csv"
+file.unconditional = "data/unconditional.csv"
+file.overdose = "data/overdose.csv"
+file.hiv = "data/hiv_sero.csv"
+file.hcv = "data/hcv_sero.csv"
+file.costs = "data/costs.csv"
+file.crime_costs = "data/crime_costs.csv"
+file.qalys = "data/qalys.csv"
+file.imis_output = "outputs/imis_output.RData"
+
+t = c(3, 2, 1)
+g = t
+
+df_3 <- data.frame(
+  t <- c(3, 2, 1),
+  g <- t
+)
+
+df_4 <- data.frame(
+  vec1 <- c(3, 2, 1),
+  vec2 <- vec1
+)
+
+if (!missing(seed)) 
+  set.seed(seed)
+c_BUP_NI_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUP"], scale = df_crime_costs["scale", "BUP"])
+set.seed(seed)
+c_BUP_INJ_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUP"], scale = df_crime_costs["scale", "BUP"])
+
+
+df_5 <- data.frame(
+c_BUP_NI_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUP"], scale = df_crime_costs["scale", "BUP"]),
+c_BUP_INJ_crime = c_BUP_NI_crime
+)
+
 ## CALIBRATION TEST ##
 source("R/OPTIMA_00_input_parameter_functions.R")
 source("R/OPTIMA_01_model_setup_functions.R")
