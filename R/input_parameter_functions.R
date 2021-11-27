@@ -299,16 +299,16 @@ load_all_params <- function(file.init = NULL,
     n_ABS_OD = df_overdose["pe", "ABS_OD"],
     
     # Gamma shape parameter (prior)
-    n_TX_OD_shape = df_overdose["shape", "TX_OD"],
+    n_TX_OD_shape  = df_overdose["shape", "TX_OD"],
     n_TXC_OD_shape = df_overdose["shape", "TXC_OD"],
     n_REL_OD_shape = df_overdose["shape", "REL_OD"],
-    n_ABS_OD_shape = df_overdose["shape", "ABS_OD"],
+    n_ABS_OD_low   = df_overdose["low", "ABS_OD"],
     
     # Gamma scale parameter (prior)
-    n_TX_OD_scale = df_overdose["scale", "TX_OD"],
+    n_TX_OD_scale  = df_overdose["scale", "TX_OD"],
     n_TXC_OD_scale = df_overdose["scale", "TXC_OD"],
     n_REL_OD_scale = df_overdose["scale", "REL_OD"],
-    n_ABS_OD_scale = df_overdose["scale", "ABS_OD"],
+    n_ABS_OD_high  = df_overdose["high", "ABS_OD"],
 
     # Overdose transition multipliers
     # First 4 weeks of treatment and relapse

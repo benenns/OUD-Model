@@ -936,8 +936,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_TDP[OOT & EP1, TX & EP1, ] = 0
   a_TDP[OOT & EP2, TX & EP2, ] = 0
 
-  k_hiv <- a_TDP[, , 50]
-  k_hiv2<- a_TDP[, , 710]
+  array_1 <- a_TDP[, , 50]
+  array_2 <- a_TDP[, , n_t]
 
   #### Check transition array ####
   #check_transition_probability(a_P = a_TDP, err_stop = err_stop, verbose = verbose) # check all probs [0, 1]
@@ -1087,9 +1087,9 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     # First period full array
     write.csv(initial,"checks/initial_full.csv", row.names = TRUE)
     # Array at time = 50 months
-    write.csv(k_hiv,"checks/K2.csv", row.names = TRUE)
-    # Array at time = 710 months
-    write.csv(k_hiv2,"checks/K3.csv", row.names = TRUE)
+    write.csv(array_1,"checks/array_1.csv", row.names = TRUE)
+    # Array at time = max
+    write.csv(array_2,"checks/array_2.csv", row.names = TRUE)
     # Initial state occupancy at model initiation
     write.csv(v_s_init,"checks/v_s_init.csv", row.names = TRUE)
   } else{}

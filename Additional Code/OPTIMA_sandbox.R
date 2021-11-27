@@ -170,6 +170,32 @@ c_BUP_NI_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUP"], scale = d
 c_BUP_INJ_crime = c_BUP_NI_crime
 )
 
+a <- 3
+b <- 4
+c <- 5
+df_6 <- data.frame(a, b, c)
+
+df_x <- data.frame()
+for(i in 1:5){
+  x <- i
+  
+  #df_x <- data.frame(matrix(ncol = 1, nrow = 5))
+  df_x <- rbind(df_x, x)
+}
+
+df_y = data.frame()
+
+# Defining a for loop with 30 iterations
+
+for (i in 1:30) {
+  
+  output = c(i^3+3, i^2+2, i+1)
+  
+  # Using rbind() to append the output of one iteration to the dataframe
+  df_y = rbind(df_y, output)
+}
+
+
 ## CALIBRATION TEST ##
 source("R/OPTIMA_00_input_parameter_functions.R")
 source("R/OPTIMA_01_model_setup_functions.R")

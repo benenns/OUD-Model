@@ -32,30 +32,33 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.qalys = "data/qalys.csv")
 
 # Load calibration inputs #
-v_cali_param_names <- c("n_TX_OD",
-                        "n_TXC_OD",
-                        "n_REL_OD", 
-                        "n_TX_OD_mult",
-                        "n_TXC_OD_mult",
-                        "n_REL_OD_mult",
-                        "n_INJ_OD_mult",
-                        "n_fatal_OD")
-v_shape <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
+v_cali_param_names <- c("Overdose rate (treatment)",
+                        "Overdose rate (treatment + opioid)",
+                        "Overdose rate (active opioid)", 
+                        "Overdose rate (inactive opioid)",
+                        "First month mult (treatment)",
+                        "First month mult (treatment + opioid)",
+                        "First month mult (active opioid)",
+                        "Injection mult",
+                        "Fatal overdose rate")
+v_alpha <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
-             n_REL_OD_shape   = l_params_all$n_REL_OD_shape, 
+             n_REL_OD_shape   = l_params_all$n_REL_OD_shape,
+             n_ABS_OD_low    = l_params_all$n_ABS_OD_low,
              n_TX_OD_mult_shape  = l_params_all$n_TX_OD_mult_shape,
              n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
              n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
              n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
              n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
-v_scale <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
-             n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
-             n_REL_OD_scale   = l_params_all$n_REL_OD_scale, 
-             n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
-             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
-             n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
-             n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
-             n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
+v_beta <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
+            n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
+            n_REL_OD_scale   = l_params_all$n_REL_OD_scale,
+            n_ABS_OD_high    = l_params_all$n_ABS_OD_high,
+            n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
+            n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
+            n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
+            n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
+            n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
 
 #### Load calibration targets ####
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
@@ -86,14 +89,14 @@ set.seed(3730687)
 n_resamp <- 2000 # to match number of PSA draws
 
 ### Names and number of input parameters to be calibrated
-v_param_names  <- c("Overdose Rate (TX)",
-                    "Overdose Rate (TXC)",
-                    "Overdose Rate (REL)",
-                    "First-month Mult (TX)",
-                    "First-month Mult (TXC)",
-                    "First-month Mult (REL)",
-                    "Injection Mult",
-                    "Fatal Overdose Rate")
+#v_param_names  <- c("Overdose Rate (TX)",
+ #                   "Overdose Rate (TXC)",
+  #                  "Overdose Rate (REL)",
+   #                 "First-month Mult (TX)",
+    #                "First-month Mult (TXC)",
+     #               "First-month Mult (REL)",
+      #              "Injection Mult",
+       #             "Fatal Overdose Rate")
 
 ### Number of calibration targets
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
@@ -179,26 +182,28 @@ save(m_calib_post,
      file = "outputs/imis_output.RData")
 
 #### Plot prior vs. posterior distribution for calibration parameters ####
+# Load posterior
+imis_output <- load(file = "outputs/imis_output.RData")
+
 # Draw sample prior
 m_calib_prior <- sample.prior(n_samp = 1000)
 
 # Prepare data
-
 colnames(m_calib_post)[8] <- "n_fatal_OD" #This step just for now due to naming discrepancy (remove later)
 
 df_samp_prior <- melt(cbind(Distribution = "Prior", 
                             as.data.frame(m_calib_prior[1:1000, ])), 
-                      variable.name = "Parameter")
+                            variable.name = "Parameter")
 df_samp_post_imis  <- melt(cbind(Distribution = "Posterior", 
                                  as.data.frame(m_calib_post[1:1000, ])), 
-                           variable.name = "Parameter")
+                                 variable.name = "Parameter")
 
 df_calib_prior_post <- rbind(df_samp_prior, df_samp_post_imis)
 
 
 df_calib_prior_post$Distribution <- ordered(df_calib_prior_post$Distribution, 
                                             levels = c("Prior", 
-                                                      "Posterior"))
+                                                       "Posterior"))
 
 df_calib_prior_post$Parameter <- factor(df_calib_prior_post$Parameter,
                                        levels = levels(df_calib_prior_post$Parameter),
@@ -223,11 +228,11 @@ prior_v_posterior <- ggplot(df_calib_prior_post,
          color = guide_legend(title = "", order = 2)) +
   theme(legend.position = "bottom",
         legend.box = "vertical",
-        legend.margin=margin(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank(),
+        legend.margin = margin(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
         strip.background = element_rect(fill = "white",
                                         color = "white"),
         strip.text = element_text(hjust = 0))

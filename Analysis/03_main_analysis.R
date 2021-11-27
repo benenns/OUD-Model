@@ -1,3 +1,5 @@
+rm(list = ls()) # to clean the workspace
+
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
@@ -7,7 +9,6 @@ library(xlsx)
 # Call model setup functions
 # To-do: Move into package eventually
 source("R/input_parameter_functions.R")
-source("R/generate_psa_parameter_functions.R")
 source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
 
@@ -58,12 +59,12 @@ ICER <- ICER(outcomes_comp = l_outcomes_MET, outcomes_int = l_outcomes_BUP)
 
 #### OUTPUT RESULTS ####
 # Full model trace
-write.csv(outcomes_MET$m_M_trace,"outputs/trace/trace_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$m_M_trace,"outputs/trace/trace_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$m_M_trace,"outputs/trace/trace_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$m_M_trace,"outputs/trace/trace_BUP.csv", row.names = TRUE)
 
 # Full model costs
-write.csv(outcomes_MET$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_BUP.csv", row.names = TRUE)
 
 # Outcomes
 # Disaggregated
@@ -85,24 +86,24 @@ write.csv(df_icer,"outputs/icer_det.csv", row.names = TRUE)
 
 # Raw outputs
 # Costs
-write.csv(outcomes_MET$v_costs,"outputs/costs/costs_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$v_costs,"outputs/costs/costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$v_costs,"outputs/costs/costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$v_costs,"outputs/costs/costs_BUP.csv", row.names = TRUE)
 
 # Treatment
-write.csv(outcomes_MET$m_TX_costs,"outputs/costs/tx_costs_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$m_TX_costs,"outputs/costs/tx_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$m_TX_costs,"outputs/costs/tx_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$m_TX_costs,"outputs/costs/tx_costs_BUP.csv", row.names = TRUE)
 
 # Health sector
-write.csv(outcomes_MET$m_HRU_costs,"outputs/costs/hru_costs_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$m_HRU_costs,"outputs/costs/hru_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$m_HRU_costs,"outputs/costs/hru_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$m_HRU_costs,"outputs/costs/hru_costs_BUP.csv", row.names = TRUE)
 
 # Crime
-write.csv(outcomes_MET$m_crime_costs,"outputs/costs/crime_costs_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$m_crime_costs,"outputs/costs/crime_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$m_crime_costs,"outputs/costs/crime_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$m_crime_costs,"outputs/costs/crime_costs_BUP.csv", row.names = TRUE)
 
 # QALYs
-write.csv(outcomes_MET$v_qalys,"outputs/qalys/qalys_MET.csv", row.names = TRUE)
-write.csv(outcomes_BUP$v_qalys,"outputs/qalys/qalys_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET$v_qalys,"outputs/qalys/qalys_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP$v_qalys,"outputs/qalys/qalys_BUP.csv", row.names = TRUE)
 
 # ICER
 write.csv(ICER$v_icer,"outputs/ICER/ICER.csv", row.names = TRUE)
