@@ -69,7 +69,7 @@ df_psa_params <- generate_psa_params(n_sim = 1000, seed = 3730687, n_samp = 250,
 
 ### Run decision model on each parameter set of PSA input dataset to produce
 ### PSA outputs for cost and effects
-n_sim <- 20 # just to test function
+n_sim <- 250 # just to test function
 
 # Initialize data frames
 df_outcomes_MET_PSA <- data.frame()
