@@ -1180,3 +1180,26 @@ for(i in 1:n_t){
                                                                                           n_INJ_OD_mult_prior = n_INJ_OD_mult,
                                                                                           n_fatal_OD_prior = n_fatal_OD)
   #df_calib_prior_post <- merge(df_calib_prior, df_calib_post, by.x = "ID", by.y = "ID") #merge prior and posterior estimates
+  
+  q0 = min(value),
+  q01 = quantile(value, probs = .01), q02 = quantile(value, probs = .02), q03 = quantile(value, probs = .03), q04 = quantile(value, probs = .04), q05 = quantile(value, probs = .05),
+  q06 = quantile(value, probs = .06), q07 = quantile(value, probs = .07), q08 = quantile(value, probs = .08), q09 = quantile(value, probs = .09), q10 = quantile(value, probs = .1),
+  q11 = quantile(value, probs = .11), q12 = quantile(value, probs = .12), q13 = quantile(value, probs = .13), q14 = quantile(value, probs = .14), q15 = quantile(value, probs = .15),
+  q15 = quantile(value, probs = .15), q16 = quantile(value, probs = .16), q17 = quantile(value, probs = .17), q18 = quantile(value, probs = .18), q19 = quantile(value, probs = .19),
+  q20 = quantile(value, probs = .20), q21 = quantile(value, probs = .21), q22 = quantile(value, probs = .22), q23 = quantile(value, probs = .23), q24 = quantile(value, probs = .24),
+  q25 = quantile(value, probs = .25), q26 = quantile(value, probs = .26), q27 = quantile(value, probs = .27), q28 = quantile(value, probs = .28), q29 = quantile(value, probs = .29),
+  q30 = quantile(value, probs = .30), q31 = quantile(value, probs = .31), q32 = quantile(value, probs = .32), q33 = quantile(value, probs = .33), q34 = quantile(value, probs = .34),
+  q35 = quantile(value, probs = .35), q36 = quantile(value, probs = .36), q37 = quantile(value, probs = .37), q38 = quantile(value, probs = .38), q39 = quantile(value, probs = .39),
+  q40 = quantile(value, probs = .40), q41 = quantile(value, probs = .41), q42 = quantile(value, probs = .42), q43 = quantile(value, probs = .43), q44 = quantile(value, probs = .44),
+  q45 = quantile(value, probs = .45), q46 = quantile(value, probs = .46), q47 = quantile(value, probs = .47), q48 = quantile(value, probs = .48), q49 = quantile(value, probs = .49),
+  q50 = quantile(value, probs = .50), q51 = quantile(value, probs = .51), q52 = quantile(value, probs = .52), q53 = quantile(value, probs = .53), q54 = quantile(value, probs = .54),
+  q55 = quantile(value, probs = .55), q56 = quantile(value, probs = .56), q57 = quantile(value, probs = .57), q58 = quantile(value, probs = .58), q59 = quantile(value, probs = .59),
+  q60 = quantile(value, probs = .60), q61 = quantile(value, probs = .61), q62 = quantile(value, probs = .62), q63 = quantile(value, probs = .63), q64 = quantile(value, probs = .64),
+  q65 = quantile(value, probs = .65),
+  q70 = quantile(value, probs = .7),
+  q75 = quantile(value, probs = .75),
+  q80 = quantile(value, probs = .8),
+  q85 = quantile(value, probs = .85),
+  q90 = quantile(value, probs = .9),
+  q95 = quantile(value, probs = .95),
+  q100 = max(value))
