@@ -79,7 +79,10 @@ df_ICER_PSA <- data.frame()
 v_outcomes_names <- c("Total Costs (1-year)", "Total Costs (5-year)", "Total Costs (10-year)", "Total Costs (Lifetime)", "Health Sector Costs (1-year)", "Health Sector Costs (5-year)", "Health Sector Costs (10-year)", "Health Sector Costs (Lifetime)",
                       "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)",
                       "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
-v_ICER_names <- c("ICER (1-year)", "ICER (5-year)", "ICER (10-year)", "ICER (Lifetime)", "ICER (Health Sector 1-year)", "ICER (Health Sector 5-year)", "ICER (Health Sector 10-year)", "ICER (Health Sector Lifetime)")
+v_ICER_names <- c("ICER (1-year)", "ICER (5-year)", "ICER (10-year)", "ICER (Lifetime)",
+                  "ICER (Health Sector 1-year)", "ICER (Health Sector 5-year)", "ICER (Health Sector 10-year)", "ICER (Health Sector Lifetime)",
+                  "Incremental Costs (1-year)", "Incremental QALYs (1-year)", "Incremental Costs (5-year)", "Incremental QALYs (5-year)", "Incremental Costs (10-year)", "Incremental QALYs (10-year)", "Incremental Costs (Lifetime)", "Incremental QALYs (Lifetime)",
+                  "Incremental Costs (Health Sector 1-year)", "Incremental QALYs (Health Sector 1-year)", "Incremental Costs (Health Sector 5-year)", "Incremental QALYs (Health Sector 5-year)", "Incremental Costs (Health Sector 10-year)", "Incremental QALYs (Health Sector 10-year)", "Incremental Costs (Health Sector Lifetime)", "Incremental QALYs (Health Sector Lifetime)")
 
 for(i in 1:n_sim){ # i <- 1
   # Update parameter set for each scenario with next set of PSA drawn parameters
@@ -141,8 +144,7 @@ tbl_df_summary_BUP <- df_outcomes_BUP_PSA %>% as.tibble() %>% gather("variable",
                                                                                                                                q025 = quantile(value, probs = .025),
                                                                                                                                q975 = quantile(value, probs = .975),
                                                                                                                                min = min(value),
-                                                                                                                               max = max(value),
-                                                                                                                               percent_cs = length(value[variable<=0])) # want to add countif for number of CS
+                                                                                                                               max = max(value))
 # ICER
 tbl_df_summary_ICER <- df_ICER_PSA %>% as.tibble() %>% gather("variable", "value") %>% group_by(variable) %>% summarize(mean = mean(value),
                                                                                                                         sd = sd(value),
@@ -150,7 +152,7 @@ tbl_df_summary_ICER <- df_ICER_PSA %>% as.tibble() %>% gather("variable", "value
                                                                                                                         q025 = quantile(value, probs = .025),
                                                                                                                         q975 = quantile(value, probs = .975),
                                                                                                                         min = min(value),
-                                                                                                                        max = max(value))
+                                                                                                                        max = max(value)) # want to add countif for number of CS
 
 
 df_PSA_summary <- as.data.frame()
