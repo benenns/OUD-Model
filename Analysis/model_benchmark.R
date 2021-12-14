@@ -43,3 +43,16 @@ plot <- autoplot(df_model_benchmark)
 ggsave(plot, 
        filename = "Plots/Benchmark/model_benchmark.png", 
        width = 10, height = 7)
+
+# Benchmark model calibration
+l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
+                       ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
+
+n_cali_max_per <- max(c(l_cali_targets$ODF$Time, l_cali_targets$ODN$Time))
+
+df_model_benchmark_cali <- microbenchmark("Markov Model (Cali)" = markov_model(l_params_all = l_params_all, cali = TRUE), times = 100)
+plot_cali <- autoplot(df_model_benchmark_cali)
+
+ggsave(plot_cali, 
+       filename = "Plots/Benchmark/model_benchmark_cali.png", 
+       width = 10, height = 7)

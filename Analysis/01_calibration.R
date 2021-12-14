@@ -41,7 +41,7 @@ v_cali_param_names <- c("Overdose rate (treatment)",
                         "First month mult (active opioid)",
                         "Injection mult",
                         "Fatal overdose rate")
-v_alpha <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
+v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
              n_REL_OD_shape   = l_params_all$n_REL_OD_shape,
              n_ABS_OD_low    = l_params_all$n_ABS_OD_low,
@@ -50,7 +50,7 @@ v_alpha <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
              n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
              n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
-v_beta <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
+v_par2 <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
             n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
             n_REL_OD_scale   = l_params_all$n_REL_OD_scale,
             n_ABS_OD_high    = l_params_all$n_ABS_OD_high,
@@ -63,6 +63,9 @@ v_beta <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
 #### Load calibration targets ####
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
                        ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
+
+# Max calibration periods
+n_cali_max_per <- max(c(l_cali_targets$ODF$Time, l_cali_targets$ODN$Time))
 
 #### Visualize targets ####
 ### TARGET 1: Overdose deaths ("ODF")
@@ -103,10 +106,10 @@ v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
 n_target       <- length(v_target_names)
 
 #### Run IMIS algorithm ####
-l_fit_imis <- IMIS(B = 100,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
+l_fit_imis <- IMIS(B = 1000,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
-                   number_k = 10,      # maximum number of iterations in IMIS
-                   D = 0)
+                   number_k = 100,      # maximum number of iterations in IMIS (originally 10)
+                   D = 1) # originally 0
 ### Obtain posterior
 m_calib_post <- l_fit_imis$resample
 
@@ -186,16 +189,16 @@ save(m_calib_post,
 imis_output <- load(file = "outputs/imis_output.RData")
 
 # Draw sample prior
-m_calib_prior <- sample.prior(n_samp = 1000)
+m_calib_prior <- sample.prior(n_samp = n_resamp)
 
 # Prepare data
-colnames(m_calib_post)[8] <- "n_fatal_OD" #This step just for now due to naming discrepancy (remove later)
+#colnames(m_calib_post)[8] <- "n_fatal_OD" #This step just for now due to naming discrepancy (remove later)
 
 df_samp_prior <- melt(cbind(Distribution = "Prior", 
-                            as.data.frame(m_calib_prior[1:1000, ])), 
+                            as.data.frame(m_calib_prior[1:n_resamp, ])), 
                             variable.name = "Parameter")
 df_samp_post_imis  <- melt(cbind(Distribution = "Posterior", 
-                                 as.data.frame(m_calib_post[1:1000, ])), 
+                                 as.data.frame(m_calib_post[1:n_resamp, ])), 
                                  variable.name = "Parameter")
 
 df_calib_prior_post <- rbind(df_samp_prior, df_samp_post_imis)

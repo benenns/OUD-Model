@@ -219,6 +219,8 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
                        ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
 
+n_cali_max_per <- max(c(l_cali_targets$ODF$Time, l_cali_targets$ODN$Time))
+
 v_params_calib <- c(n_BUP_OD = l_params_all$n_BUP_OD,
                     n_BUPC_OD = l_params_all$n_BUPC_OD,
                     n_MET_OD = l_params_all$n_MET_OD,

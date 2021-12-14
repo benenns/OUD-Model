@@ -12,7 +12,7 @@
 #' m_M_agg_trace_death: State-specific mortality from each health state
 #' m_M_agg_trace_sero: HIV seroconversions from each health state
 #' @export
-markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks = FALSE){
+markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks = FALSE, cali = FALSE){
   ### Definition:
   ##   Markov model implementation function
   ### Prefixes:
@@ -48,8 +48,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   EP <-  l_dim_s[[3]] <- c("1", "2", "3")
   # HIV/HCV status
   SERO <- l_dim_s[[4]] <- c("NEG", "HIV", "HCV", "COI")
-  # Maximum model periods
-  n_t <- (n_age_max - n_age_init) * n_per # convert years
+  # Set model periods
+  if(cali){
+    # Calibration periods
+    n_t <- (n_cali_max_per + 1) # if calibrating, cut model off at max calibration output (e.g. 36 months for three-years)
+  } else{
+    # Maximum model periods(regular)
+    n_t <- (n_age_max - n_age_init) * n_per # convert years
+  }
   
   df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
   df_flat <- rename(df_flat, BASE    = Var1, 
@@ -936,7 +942,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_TDP[OOT & EP1, TX & EP1, ] = 0
   a_TDP[OOT & EP2, TX & EP2, ] = 0
 
-  array_1 <- a_TDP[, , 50]
+  array_1 <- a_TDP[, , 24]
   array_2 <- a_TDP[, , n_t]
 
   #### Check transition array ####

@@ -15,7 +15,7 @@ calibration_out <- function(v_params_calib,
   l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
   
   # Run model with updated calibrated parameters
-  l_out_markov <- markov_model(l_params_all = l_params_all)
+  l_out_markov <- markov_model(l_params_all = l_params_all, cali = TRUE)
   
   #### Epidemiological Output ####
   ### Overdose deaths ###
@@ -57,8 +57,8 @@ calibration_out <- function(v_params_calib,
 ## Sample prior distribution ##
 sample.prior <- function(n_samp, 
                          v_param_names = v_cali_param_names, 
-                         v_alpha = v_alpha, 
-                         v_beta = v_beta){
+                         v_alpha = v_par1, 
+                         v_beta = v_par2){
   n_param <- length(v_param_names)
   # random latin hypercube sampling
   m_lhs_unit   <- lhs::randomLHS(n = n_samp, k = n_param) 
@@ -93,8 +93,8 @@ sample.prior <- function(n_samp,
 #### Log prior ####
 log_prior <- function(v_params, 
                       v_param_names = v_cali_param_names, 
-                      v_alpha = v_shape, 
-                      v_beta = v_scale){
+                      v_alpha = v_par1, 
+                      v_beta = v_par2){
   if(is.null(dim(v_params))) { # If vector, change to matrix
     v_params <- t(v_params) 
   }
@@ -106,7 +106,7 @@ log_prior <- function(v_params,
   lprior <- lprior + dgamma(v_params[, 1], shape = v_alpha[1], scale = v_beta[1], log = TRUE) # n_TX_OD
   lprior <- lprior + dgamma(v_params[, 2], shape = v_alpha[2], scale = v_beta[2], log = TRUE) # n_TXC_OD
   lprior <- lprior + dgamma(v_params[, 3], shape = v_alpha[3], scale = v_beta[3], log = TRUE) # n_REL_OD
-  lprior <- lprior + dgamma(v_params[, 4], shape = v_alpha[4], scale = v_beta[4], log = TRUE) # n_ABS_OD
+  lprior <- lprior + dunif(v_params[, 4], min = v_alpha[4], max = v_beta[4], log = TRUE) # n_ABS_OD
   lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TX_OD_mult
   lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE) # n_TXC_OD_mult
   lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_REL_OD_mult
