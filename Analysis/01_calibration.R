@@ -32,15 +32,15 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.qalys = "data/qalys.csv")
 
 # Load calibration inputs #
-v_cali_param_names <- c("Overdose rate (treatment)",
-                        "Overdose rate (treatment + opioid)",
-                        "Overdose rate (active opioid)", 
-                        "Overdose rate (inactive opioid)",
-                        "First month mult (treatment)",
-                        "First month mult (treatment + opioid)",
-                        "First month mult (active opioid)",
-                        "Injection mult",
-                        "Fatal overdose rate")
+v_cali_param_names <- c("'Overdose rate (treatment)'",
+                        "'Overdose rate (treatment + opioid)'",
+                        "'Overdose rate (active opioid)'", 
+                        "'Overdose rate (inactive opioid)'",
+                        "'First month mult (treatment)'",
+                        "'First month mult (treatment + opioid)'",
+                        "'First month mult (active opioid)'",
+                        "'Injection mult'",
+                        "'Fatal overdose rate'")
 v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
              n_REL_OD_shape   = l_params_all$n_REL_OD_shape,
@@ -109,7 +109,7 @@ n_target       <- length(v_target_names)
 l_fit_imis <- IMIS(B = 1000,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
                    number_k = 100,      # maximum number of iterations in IMIS (originally 10)
-                   D = 1) # originally 0
+                   D = 0) # originally 0
 ### Obtain posterior
 m_calib_post <- l_fit_imis$resample
 
@@ -130,7 +130,7 @@ v_calib_post_map  <- m_calib_post[which.max(v_calib_post), ]
 
 # Summary statistics
 df_posterior_summ <- data.frame(
-  Parameter = v_param_names,
+  Parameter = v_cali_param_names,
   Mean      = v_calib_post_mean,
   m_calib_post_95cr,
   MAP       = v_calib_post_map,
@@ -160,9 +160,9 @@ s3d <- scatterplot3d::scatterplot3d(x = m_calib_post[, 1],
                                     xlim = c(v_lb[1], v_ub[1]), 
                                     ylim = c(v_lb[2], v_ub[2]), 
                                     zlim = c(v_lb[3], v_ub[3]),
-                                    xlab = v_param_names[1], 
-                                    ylab = v_param_names[2], 
-                                    zlab = v_param_names[3])
+                                    xlab = v_cali_param_names[1], 
+                                    ylab = v_cali_param_names[2], 
+                                    zlab = v_cali_param_names[3])
 ## Add center of Gaussian components
 s3d$points3d(l_fit_imis$center, col = "red", pch = 8)
 ## Add legend
@@ -211,7 +211,7 @@ df_calib_prior_post$Distribution <- ordered(df_calib_prior_post$Distribution,
 df_calib_prior_post$Parameter <- factor(df_calib_prior_post$Parameter,
                                        levels = levels(df_calib_prior_post$Parameter),
                                        ordered = TRUE,
-                                       labels = v_param_names)
+                                       labels = v_cali_param_names)
 
 ### Plot priors and IMIS posteriors
 # TO-DO: Add vertical lines for prior mean and MAP
