@@ -419,8 +419,8 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     p_OD_REL_INJ  = m_OD_UP_INJ[,6],
     
     ### Overdose ###
-    n_fent_OD = rgamma(n_sim, shape = df_overdose["shape", "fent_OD_rate"], scale = df_overdose["scale", "fent_OD_rate"]),
-    p_fent_exp = rbeta(n_sim, shape1 = df_overdose["shape1", "fent_exp_prob"], shape2 = df_overdose["shape2", "fent_exp_prob"]),
+    #n_fent_OD = rgamma(n_sim, shape = df_overdose["shape", "fent_OD_rate"], scale = df_overdose["scale", "fent_OD_rate"]),
+    #p_fent_exp = rbeta(n_sim, shape1 = df_overdose["shape1", "fent_exp_prob"], shape2 = df_overdose["shape2", "fent_exp_prob"]),
     p_ni_fent_reduction = rbeta(n_sim, shape1 = df_overdose["shape1", "ni_fent_reduction"], shape2 = df_overdose["shape2", "ni_fent_reduction"]),
     p_witness = rbeta(n_sim, shape1 = df_overdose["shape1", "witness_prob"], shape2 = df_overdose["shape2", "witness_prob"]),
     p_attended = rbeta(n_sim, shape1 = df_overdose["shape1", "attended_prob"], shape2 = df_overdose["shape2", "attended_prob"]),

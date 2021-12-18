@@ -29,6 +29,7 @@ load_mort_params <- function(file.mort = NULL, n_male){
 #' @param file.weibull_shape String with the location and name of the file with weibull shape
 #' @param file.unconditional String with the location and name of the file with empirical destination states
 #' @param file.overdose String with the location and name of the file with overdose/fentanyl-related parameters
+#' @param file.fentanyl String with the location and name of the file with fentanyl exposure parameters
 #' @param file.hiv String with the location and name of the file with HIV seroconversion probabilities
 #' @param file.hcv String with the location and name of the file with HCV seroconversion probabilities
 #' @param file.costs String with the location and name of the file with costs (excluding crime costs)
@@ -47,6 +48,7 @@ load_all_params <- function(file.init = NULL,
                             file.weibull_shape = NULL,
                             file.unconditional = NULL,
                             file.overdose = NULL,
+                            file.fentanyl = NULL,
                             file.hiv = NULL,
                             file.hcv = NULL,
                             file.costs = NULL,
@@ -62,6 +64,7 @@ load_all_params <- function(file.init = NULL,
   df_weibull_shape <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
+  df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl exposure parameters
   df_hiv <- read.csv(file = file.hiv, row.names = 1, header = TRUE) # HIV seroconversion probs
   df_hcv <- read.csv(file = file.hcv, row.names = 1, header = TRUE) # HCV seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
@@ -344,10 +347,50 @@ load_all_params <- function(file.init = NULL,
     
     # Fentanyl
     # Rate of fentanyl overdose
-    n_fent_OD = df_overdose["pe", "fent_OD_rate"],
+    #n_fent_OD = df_overdose["pe", "fent_OD_rate"],
+    # Fentanyl rate multiplier
+    n_fent_OD_mult = df_overdose["pe", "fent_OD_mult"],
+    n_fent_OD_shape = df_overdose["shape", "fent_OD_mult"],
+    n_fent_OD_scale = df_overdose["scale", "fent_OD_mult"],
+    
     # Probability of fentanyl exposure
-    p_fent_exp = df_overdose["pe", "fent_exp_prob"],
+    #p_fent_exp = df_overdose["pe", "fent_exp_prob"],
     p_ni_fent_reduction = df_overdose["pe", "ni_fent_reduction"],
+    p_REL_fent_reduction = df_overdose["pe", "REL_fent_reduction"],
+    p_TX_fent_reduction = df_overdose["pe", "TX_fent_reduction"],
+    p_TXC_fent_reduction = df_overdose["pe", "TXC_fent_reduction"],
+    p_ABS_fent_reduction = df_overdose["pe", "ABS_fent_reduction"],
+    
+    # Projected growth rate in fentanyl exposure (person-month)
+    n_fent_growth_rate = df_fentanyl["pe", "fent_growth"],
+    
+    p_fent_exp_base = df_fentanyl["2018", "AVG"],
+    p_fent_exp = df_fentanyl["2020", "CAN"],
+    
+    # Overall - Fentanyl prevalence
+    #p_fent_exp_2018 = df_fentanyl["2018", "CAN"],
+    #p_fent_exp_2019 = df_fentanyl["2019", "CAN"],
+    #p_fent_exp_2020 = df_fentanyl["2020", "CAN"],
+    
+    # BC - Fentanyl prevalence
+    #p_fent_exp_2018_bc = df_fentanyl["2018", "BC"],
+    #p_fent_exp_2019_bc = df_fentanyl["2019", "BC"],
+    #p_fent_exp_2020_bc = df_fentanyl["2020", "BC"],
+    
+    # AB - Fentanyl prevalence
+    #p_fent_exp_2018_ab = df_fentanyl["2018", "AB"],
+    #p_fent_exp_2019_ab = df_fentanyl["2019", "AB"],
+    #p_fent_exp_2020_ab = df_fentanyl["2020", "AB"],
+    
+    # ON - Fentanyl prevalence
+    #p_fent_exp_2018_on = df_fentanyl["2018", "ON"],
+    #p_fent_exp_2019_on = df_fentanyl["2019", "ON"],
+    #p_fent_exp_2020_on = df_fentanyl["2020", "ON"],
+    
+    # QC - Fentanyl prevalence
+    #p_fent_exp_2018_qc = df_fentanyl["2018", "QC"],
+    #p_fent_exp_2019_qc = df_fentanyl["2019", "QC"],
+    #p_fent_exp_2020_qc = df_fentanyl["2020", "QC"],
     
     # Naloxone
     p_witness = df_overdose["pe", "witness_prob"],

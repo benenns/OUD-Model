@@ -233,6 +233,19 @@ v_params_calib <- c(n_BUP_OD = l_params_all$n_BUP_OD,
                     n_INJ_OD_mult = l_params_all$n_INJ_OD_mult,
                     n_fatal_OD = l_params_all$n_fatal_OD)
 
-#test <- calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all)
+#test <- calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all) 1-EXP(-M21)
 
 test2 <- sample.prior(n_samp = 100)
+
+n_t <- 720
+p_fent_exp_base <- 0.50
+n_fent_growth_rate <- 0.0131
+v_fent_exp_rate <- rep(0, n_t)
+#test <- -log(1- p_fent_exp_base)
+
+for(i in 2:n_t){
+  v_fent_exp_rate[1] <- -log(1- p_fent_exp_base)
+  v_fent_exp_rate[i] <- v_fent_exp[i-1] + n_fent_growth_rate
+}
+v_fent_exp_prob <- 1 - exp(-v_fent_exp_rate)
+v_fent_exp_prob

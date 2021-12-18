@@ -40,6 +40,7 @@ v_cali_param_names <- c("'Overdose rate (treatment)'",
                         "'First month mult (treatment + opioid)'",
                         "'First month mult (active opioid)'",
                         "'Injection mult'",
+                        "'Fentanyl mult'",
                         "'Fatal overdose rate'")
 v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
@@ -49,6 +50,7 @@ v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
              n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
              n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
+             n_fent_OD_mult_shape = l_params_all$n_fent_OD_mult_shape,
              n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
 v_par2 <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
             n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
@@ -58,6 +60,7 @@ v_par2 <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
             n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
             n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
+            n_fent_OD_mult_scale = l_params_all$n_fent_OD_mult_scale,
             n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
 
 #### Load calibration targets ####
