@@ -1,8 +1,9 @@
 #############
 #TEST MODULE#
 #############
-dat <- as.matrix(read.csv("C:/Users/Benjamin/Desktop/Book1.csv", header = FALSE))
-death <- as.matrix(read.csv("C:/Users/Benjamin/Desktop/Book2.csv", header = FALSE))
+dat <- as.matrix(read.csv("C:/Users/Ben/Desktop/Book1.csv", header = FALSE))
+death <- as.matrix(read.csv("C:/Users/Ben/Desktop/Book2.csv", header = FALSE))
+overdose <- as.matrix(read.csv("C:/Users/Ben/Desktop/Book3.csv", header = FALSE))
 
 a_test <- array(0, dim = c(5, 5, 10),
                 dimnames = list())
@@ -11,10 +12,13 @@ for (i in 1:10){
 }
 
 a_test_trace <- a_test_trace_d <- array(0, dim = c(11, 5, 11))
-m_test <- array(0, dim = c(5, 10))
-m_test <- death
+m_death <- array(0, dim = c(5, 10))
+m_death <- death
+m_overdose <- array(0, dim = c(5, 10))
+m_overdose <- overdose
 
-m_test_death <- 1 - m_test
+m_alive <- 1 - m_death
+m_non_od <- 1 - m_overdose
 
 v_init <- c(1, 0, 0, 0, 0)
 a_test_trace[1, , 1] <- v_init
@@ -22,13 +26,19 @@ a_test_trace[1, , 1] <- v_init
 # All model time periods
 for(i in 2:10){
   for(j in 1:(i - 1)){
-    m_sojourn <- a_test[, , j] * m_test[, i - 1]
-    v_current_state <- as.vector(a_test_trace[i - 1, , j])
-    v_same_state <- as.vector(v_current_state * diag(m_sojourn))
-    a_test_trace[i, ,j + 1] <- v_same_state 
-    diag(m_sojourn) <- 0
-    v_new_state <- as.vector(v_current_state %*% m_sojourn)
-    a_test_trace[i,,1] <- v_new_state + a_test_trace[i,,1]
+    m_sojourn <- a_test[, , j] * m_alive[, i-1] * m_OD_time_adj[, i-1] # state-time transition matrix at time j, re-weight for model-time varying overdose at each time point
+    
+    v_current_state <- as.vector(a_test_trace[i - 1, , j]) # all in current state
+    
+    v_same_state <- as.vector(v_current_state * diag(m_sojourn)) # individuals remaining
+    
+    a_test_trace[i, ,j + 1] <- v_same_state # apply to next period
+    
+    diag(m_sojourn) <- 0 # reset remain to 0
+    
+    v_new_state <- as.vector(v_current_state %*% m_sojourn) # populate new states (excluding remaining)
+    
+    a_test_trace[i,,1] <- v_new_state + a_test_trace[i,,1] # add new state %'s to matrix
   }
 }
 
@@ -36,7 +46,7 @@ m_M_trace <- array(0, dim = c(11, 5))
 for (i in 1:10){
   m_M_trace[i, ] <- rowSums(a_test_trace[i, ,])
 }
-write.csv(m_M_trace,"C:/Users/Benjamin/Desktop/test_trace.csv", row.names = TRUE)
+write.csv(m_M_trace,"C:/Users/Ben/Desktop/test_trace.csv", row.names = TRUE)
 
 m_M_trace_d <- array(0, dim = c(11, 5))
 for (i in 2:11){

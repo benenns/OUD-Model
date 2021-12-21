@@ -67,10 +67,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
 
   # Create index of states to populate transition matrices
   # All treatment
-  TX <- df_flat$BASE == "BUP" | df_flat$BASE == "BUPC" | df_flat$BASE == "MET" | df_flat$BASE == "METC"
+  TX <- df_flat$BASE == "BUP" | df_flat$BASE == "MET"
+  TXC <- df_flat$BASE == "BUPC" | df_flat$BASE == "METC"
+  all_TX <- df_flat$BASE == "BUP" | df_flat$BASE == "BUPC" | df_flat$BASE == "MET" | df_flat$BASE == "METC"
   
   # All out-of-treatment (incl ABS)
-  OOT <- df_flat$BASE == "REL" | df_flat$BASE == "ODN" | df_flat$BASE == "ODF" | df_flat$BASE == "ABS"
+  OOT <- df_flat$BASE == "REL" | df_flat$BASE == "ABS" #| df_flat$BASE == "ODN" | df_flat$BASE == "ODF" 
   
   # Buprenorphine
   BUP  <- df_flat$BASE == "BUP" # treatment only 
@@ -146,7 +148,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
                    #rate_fent = n_fent_OD,
                    multiplier = multiplier,
                    fent_mult = fent_mult,
-                   fent_reduction_state = fent_reduction_state,
+                   #fent_reduction_state = fent_reduction_state,
                    month = month,
                    first_month = FALSE,
                    fatal = FALSE,
@@ -184,19 +186,19 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     
     # Convert input monthly rates to monthly probabilities - multiply rates by first month multiplier before converting
     if (injection == TRUE && first_month == TRUE){
-      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * multiplier * (v_fent_exp_prob[month] * fent_reduction_state * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * multiplier * (v_fent_exp_prob[month] * fent_mult)))
       #p_fent_OD <- 1 - exp(-(rate_fent * multiplier))
     }
     else if (injection == TRUE && first_month == FALSE){
-      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * (v_fent_exp_prob[month] * fent_reduction_state * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * (v_fent_exp_prob[month] * fent_mult)))
       #p_fent_OD <- 1 - exp(-(rate_fent))
     }
     else if (injection == FALSE && first_month == TRUE){
-      p_base_OD <- 1 - exp(-(rate * multiplier * (v_fent_exp_prob[month] * fent_reduction_state * p_ni_fent_reduction * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * multiplier * (v_fent_exp_prob[month] * p_ni_fent_reduction * fent_mult)))
       #p_fent_OD <- 1 - exp(-(rate_fent * multiplier))
     }
     else if (injection == FALSE && first_month == FALSE){
-      p_base_OD <- 1 - exp(-(rate * (v_fent_exp_prob[month] * fent_reduction_state * p_ni_fent_reduction * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * (v_fent_exp_prob[month] * p_ni_fent_reduction * fent_mult)))
       #p_fent_OD <- 1 - exp(-(rate_fent))
     }
 
@@ -220,62 +222,117 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   }
 
   # Module to calculate probability of overdose from states
-  for(j in 1:n_t){
+  # Four separate matrices to account for state-time (first month vs. second+), and model-time (changing fentanyl prevalence, etc.)
+  #### Time-dependent overdose probabilities ####
+  # Empty 2-D matrix
+  m_ODN <- m_ODN_first <- m_ODF <- m_ODF_first <- array(0, dim = c(n_states, n_t),
+                                                  dimnames = list(v_n_states, 1:n_t))
+  
+  for(i in 1:n_t){
   # Probability of overdose
-  # Non-injection
-  # Non-fatal
-  p_BUP_ODN_NI  <- p_MET_ODN_NI <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  p_BUPC_ODN_NI <- p_METC_ODN_NI <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  p_REL_ODN_NI  <- p_ODN_ODN_NI <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  # Non-fatal (first month)
+  m_ODN_first[TX & NI, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  m_ODN_first[TXC & NI, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  m_ODN_first[REL & NI, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  m_ODN_first[ABS & NI, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  m_ODN_first[TX & INJ, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  m_ODN_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  m_ODN_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  m_ODN_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
+    
+  # Fatal (first month)
+  m_ODF_first[TX & NI, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  m_ODF_first[TXC & NI, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  m_ODF_first[REL & NI, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  m_ODF_first[ABS & NI, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  m_ODF_first[TX & INJ, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  m_ODF_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  m_ODF_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  m_ODF_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
+    
+  # Non-fatal (month 2+)
+  m_ODN[TX & NI, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  m_ODN[TXC & NI, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  m_ODN[REL & NI, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  m_ODN[ABS & NI, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  m_ODN[TX & INJ, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  m_ODN[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  m_ODN[REL & INJ, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  m_ODN[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  
+  # Fatal (month 2+)
+  m_ODF[TX & NI, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  m_ODF[TXC & NI, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  m_ODF[REL & NI, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  m_ODF[ABS & NI, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  m_ODF[TX & INJ, i] <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  m_ODF[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  m_ODF[REL & INJ, i] <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  m_ODF[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, month = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  
+  # Model-time overdose adjustment factors
+  m_ODN_first_adj[, i] <- (m_ODN_first[, i + 1] - m_ODN_first[, i])/m_ODN_first[, i]
+  m_ODF_first_adj[, i] <- (m_ODF_first[, i + 1] - m_ODF_first[, i])/m_ODN_first[, i]
+  m_ODN_adj[, i] <- (m_ODN[, i + 1] - m_ODN[, i])/m_ODN[, i]
+  m_ODF_adj[, i] <- (m_ODF[, i + 1] - m_ODF[, i])/m_ODF[, i]
+  }
+  
+
+  # Non-overdose matrices
+  #m_ODN_first
+    
+  #p_BUP_ODN_NI  <- p_MET_ODN_NI <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  #p_BUPC_ODN_NI <- p_METC_ODN_NI <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  #p_REL_ODN_NI  <- p_ODN_ODN_NI <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  #p_ABS_ODN_NI  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, month = j, first_month = FALSE, fatal = FALSE, injection = FALSE)
 
   # Fatal
-  p_BUP_ODF_NI  <- p_MET_ODF_NI <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  p_BUPC_ODF_NI <- p_METC_ODF_NI <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  p_REL_ODF_NI  <- p_ODN_ODF_NI <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  #p_BUP_ODF_NI  <- p_MET_ODF_NI <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  #p_BUPC_ODF_NI <- p_METC_ODF_NI <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  #p_REL_ODF_NI  <- p_ODN_ODF_NI <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
+  #p_ABS_ODF_NI  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, month = j, first_month = FALSE, fatal = TRUE, injection = FALSE)
 
   # Injection
   # Non-fatal
-  p_BUP_ODN_INJ  <- p_MET_ODN_INJ <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  p_BUPC_ODN_INJ <- p_METC_ODN_INJ <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  p_REL_ODN_INJ  <- p_ODN_ODN_INJ <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  p_ABS_ODN_INJ  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  #p_BUP_ODN_INJ  <- p_MET_ODN_INJ <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  #p_BUPC_ODN_INJ <- p_METC_ODN_INJ <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  #p_REL_ODN_INJ  <- p_ODN_ODN_INJ <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  #p_ABS_ODN_INJ  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, first_month = FALSE, fatal = FALSE, injection = TRUE)
 
   # Fatal
-  p_BUP_ODF_INJ  <- p_MET_ODF_INJ <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  p_BUPC_ODF_INJ <- p_METC_ODF_INJ <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  p_REL_ODF_INJ  <- p_ODN_ODF_INJ <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  p_ABS_ODF_INJ  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  #p_BUP_ODF_INJ  <- p_MET_ODF_INJ <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  #p_BUPC_ODF_INJ <- p_METC_ODF_INJ <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TXC_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  #p_REL_ODF_INJ  <- p_ODN_ODF_INJ <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = REL_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  #p_ABS_ODF_INJ  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = ABS_fent_reduction, first_month = FALSE, fatal = TRUE, injection = TRUE)
 
   # Probability of overdose (first month multiplier)
   # No multiplier for OD -> OD as individuals have already spent at least 1 month in relapse
   # Non-injection
   # Non-fatal
-  p_BUP_ODN_NI_4wk  <- p_MET_ODN_NI_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  p_BUPC_ODN_NI_4wk <- p_METC_ODN_NI_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  #p_BUP_ODN_NI_4wk  <- p_MET_ODN_NI_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  #p_BUPC_ODN_NI_4wk <- p_METC_ODN_NI_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  #p_REL_ODN_NI_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  #p_ABS_ODN_NI_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = FALSE)
   
   # Fatal
-  p_BUP_ODF_NI_4wk  <- p_MET_ODF_NI_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  p_BUPC_ODF_NI_4wk <- p_METC_ODF_NI_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  #p_BUP_ODF_NI_4wk  <- p_MET_ODF_NI_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  #p_BUPC_ODF_NI_4wk <- p_METC_ODF_NI_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  #p_REL_ODF_NI_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
+  #p_ABS_ODF_NI_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = FALSE)
   
   # Injection
   # Non-fatal
-  p_BUP_ODN_INJ_4wk  <- p_MET_ODN_INJ_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  p_BUPC_ODN_INJ_4wk <- p_METC_ODN_INJ_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  p_REL_ODN_INJ_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  p_ABS_ODN_INJ_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  #p_BUP_ODN_INJ_4wk  <- p_MET_ODN_INJ_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  #p_BUPC_ODN_INJ_4wk <- p_METC_ODN_INJ_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  #p_REL_ODN_INJ_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  #p_ABS_ODN_INJ_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = FALSE, injection = TRUE)
   
   # Fatal
-  p_BUP_ODF_INJ_4wk  <- p_MET_ODF_INJ_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  p_BUPC_ODF_INJ_4wk <- p_METC_ODF_INJ_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  p_REL_ODF_INJ_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  p_ABS_ODF_INJ_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  }
+  #p_BUP_ODF_INJ_4wk  <- p_MET_ODF_INJ_4wk <- p_OD(rate = n_TX_OD, fent_mult = n_fent_OD_mult, fent_reduction_state = TX_fent_reduction, multiplier = n_TX_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  #p_BUPC_ODF_INJ_4wk <- p_METC_ODF_INJ_4wk <- p_OD(rate = n_TXC_OD, fent_mult = n_fent_OD_mult, multiplier = n_TXC_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  #p_REL_ODF_INJ_4wk  <- p_OD(rate = n_REL_OD, fent_mult = n_fent_OD_mult, multiplier = n_REL_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  #p_ABS_ODF_INJ_4wk  <- p_OD(rate = n_ABS_OD, fent_mult = n_fent_OD_mult, multiplier = n_ABS_OD_mult, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  #}
   
   #### Time-dependent survival probabilities ####
     # Empty 2-D matrix
@@ -425,28 +482,49 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   #### Unconditional transition probabilities ####
   # Empty 2-D unconditional transition matrix (from states, to states)
   # Create 2 matrices: 1 - First four weeks (higher OD prob)
-  m_UP <- m_UP_4wk <- array(0, dim = c(n_states, n_states),
-                            dimnames = list(v_n_states, v_n_states))
+  #m_UP <- m_UP_4wk <- array(0, dim = c(n_states, n_states),
+  #                          dimnames = list(v_n_states, v_n_states))
+  
+  # Create as array (different probabilities for model-time varying overdose)
+  a_UP <- a_UP_first <- array(0, dim = c(n_states, n_states, n_t),
+                              dimnames = list(v_n_states, v_n_states, 1:n_t))
   # Populate unconditional transition matrix
   # Overdose probability populated first, accounting for higher probability of overdose transition in first 4 weeks of BUP/MET/REL
   # Non-Injection
   # From BUP
-  # Overall
-  m_UP[BUP & NI, BUPC & NI] <- p_BUP_BUPC_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
-  m_UP[BUP & NI, MET & NI]  <- p_BUP_MET_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
-  m_UP[BUP & NI, METC & NI] <- p_BUP_METC_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
-  m_UP[BUP & NI, ABS & NI]  <- p_BUP_ABS_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
-  m_UP[BUP & NI, REL & NI]  <- p_BUP_REL_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
-  m_UP[BUP & NI, ODN & NI]  <- p_BUP_ODN_NI
-  m_UP[BUP & NI, ODF & NI]  <- p_BUP_ODF_NI
+  # First month
+  a_UP_first[BUP & NI, BUPC & NI] <- p_BUP_BUPC_NI * (1 - m_ODN_first[TX & NI, i] - m_ODF_first[TX & NI, i])
+  a_UP_first[BUP & NI, MET & NI]  <- p_BUP_MET_NI * (1 - m_ODN_first[TX & NI, i] - m_ODF_first[TX & NI, i])
+  a_UP_first[BUP & NI, METC & NI] <- p_BUP_METC_NI * (1 - m_ODN_first[TX & NI, i] - m_ODF_first[TX & NI, i])
+  a_UP_first[BUP & NI, ABS & NI]  <- p_BUP_ABS_NI * (1 - m_ODN_first[TX & NI, i] - m_ODF_first[TX & NI, i])
+  a_UP_first[BUP & NI, REL & NI]  <- p_BUP_REL_NI * (1 - m_ODN_first[TX & NI, i] - m_ODF_first[TX & NI, i])
+  a_UP_first[BUP & NI, ODN & NI]  <- m_ODN_first[TX & NI, i]
+  a_UP_first[BUP & NI, ODF & NI]  <- m_ODF_first[TX & NI, i]
+  
+  # Month 2+
+  a_UP[BUP & NI, BUPC & NI, i] <- p_BUP_BUPC_NI * (1 - m_ODN[TX & NI, i] - m_ODF[TX & NI, i])
+  a_UP[BUP & NI, MET & NI, i]  <- p_BUP_MET_NI * (1 - m_ODN[TX & NI, i] - m_ODF[TX & NI, i])
+  a_UP[BUP & NI, METC & NI, i] <- p_BUP_METC_NI * (1 - m_ODN[TX & NI, i] - m_ODF[TX & NI, i])
+  a_UP[BUP & NI, ABS & NI, i]  <- p_BUP_ABS_NI * (1 - m_ODN[TX & NI, i] - m_ODF[TX & NI, i])
+  a_UP[BUP & NI, REL & NI, i]  <- p_BUP_REL_NI * (1 - m_ODN[TX & NI, i] - m_ODF[TX & NI, i])
+  a_UP[BUP & NI, ODN & NI, i]  <- m_ODN[TX & NI, i]
+  a_UP[BUP & NI, ODF & NI, i]  <- m_ODF[TX & NI, i]
+  
+  #m_UP[BUP & NI, BUPC & NI] <- p_BUP_BUPC_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
+  #m_UP[BUP & NI, MET & NI]  <- p_BUP_MET_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
+  #m_UP[BUP & NI, METC & NI] <- p_BUP_METC_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
+  #m_UP[BUP & NI, ABS & NI]  <- p_BUP_ABS_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
+  #m_UP[BUP & NI, REL & NI]  <- p_BUP_REL_NI * (1 - p_BUP_ODN_NI - p_BUP_ODF_NI)
+  #m_UP[BUP & NI, ODN & NI]  <- p_BUP_ODN_NI
+  #m_UP[BUP & NI, ODF & NI]  <- p_BUP_ODF_NI
   # First 4 weeks
-  m_UP_4wk[BUP & NI, BUPC & NI] <- p_BUP_BUPC_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
-  m_UP_4wk[BUP & NI, MET & NI]  <- p_BUP_MET_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
-  m_UP_4wk[BUP & NI, METC & NI] <- p_BUP_METC_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
-  m_UP_4wk[BUP & NI, ABS & NI]  <- p_BUP_ABS_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
-  m_UP_4wk[BUP & NI, REL & NI]  <- p_BUP_REL_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
-  m_UP_4wk[BUP & NI, ODN & NI]  <- p_BUP_ODN_NI_4wk
-  m_UP_4wk[BUP & NI, ODF & NI]  <- p_BUP_ODF_NI_4wk
+  #m_UP_4wk[BUP & NI, BUPC & NI] <- p_BUP_BUPC_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  #m_UP_4wk[BUP & NI, MET & NI]  <- p_BUP_MET_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  #m_UP_4wk[BUP & NI, METC & NI] <- p_BUP_METC_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  #m_UP_4wk[BUP & NI, ABS & NI]  <- p_BUP_ABS_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  #m_UP_4wk[BUP & NI, REL & NI]  <- p_BUP_REL_NI * (1 - p_BUP_ODN_NI_4wk - p_BUP_ODF_NI_4wk)
+  #m_UP_4wk[BUP & NI, ODN & NI]  <- p_BUP_ODN_NI_4wk
+  #m_UP_4wk[BUP & NI, ODF & NI]  <- p_BUP_ODF_NI_4wk
   
   # From BUPC
   # Overall
@@ -1045,8 +1123,38 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     # All model time periods
       for(i in 2:(n_t)){
         # Time spent in given health state
-        for(j in 1:(i - 1)){
-          #state-time-dependent transition probability (j) * age (model-time)-specific mortality (i)
+        # First month (state-time)
+        for(j in 1){
+          # state-time-dependent transition probability (j) * age (model-time)-specific mortality (i) * model-time-specific overdose (track in separate matrix)
+          # need to make sure that ODN are returned to normal matrix
+          
+          # CONSTRUCT a_TDP WITHIN THIS MODULE
+          # Modified transitions for first month
+          a_TDP[, , j] <- a_UP_first[, , i - 1] * m_leave[, j]
+          
+          # All transitions 1+ months
+          #for (i in 5:n_t){
+          #  a_TDP[, , i] <- m_UP * m_leave[, i]
+          #}
+          
+          m_sojourn <- a_TDP[, , j] * m_alive[, i - 1] # state-time transition matrix at state-time j, re-weighted for model-time (age) varying mortality at each time point
+          
+          v_current_state <- as.vector(a_M_trace[i - 1, , j]) # all in current state
+          
+          v_same_state <- as.vector(v_current_state * diag(m_sojourn)) # individuals remaining in state next period
+          
+          a_M_trace[i, ,j + 1] <- v_same_state # add remain to next period
+          
+          diag(m_sojourn) <- 0 # reset remain to 0 once counted
+          
+          v_new_state <- as.vector(v_current_state %*% m_sojourn) # populate new states post-transition (excluding remaining)
+          
+          a_M_trace[i, ,1] <- v_new_state + a_M_trace[i, ,1] # add new state %'s to array
+        }
+        # Month 2+ (state-time)
+        for(j in 2:(i - 1)){
+          a_TDP[, , i] <- m_UP * m_leave[, i]
+          
           m_sojourn <- a_TDP[, , j] * m_alive[, i - 1]
           
           v_current_state <- as.vector(a_M_trace[i - 1, , j])
@@ -1062,6 +1170,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
           a_M_trace[i, ,1] <- v_new_state + a_M_trace[i, ,1]
         }
       }
+    
   # Collect trace for time-periods across all model states  
   m_M_trace <- array(0, dim = c((n_t + 1), n_states),
                      dimnames = list(0:n_t, v_n_states))
@@ -1076,6 +1185,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     m_M_trace_death[i, ] <- m_M_trace[i - 1, ] * m_mort[, i - 1] # State-specific deaths at each time point as function of state-occupancy in t-1
   }
   m_M_trace_cumsum_death <- apply(m_M_trace_death, 2, cumsum) # Cumulative non-overdose deaths at each time point (use m_M_trace_death for individual period deaths)
+  
+  # *NEW*
+  # Count overdoses (fatal and non-fatal)
+  m_M_trace_ODN <- m_M_trace_ODF <- array(0, dim = c((n_t + 1), n_states),
+                                          dimnames = list(0:n_t, v_n_states))
 
   #### Create aggregated trace matrices ####
   v_agg_trace_states <- c("Alive", "Death", "ODN", "ODF", "REL", "BUP", "BUPC", "MET", "METC", "ABS") # states to aggregate
@@ -1127,6 +1241,16 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     write.csv(array_2,"checks/array_2.csv", row.names = TRUE)
     # Initial state occupancy at model initiation
     write.csv(v_s_init,"checks/v_s_init.csv", row.names = TRUE)
+    # Model-time varying overdose
+    write.csv(m_ODN_first,"checks/m_ODN_first.csv", row.names = TRUE)
+    write.csv(m_ODF_first,"checks/m_ODF_first.csv", row.names = TRUE)
+    write.csv(m_ODN,"checks/m_ODN.csv", row.names = TRUE)
+    write.csv(m_ODF,"checks/m_ODF.csv", row.names = TRUE)
+    # Model-time varying overdose adjustment factors
+    write.csv(m_ODN_first_adj,"checks/m_ODN_first_adj.csv", row.names = TRUE)
+    write.csv(m_ODF_first_adj,"checks/m_ODF_first_adj.csv", row.names = TRUE)
+    write.csv(m_ODN_adj,"checks/m_ODN_adj.csv", row.names = TRUE)
+    write.csv(m_ODF_adj,"checks/m_ODF_adj.csv", row.names = TRUE)
   } else{}
   
   for (i in 1:n_t){
