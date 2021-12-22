@@ -25,6 +25,7 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.weibull_shape = "data/weibull_shape.csv",
                                 file.unconditional = "data/unconditional.csv",
                                 file.overdose = "data/overdose.csv", # includes calibration-related parameters
+                                file.fentanyl = "data/fentanyl.csv",
                                 file.hiv = "data/hiv_sero.csv",
                                 file.hcv = "data/hcv_sero.csv",
                                 file.costs = "data/costs.csv",
