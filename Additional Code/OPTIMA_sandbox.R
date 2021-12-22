@@ -259,3 +259,18 @@ for(i in 2:n_t){
 }
 v_fent_exp_prob <- 1 - exp(-v_fent_exp_rate)
 v_fent_exp_prob
+
+n_t <- 10
+test <- rep(0, n_t)
+for(i in 1){
+  test[i] <- 2
+}
+for(i in 2:6){
+  test[i] <- 4
+}
+for(i in 7:n_t){
+  test[i] <- 6
+}
+
+v_fent_exp_prob <- c(0.2, 0.4, 0.5)
+v_fent_exp_prob[1]

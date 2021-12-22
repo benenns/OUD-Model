@@ -356,21 +356,21 @@ load_all_params <- function(file.init = NULL,
     # Probability of fentanyl exposure
     #p_fent_exp = df_overdose["pe", "fent_exp_prob"],
     p_ni_fent_reduction = df_overdose["pe", "ni_fent_reduction"],
-    p_REL_fent_reduction = df_overdose["pe", "REL_fent_reduction"],
-    p_TX_fent_reduction = df_overdose["pe", "TX_fent_reduction"],
-    p_TXC_fent_reduction = df_overdose["pe", "TXC_fent_reduction"],
-    p_ABS_fent_reduction = df_overdose["pe", "ABS_fent_reduction"],
+    #p_REL_fent_reduction = df_overdose["pe", "REL_fent_reduction"],
+    #p_TX_fent_reduction = df_overdose["pe", "TX_fent_reduction"],
+    #p_TXC_fent_reduction = df_overdose["pe", "TXC_fent_reduction"],
+    #p_ABS_fent_reduction = df_overdose["pe", "ABS_fent_reduction"],
     
     # Projected growth rate in fentanyl exposure (person-month)
-    n_fent_growth_rate = df_fentanyl["pe", "fent_growth"],
+    #n_fent_growth_rate = df_fentanyl["pe", "fent_growth"],
     
-    p_fent_exp_base = df_fentanyl["2018", "AVG"],
-    p_fent_exp = df_fentanyl["2020", "CAN"],
+    #p_fent_exp_base = df_fentanyl["2018", "AVG"],
+    #p_fent_exp = df_fentanyl["2020", "CAN"],
     
     # Overall - Fentanyl prevalence
-    #p_fent_exp_2018 = df_fentanyl["2018", "CAN"],
-    #p_fent_exp_2019 = df_fentanyl["2019", "CAN"],
-    #p_fent_exp_2020 = df_fentanyl["2020", "CAN"],
+    p_fent_exp_2018 = df_fentanyl["2018", "CAN"],
+    p_fent_exp_2019 = df_fentanyl["2019", "CAN"],
+    p_fent_exp_2020 = df_fentanyl["2020", "CAN"],
     
     # BC - Fentanyl prevalence
     #p_fent_exp_2018_bc = df_fentanyl["2018", "BC"],
