@@ -207,10 +207,21 @@ for (i in 1:30) {
 
 
 ## CALIBRATION TEST ##
-source("R/OPTIMA_00_input_parameter_functions.R")
-source("R/OPTIMA_01_model_setup_functions.R")
-source("R/OPTIMA_02_calibration_functions.R")
+#### Load packages and functions ####
+library(dplyr)    # to manipulate data
+library(reshape2) # to transform data
+library(ggplot2)  # for nice looking plots
+library(ggridges) # specialized ridge plots
+library(tidyverse)
+library(lhs)
+library(IMIS)
 
+# To-do: Move functions into R package for OUD model
+source("R/input_parameter_functions.R")
+source("R/model_setup_functions.R")
+source("R/calibration_functions.R")
+
+# Load model inputs #
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.init_dist = "data/init_dist.csv", # calibrate on full trial sample (x% bup; x% met)
                                 file.mort = "data/all_cause_mortality.csv",
@@ -220,28 +231,51 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.weibull_shape = "data/weibull_shape.csv",
                                 file.unconditional = "data/unconditional.csv",
                                 file.overdose = "data/overdose.csv", # includes calibration-related parameters
+                                file.fentanyl = "data/fentanyl.csv",
                                 file.hiv = "data/hiv_sero.csv",
                                 file.hcv = "data/hcv_sero.csv",
                                 file.costs = "data/costs.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
 
+# Load calibration inputs #
+v_cali_param_names <- c("'Overdose rate (treatment)'",
+                        "'Overdose rate (treatment + opioid)'",
+                        "'Overdose rate (active opioid)'", 
+                        "'Overdose rate (inactive opioid)'",
+                        "'First month mult (treatment)'",
+                        "'First month mult (treatment + opioid)'",
+                        "'First month mult (active opioid)'",
+                        "'Injection mult'",
+                        "'Fentanyl mult'",
+                        "'Fatal overdose rate'")
+v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
+            n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
+            n_REL_OD_shape   = l_params_all$n_REL_OD_shape,
+            n_ABS_OD_low    = l_params_all$n_ABS_OD_low,
+            n_TX_OD_mult_shape  = l_params_all$n_TX_OD_mult_shape,
+            n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
+            n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
+            n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
+            n_fent_OD_mult_shape = l_params_all$n_fent_OD_mult_shape,
+            n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
+v_par2 <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
+            n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
+            n_REL_OD_scale   = l_params_all$n_REL_OD_scale,
+            n_ABS_OD_high    = l_params_all$n_ABS_OD_high,
+            n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
+            n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
+            n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
+            n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
+            n_fent_OD_mult_scale = l_params_all$n_fent_OD_mult_scale,
+            n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
+
+#### Load calibration targets ####
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
                        ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
 
+# Max calibration periods
 n_cali_max_per <- max(c(l_cali_targets$ODF$Time, l_cali_targets$ODN$Time))
-
-v_params_calib <- c(n_BUP_OD = l_params_all$n_BUP_OD,
-                    n_BUPC_OD = l_params_all$n_BUPC_OD,
-                    n_MET_OD = l_params_all$n_MET_OD,
-                    n_METC_OD = l_params_all$n_METC_OD,
-                    n_REL_OD = l_params_all$n_REL_OD,
-                    n_ABS_OD = l_params_all$n_ABS_OD,
-                    n_TX_OD_mult = l_params_all$n_TX_OD_mult,
-                    n_TXC_OD_mult = l_params_all$n_TXC_OD_mult,
-                    n_REL_OD_mult = l_params_all$n_REL_OD_mult,
-                    n_INJ_OD_mult = l_params_all$n_INJ_OD_mult,
-                    n_fatal_OD = l_params_all$n_fatal_OD)
 
 #test <- calibration_out(v_params_calib = v_params_calib, l_params_all = l_params_all) 1-EXP(-M21)
 
