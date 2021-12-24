@@ -129,76 +129,101 @@ load_all_params <- function(file.init = NULL,
     hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
     hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
     
-    #### Hazard ratios for successive episodes ####
+    #### Frailty estimates for successive episodes, injection vs. non-injection, concurrent opioid use ####
+    # ***NEW ESTIMATES*** #
+    # Episodes
+    p_frailty_BUP_1 = 1,
+    p_frailty_BUP_2 = df_frailty["pe", "BUP_2"],
+    p_frailty_BUP_3 = df_frailty["pe", "BUP_3"],
+    p_frailty_MET_1 = 1,
+    p_frailty_MET_2 = df_frailty["pe", "MET_2"],
+    p_frailty_MET_3 = df_frailty["pe", "MET_3"],
+    p_frailty_REL_1 = 1,
+    p_frailty_REL_2 = df_frailty["pe", "REL_2"],
+    p_frailty_REL_3 = df_frailty["pe", "REL_3"],
+    p_frailty_ABS_1 = 1,
+    p_frailty_ABS_2 = df_frailty["pe", "ABS_2"],
+    p_frailty_ABS_3 = df_frailty["pe", "ABS_3"],
+    
+    # Injection vs. non-injection
+    p_frailty_BUP_INJ = df_frailty["pe", "BUP_INJ"],
+    p_frailty_MET_INJ = df_frailty["pe", "MET_INJ"],
+    p_frailty_REL_INJ = df_frailty["pe", "REL_INJ"],
+    p_frailty_ABS_INJ = df_frailty["pe", "ABS_INJ"],
+    
+    # Concurrent opioid use
+    p_frailty_BUPC = df_frailty["pe", "BUPC"],
+    p_frailty_METC = df_frailty["pe", "METC"],
+    
+    # ***OLD ESTIMATES*** #
     # Non-injection
-    p_frailty_BUP_NI_1 = 1,
-    p_frailty_BUP_NI_2 = df_frailty["pe", "BUP_NI_2"],
-    p_frailty_BUP_NI_3 = df_frailty["pe", "BUP_NI_3"],
-    p_frailty_BUPC_NI_1 = 1,
-    p_frailty_BUPC_NI_2 = df_frailty["pe", "BUPC_NI_2"],
-    p_frailty_BUPC_NI_3 = df_frailty["pe", "BUPC_NI_3"],
-    p_frailty_MET_NI_1 = 1,
-    p_frailty_MET_NI_2 = df_frailty["pe", "MET_NI_2"],
-    p_frailty_MET_NI_3 = df_frailty["pe", "MET_NI_3"],
-    p_frailty_METC_NI_1 = 1,
-    p_frailty_METC_NI_2 = df_frailty["pe", "METC_NI_2"],
-    p_frailty_METC_NI_3 = df_frailty["pe", "METC_NI_3"],
-    p_frailty_ABS_NI_1 = 1,
-    p_frailty_ABS_NI_2 = df_frailty["pe", "ABS_NI_2"],
-    p_frailty_ABS_NI_3 = df_frailty["pe", "ABS_NI_3"],
-    p_frailty_REL_NI_1 = 1,
-    p_frailty_REL_NI_2 = df_frailty["pe", "REL_NI_2"],
-    p_frailty_REL_NI_3 = df_frailty["pe", "REL_NI_3"],
+    #p_frailty_BUP_NI_1 = 1,
+    #p_frailty_BUP_NI_2 = df_frailty["pe", "BUP_NI_2"],
+    #p_frailty_BUP_NI_3 = df_frailty["pe", "BUP_NI_3"],
+    #p_frailty_BUPC_NI_1 = 1,
+    #p_frailty_BUPC_NI_2 = df_frailty["pe", "BUPC_NI_2"],
+    #p_frailty_BUPC_NI_3 = df_frailty["pe", "BUPC_NI_3"],
+    #p_frailty_MET_NI_1 = 1,
+    #p_frailty_MET_NI_2 = df_frailty["pe", "MET_NI_2"],
+    #p_frailty_MET_NI_3 = df_frailty["pe", "MET_NI_3"],
+    #p_frailty_METC_NI_1 = 1,
+    #p_frailty_METC_NI_2 = df_frailty["pe", "METC_NI_2"],
+    #p_frailty_METC_NI_3 = df_frailty["pe", "METC_NI_3"],
+    #p_frailty_ABS_NI_1 = 1,
+    #p_frailty_ABS_NI_2 = df_frailty["pe", "ABS_NI_2"],
+    #p_frailty_ABS_NI_3 = df_frailty["pe", "ABS_NI_3"],
+    #p_frailty_REL_NI_1 = 1,
+    #p_frailty_REL_NI_2 = df_frailty["pe", "REL_NI_2"],
+    #p_frailty_REL_NI_3 = df_frailty["pe", "REL_NI_3"],
     
     # Injection
-    p_frailty_BUP_INJ_1 = 1,
-    p_frailty_BUP_INJ_2 = df_frailty["pe", "BUP_INJ_2"],
-    p_frailty_BUP_INJ_3 = df_frailty["pe", "BUP_INJ_3"],
-    p_frailty_BUPC_INJ_1 = 1,
-    p_frailty_BUPC_INJ_2 = df_frailty["pe", "BUPC_INJ_2"],
-    p_frailty_BUPC_INJ_3 = df_frailty["pe", "BUPC_INJ_3"],
-    p_frailty_MET_INJ_1 = 1,
-    p_frailty_MET_INJ_2 = df_frailty["pe", "MET_INJ_2"],
-    p_frailty_MET_INJ_3 = df_frailty["pe", "MET_INJ_3"],
-    p_frailty_METC_INJ_1 = 1,
-    p_frailty_METC_INJ_2 = df_frailty["pe", "METC_INJ_2"],
-    p_frailty_METC_INJ_3 = df_frailty["pe", "METC_INJ_3"],
-    p_frailty_ABS_INJ_1 = 1,
-    p_frailty_ABS_INJ_2 = df_frailty["pe", "ABS_INJ_2"],
-    p_frailty_ABS_INJ_3 = df_frailty["pe", "ABS_INJ_3"],
-    p_frailty_REL_INJ_1 = 1,
-    p_frailty_REL_INJ_2 = df_frailty["pe", "REL_INJ_2"],
-    p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
+    #p_frailty_BUP_INJ_1 = 1,
+    #p_frailty_BUP_INJ_2 = df_frailty["pe", "BUP_INJ_2"],
+    #p_frailty_BUP_INJ_3 = df_frailty["pe", "BUP_INJ_3"],
+    #p_frailty_BUPC_INJ_1 = 1,
+    #p_frailty_BUPC_INJ_2 = df_frailty["pe", "BUPC_INJ_2"],
+    #p_frailty_BUPC_INJ_3 = df_frailty["pe", "BUPC_INJ_3"],
+    #p_frailty_MET_INJ_1 = 1,
+    #p_frailty_MET_INJ_2 = df_frailty["pe", "MET_INJ_2"],
+    #p_frailty_MET_INJ_3 = df_frailty["pe", "MET_INJ_3"],
+    #p_frailty_METC_INJ_1 = 1,
+    #p_frailty_METC_INJ_2 = df_frailty["pe", "METC_INJ_2"],
+    #p_frailty_METC_INJ_3 = df_frailty["pe", "METC_INJ_3"],
+    #p_frailty_ABS_INJ_1 = 1,
+    #p_frailty_ABS_INJ_2 = df_frailty["pe", "ABS_INJ_2"],
+    #p_frailty_ABS_INJ_3 = df_frailty["pe", "ABS_INJ_3"],
+    #p_frailty_REL_INJ_1 = 1,
+    #p_frailty_REL_INJ_2 = df_frailty["pe", "REL_INJ_2"],
+    #p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
     
     #### Load weibull parameters ####
-    
     # Weibull scale
     p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
-    p_weibull_scale_BUPC_NI = df_weibull_scale["pe", "BUPC_NI"],
+    p_weibull_scale_BUPC_NI = df_weibull_scale["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_scale_MET_NI = df_weibull_scale["pe", "MET_NI"],
-    p_weibull_scale_METC_NI = df_weibull_scale["pe", "METC_NI"],
+    p_weibull_scale_METC_NI = df_weibull_scale["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_scale_REL_NI = df_weibull_scale["pe", "REL_NI"],
     p_weibull_scale_ABS_NI = df_weibull_scale["pe", "ABS_NI"],
     
     p_weibull_scale_BUP_INJ = df_weibull_scale["pe", "BUP_INJ"],
-    p_weibull_scale_BUPC_INJ = df_weibull_scale["pe", "BUPC_INJ"],
+    p_weibull_scale_BUPC_INJ = df_weibull_scale["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_scale_MET_INJ = df_weibull_scale["pe", "MET_INJ"],
-    p_weibull_scale_METC_INJ = df_weibull_scale["pe", "METC_INJ"],
+    p_weibull_scale_METC_INJ = df_weibull_scale["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_scale_REL_INJ = df_weibull_scale["pe", "REL_INJ"],
     p_weibull_scale_ABS_INJ = df_weibull_scale["pe", "ABS_INJ"],
 
     # Weibull shape
     p_weibull_shape_BUP_NI = df_weibull_shape["pe", "BUP_NI"],
-    p_weibull_shape_BUPC_NI = df_weibull_shape["pe", "BUPC_NI"],
+    p_weibull_shape_BUPC_NI = df_weibull_shape["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_shape_MET_NI = df_weibull_shape["pe", "MET_NI"],
-    p_weibull_shape_METC_NI = df_weibull_shape["pe", "METC_NI"],
+    p_weibull_shape_METC_NI = df_weibull_shape["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_shape_REL_NI = df_weibull_shape["pe", "REL_NI"],
     p_weibull_shape_ABS_NI = df_weibull_shape["pe", "ABS_NI"],
     
     p_weibull_shape_BUP_INJ = df_weibull_shape["pe", "BUP_INJ"],
-    p_weibull_shape_BUPC_INJ = df_weibull_shape["pe", "BUPC_INJ"],
+    p_weibull_shape_BUPC_INJ = df_weibull_shape["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_shape_MET_INJ = df_weibull_shape["pe", "MET_INJ"],
-    p_weibull_shape_METC_INJ = df_weibull_shape["pe", "METC_INJ"],
+    p_weibull_shape_METC_INJ = df_weibull_shape["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
     p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
     p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
 

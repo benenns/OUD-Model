@@ -24,6 +24,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
                                 file.weibull_shape = NULL,
                                 file.unconditional = NULL,
                                 file.overdose = NULL,
+                                file.fentanyl = NULL,
                                 file.hiv = NULL,
                                 file.hcv = NULL,
                                 file.costs = NULL,
@@ -38,6 +39,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
   df_weibull_shape <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose params
+  df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl params
   df_hiv <- read.csv(file = file.hiv, row.names = 1, header = TRUE) # HIV seroconversion probs
   df_hcv <- read.csv(file = file.hcv, row.names = 1, header = TRUE) # HCV seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
@@ -426,6 +428,9 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     p_attended = rbeta(n_sim, shape1 = df_overdose["shape1", "attended_prob"], shape2 = df_overdose["shape2", "attended_prob"]),
     p_NX_used = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_prob"], shape2 = df_overdose["shape2", "NX_prob"]),
     p_NX_success = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_success_prob"], shape2 = df_overdose["shape2", "NX_success_prob"]),
+    
+    ### Fentanyl ###
+    # PLACEHOLDER
     
     ### HIV seroconversion ###
     # Ensure that seed is set and produces identical draws for parameters that are set to be equal by assumption (e.g. all non-injection HIV seroconversion)
