@@ -1,7 +1,9 @@
+rm(list = ls()) # to clean the workspace
+
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
-library(scales)   # for dollar signs and commas
+#library(scales)   # for dollar signs and commas
 library(tidyverse)
 
 # Call model setup functions
@@ -10,14 +12,16 @@ source("R/model_setup_functions.R")
 
 # Load parameters
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist.csv", # Change initial distributions (100% in BUP)
+                                file.init_dist = "data/init_dist.csv", 
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
-                                file.weibull_scale = "data/weibull_scale.csv",
-                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.weibull = "data/weibull.csv",
+                                #file.weibull_scale = "data/weibull_scale.csv",
+                                #file.weibull_shape = "data/weibull_shape.csv",
                                 file.unconditional = "data/unconditional.csv",
                                 file.overdose = "data/overdose.csv",
+                                file.fentanyl = "data/fentanyl.csv",
                                 file.hiv = "data/hiv_sero.csv",
                                 file.hcv = "data/hcv_sero.csv",
                                 file.costs = "data/costs.csv",
@@ -25,7 +29,7 @@ l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.qalys = "data/qalys.csv")
 
 # Run model
-l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE)
+l_out_markov <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE, checks = TRUE)
 
 #### Create plots ####
 # Prepare data

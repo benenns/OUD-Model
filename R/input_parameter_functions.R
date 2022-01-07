@@ -44,8 +44,9 @@ load_all_params <- function(file.init = NULL,
                             file.mort = NULL,
                             file.death_hr = NULL,
                             file.frailty = NULL,
-                            file.weibull_scale = NULL,
-                            file.weibull_shape = NULL,
+                            file.weibull = NULL,
+                            #file.weibull_scale = NULL,
+                            #file.weibull_shape = NULL,
                             file.unconditional = NULL,
                             file.overdose = NULL,
                             file.fentanyl = NULL,
@@ -60,8 +61,9 @@ load_all_params <- function(file.init = NULL,
   df_init_dist <- read.csv(file = file.init_dist, row.names = 1, header = TRUE) # Initial parameter values
   df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
   df_frailty <- read.csv(file = file.frailty, row.names = 1, header = TRUE) # Episode frailty params
-  df_weibull_scale <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull scale params
-  df_weibull_shape <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull shape params
+  df_weibull <- read.csv(file = file.weibull, row.names = 1, header = TRUE) # Weibull params
+  #df_weibull_scale <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull scale params
+  #df_weibull_shape <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
   df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl exposure parameters
@@ -79,6 +81,7 @@ load_all_params <- function(file.init = NULL,
     n_age_max = df_init_params["pe", "age_max"], # maximum age of follow up
     n_per = df_init_params["pe", "period_yr"], # periods per year (e.g. 12-months)
     n_discount = df_init_params["pe", "discount"], # discount rate
+    n_cali_per = df_init_params["pe", "cali_per"], # number of calibration periods
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "INJ_prop"], # % injection
     #n_HIV = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
@@ -105,29 +108,54 @@ load_all_params <- function(file.init = NULL,
     v_r_mort_by_age = load_mort_params(file = file.mort, n_male = df_init_params["pe", "male_prop"]), # vector of age-specific mortality
     
     #### Hazard ratios for death probability ####
+    # ***NEW ESTIMATES*** #
     # Non-injection
-    hr_BUP_NI  = df_death_hr["pe", "BUP_NI"],
-    hr_BUPC_NI = df_death_hr["pe", "BUPC_NI"],
-    hr_MET_NI  = df_death_hr["pe", "MET_NI"],
-    hr_METC_NI  = df_death_hr["pe", "METC_NI"],
-    hr_REL_NI  = df_death_hr["pe", "REL_NI"],
-    hr_ODN_NI   = df_death_hr["pe", "ODN_NI"],
-    hr_ABS_NI  = df_death_hr["pe", "ABS_NI"],
-    hr_HIV_NI  = df_death_hr["pe", "HIV_NI"],
-    hr_HCV_NI  = df_death_hr["pe", "HCV_NI"],
-    hr_COI_NI  = df_death_hr["pe", "COI_NI"],
+    hr_BUP_NI  = df_death_hr["pe", "TX"],
+    hr_BUPC_NI = df_death_hr["pe", "TX"],
+    hr_MET_NI  = df_death_hr["pe", "TX"],
+    hr_METC_NI = df_death_hr["pe", "TX"],
+    hr_REL_NI  = df_death_hr["pe", "REL"],
+    hr_ODN_NI  = df_death_hr["pe", "REL"],
+    hr_ABS_NI  = df_death_hr["pe", "ABS"],
+    hr_HIV_NI  = df_death_hr["pe", "HIV"],
+    hr_HCV_NI  = df_death_hr["pe", "HCV"],
+    hr_COI_NI  = df_death_hr["pe", "COI"],
     
     # Injection
-    hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
-    hr_BUPC_INJ  = df_death_hr["pe", "BUPC_INJ"],
-    hr_MET_INJ  = df_death_hr["pe", "MET_INJ"],
-    hr_METC_INJ  = df_death_hr["pe", "METC_INJ"],
-    hr_REL_INJ  = df_death_hr["pe", "REL_INJ"],
-    hr_ODN_INJ   = df_death_hr["pe", "ODN_INJ"],
-    hr_ABS_INJ  = df_death_hr["pe", "ABS_INJ"],
-    hr_HIV_INJ  = df_death_hr["pe", "HIV_INJ"],
-    hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
-    hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
+    hr_BUP_INJ  = df_death_hr["pe", "TX"], 
+    hr_BUPC_INJ = df_death_hr["pe", "TX"], 
+    hr_MET_INJ  = df_death_hr["pe", "TX"], 
+    hr_METC_INJ = df_death_hr["pe", "TX"], 
+    hr_REL_INJ  = df_death_hr["pe", "REL"],
+    hr_ODN_INJ  = df_death_hr["pe", "REL"],
+    hr_ABS_INJ  = df_death_hr["pe", "ABS"],
+    hr_HIV_INJ  = df_death_hr["pe", "HIV"],
+    hr_HCV_INJ  = df_death_hr["pe", "HCV"],
+    hr_COI_INJ  = df_death_hr["pe", "COI"],
+    
+    # Non-injection
+    #hr_BUP_NI  = df_death_hr["pe", "BUP_NI"],
+    #hr_BUPC_NI = df_death_hr["pe", "BUPC_NI"],
+    #hr_MET_NI  = df_death_hr["pe", "MET_NI"],
+    #hr_METC_NI  = df_death_hr["pe", "METC_NI"],
+    #hr_REL_NI  = df_death_hr["pe", "REL_NI"],
+    #hr_ODN_NI   = df_death_hr["pe", "ODN_NI"],
+    #hr_ABS_NI  = df_death_hr["pe", "ABS_NI"],
+    #hr_HIV_NI  = df_death_hr["pe", "HIV_NI"],
+    #hr_HCV_NI  = df_death_hr["pe", "HCV_NI"],
+    #hr_COI_NI  = df_death_hr["pe", "COI_NI"],
+    
+    # Injection
+    #hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
+    #hr_BUPC_INJ  = df_death_hr["pe", "BUPC_INJ"],
+    #hr_MET_INJ  = df_death_hr["pe", "MET_INJ"],
+    #hr_METC_INJ  = df_death_hr["pe", "METC_INJ"],
+    #hr_REL_INJ  = df_death_hr["pe", "REL_INJ"],
+    #hr_ODN_INJ   = df_death_hr["pe", "ODN_INJ"],
+    #hr_ABS_INJ  = df_death_hr["pe", "ABS_INJ"],
+    #hr_HIV_INJ  = df_death_hr["pe", "HIV_INJ"],
+    #hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
+    #hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
     
     #### Frailty estimates for successive episodes, injection vs. non-injection, concurrent opioid use ####
     # ***NEW ESTIMATES*** #
@@ -197,35 +225,90 @@ load_all_params <- function(file.init = NULL,
     #p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
     
     #### Load weibull parameters ####
-    # Weibull scale
-    p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
-    p_weibull_scale_BUPC_NI = df_weibull_scale["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_scale_MET_NI = df_weibull_scale["pe", "MET_NI"],
-    p_weibull_scale_METC_NI = df_weibull_scale["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_scale_REL_NI = df_weibull_scale["pe", "REL_NI"],
-    p_weibull_scale_ABS_NI = df_weibull_scale["pe", "ABS_NI"],
+    # From OPTIMA trial
+    # Shape
+    p_weibull_shape_BUP = df_weibull["pe", "BUP_shape_1"],
+    p_weibull_shape_MET = df_weibull["pe", "MET_shape_1"],
+    p_weibull_shape_REL = df_weibull["pe", "REL_shape_1"],
+    p_weibull_shape_ABS = df_weibull["pe", "ABS_shape_1"],
     
-    p_weibull_scale_BUP_INJ = df_weibull_scale["pe", "BUP_INJ"],
-    p_weibull_scale_BUPC_INJ = df_weibull_scale["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_scale_MET_INJ = df_weibull_scale["pe", "MET_INJ"],
-    p_weibull_scale_METC_INJ = df_weibull_scale["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_scale_REL_INJ = df_weibull_scale["pe", "REL_INJ"],
-    p_weibull_scale_ABS_INJ = df_weibull_scale["pe", "ABS_INJ"],
+    # scale
+    p_weibull_scale_BUP = df_weibull["pe", "BUP_scale_1"],
+    p_weibull_scale_MET = df_weibull["pe", "MET_scale_1"],
+    p_weibull_scale_REL = df_weibull["pe", "REL_scale_1"],
+    p_weibull_scale_ABS = df_weibull["pe", "ABS_scale_1"],
+    
+    # Parameters for episode 1, 2, 3+
+    # BUP
+    # Scale
+    #p_weibull_scale_BUP_1 = df_weibull["pe", "BUP_scale_1"],
+    #p_weibull_scale_BUP_2 = df_weibull["pe", "BUP_scale_2"],
+    #p_weibull_scale_BUP_3 = df_weibull["pe", "BUP_scale_3"],
+    # Shape
+    #p_weibull_shape_BUP_1 = df_weibull["pe", "BUP_shape_1"],
+    #p_weibull_shape_BUP_2 = df_weibull["pe", "BUP_shape_2"],
+    #p_weibull_shape_BUP_3 = df_weibull["pe", "BUP_shape_3"],
+    
+    # MET
+    # Scale
+    #p_weibull_scale_MET_1 = df_weibull["pe", "MET_scale_1"],
+    #p_weibull_scale_MET_2 = df_weibull["pe", "MET_scale_2"],
+    #p_weibull_scale_MET_3 = df_weibull["pe", "MET_scale_3"],
+    # Shape
+    #p_weibull_shape_MET_1 = df_weibull["pe", "MET_shape_1"],
+    #p_weibull_shape_MET_2 = df_weibull["pe", "MET_shape_2"],
+    #p_weibull_shape_MET_3 = df_weibull["pe", "MET_shape_3"],
+    
+    # REL
+    # Scale
+    #p_weibull_scale_REL_1 = df_weibull["pe", "REL_scale_1"],
+    #p_weibull_scale_REL_2 = df_weibull["pe", "REL_scale_2"],
+    #p_weibull_scale_REL_3 = df_weibull["pe", "REL_scale_3"],
+    # Shape
+    #p_weibull_shape_REL_1 = df_weibull["pe", "REL_shape_1"],
+    #p_weibull_shape_REL_2 = df_weibull["pe", "REL_shape_2"],
+    #p_weibull_shape_REL_3 = df_weibull["pe", "REL_shape_3"],
+    
+    # ABS
+    # Scale
+    #p_weibull_scale_ABS_1 = df_weibull["pe", "ABS_scale_1"],
+    #p_weibull_scale_ABS_2 = df_weibull["pe", "ABS_scale_2"],
+    #p_weibull_scale_ABS_3 = df_weibull["pe", "ABS_scale_3"],
+    # Shape
+    #p_weibull_shape_ABS_1 = df_weibull["pe", "ABS_shape_1"],
+    #p_weibull_shape_ABS_2 = df_weibull["pe", "ABS_shape_2"],
+    #p_weibull_shape_ABS_3 = df_weibull["pe", "ABS_shape_3"],
+    
+    
+    # Weibull scale
+    #p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
+    #p_weibull_scale_BUPC_NI = df_weibull_scale["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_scale_MET_NI = df_weibull_scale["pe", "MET_NI"],
+    #p_weibull_scale_METC_NI = df_weibull_scale["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_scale_REL_NI = df_weibull_scale["pe", "REL_NI"],
+    #p_weibull_scale_ABS_NI = df_weibull_scale["pe", "ABS_NI"],
+    #
+    #p_weibull_scale_BUP_INJ = df_weibull_scale["pe", "BUP_INJ"],
+    #p_weibull_scale_BUPC_INJ = df_weibull_scale["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_scale_MET_INJ = df_weibull_scale["pe", "MET_INJ"],
+    #p_weibull_scale_METC_INJ = df_weibull_scale["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_scale_REL_INJ = df_weibull_scale["pe", "REL_INJ"],
+    #p_weibull_scale_ABS_INJ = df_weibull_scale["pe", "ABS_INJ"],
 
     # Weibull shape
-    p_weibull_shape_BUP_NI = df_weibull_shape["pe", "BUP_NI"],
-    p_weibull_shape_BUPC_NI = df_weibull_shape["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_shape_MET_NI = df_weibull_shape["pe", "MET_NI"],
-    p_weibull_shape_METC_NI = df_weibull_shape["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_shape_REL_NI = df_weibull_shape["pe", "REL_NI"],
-    p_weibull_shape_ABS_NI = df_weibull_shape["pe", "ABS_NI"],
-    
-    p_weibull_shape_BUP_INJ = df_weibull_shape["pe", "BUP_INJ"],
-    p_weibull_shape_BUPC_INJ = df_weibull_shape["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_shape_MET_INJ = df_weibull_shape["pe", "MET_INJ"],
-    p_weibull_shape_METC_INJ = df_weibull_shape["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
-    p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
+    #p_weibull_shape_BUP_NI = df_weibull_shape["pe", "BUP_NI"],
+    #p_weibull_shape_BUPC_NI = df_weibull_shape["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_shape_MET_NI = df_weibull_shape["pe", "MET_NI"],
+    #p_weibull_shape_METC_NI = df_weibull_shape["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_shape_REL_NI = df_weibull_shape["pe", "REL_NI"],
+    #p_weibull_shape_ABS_NI = df_weibull_shape["pe", "ABS_NI"],
+    #
+    #p_weibull_shape_BUP_INJ = df_weibull_shape["pe", "BUP_INJ"],
+    #p_weibull_shape_BUPC_INJ = df_weibull_shape["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_shape_MET_INJ = df_weibull_shape["pe", "MET_INJ"],
+    #p_weibull_shape_METC_INJ = df_weibull_shape["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
+    #p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
+    #p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
 
     #### Unconditional transition probabilities ####
     

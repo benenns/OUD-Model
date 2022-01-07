@@ -4,7 +4,7 @@ library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(tidyverse)
-library(xlsx)
+#library(xlsx)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -23,8 +23,9 @@ l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
-                                file.weibull_scale = "data/weibull_scale.csv",
-                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.weibull = "data/weibull.csv",
+                                #file.weibull_scale = "data/weibull_scale.csv",
+                                #file.weibull_shape = "data/weibull_shape.csv",
                                 file.unconditional = "data/unconditional.csv",
                                 file.overdose = "data/overdose.csv",
                                 file.fentanyl = "data/fentanyl.csv",
@@ -40,8 +41,9 @@ l_params_MET <- load_all_params(file.init = "data/init_params.csv",
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
-                                file.weibull_scale = "data/weibull_scale.csv",
-                                file.weibull_shape = "data/weibull_shape.csv",
+                                file.weibull = "data/weibull.csv",
+                                #file.weibull_scale = "data/weibull_scale.csv",
+                                #file.weibull_shape = "data/weibull_shape.csv",
                                 file.unconditional = "data/unconditional.csv",
                                 file.overdose = "data/overdose.csv",
                                 file.fentanyl = "data/fentanyl.csv",
