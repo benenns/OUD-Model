@@ -60,10 +60,10 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   }
   
   df_flat <- expand.grid(l_dim_s) #combine all elements together into vector of health states
-  df_flat <- rename(df_flat, BASE    = Var1, 
-                             INJECT  = Var2, 
-                             EP      = Var3, 
-                             SERO    = Var4)
+  df_flat <- dplyr::rename(df_flat, BASE    = Var1, 
+                                    INJECT  = Var2, 
+                                    EP      = Var3, 
+                                    SERO    = Var4)
 
   # Create index of states to populate transition matrices
   # All treatment
@@ -1555,6 +1555,10 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   v_s_init[HCV & NI] <- v_s_init[HCV & NI] * n_HCV_NI
   v_s_init[COI & NI] <- v_s_init[COI & NI] * n_COI_NI
   
+  if(checks){
+    write.csv(v_s_init,"checks/initial/v_s_init.csv", row.names = TRUE)
+  }
+  
   # Create Markov Trace
   # Initialize population
   a_M_trace <- array(0, dim = c((n_t + 1), n_states, (n_t + 1)),
@@ -1671,65 +1675,6 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   }
   # Aggregated state occupancy matrix
   write.csv(m_M_agg_trace,"outputs/trace/m_M_agg_trace.csv", row.names = TRUE)
-  
-  # Model diagnostic outputs
-  # Output csv checks if true
-  if(checks){
-    # Time dependent state-exit probabilities (from weibull estimates)
-    #write.csv(m_TDP_1,"checks/state-time dependent transitions/m_TDP_1.csv", row.names = TRUE)
-    #write.csv(m_TDP_2,"checks/state-time dependent transitions/m_TDP_2.csv", row.names = TRUE)
-    #write.csv(m_TDP_3,"checks/state-time dependent transitions/m_TDP_3.csv", row.names = TRUE)
-    #write.csv(m_leave_1,"checks/state-time dependent transitions/m_leave_1.csv", row.names = TRUE)
-    #write.csv(m_leave_2,"checks/state-time dependent transitions/m_leave_2.csv", row.names = TRUE)
-    #write.csv(m_leave_3,"checks/state-time dependent transitions/m_leave_3.csv", row.names = TRUE)
-    
-    # Mortality matrix
-    #write.csv(m_mort,"checks/mortality/m_mort.csv", row.names = TRUE)
-    
-    # Overdose
-    #write.csv(m_ODN_first,"checks/overdose/m_ODN_first.csv", row.names = TRUE)
-    #write.csv(m_ODF_first,"checks/overdose/m_ODF_first.csv", row.names = TRUE)
-    #write.csv(m_ODN,"checks/overdose/m_ODN.csv", row.names = TRUE)
-    #write.csv(m_ODF,"checks/overdose/m_ODF.csv", row.names = TRUE)
-    
-    # State transitions
-    # First month (state-time)
-    #write.csv(a_UP_first[, , 1], "checks/state transitions/a_UP_first_2018.csv")
-    #write.csv(a_UP_first[, , 2], "checks/state transitions/a_UP_first_2019.csv")
-    #write.csv(a_UP_first[, , 3], "checks/state transitions/a_UP_first_2020.csv")
-    
-    # Month 2+ (state-time)
-    #write.csv(a_UP[, , 1], "checks/state transitions/a_UP_2018.csv")
-    #write.csv(a_UP[, , 2], "checks/state transitions/a_UP_2019.csv")
-    #write.csv(a_UP[, , 3], "checks/state transitions/a_UP_2020.csv")
-    
-    # Full array at time = 1
-    #array_2018_1m <- a_TDP_1[, , 1]
-    #array_2019_1m <- a_TDP_2[, , 1]
-    #array_2020_1m <- a_TDP_3[, , 1]
-    #write.csv(array_2018_1m,"checks/full array/array_2018_1m.csv", row.names = TRUE)
-    #write.csv(array_2019_1m,"checks/full array/array_2019_1m.csv", row.names = TRUE)
-    #write.csv(array_2020_1m,"checks/full array/array_2020_1m.csv", row.names = TRUE)
-    
-    # Full array at time = 24 months
-    #array_2018_24m <- a_TDP_1[, , 24]
-    #array_2019_24m <- a_TDP_2[, , 24]
-    #array_2020_24m <- a_TDP_3[, , 24]
-    #write.csv(array_2018_24m,"checks/full array/array_2018_24m.csv", row.names = TRUE)
-    #write.csv(array_2019_24m,"checks/full array/array_2019_24m.csv", row.names = TRUE)
-    #write.csv(array_2020_24m,"checks/full array/array_2020_24m.csv", row.names = TRUE)
-    
-    # Full array at time = max
-    #array_2018_last <- a_TDP_1[, , n_t]
-    #array_2019_last <- a_TDP_2[, , n_t]
-    #array_2020_last <- a_TDP_3[, , n_t]
-    #write.csv(array_2018_last,"checks/full array/array_2018_last.csv", row.names = TRUE)
-    #write.csv(array_2019_last,"checks/full array/array_2019_last.csv", row.names = TRUE)
-    #write.csv(array_2020_last,"checks/full array/array_2020_last.csv", row.names = TRUE)
-    
-    # Initial state occupancy at model initiation
-    write.csv(v_s_init,"checks/initial/v_s_init.csv", row.names = TRUE)
-  } else{}
   
   for (i in 1:n_t){
     m_M_agg_trace_death[i, "Total"] <- sum(m_M_trace_cumsum_death[i, ])

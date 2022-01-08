@@ -20,8 +20,9 @@
 generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
                                 file.death_hr = NULL,
                                 file.frailty = NULL,
-                                file.weibull_scale = NULL,
-                                file.weibull_shape = NULL,
+                                file.weibull = NULL,
+                                #file.weibull_scale = NULL,
+                                #file.weibull_shape = NULL,
                                 file.unconditional = NULL,
                                 file.overdose = NULL,
                                 file.fentanyl = NULL,
@@ -35,8 +36,9 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
   #Load files with parameter distribution values
   df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
   df_frailty <- read.csv(file = file.frailty, row.names = 1, header = TRUE) # Episode frailty params
-  df_weibull_scale <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull scale params
-  df_weibull_shape <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull shape params
+  df_weibull <- read.csv(file = file.weibull, row.names = 1, header = TRUE) # Weibull shape and scale
+  #df_weibull_scale <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull scale params
+  #df_weibull_shape <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose params
   df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl params
@@ -247,39 +249,54 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     p_frailty_OD_INJ_2 = rlnorm(n_sim, location(m = df_frailty["pe", "REL_INJ_2"], s = df_frailty["sd", "REL_INJ_2"]), shape(m = df_frailty["pe", "REL_INJ_2"], s = df_frailty["sd", "REL_INJ_2"])),
     p_frailty_OD_INJ_3 = rlnorm(n_sim, location(m = df_frailty["pe", "REL_INJ_3"], s = df_frailty["sd", "REL_INJ_3"]), shape(m = df_frailty["pe", "REL_INJ_3"], s = df_frailty["sd", "REL_INJ_3"])),
     
+    # Weibull
+    # Shape
+    # EP1
+    p_weibull_shape_BUP = rnorm(n_sim, mean = df_weibull["pe", "BUP_shape_1"], sd = df_weibull["sd", "BUP_shape_1"]),
+    p_weibull_shape_MET = rnorm(n_sim, mean = df_weibull["pe", "MET_shape_1"], sd = df_weibull["sd", "MET_shape_1"]),
+    p_weibull_shape_REL = rnorm(n_sim, mean = df_weibull["pe", "REL_shape_1"], sd = df_weibull["sd", "REL_shape_1"]),
+    p_weibull_shape_ABS = rnorm(n_sim, mean = df_weibull["pe", "ABS_shape_1"], sd = df_weibull["sd", "ABS_shape_1"]),
+    
+    # scale
+    # EP1
+    p_weibull_scale_BUP = rnorm(n_sim, mean = df_weibull["pe", "BUP_scale_1"], sd = df_weibull["sd", "BUP_scale_1"]),
+    p_weibull_scale_MET = rnorm(n_sim, mean = df_weibull["pe", "MET_scale_1"], sd = df_weibull["sd", "MET_scale_1"]),
+    p_weibull_scale_REL = rnorm(n_sim, mean = df_weibull["pe", "REL_scale_1"], sd = df_weibull["sd", "REL_scale_1"]),
+    p_weibull_scale_ABS = rnorm(n_sim, mean = df_weibull["pe", "ABS_scale_1"], sd = df_weibull["sd", "ABS_scale_1"]),
+    
     # Weibull scale
     # Non-injection
-    p_weibull_scale_BUP_NI  = rnorm(n_sim, mean = df_weibull_scale["pe", "BUP_NI"], sd = df_weibull_scale["sd", "BUP_NI"]),
-    p_weibull_scale_BUPC_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "BUPC_NI"], sd = df_weibull_scale["sd", "BUPC_NI"]),
-    p_weibull_scale_MET_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "MET_NI"], sd = df_weibull_scale["sd", "MET_NI"]),
-    p_weibull_scale_METC_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "METC_NI"], sd = df_weibull_scale["sd", "METC_NI"]),
-    p_weibull_scale_ABS_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "ABS_NI"], sd = df_weibull_scale["sd", "ABS_NI"]),
-    p_weibull_scale_REL_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "REL_NI"], sd = df_weibull_scale["sd", "REL_NI"]),
+    #p_weibull_scale_BUP_NI  = rnorm(n_sim, mean = df_weibull_scale["pe", "BUP_NI"], sd = df_weibull_scale["sd", "BUP_NI"]),
+    #p_weibull_scale_BUPC_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "BUPC_NI"], sd = df_weibull_scale["sd", "BUPC_NI"]),
+    #p_weibull_scale_MET_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "MET_NI"], sd = df_weibull_scale["sd", "MET_NI"]),
+    #p_weibull_scale_METC_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "METC_NI"], sd = df_weibull_scale["sd", "METC_NI"]),
+    #p_weibull_scale_ABS_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "ABS_NI"], sd = df_weibull_scale["sd", "ABS_NI"]),
+    #p_weibull_scale_REL_NI = rnorm(n_sim, mean = df_weibull_scale["pe", "REL_NI"], sd = df_weibull_scale["sd", "REL_NI"]),
         
     # Injection
-    p_weibull_scale_BUP_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "BUP_INJ"], sd = df_weibull_scale["sd", "BUP_INJ"]),
-    p_weibull_scale_BUPC_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "BUPC_INJ"], sd = df_weibull_scale["sd", "BUPC_INJ"]),
-    p_weibull_scale_MET_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "MET_INJ"], sd = df_weibull_scale["sd", "MET_INJ"]),
-    p_weibull_scale_METC_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "METC_INJ"], sd = df_weibull_scale["sd", "METC_INJ"]),
-    p_weibull_scale_ABS_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "ABS_INJ"], sd = df_weibull_scale["sd", "ABS_INJ"]),
-    p_weibull_scale_REL_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "REL_INJ"], sd = df_weibull_scale["sd", "REL_INJ"]),
+    #p_weibull_scale_BUP_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "BUP_INJ"], sd = df_weibull_scale["sd", "BUP_INJ"]),
+    #p_weibull_scale_BUPC_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "BUPC_INJ"], sd = df_weibull_scale["sd", "BUPC_INJ"]),
+    #p_weibull_scale_MET_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "MET_INJ"], sd = df_weibull_scale["sd", "MET_INJ"]),
+    #p_weibull_scale_METC_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "METC_INJ"], sd = df_weibull_scale["sd", "METC_INJ"]),
+    #p_weibull_scale_ABS_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "ABS_INJ"], sd = df_weibull_scale["sd", "ABS_INJ"]),
+    #p_weibull_scale_REL_INJ = rnorm(n_sim, mean = df_weibull_scale["pe", "REL_INJ"], sd = df_weibull_scale["sd", "REL_INJ"]),
     
     # Weibull shape
     # Non-injection
-    p_weibull_shape_BUP_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "BUP_NI"], sd = df_weibull_shape["sd", "BUP_NI"]),
-    p_weibull_shape_BUPC_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "BUPC_NI"], sd = df_weibull_shape["sd", "BUPC_NI"]),
-    p_weibull_shape_MET_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "MET_NI"], sd = df_weibull_shape["sd", "MET_NI"]),
-    p_weibull_shape_METC_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "METC_NI"], sd = df_weibull_shape["sd", "METC_NI"]),
-    p_weibull_shape_ABS_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "ABS_NI"], sd = df_weibull_shape["sd", "ABS_NI"]),
-    p_weibull_shape_REL_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "REL_NI"], sd = df_weibull_shape["sd", "REL_NI"]),
+    #p_weibull_shape_BUP_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "BUP_NI"], sd = df_weibull_shape["sd", "BUP_NI"]),
+    #p_weibull_shape_BUPC_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "BUPC_NI"], sd = df_weibull_shape["sd", "BUPC_NI"]),
+    #p_weibull_shape_MET_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "MET_NI"], sd = df_weibull_shape["sd", "MET_NI"]),
+    #p_weibull_shape_METC_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "METC_NI"], sd = df_weibull_shape["sd", "METC_NI"]),
+    #p_weibull_shape_ABS_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "ABS_NI"], sd = df_weibull_shape["sd", "ABS_NI"]),
+    #p_weibull_shape_REL_NI = rnorm(n_sim, mean = df_weibull_shape["pe", "REL_NI"], sd = df_weibull_shape["sd", "REL_NI"]),
     
     # Injection
-    p_weibull_shape_BUP_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "BUP_INJ"], sd = df_weibull_shape["sd", "BUP_INJ"]),
-    p_weibull_shape_BUPC_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "BUPC_INJ"], sd = df_weibull_shape["sd", "BUPC_INJ"]),
-    p_weibull_shape_MET_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "MET_INJ"], sd = df_weibull_shape["sd", "MET_INJ"]),
-    p_weibull_shape_METC_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "METC_INJ"], sd = df_weibull_shape["sd", "METC_INJ"]),
-    p_weibull_shape_ABS_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "ABS_INJ"], sd = df_weibull_shape["sd", "ABS_INJ"]),
-    p_weibull_shape_REL_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "REL_INJ"], sd = df_weibull_shape["sd", "REL_INJ"]),
+    #p_weibull_shape_BUP_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "BUP_INJ"], sd = df_weibull_shape["sd", "BUP_INJ"]),
+    #p_weibull_shape_BUPC_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "BUPC_INJ"], sd = df_weibull_shape["sd", "BUPC_INJ"]),
+    #p_weibull_shape_MET_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "MET_INJ"], sd = df_weibull_shape["sd", "MET_INJ"]),
+    #p_weibull_shape_METC_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "METC_INJ"], sd = df_weibull_shape["sd", "METC_INJ"]),
+    #p_weibull_shape_ABS_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "ABS_INJ"], sd = df_weibull_shape["sd", "ABS_INJ"]),
+    #p_weibull_shape_REL_INJ = rnorm(n_sim, mean = df_weibull_shape["pe", "REL_INJ"], sd = df_weibull_shape["sd", "REL_INJ"]),
     
     ### Transition probabilities conditional on leaving (use Dirichlet)
     #write.csv(df_UP, file = "checks/df_UP.csv", row.names = TRUE),

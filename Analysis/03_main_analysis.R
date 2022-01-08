@@ -72,21 +72,18 @@ write.csv(l_outcomes_BUP$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_BU
 
 # Outcomes
 # Disaggregated
-df_outcomes <- data.frame(l_outcomes_BUP$v_outcomes, l_outcomes_MET$v_outcomes)
-df_outcomes <- df_costs %>% rename("Early take-home BNX" = l_outcomes_BUP.v_outcomes, "Methadone" = l_outcomes_MET.v_outcomes)
+df_outcomes <- rbind(l_outcomes_BUP$df_outcomes, l_outcomes_MET$df_outcomes)
+rownames(df_outcomes) <- c("Early take-home BNX", "Methadone")
+#df_outcomes <- df_outcomes %>% rename("Early take-home BNX" = l_outcomes_BUP.df_outcomes, "Methadone" = l_outcomes_MET.df_outcomes)
 
 # ICER
-df_icer <- data.frame(ICER$v_icer)
-df_icer <- df_icer %>% rename("Early take-home BNX vs. Methadone" = ICER.v_icer)
+df_icer <- ICER$df_icer#data.frame(ICER$v_icer)
+rownames(df_icer) <- c("Early take-home BNX vs. Methadone")
+#df_icer <- df_icer %>% rename("Early take-home BNX vs. Methadone" = ICER.v_icer)
 
 # Output
 write.csv(df_outcomes,"outputs/main_output_det.csv", row.names = TRUE)
 write.csv(df_icer,"outputs/icer_det.csv", row.names = TRUE)
-
-#write.xlsx2(df_outcomes, file = "outputs/main_output_det.xlsx", sheetName = "Outcomes",
-#            col.names = TRUE, row.names = TRUE, append = FALSE)
-#write.xlsx2(df_icer, file = "outputs/main_output_det.xlsx", sheetName = "ICER",
-#            col.names = TRUE, row.names = TRUE, append = TRUE)
 
 # Raw outputs
 # Costs
