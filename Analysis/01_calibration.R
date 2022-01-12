@@ -214,9 +214,9 @@ df_calib_prior_post$Distribution <- ordered(df_calib_prior_post$Distribution,
                                                        "Posterior"))
 
 df_calib_prior_post$Parameter <- factor(df_calib_prior_post$Parameter,
-                                       levels = levels(df_calib_prior_post$Parameter),
-                                       ordered = TRUE,
-                                       labels = v_cali_param_names)
+                                        levels = levels(df_calib_prior_post$Parameter),
+                                        ordered = TRUE,
+                                        labels = v_cali_param_names)
 
 ### Plot priors and IMIS posteriors
 # TO-DO: Add vertical lines for prior mean and MAP
@@ -261,53 +261,92 @@ ggsave(prior_v_posterior,
 #### Plot model fit against calibration targets ####
 # Run model for n_samp posterior distribution draws
 # Output list of fatal and total overdoses at T = 1, T = 2, T = 3
-m_model_targets <- matrix(0, nrow = n_samp, ncol = (n_target * 3)) 
+m_model_targets_ODF <- m_model_targets_ODN <- matrix(0, nrow = n_resamp, ncol = 3) 
 
-for(i in 1:n_samp){
-  l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[i, ], 
-                                        l_params_all = l_params_all)
-  m_model_targets[i, 1] <- l_model_target_fit$fatal_overdose[1]
-  m_model_targets[i, 2] <- l_model_target_fit$fatal_overdose[2]
-  m_model_targets[i, 3] <- l_model_target_fit$fatal_overdose[3]
-  
-  m_model_targets[i, 4] <- l_model_target_fit$overdose[1]
-  m_model_targets[i, 5] <- l_model_target_fit$overdose[2]
-  m_model_targets[i, 6] <- l_model_target_fit$overdose[3]
-}
-
-### CODE FROM DARTH GITHUB
-v_out_post_map <- markov_crs(v.calib.post.map)
-
-# Fatal overdoses
-plotrix::plotCI(x  = l_cali_targets$ODF$Time, 
-                y  = l_cali_targets$ODF$pe, 
-                ui = l_cali_targets$ODF$high,
-                li = l_cali_targets$ODF$low,
-                #ylim = c(0, 1), 
-                xlab = "Month", ylab = "Fatal Overdoses")
-grid()
-for (i in 1:nrow(m_calib_post)){
+for(i in 1:n_resamp){
   l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[i, ], 
                                         l_params_all = l_params_all)
   
-  lines(x = l_cali_targets$ODF$Time, 
-        y = l_model_target_fit$fatal_overdose,
-        col = "darkorange",
-        lwd = 0.1)
+  m_model_targets_ODF[i, 1] <- l_model_target_fit$fatal_overdose[1]
+  m_model_targets_ODF[i, 2] <- l_model_target_fit$fatal_overdose[2]
+  m_model_targets_ODF[i, 3] <- l_model_target_fit$fatal_overdose[3]
+  
+  m_model_targets_ODN[i, 1] <- l_model_target_fit$overdose[1]
+  m_model_targets_ODN[i, 2] <- l_model_target_fit$overdose[2]
+  m_model_targets_ODN[i, 3] <- l_model_target_fit$overdose[3]
 }
-lines(x = l_cali_targets$ODF$Time, 
-      y = v_out_post_map$ODF,
-      col = "dodgerblue",
-      lwd = 2)
 
+# Model outputs
+m_model_targets_ODF_stats <- cbind(matrixStats::colQuantiles(m_model_targets_ODF, 
+                                                             probs = c(0.025, 0.5, 0.975)),
+                               matrixStats::colMeans2(m_model_targets_ODF))
 
+m_model_targets_ODN_stats <- cbind(matrixStats::colQuantiles(m_model_targets_ODN, 
+                                                             probs = c(0.025, 0.5, 0.975)),
+                                   matrixStats::colMeans2(m_model_targets_ODN))
 
+m_time <- matrix(c(12, 24, 36))
+m_pop <- matrix(l_cali_targets$ODF$Pop)
+m_model_targets_ODF_fit <- cbind(m_model_targets_ODF_stats, m_time, m_pop)
+m_model_targets_ODN_fit <- cbind(m_model_targets_ODN_stats, m_time, m_pop)
 
+df_model_targets_ODF_fit <- m_model_targets_ODF_fit %>% as_tibble() %>% setNames(c("ci_low", "Median", "ci_high", "pe", "Time", "Pop")) %>% mutate(Target = "Model output (95% CI)", 
+                                                                                                                                                   Num = pe * Pop,
+                                                                                                                                                   low = ci_low * Pop,
+                                                                                                                                                   high = ci_high * Pop)
+df_model_targets_ODN_fit <- m_model_targets_ODN_fit %>% as_tibble() %>% setNames(c("ci_low", "Median", "ci_high", "pe", "Time", "Pop")) %>% mutate(Target = "Model output (95% CI)",
+                                                                                                                                                   Num = pe * Pop,
+                                                                                                                                                   low = ci_low * Pop,
+                                                                                                                                                   high = ci_high * Pop)
 
-# TARGET 1: Survival ("Surv")
-plotrix::plotCI(x = CRS.targets$Surv$Time, y = CRS.targets$Surv$value, 
-                ui = CRS.targets$Surv$ub,
-                li = CRS.targets$Surv$lb,
-                ylim = c(0, 1), 
-                xlab = "Time", ylab = "Pr Survive")
-grid()
+# Targets
+df_targets_ODF <- l_cali_targets$ODF %>% as_tibble() %>% mutate(Target = "Cali target (95% CI)",
+                                                                low = low * Pop,
+                                                                high = high * Pop)
+df_targets_ODN <- l_cali_targets$ODN %>% as_tibble() %>% mutate(Target = "Cali target (95% CI)",
+                                                                low = low * Pop,
+                                                                high = high * Pop)
+
+# Combine
+df_fit_ODF <- bind_rows(df_targets_ODF, df_model_targets_ODF_fit)
+df_fit_ODN <- bind_rows(df_targets_ODN, df_model_targets_ODN_fit)
+
+# Plot fit vs. targets
+# Fatal overdose
+p_temp_ODF <- ggplot(df_fit_ODF, aes(x = Time, y = Num, group = Target, color = Target)) + 
+              geom_line() +
+              geom_point()+
+              geom_errorbar(aes(ymin = low, ymax = high), width = .5,
+                            position = position_dodge(0.05))
+
+plot_fit_ODF <- p_temp_ODF + labs(title = NULL, x = "Year", y = "Fatal overdoses") +
+                             theme_classic() +
+                             theme(legend.position="bottom") + 
+                             theme(legend.title = element_blank()) +
+                             scale_color_manual(values = c('#999999','#E69F00')) +
+                             scale_x_continuous(breaks = c(12, 24, 36),
+                                                labels = c("2018", "2019", "2020"))
+#plot_fit_ODF
+
+# Non-fatal overdose
+p_temp_ODN <- ggplot(df_fit_ODN, aes(x = Time, y = Num, group = Target, color = Target)) + 
+              geom_line() +
+              geom_point()+
+              geom_errorbar(aes(ymin = low, ymax = high), width = .5,
+                            position = position_dodge(0.05))
+
+plot_fit_ODN <- p_temp_ODN + labs(title = NULL, x = "Year", y = "Non-fatal overdoses")+
+                             theme_classic() +
+                             theme(legend.position="bottom") + 
+                             theme(legend.title = element_blank()) +
+                             scale_color_manual(values = c('#999999','#E69F00')) +
+                             scale_x_continuous(breaks = c(12, 24, 36),
+                                                labels = c("2018", "2019", "2020"))
+
+# Outputs
+ggsave(plot_fit_ODF, 
+       filename = "Plots/Calibration/target-fit-ODF.png", 
+       width = 4, height = 4)
+ggsave(plot_fit_ODN, 
+       filename = "Plots/Calibration/target-fit-ODN.png", 
+       width = 4, height = 4)

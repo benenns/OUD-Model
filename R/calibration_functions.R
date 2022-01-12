@@ -38,18 +38,28 @@ calibration_out <- function(v_params_calib,
   ### Subset output by time-points ###
   ### Overdose deaths ###
   # Fatal overdoses already cumulative at each time point
+  #n_ODF1 <- v_ODF[n_ODF_t1]
+  #n_ODF2 <- v_ODF[n_ODF_t2]
+  #n_ODF3 <- v_ODF[n_ODF_t3]
+  
+  # Yearly fatal overdoses (disaggregated)
   n_ODF1 <- v_ODF[n_ODF_t1]
-  n_ODF2 <- v_ODF[n_ODF_t2]
-  n_ODF3 <- v_ODF[n_ODF_t3]
+  n_ODF2 <- v_ODF[n_ODF_t2] - v_ODF[n_ODF_t1]
+  n_ODF3 <- v_ODF[n_ODF_t3] - v_ODF[n_ODF_t2]
   
   ### Non-fatal overdose
   # Non-fatal overdoses need to be summed across time points to generate cumulative estimates
+  #n_ODN1 <- sum(v_ODN[c(1:n_ODN_t1)])
+  #n_ODN2 <- sum(v_ODN[c(1:n_ODN_t2)])
+  #n_ODN3 <- sum(v_ODN[c(1:n_ODN_t3)])
+  
+  # Yearly non-fatal overdose (disaggregated)
   n_ODN1 <- sum(v_ODN[c(1:n_ODN_t1)])
-  n_ODN2 <- sum(v_ODN[c(1:n_ODN_t2)])
-  n_ODN3 <- sum(v_ODN[c(1:n_ODN_t3)])
+  n_ODN2 <- sum(v_ODN[c(13:n_ODN_t2)])
+  n_ODN3 <- sum(v_ODN[c(25:n_ODN_t3)])
   
   #### Return Output ####
-  l_out <- list(fatal_overdose = c(n_ODF1, n_ODF2, n_ODF3), # cumulative deaths at t1, t2 , t3 time periods (for yearly deaths: (i + 12) - i where i = first month of year, 1 + 12 = last month)
+  l_out <- list(fatal_overdose = c(n_ODF1, n_ODF2, n_ODF3), # deaths at t1, t2 , t3 time periods (for yearly deaths: (i + 12) - i where i = first month of year, 1 + 12 = last month)
                 overdose = c(n_ODN1, n_ODN2, n_ODN3))
   return(l_out)
 }
