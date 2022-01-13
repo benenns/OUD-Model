@@ -89,6 +89,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   
   # Overdose
   all_OD <- df_flat$BASE == "ODN" | df_flat$BASE == "ODF"
+  non_OD <- df_flat$BASE != "ODN" & df_flat$BASE != "ODF"
   ODN <- df_flat$BASE == "ODN" # non-fatal overdose
   ODF <- df_flat$BASE == "ODF" # fatal overdose
   
@@ -242,10 +243,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   m_ODN_first[TX & NI, i]   <- p_OD(rate = n_TX_OD,    rate_fatal = n_fatal_OD, multiplier = n_TX_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
   m_ODN_first[TXC & NI, i]  <- p_OD(rate = n_TXC_OD,  rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
   m_ODN_first[REL & NI, i]  <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
+  m_ODN_first[ODN & NI, i]  <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
   m_ODN_first[ABS & NI, i]  <- p_OD(rate = n_ABS_OD,  rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
   m_ODN_first[TX & INJ, i]  <- p_OD(rate = n_TX_OD,   rate_fatal = n_fatal_OD, multiplier = n_TX_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
   m_ODN_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
   m_ODN_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  m_ODN_first[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
   m_ODN_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
     
   # Fatal (first month)
@@ -264,10 +267,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   m_ODN[TX & NI, i] <- p_OD(rate = n_TX_OD,    rate_fatal = n_fatal_OD, multiplier = n_TX_OD_mult,   fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
   m_ODN[TXC & NI, i] <- p_OD(rate = n_TXC_OD,  rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
   m_ODN[REL & NI, i] <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
+  m_ODN[ODN & NI, i] <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
   m_ODN[ABS & NI, i] <- p_OD(rate = n_ABS_OD,  rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
   m_ODN[TX & INJ, i] <- p_OD(rate = n_TX_OD,   rate_fatal = n_fatal_OD, multiplier = n_TX_OD_mult,   fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
   m_ODN[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
   m_ODN[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  m_ODN[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
   m_ODN[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
   
   # Fatal (month 2+)
@@ -291,11 +296,17 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     write.csv(m_ODF,"checks/overdose/m_ODF.csv", row.names = TRUE)
   } else{}
   
+  # Probability of non-overdose
+  m_non_OD_first <- 1 - (m_ODN_first + m_ODF_first)
+  m_non_OD <- 1 - (m_ODN + m_ODF)
+  
   #### Time-dependent remain probabilities ####
   # Empty 2-D matrix
   # Three matrices to account for overdose probabilities in 2018, 2019, and 2020+
-  m_TDP_1 <- m_TDP_2 <- m_TDP_3 <- array(0, dim = c(n_states, n_t),
-                                     dimnames = list(v_n_states, 1:n_t))
+  #m_TDP_1 <- m_TDP_2 <- m_TDP_3 <- m_TDP_1_non_OD <- m_TDP_2_non_OD <- m_TDP_3_non_OD <- array(0, dim = c(n_states, n_t),
+  #                                                                                       dimnames = list(v_n_states, 1:n_t))
+  a_remain <- array(0, dim = c(n_states, time_periods, n_t),
+                    dimnames = list(v_n_states, 1:time_periods, 1:n_t))
   
   # Generate state-specific weibull parameters
   # Shape
@@ -353,160 +364,251 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
 
   # Probability of remaining in health state
   # All remain in fatal overdose, remain probability = 1
+  for(j in 1:time_periods){
   for(i in 1:n_t){
     # Non-injection
       # Episode 1
-      m_TDP_1[EP1 & BUP & NI, i]  <- m_TDP_2[EP1 & BUP & NI, i]  <- m_TDP_3[EP1 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
-      m_TDP_1[EP1 & BUPC & NI, i] <- m_TDP_2[EP1 & BUPC & NI, i] <- m_TDP_3[EP1 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
-      m_TDP_1[EP1 & MET & NI, i]  <- m_TDP_2[EP1 & MET & NI, i]  <- m_TDP_3[EP1 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-      m_TDP_1[EP1 & METC & NI, i] <- m_TDP_2[EP1 & METC & NI, i] <- m_TDP_3[EP1 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-      m_TDP_1[EP1 & ABS & NI, i]  <- m_TDP_2[EP1 & ABS & NI, i]  <- m_TDP_3[EP1 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-      m_TDP_1[EP1 & REL & NI, i]  <- m_TDP_2[EP1 & REL & NI, i]  <- m_TDP_3[EP1 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-      m_TDP_1[EP1 & ODN & NI, i]  <- m_ODN_first[EP1 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-      m_TDP_2[EP1 & ODN & NI, i]  <- m_ODN_first[EP1 & REL & NI, 2]
-      m_TDP_3[EP1 & ODN & NI, i]  <- m_ODN_first[EP1 & REL & NI, 3]
-      m_TDP_1[EP1 & ODF & NI, i]  <- m_TDP_2[EP1 & ODF & NI, i] <- m_TDP_3[EP1 & ODF & NI, i]  <- 1 # all remain in ODF
+      a_remain[EP1 & BUP & NI, j, i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      a_remain[EP1 & BUPC & NI, j, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      a_remain[EP1 & MET & NI, j, i] <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      a_remain[EP1 & METC & NI, j, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      a_remain[EP1 & ABS & NI, j, i] <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+      a_remain[EP1 & REL & NI, j, i] <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+      a_remain[EP1 & ODN & NI, j, i] <- 0
+      a_remain[EP1 & ODF & NI, j, i] <- 1
+    
+      #m_TDP_1[EP1 & BUP & NI, i]  <- m_TDP_2[EP1 & BUP & NI, i]  <- m_TDP_3[EP1 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+      #m_TDP_1[EP1 & BUPC & NI, i] <- m_TDP_2[EP1 & BUPC & NI, i] <- m_TDP_3[EP1 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      #m_TDP_1[EP1 & MET & NI, i]  <- m_TDP_2[EP1 & MET & NI, i]  <- m_TDP_3[EP1 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      #m_TDP_1[EP1 & METC & NI, i] <- m_TDP_2[EP1 & METC & NI, i] <- m_TDP_3[EP1 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      #m_TDP_1[EP1 & ABS & NI, i]  <- m_TDP_2[EP1 & ABS & NI, i]  <- m_TDP_3[EP1 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+      #m_TDP_1[EP1 & REL & NI, i]  <- m_TDP_2[EP1 & REL & NI, i]  <- m_TDP_3[EP1 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+      #m_TDP_1[EP1 & ODN & NI, i]  <- 0 #m_ODN_first[EP1 & REL & NI, 1] 
+      #m_TDP_2[EP1 & ODN & NI, i]  <- 0 #m_ODN_first[EP1 & REL & NI, 2]
+      #m_TDP_3[EP1 & ODN & NI, i]  <- 0 #m_ODN_first[EP1 & REL & NI, 3]
+      #m_TDP_1[EP1 & ODF & NI, i]  <- m_TDP_2[EP1 & ODF & NI, i] <- m_TDP_3[EP1 & ODF & NI, i]  <- 1 # all remain in ODF
+      
       # Episode 2
-      m_TDP_1[EP2 & BUP & NI, i]  <- m_TDP_2[EP2 & BUP & NI, i]  <- m_TDP_3[EP2 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
-      m_TDP_1[EP2 & BUPC & NI, i] <- m_TDP_2[EP2 & BUPC & NI, i] <- m_TDP_3[EP2 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
-      m_TDP_1[EP2 & MET & NI, i]  <- m_TDP_2[EP2 & MET & NI, i]  <- m_TDP_3[EP2 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-      m_TDP_1[EP2 & METC & NI, i] <- m_TDP_2[EP2 & METC & NI, i] <- m_TDP_3[EP2 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-      m_TDP_1[EP2 & ABS & NI, i]  <- m_TDP_2[EP2 & ABS & NI, i]  <- m_TDP_3[EP2 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_2 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-      m_TDP_1[EP2 & REL & NI, i]  <- m_TDP_2[EP2 & REL & NI, i]  <- m_TDP_3[EP2 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-      m_TDP_1[EP2 & ODN & NI, i]  <- m_ODN_first[EP2 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-      m_TDP_2[EP2 & ODN & NI, i]  <- m_ODN_first[EP2 & REL & NI, 2]
-      m_TDP_3[EP2 & ODN & NI, i]  <- m_ODN_first[EP2 & REL & NI, 3]
-      m_TDP_1[EP2 & ODF & NI, i]  <- m_TDP_2[EP2 & ODF & NI, i] <- m_TDP_3[EP2 & ODF & NI, i]  <- 1 # all remain in ODF
+      a_remain[EP2 & BUP & NI, j, i] <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      a_remain[EP2 & BUPC & NI, j, i] <- as.vector(exp(p_frailty_BUPC_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      a_remain[EP2 & MET & NI, j, i] <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      a_remain[EP2 & METC & NI, j, i] <- as.vector(exp(p_frailty_METC_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      a_remain[EP2 & ABS & NI, j, i] <- as.vector(exp(p_frailty_ABS_NI_2 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+      a_remain[EP2 & REL & NI, j, i] <- as.vector(exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+      a_remain[EP2 & ODN & NI, j, i] <- 0
+      a_remain[EP2 & ODF & NI, j, i] <- 1
+      
+      #m_TDP_1[EP2 & BUP & NI, i]  <- m_TDP_2[EP2 & BUP & NI, i]  <- m_TDP_3[EP2 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+      #m_TDP_1[EP2 & BUPC & NI, i] <- m_TDP_2[EP2 & BUPC & NI, i] <- m_TDP_3[EP2 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_2 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      #m_TDP_1[EP2 & MET & NI, i]  <- m_TDP_2[EP2 & MET & NI, i]  <- m_TDP_3[EP2 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      #m_TDP_1[EP2 & METC & NI, i] <- m_TDP_2[EP2 & METC & NI, i] <- m_TDP_3[EP2 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_2 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      #m_TDP_1[EP2 & ABS & NI, i]  <- m_TDP_2[EP2 & ABS & NI, i]  <- m_TDP_3[EP2 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_2 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+      #m_TDP_1[EP2 & REL & NI, i]  <- m_TDP_2[EP2 & REL & NI, i]  <- m_TDP_3[EP2 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_2 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+      #m_TDP_1[EP2 & ODN & NI, i]  <- 0 #m_ODN_first[EP2 & REL & NI, 1] 
+      #m_TDP_2[EP2 & ODN & NI, i]  <- 0 #m_ODN_first[EP2 & REL & NI, 2]
+      #m_TDP_3[EP2 & ODN & NI, i]  <- 0 #m_ODN_first[EP2 & REL & NI, 3]
+      #m_TDP_1[EP2 & ODF & NI, i]  <- m_TDP_2[EP2 & ODF & NI, i] <- m_TDP_3[EP2 & ODF & NI, i]  <- 1 # all remain in ODF
+      
       # Episode 3
-      m_TDP_1[EP3 & BUP & NI, i]  <- m_TDP_2[EP3 & BUP & NI, i]  <- m_TDP_3[EP3 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
-      m_TDP_1[EP3 & BUPC & NI, i] <- m_TDP_2[EP3 & BUPC & NI, i] <- m_TDP_3[EP3 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
-      m_TDP_1[EP3 & MET & NI, i]  <- m_TDP_2[EP3 & MET & NI, i]  <- m_TDP_3[EP3 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-      m_TDP_1[EP3 & METC & NI, i] <- m_TDP_2[EP3 & METC & NI, i] <- m_TDP_3[EP3 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-      m_TDP_1[EP3 & ABS & NI, i]  <- m_TDP_2[EP3 & ABS & NI, i]  <- m_TDP_3[EP3 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_3 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-      m_TDP_1[EP3 & REL & NI, i]  <- m_TDP_2[EP3 & REL & NI, i]  <- m_TDP_3[EP3 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-      m_TDP_1[EP3 & ODN & NI, i]  <- m_ODN_first[EP3 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-      m_TDP_2[EP3 & ODN & NI, i]  <- m_ODN_first[EP3 & REL & NI, 2]
-      m_TDP_3[EP3 & ODN & NI, i]  <- m_ODN_first[EP3 & REL & NI, 3]
-      m_TDP_1[EP3 & ODF & NI, i]  <- m_TDP_2[EP3 & ODF & NI, i] <- m_TDP_3[EP3 & ODF & NI, i]  <- 1 # all remain in ODF
+      a_remain[EP3 & BUP & NI, j, i] <- as.vector(exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      a_remain[EP3 & BUPC & NI, j, i] <- as.vector(exp(p_frailty_BUPC_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      a_remain[EP3 & MET & NI, j, i] <- as.vector(exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      a_remain[EP3 & METC & NI, j, i] <- as.vector(exp(p_frailty_METC_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      a_remain[EP3 & ABS & NI, j, i] <- as.vector(exp(p_frailty_ABS_NI_3 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+      a_remain[EP3 & REL & NI, j, i] <- as.vector(exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+      a_remain[EP3 & ODN & NI, j, i] <- 0
+      a_remain[EP3 & ODF & NI, j, i] <- 1
+      
+      #m_TDP_1[EP3 & BUP & NI, i]  <- m_TDP_2[EP3 & BUP & NI, i]  <- m_TDP_3[EP3 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+      #m_TDP_1[EP3 & BUPC & NI, i] <- m_TDP_2[EP3 & BUPC & NI, i] <- m_TDP_3[EP3 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_3 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+      #m_TDP_1[EP3 & MET & NI, i]  <- m_TDP_2[EP3 & MET & NI, i]  <- m_TDP_3[EP3 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      #m_TDP_1[EP3 & METC & NI, i] <- m_TDP_2[EP3 & METC & NI, i] <- m_TDP_3[EP3 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_3 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+      #m_TDP_1[EP3 & ABS & NI, i]  <- m_TDP_2[EP3 & ABS & NI, i]  <- m_TDP_3[EP3 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_3 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+      #m_TDP_1[EP3 & REL & NI, i]  <- m_TDP_2[EP3 & REL & NI, i]  <- m_TDP_3[EP3 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_3 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+      #m_TDP_1[EP3 & ODN & NI, i]  <- 0 #m_ODN_first[EP3 & REL & NI, 1] 
+      #m_TDP_2[EP3 & ODN & NI, i]  <- 0 #m_ODN_first[EP3 & REL & NI, 2]
+      #m_TDP_3[EP3 & ODN & NI, i]  <- 0 #m_ODN_first[EP3 & REL & NI, 3]
+      #m_TDP_1[EP3 & ODF & NI, i]  <- m_TDP_2[EP3 & ODF & NI, i] <- m_TDP_3[EP3 & ODF & NI, i]  <- 1 # all remain in ODF
+      
     # Injection
       # Episode 1
-      m_TDP_1[EP1 & BUP & INJ, i]  <- m_TDP_2[EP1 & BUP & INJ, i]  <- m_TDP_3[EP1 & BUP & INJ, i]  <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
-      m_TDP_1[EP1 & BUPC & INJ, i] <- m_TDP_2[EP1 & BUPC & INJ, i] <- m_TDP_3[EP1 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
-      m_TDP_1[EP1 & MET & INJ, i]  <- m_TDP_2[EP1 & MET & INJ, i]  <- m_TDP_3[EP1 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-      m_TDP_1[EP1 & METC & INJ, i] <- m_TDP_2[EP1 & METC & INJ, i] <- m_TDP_3[EP1 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-      m_TDP_1[EP1 & ABS & INJ, i]  <- m_TDP_2[EP1 & ABS & INJ, i]  <- m_TDP_3[EP1 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-      m_TDP_1[EP1 & REL & INJ, i]  <- m_TDP_2[EP1 & REL & INJ, i]  <- m_TDP_3[EP1 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
-      m_TDP_1[EP1 & ODN & INJ, i]  <- m_ODN_first[EP1 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-      m_TDP_2[EP1 & ODN & INJ, i]  <- m_ODN_first[EP1 & REL & INJ, 2]
-      m_TDP_3[EP1 & ODN & INJ, i]  <- m_ODN_first[EP1 & REL & INJ, 3]
-      m_TDP_1[EP1 & ODF & INJ, i]  <- m_TDP_2[EP1 & ODF & INJ, i] <- m_TDP_3[EP1 & ODF & INJ, i]  <- 1 # all remain in ODF
+      a_remain[EP1 & BUP & INJ, j, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      a_remain[EP1 & BUPC & INJ, j, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      a_remain[EP1 & MET & INJ, j, i] <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      a_remain[EP1 & METC & INJ, j, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      a_remain[EP1 & ABS & INJ, j, i] <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+      a_remain[EP1 & REL & INJ, j, i] <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+      a_remain[EP1 & ODN & INJ, j, i] <- 0
+      a_remain[EP1 & ODF & INJ, j, i] <- 1
+      
+      #m_TDP_1[EP1 & BUP & INJ, i]  <- m_TDP_2[EP1 & BUP & INJ, i]  <- m_TDP_3[EP1 & BUP & INJ, i]  <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
+      #m_TDP_1[EP1 & BUPC & INJ, i] <- m_TDP_2[EP1 & BUPC & INJ, i] <- m_TDP_3[EP1 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      #m_TDP_1[EP1 & MET & INJ, i]  <- m_TDP_2[EP1 & MET & INJ, i]  <- m_TDP_3[EP1 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      #m_TDP_1[EP1 & METC & INJ, i] <- m_TDP_2[EP1 & METC & INJ, i] <- m_TDP_3[EP1 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      #m_TDP_1[EP1 & ABS & INJ, i]  <- m_TDP_2[EP1 & ABS & INJ, i]  <- m_TDP_3[EP1 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+      #m_TDP_1[EP1 & REL & INJ, i]  <- m_TDP_2[EP1 & REL & INJ, i]  <- m_TDP_3[EP1 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+      #m_TDP_1[EP1 & ODN & INJ, i]  <- 0 #m_ODN_first[EP1 & REL & INJ, 1]
+      #m_TDP_2[EP1 & ODN & INJ, i]  <- 0 #m_ODN_first[EP1 & REL & INJ, 2]
+      #m_TDP_3[EP1 & ODN & INJ, i]  <- 0 #m_ODN_first[EP1 & REL & INJ, 3]
+      #m_TDP_1[EP1 & ODF & INJ, i]  <- m_TDP_2[EP1 & ODF & INJ, i] <- m_TDP_3[EP1 & ODF & INJ, i]  <- 1 # all remain in ODF
+      
       # Episode 2
-      m_TDP_1[EP2 & BUP & INJ, i]  <- m_TDP_2[EP2 & BUP & INJ, i]  <- m_TDP_3[EP2 & BUP & INJ, i]  <- as.vector(exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
-      m_TDP_1[EP2 & BUPC & INJ, i] <- m_TDP_2[EP2 & BUPC & INJ, i] <- m_TDP_3[EP2 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
-      m_TDP_1[EP2 & MET & INJ, i]  <- m_TDP_2[EP2 & MET & INJ, i]  <- m_TDP_3[EP2 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-      m_TDP_1[EP2 & METC & INJ, i] <- m_TDP_2[EP2 & METC & INJ, i] <- m_TDP_3[EP2 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-      m_TDP_1[EP2 & ABS & INJ, i]  <- m_TDP_2[EP2 & ABS & INJ, i]  <- m_TDP_3[EP2 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_2 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-      m_TDP_1[EP2 & REL & INJ, i]  <- m_TDP_2[EP2 & REL & INJ, i]  <- m_TDP_3[EP2 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
-      m_TDP_1[EP2 & ODN & INJ, i]  <- m_ODN_first[EP2 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-      m_TDP_2[EP2 & ODN & INJ, i]  <- m_ODN_first[EP2 & REL & INJ, 2]
-      m_TDP_3[EP2 & ODN & INJ, i]  <- m_ODN_first[EP2 & REL & INJ, 3]
-      m_TDP_1[EP2 & ODF & INJ, i]  <- m_TDP_2[EP2 & ODF & INJ, i] <- m_TDP_3[EP2 & ODF & INJ, i]  <- 1 # all remain in ODF
+      a_remain[EP2 & BUP & INJ, j, i] <- as.vector(exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      a_remain[EP2 & BUPC & INJ, j, i] <- as.vector(exp(p_frailty_BUPC_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      a_remain[EP2 & MET & INJ, j, i] <- as.vector(exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      a_remain[EP2 & METC & INJ, j, i] <- as.vector(exp(p_frailty_METC_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      a_remain[EP2 & ABS & INJ, j, i] <- as.vector(exp(p_frailty_ABS_INJ_2 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+      a_remain[EP2 & REL & INJ, j, i] <- as.vector(exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+      a_remain[EP2 & ODN & INJ, j, i] <- 0
+      a_remain[EP2 & ODF & INJ, j, i] <- 1
+      
+      #m_TDP_1[EP2 & BUP & INJ, i]  <- m_TDP_2[EP2 & BUP & INJ, i]  <- m_TDP_3[EP2 & BUP & INJ, i]  <- as.vector(exp(p_frailty_BUP_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
+      #m_TDP_1[EP2 & BUPC & INJ, i] <- m_TDP_2[EP2 & BUPC & INJ, i] <- m_TDP_3[EP2 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_2 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      #m_TDP_1[EP2 & MET & INJ, i]  <- m_TDP_2[EP2 & MET & INJ, i]  <- m_TDP_3[EP2 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      #m_TDP_1[EP2 & METC & INJ, i] <- m_TDP_2[EP2 & METC & INJ, i] <- m_TDP_3[EP2 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_2 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      #m_TDP_1[EP2 & ABS & INJ, i]  <- m_TDP_2[EP2 & ABS & INJ, i]  <- m_TDP_3[EP2 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_2 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+      #m_TDP_1[EP2 & REL & INJ, i]  <- m_TDP_2[EP2 & REL & INJ, i]  <- m_TDP_3[EP2 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_2 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+      #m_TDP_1[EP2 & ODN & INJ, i]  <- 0 #m_ODN_first[EP2 & REL & INJ, 1]
+      #m_TDP_2[EP2 & ODN & INJ, i]  <- 0 #m_ODN_first[EP2 & REL & INJ, 2]
+      #m_TDP_3[EP2 & ODN & INJ, i]  <- 0 #m_ODN_first[EP2 & REL & INJ, 3]
+      #m_TDP_1[EP2 & ODF & INJ, i]  <- m_TDP_2[EP2 & ODF & INJ, i] <- m_TDP_3[EP2 & ODF & INJ, i]  <- 1 # all remain in ODF
+      
       # Episode 3
-      m_TDP_1[EP3 & BUP & INJ, i]  <- m_TDP_2[EP3 & BUP & INJ, i]  <- m_TDP_3[EP3 & BUP & INJ, i]  <- as.vector(exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
-      m_TDP_1[EP3 & BUPC & INJ, i] <- m_TDP_2[EP3 & BUPC & INJ, i] <- m_TDP_3[EP3 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
-      m_TDP_1[EP3 & MET & INJ, i]  <- m_TDP_2[EP3 & MET & INJ, i]  <- m_TDP_3[EP3 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-      m_TDP_1[EP3 & METC & INJ, i] <- m_TDP_2[EP3 & METC & INJ, i] <- m_TDP_3[EP3 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-      m_TDP_1[EP3 & ABS & INJ, i]  <- m_TDP_2[EP3 & ABS & INJ, i]  <- m_TDP_3[EP3 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_3 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-      m_TDP_1[EP3 & REL & INJ, i]  <- m_TDP_2[EP3 & REL & INJ, i]  <- m_TDP_3[EP3 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
-      m_TDP_1[EP3 & ODN & INJ, i]  <- m_ODN_first[EP3 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-      m_TDP_2[EP3 & ODN & INJ, i]  <- m_ODN_first[EP3 & REL & INJ, 2]
-      m_TDP_3[EP3 & ODN & INJ, i]  <- m_ODN_first[EP3 & REL & INJ, 3]
-      m_TDP_1[EP3 & ODF & INJ, i]  <- m_TDP_2[EP3 & ODF & INJ, i] <- m_TDP_3[EP3 & ODF & INJ, i]  <- 1 # all remain in ODF
+      a_remain[EP3 & BUP & INJ, j, i] <- as.vector(exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      a_remain[EP3 & BUPC & INJ, j, i] <- as.vector(exp(p_frailty_BUPC_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      a_remain[EP3 & MET & INJ, j, i] <- as.vector(exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      a_remain[EP3 & METC & INJ, j, i] <- as.vector(exp(p_frailty_METC_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      a_remain[EP3 & ABS & INJ, j, i] <- as.vector(exp(p_frailty_ABS_INJ_3 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+      a_remain[EP3 & REL & INJ, j, i] <- as.vector(exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+      a_remain[EP3 & ODN & INJ, j, i] <- 0
+      a_remain[EP3 & ODF & INJ, j, i] <- 1
+      
+      #m_TDP_1[EP3 & BUP & INJ, i]  <- m_TDP_2[EP3 & BUP & INJ, i]  <- m_TDP_3[EP3 & BUP & INJ, i]  <- as.vector(exp(p_frailty_BUP_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
+      #m_TDP_1[EP3 & BUPC & INJ, i] <- m_TDP_2[EP3 & BUPC & INJ, i] <- m_TDP_3[EP3 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_3 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+      #m_TDP_1[EP3 & MET & INJ, i]  <- m_TDP_2[EP3 & MET & INJ, i]  <- m_TDP_3[EP3 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      #m_TDP_1[EP3 & METC & INJ, i] <- m_TDP_2[EP3 & METC & INJ, i] <- m_TDP_3[EP3 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_3 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+      #m_TDP_1[EP3 & ABS & INJ, i]  <- m_TDP_2[EP3 & ABS & INJ, i]  <- m_TDP_3[EP3 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_3 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+      #m_TDP_1[EP3 & REL & INJ, i]  <- m_TDP_2[EP3 & REL & INJ, i]  <- m_TDP_3[EP3 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_3 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+      #m_TDP_1[EP3 & ODN & INJ, i]  <- 0 #m_ODN_first[EP3 & REL & INJ, 1] # no remain, use overdose probability to set "remain"
+      #m_TDP_2[EP3 & ODN & INJ, i]  <- 0 #m_ODN_first[EP3 & REL & INJ, 2]
+      #m_TDP_3[EP3 & ODN & INJ, i]  <- 0 #m_ODN_first[EP3 & REL & INJ, 3]
+      #m_TDP_1[EP3 & ODF & INJ, i]  <- m_TDP_2[EP3 & ODF & INJ, i] <- m_TDP_3[EP3 & ODF & INJ, i]  <- 1 # all remain in ODF
     }
     # Month 2+ (state-time)
     #for(i in 2:n_t){
-      # Non-injection
-        # Episode 1
-        #m_TDP_1[EP1 & BUP & NI, i]  <- m_TDP_2[EP1 & BUP & NI, i]  <- m_TDP_3[EP1 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
-        #m_TDP_1[EP1 & BUPC & NI, i] <- m_TDP_2[EP1 & BUPC & NI, i] <- m_TDP_3[EP1 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUPC_NI * (((i - 1)^p_weibull_shape_BUPC_NI) - (i^p_weibull_shape_BUPC_NI))))
-        #m_TDP_1[EP1 & MET & NI, i]  <- m_TDP_2[EP1 & MET & NI, i]  <- m_TDP_3[EP1 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-        #m_TDP_1[EP1 & METC & NI, i] <- m_TDP_2[EP1 & METC & NI, i] <- m_TDP_3[EP1 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_METC_NI * (((i - 1)^p_weibull_shape_METC_NI) - (i^p_weibull_shape_METC_NI))))
-        #m_TDP_1[EP1 & ABS & NI, i]  <- m_TDP_2[EP1 & ABS & NI, i]  <- m_TDP_3[EP1 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-        #m_TDP_1[EP1 & REL & NI, i]  <- m_TDP_2[EP1 & REL & NI, i]  <- m_TDP_3[EP1 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-        #m_TDP_1[EP1 & ODN & NI, i]  <- m_ODN[EP1 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-        #m_TDP_2[EP1 & ODN & NI, i]  <- m_ODN[EP1 & REL & NI, 2]
-        #m_TDP_3[EP1 & ODN & NI, i]  <- m_ODN[EP1 & REL & NI, 3]
-        #m_TDP_1[EP1 & ODF & NI, i]  <- m_TDP_2[EP1 & ODF & NI, i] <- m_TDP_3[EP1 & ODF & NI, i]  <- 1 # all remain in ODF
-        # Episode 2
-        #m_TDP_1[EP2 & BUP & NI, i] <- m_TDP_2[EP2 & BUP & NI, i] <- m_TDP_3[EP2 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
-        #m_TDP_1[EP2 & BUPC & NI, i] <- m_TDP_2[EP2 & BUPC & NI, i] <- m_TDP_3[EP2 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUPC_NI * (((i - 1)^p_weibull_shape_BUPC_NI) - (i^p_weibull_shape_BUPC_NI))))
-        #m_TDP_1[EP2 & MET & NI, i] <- m_TDP_2[EP2 & MET & NI, i] <- m_TDP_3[EP2 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-        #m_TDP_1[EP2 & METC & NI, i] <- m_TDP_2[EP2 & METC & NI, i] <- m_TDP_3[EP2 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_METC_NI * (((i - 1)^p_weibull_shape_METC_NI) - (i^p_weibull_shape_METC_NI))))
-        #m_TDP_1[EP2 & ABS & NI, i] <- m_TDP_2[EP2 & ABS & NI, i] <- m_TDP_3[EP2 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-        #m_TDP_1[EP2 & REL & NI, i] <- m_TDP_2[EP2 & REL & NI, i] <- m_TDP_3[EP2 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-        #m_TDP_1[EP2 & ODN & NI, i]  <- m_ODN[EP2 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-        #m_TDP_2[EP2 & ODN & NI, i]  <- m_ODN[EP2 & REL & NI, 2]
-        #m_TDP_3[EP2 & ODN & NI, i]  <- m_ODN[EP2 & REL & NI, 3]
-        #m_TDP_1[EP2 & ODF & NI, i] <- m_TDP_2[EP2 & ODF & NI, i] <- m_TDP_3[EP2 & ODF & NI, i]  <- 1 # all remain in ODF
-        # Episode 3
-        #m_TDP_1[EP3 & BUP & NI, i] <- m_TDP_2[EP3 & BUP & NI, i] <- m_TDP_3[EP3 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
-        #m_TDP_1[EP3 & BUPC & NI, i] <- m_TDP_2[EP3 & BUPC & NI, i] <- m_TDP_3[EP3 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUPC_NI * (((i - 1)^p_weibull_shape_BUPC_NI) - (i^p_weibull_shape_BUPC_NI))))
-        #m_TDP_1[EP3 & MET & NI, i] <- m_TDP_2[EP3 & MET & NI, i] <- m_TDP_3[EP3 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
-        #m_TDP_1[EP3 & METC & NI, i] <- m_TDP_2[EP3 & METC & NI, i] <- m_TDP_3[EP3 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_METC_NI * (((i - 1)^p_weibull_shape_METC_NI) - (i^p_weibull_shape_METC_NI))))
-        #m_TDP_1[EP3 & ABS & NI, i] <- m_TDP_2[EP3 & ABS & NI, i] <- m_TDP_3[EP3 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
-        #m_TDP_1[EP3 & REL & NI, i] <- m_TDP_2[EP3 & REL & NI, i] <- m_TDP_3[EP3 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
-        #m_TDP_1[EP3 & ODN & NI, i]  <- m_ODN[EP3 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-        #m_TDP_2[EP3 & ODN & NI, i]  <- m_ODN[EP3 & REL & NI, 2]
-        #m_TDP_3[EP3 & ODN & NI, i]  <- m_ODN[EP3 & REL & NI, 3]
-        #m_TDP_1[EP3 & ODF & NI, i] <- m_TDP_2[EP3 & ODF & NI, i] <- m_TDP_3[EP3 & ODF & NI, i]  <- 1 # all remain in ODF
-      # Injection
-        # Episode 1
-        #m_TDP_1[EP1 & BUP & INJ, i] <- m_TDP_2[EP1 & BUP & INJ, i] <- m_TDP_3[EP1 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
-        #m_TDP_1[EP1 & BUPC & INJ, i] <- m_TDP_2[EP1 & BUPC & INJ, i] <- m_TDP_3[EP1 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUPC_INJ * (((i - 1)^p_weibull_shape_BUPC_INJ) - (i^p_weibull_shape_BUPC_INJ))))
-        #m_TDP_1[EP1 & MET & INJ, i] <- m_TDP_2[EP1 & MET & INJ, i] <- m_TDP_3[EP1 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-        #m_TDP_1[EP1 & METC & INJ, i] <- m_TDP_2[EP1 & METC & INJ, i] <- m_TDP_3[EP1 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_METC_INJ * (((i - 1)^p_weibull_shape_METC_INJ) - (i^p_weibull_shape_METC_INJ))))
-        #m_TDP_1[EP1 & ABS & INJ, i] <- m_TDP_2[EP1 & ABS & INJ, i] <- m_TDP_3[EP1 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-        #m_TDP_1[EP1 & REL & INJ, i] <- m_TDP_2[EP1 & REL & INJ, i] <- m_TDP_3[EP1 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
-        #m_TDP_1[EP1 & ODN & INJ, i]  <- m_ODN[EP1 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-        #m_TDP_2[EP1 & ODN & INJ, i]  <- m_ODN[EP1 & REL & INJ, 2]
-        #m_TDP_3[EP1 & ODN & INJ, i]  <- m_ODN[EP1 & REL & INJ, 3]
-        #m_TDP_1[EP1 & ODF & INJ, i] <- m_TDP_2[EP1 & ODF & INJ, i] <- m_TDP_3[EP1 & ODF & INJ, i]  <- 1 # all remain in ODF
-        # Episode 2
-        #m_TDP_1[EP2 & BUP & INJ, i] <- m_TDP_2[EP2 & BUP & INJ, i] <- m_TDP_3[EP2 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
-        #m_TDP_1[EP2 & BUPC & INJ, i] <- m_TDP_2[EP2 & BUPC & INJ, i] <- m_TDP_3[EP2 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUPC_INJ * (((i - 1)^p_weibull_shape_BUPC_INJ) - (i^p_weibull_shape_BUPC_INJ))))
-        #m_TDP_1[EP2 & MET & INJ, i] <- m_TDP_2[EP2 & MET & INJ, i] <- m_TDP_3[EP2 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-        #m_TDP_1[EP2 & METC & INJ, i] <- m_TDP_2[EP2 & METC & INJ, i] <- m_TDP_3[EP2 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_METC_INJ * (((i - 1)^p_weibull_shape_METC_INJ) - (i^p_weibull_shape_METC_INJ))))
-        #m_TDP_1[EP2 & ABS & INJ, i] <- m_TDP_2[EP2 & ABS & INJ, i] <- m_TDP_3[EP2 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-        #m_TDP_1[EP2 & REL & INJ, i] <- m_TDP_2[EP2 & REL & INJ, i] <- m_TDP_3[EP2 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
-        #m_TDP_1[EP2 & ODN & INJ, i]  <- m_ODN[EP2 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-        #m_TDP_2[EP2 & ODN & INJ, i]  <- m_ODN[EP2 & REL & INJ, 2]
-        #m_TDP_3[EP2 & ODN & INJ, i]  <- m_ODN[EP2 & REL & INJ, 3]
-        #m_TDP_1[EP2 & ODF & INJ, i] <- m_TDP_2[EP2 & ODF & INJ, i] <- m_TDP_3[EP2 & ODF & INJ, i]  <- 1 # all remain in ODF
-        # Episode 3
-        #m_TDP_1[EP3 & BUP & INJ, i] <- m_TDP_2[EP3 & BUP & INJ, i] <- m_TDP_3[EP3 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
-        #m_TDP_1[EP3 & BUPC & INJ, i] <- m_TDP_2[EP3 & BUPC & INJ, i] <- m_TDP_3[EP3 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUPC_INJ * (((i - 1)^p_weibull_shape_BUPC_INJ) - (i^p_weibull_shape_BUPC_INJ))))
-        #m_TDP_1[EP3 & MET & INJ, i] <- m_TDP_2[EP3 & MET & INJ, i] <- m_TDP_3[EP3 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
-        #m_TDP_1[EP3 & METC & INJ, i] <- m_TDP_2[EP3 & METC & INJ, i] <- m_TDP_3[EP3 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_METC_INJ * (((i - 1)^p_weibull_shape_METC_INJ) - (i^p_weibull_shape_METC_INJ))))
-        #m_TDP_1[EP3 & ABS & INJ, i] <- m_TDP_2[EP3 & ABS & INJ, i] <- m_TDP_3[EP3 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
-        #m_TDP_1[EP3 & REL & INJ, i] <- m_TDP_2[EP3 & REL & INJ, i] <- m_TDP_3[EP3 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
-        #m_TDP_1[EP3 & ODN & INJ, i]  <- m_ODN[EP3 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
-        #m_TDP_2[EP3 & ODN & INJ, i]  <- m_ODN[EP3 & REL & INJ, 2]
-        #m_TDP_3[EP3 & ODN & INJ, i]  <- m_ODN[EP3 & REL & INJ, 3]
-        #m_TDP_1[EP3 & ODF & INJ, i] <- m_TDP_2[EP3 & ODF & INJ, i] <- m_TDP_3[EP3 & ODF & INJ, i]  <- 1 # all remain in ODF
+    #  # Non-injection
+    #    # Episode 1
+    #    m_TDP_1[EP1 & BUP & NI, i]  <- m_TDP_2[EP1 & BUP & NI, i]  <- m_TDP_3[EP1 & BUP & NI, i]  <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+    #    m_TDP_1[EP1 & BUPC & NI, i] <- m_TDP_2[EP1 & BUPC & NI, i] <- m_TDP_3[EP1 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+    #    m_TDP_1[EP1 & MET & NI, i]  <- m_TDP_2[EP1 & MET & NI, i]  <- m_TDP_3[EP1 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+    #    m_TDP_1[EP1 & METC & NI, i] <- m_TDP_2[EP1 & METC & NI, i] <- m_TDP_3[EP1 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+    #    m_TDP_1[EP1 & ABS & NI, i]  <- m_TDP_2[EP1 & ABS & NI, i]  <- m_TDP_3[EP1 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+    #    m_TDP_1[EP1 & REL & NI, i]  <- m_TDP_2[EP1 & REL & NI, i]  <- m_TDP_3[EP1 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+    #    m_TDP_1[EP1 & ODN & NI, i]  <- 0 #m_ODN[EP1 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
+    #    m_TDP_2[EP1 & ODN & NI, i]  <- 0 #m_ODN[EP1 & REL & NI, 2]
+    #    m_TDP_3[EP1 & ODN & NI, i]  <- 0 #m_ODN[EP1 & REL & NI, 3]
+    #    m_TDP_1[EP1 & ODF & NI, i]  <- m_TDP_2[EP1 & ODF & NI, i] <- m_TDP_3[EP1 & ODF & NI, i]  <- 1 # all remain in ODF
+    #    
+    #    # Episode 2
+    #    m_TDP_1[EP2 & BUP & NI, i]  <- m_TDP_2[EP2 & BUP & NI, i] <- m_TDP_3[EP2 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+    #    m_TDP_1[EP2 & BUPC & NI, i] <- m_TDP_2[EP2 & BUPC & NI, i] <- m_TDP_3[EP2 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+    #    m_TDP_1[EP2 & MET & NI, i]  <- m_TDP_2[EP2 & MET & NI, i] <- m_TDP_3[EP2 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+    #    m_TDP_1[EP2 & METC & NI, i] <- m_TDP_2[EP2 & METC & NI, i] <- m_TDP_3[EP2 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+    #    m_TDP_1[EP2 & ABS & NI, i]  <- m_TDP_2[EP2 & ABS & NI, i] <- m_TDP_3[EP2 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+    #    m_TDP_1[EP2 & REL & NI, i]  <- m_TDP_2[EP2 & REL & NI, i] <- m_TDP_3[EP2 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+    #    m_TDP_1[EP2 & ODN & NI, i]  <- 0 #m_ODN[EP2 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
+    #    m_TDP_2[EP2 & ODN & NI, i]  <- 0 #m_ODN[EP2 & REL & NI, 2]
+    #    m_TDP_3[EP2 & ODN & NI, i]  <- 0 #m_ODN[EP2 & REL & NI, 3]
+    #    m_TDP_1[EP2 & ODF & NI, i]  <- m_TDP_2[EP2 & ODF & NI, i] <- m_TDP_3[EP2 & ODF & NI, i]  <- 1 # all remain in ODF
+    #    
+    #    # Episode 3
+    #    m_TDP_1[EP3 & BUP & NI, i]  <- m_TDP_2[EP3 & BUP & NI, i] <- m_TDP_3[EP3 & BUP & NI, i] <- as.vector(exp(p_frailty_BUP_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI)))) # vector of remain probabilities
+    #    m_TDP_1[EP3 & BUPC & NI, i] <- m_TDP_2[EP3 & BUPC & NI, i] <- m_TDP_3[EP3 & BUPC & NI, i] <- as.vector(exp(p_frailty_BUPC_NI_1 * p_weibull_scale_BUP_NI * (((i - 1)^p_weibull_shape_BUP_NI) - (i^p_weibull_shape_BUP_NI))))
+    #    m_TDP_1[EP3 & MET & NI, i]  <- m_TDP_2[EP3 & MET & NI, i] <- m_TDP_3[EP3 & MET & NI, i]  <- as.vector(exp(p_frailty_MET_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+    #    m_TDP_1[EP3 & METC & NI, i] <- m_TDP_2[EP3 & METC & NI, i] <- m_TDP_3[EP3 & METC & NI, i] <- as.vector(exp(p_frailty_METC_NI_1 * p_weibull_scale_MET_NI * (((i - 1)^p_weibull_shape_MET_NI) - (i^p_weibull_shape_MET_NI))))
+    #    m_TDP_1[EP3 & ABS & NI, i]  <- m_TDP_2[EP3 & ABS & NI, i] <- m_TDP_3[EP3 & ABS & NI, i]  <- as.vector(exp(p_frailty_ABS_NI_1 * p_weibull_scale_ABS_NI * (((i - 1)^p_weibull_shape_ABS_NI) - (i^p_weibull_shape_ABS_NI))))
+    #    m_TDP_1[EP3 & REL & NI, i]  <- m_TDP_2[EP3 & REL & NI, i] <- m_TDP_3[EP3 & REL & NI, i]  <- as.vector(exp(p_frailty_REL_NI_1 * p_weibull_scale_REL_NI * (((i - 1)^p_weibull_shape_REL_NI) - (i^p_weibull_shape_REL_NI))))
+    #    m_TDP_1[EP3 & ODN & NI, i]  <- 0 #m_ODN[EP3 & REL & NI, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
+    #    m_TDP_2[EP3 & ODN & NI, i]  <- 0 #m_ODN[EP3 & REL & NI, 2]
+    #    m_TDP_3[EP3 & ODN & NI, i]  <- 0 #m_ODN[EP3 & REL & NI, 3]
+    #    m_TDP_1[EP3 & ODF & NI, i]  <- m_TDP_2[EP3 & ODF & NI, i] <- m_TDP_3[EP3 & ODF & NI, i]  <- 1 # all remain in ODF
+    #    
+    #  # Injection
+    #    # Episode 1
+    #    m_TDP_1[EP1 & BUP & INJ, i]  <- m_TDP_2[EP1 & BUP & INJ, i] <- m_TDP_3[EP1 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
+    #    m_TDP_1[EP1 & BUPC & INJ, i] <- m_TDP_2[EP1 & BUPC & INJ, i] <- m_TDP_3[EP1 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+    #    m_TDP_1[EP1 & MET & INJ, i]  <- m_TDP_2[EP1 & MET & INJ, i] <- m_TDP_3[EP1 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+    #    m_TDP_1[EP1 & METC & INJ, i] <- m_TDP_2[EP1 & METC & INJ, i] <- m_TDP_3[EP1 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+    #    m_TDP_1[EP1 & ABS & INJ, i]  <- m_TDP_2[EP1 & ABS & INJ, i] <- m_TDP_3[EP1 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+    #    m_TDP_1[EP1 & REL & INJ, i]  <- m_TDP_2[EP1 & REL & INJ, i] <- m_TDP_3[EP1 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+    #    m_TDP_1[EP1 & ODN & INJ, i]  <- 0 #m_ODN[EP1 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
+    #    m_TDP_2[EP1 & ODN & INJ, i]  <- 0 #m_ODN[EP1 & REL & INJ, 2]
+    #    m_TDP_3[EP1 & ODN & INJ, i]  <- 0 #m_ODN[EP1 & REL & INJ, 3]
+    #    m_TDP_1[EP1 & ODF & INJ, i]  <- m_TDP_2[EP1 & ODF & INJ, i] <- m_TDP_3[EP1 & ODF & INJ, i]  <- 1 # all remain in ODF
+    #    
+    #    # Episode 2
+    #    m_TDP_1[EP2 & BUP & INJ, i]  <- m_TDP_2[EP2 & BUP & INJ, i] <- m_TDP_3[EP2 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
+    #    m_TDP_1[EP2 & BUPC & INJ, i] <- m_TDP_2[EP2 & BUPC & INJ, i] <- m_TDP_3[EP2 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+    #    m_TDP_1[EP2 & MET & INJ, i]  <- m_TDP_2[EP2 & MET & INJ, i] <- m_TDP_3[EP2 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+    #    m_TDP_1[EP2 & METC & INJ, i] <- m_TDP_2[EP2 & METC & INJ, i] <- m_TDP_3[EP2 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+    #    m_TDP_1[EP2 & ABS & INJ, i]  <- m_TDP_2[EP2 & ABS & INJ, i] <- m_TDP_3[EP2 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+    #    m_TDP_1[EP2 & REL & INJ, i]  <- m_TDP_2[EP2 & REL & INJ, i] <- m_TDP_3[EP2 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+    #    m_TDP_1[EP2 & ODN & INJ, i]  <- 0 #m_ODN[EP2 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
+    #    m_TDP_2[EP2 & ODN & INJ, i]  <- 0 #m_ODN[EP2 & REL & INJ, 2]
+    #    m_TDP_3[EP2 & ODN & INJ, i]  <- 0 #m_ODN[EP2 & REL & INJ, 3]
+    #    m_TDP_1[EP2 & ODF & INJ, i]  <- m_TDP_2[EP2 & ODF & INJ, i] <- m_TDP_3[EP2 & ODF & INJ, i]  <- 1 # all remain in ODF
+    #    
+    #    # Episode 3
+    #    m_TDP_1[EP3 & BUP & INJ, i]  <- m_TDP_2[EP3 & BUP & INJ, i] <- m_TDP_3[EP3 & BUP & INJ, i] <- as.vector(exp(p_frailty_BUP_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ)))) # vector of remain probabilities
+    #    m_TDP_1[EP3 & BUPC & INJ, i] <- m_TDP_2[EP3 & BUPC & INJ, i] <- m_TDP_3[EP3 & BUPC & INJ, i] <- as.vector(exp(p_frailty_BUPC_INJ_1 * p_weibull_scale_BUP_INJ * (((i - 1)^p_weibull_shape_BUP_INJ) - (i^p_weibull_shape_BUP_INJ))))
+    #    m_TDP_1[EP3 & MET & INJ, i]  <- m_TDP_2[EP3 & MET & INJ, i] <- m_TDP_3[EP3 & MET & INJ, i]  <- as.vector(exp(p_frailty_MET_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+    #    m_TDP_1[EP3 & METC & INJ, i] <- m_TDP_2[EP3 & METC & INJ, i] <- m_TDP_3[EP3 & METC & INJ, i] <- as.vector(exp(p_frailty_METC_INJ_1 * p_weibull_scale_MET_INJ * (((i - 1)^p_weibull_shape_MET_INJ) - (i^p_weibull_shape_MET_INJ))))
+    #    m_TDP_1[EP3 & ABS & INJ, i]  <- m_TDP_2[EP3 & ABS & INJ, i] <- m_TDP_3[EP3 & ABS & INJ, i]  <- as.vector(exp(p_frailty_ABS_INJ_1 * p_weibull_scale_ABS_INJ * (((i - 1)^p_weibull_shape_ABS_INJ) - (i^p_weibull_shape_ABS_INJ))))
+    #    m_TDP_1[EP3 & REL & INJ, i]  <- m_TDP_2[EP3 & REL & INJ, i] <- m_TDP_3[EP3 & REL & INJ, i]  <- as.vector(exp(p_frailty_REL_INJ_1 * p_weibull_scale_REL_INJ * (((i - 1)^p_weibull_shape_REL_INJ) - (i^p_weibull_shape_REL_INJ))))
+    #    m_TDP_1[EP3 & ODN & INJ, i]  <- 0 #m_ODN[EP3 & REL & INJ, 1] #use same probability as overdose from relapse (no episode multipliers at this point)
+    #    m_TDP_2[EP3 & ODN & INJ, i]  <- 0 #m_ODN[EP3 & REL & INJ, 2]
+    #    m_TDP_3[EP3 & ODN & INJ, i]  <- 0 #m_ODN[EP3 & REL & INJ, 3]
+    #    m_TDP_1[EP3 & ODF & INJ, i]  <- m_TDP_2[EP3 & ODF & INJ, i] <- m_TDP_3[EP3 & ODF & INJ, i]  <- 1 # all remain in ODF
     #}
+    }
+  # Modify TDP for non-overdose
+  for(j in 1:time_periods){
+    for(i in 1){
+      a_remain_non_OD[, j, i] <- a_remain_non_OD[, j, i] * m_non_OD_first[, j]
+    #m_TDP_1_non_OD[, i] <- m_TDP_1[, i] * m_non_OD_first[, 1]
+    #m_TDP_2_non_OD[, i] <- m_TDP_2[, i] * m_non_OD_first[, 2]
+    #m_TDP_3_non_OD[, i] <- m_TDP_3[, i] * m_non_OD_first[, 3]
+    }
+    for(i in 2:n_t){
+      a_remain_non_OD[, j, i] <- a_remain_non_OD[, j, i] * m_non_OD[, j]
+      #m_TDP_1_non_OD[, i] <- m_TDP_1[, i] * m_non_OD[, 1]
+    #m_TDP_2_non_OD[, i] <- m_TDP_2[, i] * m_non_OD[, 2]
+    #m_TDP_3_non_OD[, i] <- m_TDP_3[, i] * m_non_OD[, 3]
+    }
+  }
   # Probability of state-exit
   m_leave_1 <- 1 - m_TDP_1
   m_leave_2 <- 1 - m_TDP_2
   m_leave_3 <- 1 - m_TDP_3
+  
+  m_leave_1_non_OD <- 1 - m_TDP_1_non_OD
+  m_leave_2_non_OD <- 1 - m_TDP_2_non_OD
+  m_leave_3_non_OD <- 1 - m_TDP_3_non_OD
   
   if(checks){
     # Time dependent state-exit probabilities (from weibull estimates)
     write.csv(m_TDP_1,"checks/state-time dependent transitions/m_TDP_1.csv", row.names = TRUE)
     write.csv(m_TDP_2,"checks/state-time dependent transitions/m_TDP_2.csv", row.names = TRUE)
     write.csv(m_TDP_3,"checks/state-time dependent transitions/m_TDP_3.csv", row.names = TRUE)
+    write.csv(m_TDP_1_non_OD,"checks/state-time dependent transitions/m_TDP_1_non_OD.csv", row.names = TRUE)
+    write.csv(m_TDP_2_non_OD,"checks/state-time dependent transitions/m_TDP_2_non_OD.csv", row.names = TRUE)
+    write.csv(m_TDP_3_non_OD,"checks/state-time dependent transitions/m_TDP_3_non_OD.csv", row.names = TRUE)
     write.csv(m_leave_1,"checks/state-time dependent transitions/m_leave_1.csv", row.names = TRUE)
     write.csv(m_leave_2,"checks/state-time dependent transitions/m_leave_2.csv", row.names = TRUE)
     write.csv(m_leave_3,"checks/state-time dependent transitions/m_leave_3.csv", row.names = TRUE)
+    write.csv(m_leave_1_non_OD,"checks/state-time dependent transitions/m_leave_1_non_OD.csv", row.names = TRUE)
+    write.csv(m_leave_2_non_OD,"checks/state-time dependent transitions/m_leave_2_non_OD.csv", row.names = TRUE)
+    write.csv(m_leave_3_non_OD,"checks/state-time dependent transitions/m_leave_3_non_OD.csv", row.names = TRUE)
   } else{}
   
   #### Mortality ####
@@ -599,18 +701,26 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP <- a_UP_first <- array(0, dim = c(n_states, n_states, time_periods),
                               dimnames = list(v_n_states, v_n_states, 1:time_periods))
   # Populate unconditional transition matrix
+  # Remove overdose and non-overdose remain probabilities
+  p_BUP_non_OD_remain_NI <- 1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i] - a_remain_non_OD[BUP & NI, ]
+  p_BUPC_non_OD_remain_NI <- 1 - m_ODN_first[BUPC & NI, i] - m_ODF_first[BUPC & NI, i] - m_TDP_1_non_OD[BUPC & NI, ]
+  p_MET_non_OD_remain_NI <- 1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i] - m_TDP_1_non_OD[MET & NI, ]
+  p_METC_non_OD_remain_NI <- 1 - m_ODN_first[METC & NI, i] - m_ODF_first[METC & NI, i] - m_TDP_1_non_OD[METC & NI, ]
+  p_ABS_non_OD_remain_NI <- 1 - m_ODN_first[ABS & NI, i] - m_ODF_first[ABS & NI, i] - m_TDP_1_non_OD[ABS & NI, ]
+  p_REL_non_OD_remain_NI <- 1 - m_ODN_first[REL & NI, i] - m_ODF_first[REL & NI, i] - m_TDP_1_non_OD[REL & NI, ]
+  
   # Overdose probability populated first, accounting for higher probability of overdose transition in first month
   for (i in 1:time_periods){
   # Non-Injection
   # From BUP
   # First month
-  a_UP_first[BUP & NI, BUPC & NI, i] <- p_BUP_BUPC_NI * (1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i])
+  a_UP_first[BUP & NI, BUPC & NI, i] <- p_BUP_BUPC_NI * (1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i] - m_TDP_1_non_OD[BUP & NI, ])
   a_UP_first[BUP & NI, MET & NI, i]  <- p_BUP_MET_NI * (1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i])
   a_UP_first[BUP & NI, METC & NI, i] <- p_BUP_METC_NI * (1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i])
   a_UP_first[BUP & NI, ABS & NI, i]  <- p_BUP_ABS_NI * (1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i])
   a_UP_first[BUP & NI, REL & NI, i]  <- p_BUP_REL_NI * (1 - m_ODN_first[BUP & NI, i] - m_ODF_first[BUP & NI, i])
-  a_UP_first[BUP & NI, ODN & NI, i]  <- m_ODN_first[BUP & NI, i]
-  a_UP_first[BUP & NI, ODF & NI, i]  <- m_ODF_first[BUP & NI, i]
+  #a_UP_first[BUP & NI, ODN & NI, i]  <- m_ODN_first[BUP & NI, i]
+  #a_UP_first[BUP & NI, ODF & NI, i]  <- m_ODF_first[BUP & NI, i]
   
   # Month 2+
   a_UP[BUP & NI, BUPC & NI, i] <- p_BUP_BUPC_NI * (1 - m_ODN[BUP & NI, i] - m_ODF[BUP & NI, i])
@@ -618,8 +728,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[BUP & NI, METC & NI, i] <- p_BUP_METC_NI * (1 - m_ODN[BUP & NI, i] - m_ODF[BUP & NI, i])
   a_UP[BUP & NI, ABS & NI, i]  <- p_BUP_ABS_NI * (1 - m_ODN[BUP & NI, i] - m_ODF[BUP & NI, i])
   a_UP[BUP & NI, REL & NI, i]  <- p_BUP_REL_NI * (1 - m_ODN[BUP & NI, i] - m_ODF[BUP & NI, i])
-  a_UP[BUP & NI, ODN & NI, i]  <- m_ODN[BUP & NI, i]
-  a_UP[BUP & NI, ODF & NI, i]  <- m_ODF[BUP & NI, i]
+  #a_UP[BUP & NI, ODN & NI, i]  <- m_ODN[BUP & NI, i]
+  #a_UP[BUP & NI, ODF & NI, i]  <- m_ODF[BUP & NI, i]
 
   # From BUPC
   # First month
@@ -628,8 +738,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[BUPC & NI, METC & NI, i] <- p_BUPC_METC_NI * (1 - m_ODN_first[BUPC & NI, i] - m_ODF_first[BUPC & NI, i])
   a_UP_first[BUPC & NI, ABS & NI, i]  <- p_BUPC_ABS_NI * (1 - m_ODN_first[BUPC & NI, i] - m_ODF_first[BUPC & NI, i])
   a_UP_first[BUPC & NI, REL & NI, i]  <- p_BUPC_REL_NI * (1 - m_ODN_first[BUPC & NI, i] - m_ODF_first[BUPC & NI, i])
-  a_UP_first[BUPC & NI, ODN & NI, i]  <- m_ODN_first[BUPC & NI, i]
-  a_UP_first[BUPC & NI, ODF & NI, i]  <- m_ODF_first[BUPC & NI, i]
+  #a_UP_first[BUPC & NI, ODN & NI, i]  <- m_ODN_first[BUPC & NI, i]
+  #a_UP_first[BUPC & NI, ODF & NI, i]  <- m_ODF_first[BUPC & NI, i]
   
   # Month 2+
   a_UP[BUPC & NI, BUP & NI, i]  <- p_BUPC_BUP_NI * (1 - m_ODN[BUPC & NI, i] - m_ODF[BUPC & NI, i])
@@ -637,8 +747,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[BUPC & NI, METC & NI, i] <- p_BUPC_METC_NI * (1 - m_ODN[BUPC & NI, i] - m_ODF[BUPC & NI, i])
   a_UP[BUPC & NI, ABS & NI, i]  <- p_BUPC_ABS_NI * (1 - m_ODN[BUPC & NI, i] - m_ODF[BUPC & NI, i])
   a_UP[BUPC & NI, REL & NI, i]  <- p_BUPC_REL_NI * (1 - m_ODN[BUPC & NI, i] - m_ODF[BUPC & NI, i])
-  a_UP[BUPC & NI, ODN & NI, i]  <- m_ODN[BUPC & NI, i]
-  a_UP[BUPC & NI, ODF & NI, i]  <- m_ODF[BUPC & NI, i]
+  #a_UP[BUPC & NI, ODN & NI, i]  <- m_ODN[BUPC & NI, i]
+  #a_UP[BUPC & NI, ODF & NI, i]  <- m_ODF[BUPC & NI, i]
   
   # From MET
   # First month
@@ -647,8 +757,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[MET & NI, BUPC & NI, i]  <- p_MET_BUPC_NI * (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
   a_UP_first[MET & NI, ABS & NI, i]  <- p_MET_ABS_NI * (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
   a_UP_first[MET & NI, REL & NI, i]  <- p_MET_REL_NI * (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
-  a_UP_first[MET & NI, ODN & NI, i]  <- m_ODN_first[MET & NI, i]
-  a_UP_first[MET & NI, ODF & NI, i]  <- m_ODF_first[MET & NI, i]
+  #a_UP_first[MET & NI, ODN & NI, i]  <- m_ODN_first[MET & NI, i]
+  #a_UP_first[MET & NI, ODF & NI, i]  <- m_ODF_first[MET & NI, i]
   
   # Month 2+
   a_UP[MET & NI, METC & NI, i] <- p_MET_METC_NI * (1 - m_ODN[MET & NI, i] - m_ODF[MET & NI, i])
@@ -656,8 +766,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[MET & NI, BUPC & NI, i]  <- p_MET_BUPC_NI * (1 - m_ODN[MET & NI, i] - m_ODF[MET & NI, i])
   a_UP[MET & NI, ABS & NI, i]  <- p_MET_ABS_NI * (1 - m_ODN[MET & NI, i] - m_ODF[MET & NI, i])
   a_UP[MET & NI, REL & NI, i]  <- p_MET_REL_NI * (1 - m_ODN[MET & NI, i] - m_ODF[MET & NI, i])
-  a_UP[MET & NI, ODN & NI, i]  <- m_ODN[MET & NI, i]
-  a_UP[MET & NI, ODF & NI, i]  <- m_ODF[MET & NI, i]
+  #a_UP[MET & NI, ODN & NI, i]  <- m_ODN[MET & NI, i]
+  #a_UP[MET & NI, ODF & NI, i]  <- m_ODF[MET & NI, i]
 
   # From METC
   # First month
@@ -666,8 +776,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[METC & NI, BUPC & NI, i] <- p_METC_BUPC_NI * (1 - m_ODN_first[METC & NI, i] - m_ODF_first[METC & NI, i])
   a_UP_first[METC & NI, ABS & NI, i]  <- p_METC_ABS_NI * (1 - m_ODN_first[METC & NI, i] - m_ODF_first[METC & NI, i])
   a_UP_first[METC & NI, REL & NI, i]  <- p_METC_REL_NI * (1 - m_ODN_first[METC & NI, i] - m_ODF_first[METC & NI, i])
-  a_UP_first[METC & NI, ODN & NI, i]  <- m_ODN_first[METC & NI, i]
-  a_UP_first[METC & NI, ODF & NI, i]  <- m_ODF_first[METC & NI, i]
+  #a_UP_first[METC & NI, ODN & NI, i]  <- m_ODN_first[METC & NI, i]
+  #a_UP_first[METC & NI, ODF & NI, i]  <- m_ODF_first[METC & NI, i]
   
   # Month 2+
   a_UP[METC & NI, MET & NI, i]  <- p_METC_MET_NI * (1 - m_ODN[METC & NI, i] - m_ODF[METC & NI, i])
@@ -675,8 +785,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[METC & NI, BUPC & NI, i] <- p_METC_BUPC_NI * (1 - m_ODN[METC & NI, i] - m_ODF[METC & NI, i])
   a_UP[METC & NI, ABS & NI, i]  <- p_METC_ABS_NI * (1 - m_ODN[METC & NI, i] - m_ODF[METC & NI, i])
   a_UP[METC & NI, REL & NI, i]  <- p_METC_REL_NI * (1 - m_ODN[METC & NI, i] - m_ODF[METC & NI, i])
-  a_UP[METC & NI, ODN & NI, i]  <- m_ODN[METC & NI, i]
-  a_UP[METC & NI, ODF & NI, i]  <- m_ODF[METC & NI, i]
+  #a_UP[METC & NI, ODN & NI, i]  <- m_ODN[METC & NI, i]
+  #a_UP[METC & NI, ODF & NI, i]  <- m_ODF[METC & NI, i]
   
   # From ABS
   # First month
@@ -685,8 +795,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[ABS & NI, METC & NI, i] <- p_ABS_METC_NI * (1 - m_ODN_first[ABS & NI, i] - m_ODF_first[ABS & NI, i])
   a_UP_first[ABS & NI, BUP & NI, i]  <- p_ABS_BUP_NI * (1 - m_ODN_first[ABS & NI, i] - m_ODF_first[ABS & NI, i])
   a_UP_first[ABS & NI, BUPC & NI, i] <- p_ABS_BUPC_NI * (1 - m_ODN_first[ABS & NI, i] - m_ODF_first[ABS & NI, i])
-  a_UP_first[ABS & NI, ODN & NI, i]  <- m_ODN_first[ABS & NI, i]
-  a_UP_first[ABS & NI, ODF & NI, i]  <- m_ODF_first[ABS & NI, i]
+  #a_UP_first[ABS & NI, ODN & NI, i]  <- m_ODN_first[ABS & NI, i]
+  #a_UP_first[ABS & NI, ODF & NI, i]  <- m_ODF_first[ABS & NI, i]
   
   # Month 2+
   a_UP[ABS & NI, REL & NI, i]  <- p_ABS_REL_NI * (1 - m_ODN[ABS & NI, i] - m_ODF[ABS & NI, i])
@@ -694,8 +804,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[ABS & NI, METC & NI, i] <- p_ABS_METC_NI * (1 - m_ODN[ABS & NI, i] - m_ODF[ABS & NI, i])
   a_UP[ABS & NI, BUP & NI, i]  <- p_ABS_BUP_NI * (1 - m_ODN[ABS & NI, i] - m_ODF[ABS & NI, i])
   a_UP[ABS & NI, BUPC & NI, i] <- p_ABS_BUPC_NI * (1 - m_ODN[ABS & NI, i] - m_ODF[ABS & NI, i])
-  a_UP[ABS & NI, ODN & NI, i]  <- m_ODN[ABS & NI, i]
-  a_UP[ABS & NI, ODF & NI, i]  <- m_ODF[ABS & NI, i]
+  #a_UP[ABS & NI, ODN & NI, i]  <- m_ODN[ABS & NI, i]
+  #a_UP[ABS & NI, ODF & NI, i]  <- m_ODF[ABS & NI, i]
   
   # From REL
   # First month
@@ -704,8 +814,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[REL & NI, BUP & NI, i]  <- p_REL_BUP_NI * (1 - m_ODN_first[REL & NI, i] - m_ODF_first[REL & NI, i])
   a_UP_first[REL & NI, BUPC & NI, i] <- p_REL_BUPC_NI * (1 - m_ODN_first[REL & NI, i] - m_ODF_first[REL & NI, i])
   a_UP_first[REL & NI, ABS & NI, i]  <- p_REL_ABS_NI * (1 - m_ODN_first[REL & NI, i] - m_ODF_first[REL & NI, i])
-  a_UP_first[REL & NI, ODN & NI, i]  <- m_ODN_first[REL & NI, i]
-  a_UP_first[REL & NI, ODF & NI, i]  <- m_ODF_first[REL & NI, i]
+  #a_UP_first[REL & NI, ODN & NI, i]  <- m_ODN_first[REL & NI, i]
+  #a_UP_first[REL & NI, ODF & NI, i]  <- m_ODF_first[REL & NI, i]
   
   # Month 2+
   a_UP[REL & NI, MET & NI, i]  <- p_REL_MET_NI * (1 - m_ODN[REL & NI, i] - m_ODF[REL & NI, i])
@@ -713,16 +823,17 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[REL & NI, BUP & NI, i]  <- p_REL_BUP_NI * (1 - m_ODN[REL & NI, i] - m_ODF[REL & NI, i])
   a_UP[REL & NI, BUPC & NI, i] <- p_REL_BUPC_NI * (1 - m_ODN[REL & NI, i] - m_ODF[REL & NI, i])
   a_UP[REL & NI, ABS & NI, i]  <- p_REL_ABS_NI * (1 - m_ODN[REL & NI, i] - m_ODF[REL & NI, i])
-  a_UP[REL & NI, ODN & NI, i]  <- m_ODN[REL & NI, i]
-  a_UP[REL & NI, ODF & NI, i]  <- m_ODF[REL & NI, i]
+  #a_UP[REL & NI, ODN & NI, i]  <- m_ODN[REL & NI, i]
+  #a_UP[REL & NI, ODF & NI, i]  <- m_ODF[REL & NI, i]
 
   # From OD (first month same)
-  a_UP[ODN & NI, MET & NI, i]  <- a_UP_first[ODN & NI, MET & NI, i] <- p_ODN_MET_NI
-  a_UP[ODN & NI, METC & NI, i] <- a_UP_first[ODN & NI, METC & NI, i] <- p_ODN_METC_NI
-  a_UP[ODN & NI, BUP & NI, i]  <- a_UP_first[ODN & NI, BUP & NI, i] <- p_ODN_BUP_NI
-  a_UP[ODN & NI, BUPC & NI, i] <- a_UP_first[ODN & NI, BUPC & NI, i] <- p_ODN_BUPC_NI
-  a_UP[ODN & NI, ABS & NI, i]  <- a_UP_first[ODN & NI, ABS & NI, i] <- p_ODN_ABS_NI
-  a_UP[ODN & NI, REL & NI, i]  <- a_UP_first[ODN & NI, REL & NI, i] <- p_ODN_REL_NI
+  a_UP[ODN & NI, MET & NI, i]  <- a_UP_first[ODN & NI, MET & NI, i] <- p_ODN_MET_NI * (1 - m_ODN[ODN & NI, i] - m_ODF[ODN & NI, i])
+  a_UP[ODN & NI, METC & NI, i] <- a_UP_first[ODN & NI, METC & NI, i] <- p_ODN_METC_NI * (1 - m_ODN[ODN & NI, i] - m_ODF[ODN & NI, i])
+  a_UP[ODN & NI, BUP & NI, i]  <- a_UP_first[ODN & NI, BUP & NI, i] <- p_ODN_BUP_NI * (1 - m_ODN[ODN & NI, i] - m_ODF[ODN & NI, i])
+  a_UP[ODN & NI, BUPC & NI, i] <- a_UP_first[ODN & NI, BUPC & NI, i] <- p_ODN_BUPC_NI * (1 - m_ODN[ODN & NI, i] - m_ODF[ODN & NI, i])
+  a_UP[ODN & NI, ABS & NI, i]  <- a_UP_first[ODN & NI, ABS & NI, i] <- p_ODN_ABS_NI * (1 - m_ODN[ODN & NI, i] - m_ODF[ODN & NI, i])
+  a_UP[ODN & NI, REL & NI, i]  <- a_UP_first[ODN & NI, REL & NI, i] <- p_ODN_REL_NI * (1 - m_ODN[ODN & NI, i] - m_ODF[ODN & NI, i])
+  #a_UP[ODN & NI, ODF & NI, i]  <- m_ODF[ODN & NI, i]
 
   # Injection
   # From BUP
@@ -732,8 +843,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[BUP & INJ, METC & INJ, i] <- p_BUP_METC_INJ * (1 - m_ODN_first[BUP & INJ, i] - m_ODF_first[BUP & INJ, i])
   a_UP_first[BUP & INJ, ABS & INJ, i]  <- p_BUP_ABS_INJ * (1 - m_ODN_first[BUP & INJ, i] - m_ODF_first[BUP & INJ, i])
   a_UP_first[BUP & INJ, REL & INJ, i]  <- p_BUP_REL_INJ * (1 - m_ODN_first[BUP & INJ, i] - m_ODF_first[BUP & INJ, i])
-  a_UP_first[BUP & INJ, ODN & INJ, i]  <- m_ODN_first[BUP & INJ, i]
-  a_UP_first[BUP & INJ, ODF & INJ, i]  <- m_ODF_first[BUP & INJ, i]
+  #a_UP_first[BUP & INJ, ODN & INJ, i]  <- m_ODN_first[BUP & INJ, i]
+  #a_UP_first[BUP & INJ, ODF & INJ, i]  <- m_ODF_first[BUP & INJ, i]
   
   # Month 2+
   a_UP[BUP & INJ, BUPC & INJ, i] <- p_BUP_BUPC_INJ * (1 - m_ODN[BUP & INJ, i] - m_ODF[BUP & INJ, i])
@@ -741,8 +852,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[BUP & INJ, METC & INJ, i] <- p_BUP_METC_INJ * (1 - m_ODN[BUP & INJ, i] - m_ODF[BUP & INJ, i])
   a_UP[BUP & INJ, ABS & INJ, i]  <- p_BUP_ABS_INJ * (1 - m_ODN[BUP & INJ, i] - m_ODF[BUP & INJ, i])
   a_UP[BUP & INJ, REL & INJ, i]  <- p_BUP_REL_INJ * (1 - m_ODN[BUP & INJ, i] - m_ODF[BUP & INJ, i])
-  a_UP[BUP & INJ, ODN & INJ, i]  <- m_ODN[BUP & INJ, i]
-  a_UP[BUP & INJ, ODF & INJ, i]  <- m_ODF[BUP & INJ, i]
+  #a_UP[BUP & INJ, ODN & INJ, i]  <- m_ODN[BUP & INJ, i]
+  #a_UP[BUP & INJ, ODF & INJ, i]  <- m_ODF[BUP & INJ, i]
   
   # From BUPC
   # First month
@@ -751,8 +862,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[BUPC & INJ, METC & INJ, i] <- p_BUPC_METC_INJ * (1 - m_ODN_first[BUPC & INJ, i] - m_ODF_first[BUPC & INJ, i])
   a_UP_first[BUPC & INJ, ABS & INJ, i]  <- p_BUPC_ABS_INJ * (1 - m_ODN_first[BUPC & INJ, i] - m_ODF_first[BUPC & INJ, i])
   a_UP_first[BUPC & INJ, REL & INJ, i]  <- p_BUPC_REL_INJ * (1 - m_ODN_first[BUPC & INJ, i] - m_ODF_first[BUPC & INJ, i])
-  a_UP_first[BUPC & INJ, ODN & INJ, i]  <- m_ODN_first[BUPC & INJ, i]
-  a_UP_first[BUPC & INJ, ODF & INJ, i]  <- m_ODF_first[BUPC & INJ, i]
+  #a_UP_first[BUPC & INJ, ODN & INJ, i]  <- m_ODN_first[BUPC & INJ, i]
+  #a_UP_first[BUPC & INJ, ODF & INJ, i]  <- m_ODF_first[BUPC & INJ, i]
   
   # Month 2+
   a_UP[BUPC & INJ, BUP & INJ, i]  <- p_BUPC_BUP_INJ * (1 - m_ODN[BUPC & INJ, i] - m_ODF[BUPC & INJ, i])
@@ -760,8 +871,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[BUPC & INJ, METC & INJ, i] <- p_BUPC_METC_INJ * (1 - m_ODN[BUPC & INJ, i] - m_ODF[BUPC & INJ, i])
   a_UP[BUPC & INJ, ABS & INJ, i]  <- p_BUPC_ABS_INJ * (1 - m_ODN[BUPC & INJ, i] - m_ODF[BUPC & INJ, i])
   a_UP[BUPC & INJ, REL & INJ, i]  <- p_BUPC_REL_INJ * (1 - m_ODN[BUPC & INJ, i] - m_ODF[BUPC & INJ, i])
-  a_UP[BUPC & INJ, ODN & INJ, i]  <- m_ODN[BUPC & INJ, i]
-  a_UP[BUPC & INJ, ODF & INJ, i]  <- m_ODF[BUPC & INJ, i]
+  #a_UP[BUPC & INJ, ODN & INJ, i]  <- m_ODN[BUPC & INJ, i]
+  #a_UP[BUPC & INJ, ODF & INJ, i]  <- m_ODF[BUPC & INJ, i]
   
   # From MET
   # First month
@@ -770,8 +881,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[MET & INJ, BUPC & INJ, i]  <- p_MET_BUPC_INJ * (1 - m_ODN_first[MET & INJ, i] - m_ODF_first[MET & INJ, i])
   a_UP_first[MET & INJ, ABS & INJ, i]  <- p_MET_ABS_INJ * (1 - m_ODN_first[MET & INJ, i] - m_ODF_first[MET & INJ, i])
   a_UP_first[MET & INJ, REL & INJ, i]  <- p_MET_REL_INJ * (1 - m_ODN_first[MET & INJ, i] - m_ODF_first[MET & INJ, i])
-  a_UP_first[MET & INJ, ODN & INJ, i]  <- m_ODN_first[MET & INJ, i]
-  a_UP_first[MET & INJ, ODF & INJ, i]  <- m_ODF_first[MET & INJ, i]
+  #a_UP_first[MET & INJ, ODN & INJ, i]  <- m_ODN_first[MET & INJ, i]
+  #a_UP_first[MET & INJ, ODF & INJ, i]  <- m_ODF_first[MET & INJ, i]
   
   # Month 2+
   a_UP[MET & INJ, METC & INJ, i] <- p_MET_METC_INJ * (1 - m_ODN[MET & INJ, i] - m_ODF[MET & INJ, i])
@@ -779,8 +890,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[MET & INJ, BUPC & INJ, i]  <- p_MET_BUPC_INJ * (1 - m_ODN[MET & INJ, i] - m_ODF[MET & INJ, i])
   a_UP[MET & INJ, ABS & INJ, i]  <- p_MET_ABS_INJ * (1 - m_ODN[MET & INJ, i] - m_ODF[MET & INJ, i])
   a_UP[MET & INJ, REL & INJ, i]  <- p_MET_REL_INJ * (1 - m_ODN[MET & INJ, i] - m_ODF[MET & INJ, i])
-  a_UP[MET & INJ, ODN & INJ, i]  <- m_ODN[MET & INJ, i]
-  a_UP[MET & INJ, ODF & INJ, i]  <- m_ODF[MET & INJ, i]
+  #a_UP[MET & INJ, ODN & INJ, i]  <- m_ODN[MET & INJ, i]
+  #a_UP[MET & INJ, ODF & INJ, i]  <- m_ODF[MET & INJ, i]
   
   # From METC
   # First month
@@ -789,8 +900,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[METC & INJ, BUPC & INJ, i] <- p_METC_BUPC_INJ * (1 - m_ODN_first[METC & INJ, i] - m_ODF_first[METC & INJ, i])
   a_UP_first[METC & INJ, ABS & INJ, i]  <- p_METC_ABS_INJ * (1 - m_ODN_first[METC & INJ, i] - m_ODF_first[METC & INJ, i])
   a_UP_first[METC & INJ, REL & INJ, i]  <- p_METC_REL_INJ * (1 - m_ODN_first[METC & INJ, i] - m_ODF_first[METC & INJ, i])
-  a_UP_first[METC & INJ, ODN & INJ, i]  <- m_ODN_first[METC & INJ, i]
-  a_UP_first[METC & INJ, ODF & INJ, i]  <- m_ODF_first[METC & INJ, i]
+  #a_UP_first[METC & INJ, ODN & INJ, i]  <- m_ODN_first[METC & INJ, i]
+  #a_UP_first[METC & INJ, ODF & INJ, i]  <- m_ODF_first[METC & INJ, i]
   
   # Month 2+
   a_UP[METC & INJ, MET & INJ, i]  <- p_METC_MET_INJ * (1 - m_ODN[METC & INJ, i] - m_ODF[METC & INJ, i])
@@ -798,8 +909,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[METC & INJ, BUPC & INJ, i] <- p_METC_BUPC_INJ * (1 - m_ODN[METC & INJ, i] - m_ODF[METC & INJ, i])
   a_UP[METC & INJ, ABS & INJ, i]  <- p_METC_ABS_INJ * (1 - m_ODN[METC & INJ, i] - m_ODF[METC & INJ, i])
   a_UP[METC & INJ, REL & INJ, i]  <- p_METC_REL_INJ * (1 - m_ODN[METC & INJ, i] - m_ODF[METC & INJ, i])
-  a_UP[METC & INJ, ODN & INJ, i]  <- m_ODN[METC & INJ, i]
-  a_UP[METC & INJ, ODF & INJ, i]  <- m_ODF[METC & INJ, i]
+  #a_UP[METC & INJ, ODN & INJ, i]  <- m_ODN[METC & INJ, i]
+  #a_UP[METC & INJ, ODF & INJ, i]  <- m_ODF[METC & INJ, i]
   
   # From ABS
   # First month
@@ -808,8 +919,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[ABS & INJ, METC & INJ, i] <- p_ABS_METC_INJ * (1 - m_ODN_first[ABS & INJ, i] - m_ODF_first[ABS & INJ, i])
   a_UP_first[ABS & INJ, BUP & INJ, i]  <- p_ABS_BUP_INJ * (1 - m_ODN_first[ABS & INJ, i] - m_ODF_first[ABS & INJ, i])
   a_UP_first[ABS & INJ, BUPC & INJ, i] <- p_ABS_BUPC_INJ * (1 - m_ODN_first[ABS & INJ, i] - m_ODF_first[ABS & INJ, i])
-  a_UP_first[ABS & INJ, ODN & INJ, i]  <- m_ODN_first[ABS & INJ, i]
-  a_UP_first[ABS & INJ, ODF & INJ, i]  <- m_ODF_first[ABS & INJ, i]
+  #a_UP_first[ABS & INJ, ODN & INJ, i]  <- m_ODN_first[ABS & INJ, i]
+  #a_UP_first[ABS & INJ, ODF & INJ, i]  <- m_ODF_first[ABS & INJ, i]
   
   # Month 2+
   a_UP[ABS & INJ, REL & INJ, i]  <- p_ABS_REL_INJ * (1 - m_ODN[ABS & INJ, i] - m_ODF[ABS & INJ, i])
@@ -817,8 +928,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[ABS & INJ, METC & INJ, i] <- p_ABS_METC_INJ * (1 - m_ODN[ABS & INJ, i] - m_ODF[ABS & INJ, i])
   a_UP[ABS & INJ, BUP & INJ, i]  <- p_ABS_BUP_INJ * (1 - m_ODN[ABS & INJ, i] - m_ODF[ABS & INJ, i])
   a_UP[ABS & INJ, BUPC & INJ, i] <- p_ABS_BUPC_INJ * (1 - m_ODN[ABS & INJ, i] - m_ODF[ABS & INJ, i])
-  a_UP[ABS & INJ, ODN & INJ, i]  <- m_ODN[ABS & INJ, i]
-  a_UP[ABS & INJ, ODF & INJ, i]  <- m_ODF[ABS & INJ, i]
+  #a_UP[ABS & INJ, ODN & INJ, i]  <- m_ODN[ABS & INJ, i]
+  #a_UP[ABS & INJ, ODF & INJ, i]  <- m_ODF[ABS & INJ, i]
   
   # From REL
   # First month
@@ -827,8 +938,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP_first[REL & INJ, BUP & INJ, i]  <- p_REL_BUP_INJ * (1 - m_ODN_first[REL & INJ, i] - m_ODF_first[REL & INJ, i])
   a_UP_first[REL & INJ, BUPC & INJ, i] <- p_REL_BUPC_INJ * (1 - m_ODN_first[REL & INJ, i] - m_ODF_first[REL & INJ, i])
   a_UP_first[REL & INJ, ABS & INJ, i]  <- p_REL_ABS_INJ * (1 - m_ODN_first[REL & INJ, i] - m_ODF_first[REL & INJ, i])
-  a_UP_first[REL & INJ, ODN & INJ, i]  <- m_ODN_first[REL & INJ, i]
-  a_UP_first[REL & INJ, ODF & INJ, i]  <- m_ODF_first[REL & INJ, i]
+  #a_UP_first[REL & INJ, ODN & INJ, i]  <- m_ODN_first[REL & INJ, i]
+  #a_UP_first[REL & INJ, ODF & INJ, i]  <- m_ODF_first[REL & INJ, i]
   
   # Month 2+
   a_UP[REL & INJ, MET & INJ, i]  <- p_REL_MET_INJ * (1 - m_ODN[REL & INJ, i] - m_ODF[REL & INJ, i])
@@ -836,17 +947,28 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   a_UP[REL & INJ, BUP & INJ, i]  <- p_REL_BUP_INJ * (1 - m_ODN[REL & INJ, i] - m_ODF[REL & INJ, i])
   a_UP[REL & INJ, BUPC & INJ, i] <- p_REL_BUPC_INJ * (1 - m_ODN[REL & INJ, i] - m_ODF[REL & INJ, i])
   a_UP[REL & INJ, ABS & INJ, i]  <- p_REL_ABS_INJ * (1 - m_ODN[REL & INJ, i] - m_ODF[REL & INJ, i])
-  a_UP[REL & INJ, ODN & INJ, i]  <- m_ODN[REL & INJ, i]
-  a_UP[REL & INJ, ODF & INJ, i]  <- m_ODF[REL & INJ, i]
+  #a_UP[REL & INJ, ODN & INJ, i]  <- m_ODN[REL & INJ, i]
+  #a_UP[REL & INJ, ODF & INJ, i]  <- m_ODF[REL & INJ, i]
   
   # From OD (first month same)
-  a_UP[ODN & INJ, MET & INJ, i]  <- a_UP_first[ODN & INJ, MET & INJ, i] <- p_ODN_MET_INJ
-  a_UP[ODN & INJ, METC & INJ, i] <- a_UP_first[ODN & INJ, METC & INJ, i] <- p_ODN_METC_INJ
-  a_UP[ODN & INJ, BUP & INJ, i]  <- a_UP_first[ODN & INJ, BUP & INJ, i] <- p_ODN_BUP_INJ
-  a_UP[ODN & INJ, BUPC & INJ, i] <- a_UP_first[ODN & INJ, BUPC & INJ, i] <- p_ODN_BUPC_INJ
-  a_UP[ODN & INJ, ABS & INJ, i]  <- a_UP_first[ODN & INJ, ABS & INJ, i] <- p_ODN_ABS_INJ
-  a_UP[ODN & INJ, REL & INJ, i]  <- a_UP_first[ODN & INJ, REL & INJ, i] <- p_ODN_REL_INJ
+  a_UP[ODN & INJ, MET & INJ, i]  <- a_UP_first[ODN & INJ, MET & INJ, i] <- p_ODN_MET_INJ * (1 - m_ODN[ODN & INJ, i] - m_ODF[ODN & INJ, i])
+  a_UP[ODN & INJ, METC & INJ, i] <- a_UP_first[ODN & INJ, METC & INJ, i] <- p_ODN_METC_INJ * (1 - m_ODN[ODN & INJ, i] - m_ODF[ODN & INJ, i])
+  a_UP[ODN & INJ, BUP & INJ, i]  <- a_UP_first[ODN & INJ, BUP & INJ, i] <- p_ODN_BUP_INJ * (1 - m_ODN[ODN & INJ, i] - m_ODF[ODN & INJ, i])
+  a_UP[ODN & INJ, BUPC & INJ, i] <- a_UP_first[ODN & INJ, BUPC & INJ, i] <- p_ODN_BUPC_INJ * (1 - m_ODN[ODN & INJ, i] - m_ODF[ODN & INJ, i])
+  a_UP[ODN & INJ, ABS & INJ, i]  <- a_UP_first[ODN & INJ, ABS & INJ, i] <- p_ODN_ABS_INJ * (1 - m_ODN[ODN & INJ, i] - m_ODF[ODN & INJ, i])
+  a_UP[ODN & INJ, REL & INJ, i]  <- a_UP_first[ODN & INJ, REL & INJ, i] <- p_ODN_REL_INJ * (1 - m_ODN[ODN & INJ, i] - m_ODF[ODN & INJ, i])
+  #a_UP[ODN & INJ, ODF & INJ, i]  <- m_ODF[ODN & INJ, i]
   }
+  
+  if(checks){
+    # Time dependent state-exit probabilities (from weibull estimates)
+    write.csv(a_UP_first[, , 1],"checks/UP/a_UP_first_1.csv", row.names = TRUE)
+    write.csv(a_UP_first[, , 2],"checks/UP/a_UP_first_2.csv", row.names = TRUE)
+    write.csv(a_UP_first[, , 3],"checks/UP/a_UP_first_3.csv", row.names = TRUE)
+    write.csv(a_UP[, , 1],"checks/UP/a_UP_1.csv", row.names = TRUE)
+    write.csv(a_UP[, , 2],"checks/UP/a_UP_2.csv", row.names = TRUE)
+    write.csv(a_UP[, , 3],"checks/UP/a_UP_3.csv", row.names = TRUE)
+  } else{}
 
   #### Create full time-dependent transition array ####
   # Empty 3-D array
@@ -856,174 +978,593 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   # Add transitions conditional on state-exit (m_leave = 1 - remain)
   # Three transition arrays to account for model-time-varying overdose (2018, 2019, 2020+)
   # Modified transitions for first month (state-time)
+  #for (i in 1){
+  #  a_TDP_1[, , i] <- a_UP_first[, , 1] * m_leave_1[, i]
+  #  a_TDP_2[, , i] <- a_UP_first[, , 2] * m_leave_2[, i]
+  #  a_TDP_3[, , i] <- a_UP_first[, , 3] * m_leave_3[, i]
+  #}
+  ## All transitions 2+ months
+  #for (i in 2:n_t){
+  #  #a_TDP[, , i] <- m_UP * m_leave[, i]
+  #  a_TDP_1[, , i] <- a_UP[, , 1] * m_leave_1[, i]
+  #  a_TDP_2[, , i] <- a_UP[, , 2] * m_leave_2[, i]
+  #  a_TDP_3[, , i] <- a_UP[, , 3] * m_leave_3[, i]
+  #}
+  
   for (i in 1){
-    a_TDP_1[, , i] <- a_UP_first[, , 1] * m_leave_1[, i]
-    a_TDP_2[, , i] <- a_UP_first[, , 2] * m_leave_2[, i]
-    a_TDP_3[, , i] <- a_UP_first[, , 3] * m_leave_3[, i]
+    a_TDP_1[, , i] <- a_UP_first[, , 1] * m_leave_1_non_OD[, i]
+    a_TDP_2[, , i] <- a_UP_first[, , 2] * m_leave_2_non_OD[, i]
+    a_TDP_3[, , i] <- a_UP_first[, , 3] * m_leave_3_non_OD[, i]
+    
+    # Add overdose transition probabilities
+    # Non-injection
+    # BUP
+    a_TDP_1[BUP & NI, ODN & NI, i]  <- m_ODN_first[BUP & NI, 1]
+    a_TDP_2[BUP & NI, ODN & NI, i]  <- m_ODN_first[BUP & NI, 2]
+    a_TDP_3[BUP & NI, ODN & NI, i]  <- m_ODN_first[BUP & NI, 3]
+    
+    a_TDP_1[BUP & NI, ODF & NI, i]  <- m_ODF_first[BUP & NI, 1]
+    a_TDP_2[BUP & NI, ODF & NI, i]  <- m_ODF_first[BUP & NI, 2]
+    a_TDP_3[BUP & NI, ODF & NI, i]  <- m_ODF_first[BUP & NI, 3]
+    
+    # BUPC
+    a_TDP_1[BUPC & NI, ODN & NI, i]  <- m_ODN_first[BUPC & NI, 1]
+    a_TDP_2[BUPC & NI, ODN & NI, i]  <- m_ODN_first[BUPC & NI, 2]
+    a_TDP_3[BUPC & NI, ODN & NI, i]  <- m_ODN_first[BUPC & NI, 3]
+    
+    a_TDP_1[BUPC & NI, ODF & NI, i]  <- m_ODF_first[BUPC & NI, 1]
+    a_TDP_2[BUPC & NI, ODF & NI, i]  <- m_ODF_first[BUPC & NI, 2]
+    a_TDP_3[BUPC & NI, ODF & NI, i]  <- m_ODF_first[BUPC & NI, 3]
+    
+    # MET
+    a_TDP_1[MET & NI, ODN & NI, i]  <- m_ODN_first[MET & NI, 1]
+    a_TDP_2[MET & NI, ODN & NI, i]  <- m_ODN_first[MET & NI, 2]
+    a_TDP_3[MET & NI, ODN & NI, i]  <- m_ODN_first[MET & NI, 3]
+    
+    a_TDP_1[MET & NI, ODF & NI, i]  <- m_ODF_first[MET & NI, 1]
+    a_TDP_2[MET & NI, ODF & NI, i]  <- m_ODF_first[MET & NI, 2]
+    a_TDP_3[MET & NI, ODF & NI, i]  <- m_ODF_first[MET & NI, 3]
+    
+    # METC
+    a_TDP_1[METC & NI, ODN & NI, i]  <- m_ODN_first[METC & NI, 1]
+    a_TDP_2[METC & NI, ODN & NI, i]  <- m_ODN_first[METC & NI, 2]
+    a_TDP_3[METC & NI, ODN & NI, i]  <- m_ODN_first[METC & NI, 3]
+    
+    a_TDP_1[METC & NI, ODF & NI, i]  <- m_ODF_first[METC & NI, 1]
+    a_TDP_2[METC & NI, ODF & NI, i]  <- m_ODF_first[METC & NI, 2]
+    a_TDP_3[METC & NI, ODF & NI, i]  <- m_ODF_first[METC & NI, 3]
+    
+    # ABS
+    a_TDP_1[ABS & NI, ODN & NI, i]  <- m_ODN_first[ABS & NI, 1]
+    a_TDP_2[ABS & NI, ODN & NI, i]  <- m_ODN_first[ABS & NI, 2]
+    a_TDP_3[ABS & NI, ODN & NI, i]  <- m_ODN_first[ABS & NI, 3]
+    
+    a_TDP_1[ABS & NI, ODF & NI, i]  <- m_ODF_first[ABS & NI, 1]
+    a_TDP_2[ABS & NI, ODF & NI, i]  <- m_ODF_first[ABS & NI, 2]
+    a_TDP_3[ABS & NI, ODF & NI, i]  <- m_ODF_first[ABS & NI, 3]
+    
+    # REL
+    a_TDP_1[REL & NI, ODN & NI, i]  <- m_ODN_first[REL & NI, 1]
+    a_TDP_2[REL & NI, ODN & NI, i]  <- m_ODN_first[REL & NI, 2]
+    a_TDP_3[REL & NI, ODN & NI, i]  <- m_ODN_first[REL & NI, 3]
+    
+    a_TDP_1[REL & NI, ODF & NI, i]  <- m_ODF_first[REL & NI, 1]
+    a_TDP_2[REL & NI, ODF & NI, i]  <- m_ODF_first[REL & NI, 2]
+    a_TDP_3[REL & NI, ODF & NI, i]  <- m_ODF_first[REL & NI, 3]
+    
+    # ODN
+    a_TDP_1[ODN & NI, ODN & NI, i]  <- m_ODN_first[ODN & NI, 1]
+    a_TDP_2[ODN & NI, ODN & NI, i]  <- m_ODN_first[ODN & NI, 2]
+    a_TDP_3[ODN & NI, ODN & NI, i]  <- m_ODN_first[ODN & NI, 3]
+    
+    a_TDP_1[ODN & NI, ODF & NI, i]  <- m_ODF_first[ODN & NI, 1]
+    a_TDP_2[ODN & NI, ODF & NI, i]  <- m_ODF_first[ODN & NI, 2]
+    a_TDP_3[ODN & NI, ODF & NI, i]  <- m_ODF_first[ODN & NI, 3]
+    
+    # Injection
+    # BUP
+    a_TDP_1[BUP & INJ, ODN & INJ, i]  <- m_ODN_first[BUP & INJ, 1]
+    a_TDP_2[BUP & INJ, ODN & INJ, i]  <- m_ODN_first[BUP & INJ, 2]
+    a_TDP_3[BUP & INJ, ODN & INJ, i]  <- m_ODN_first[BUP & INJ, 3]
+    
+    a_TDP_1[BUP & INJ, ODF & INJ, i]  <- m_ODF_first[BUP & INJ, 1]
+    a_TDP_2[BUP & INJ, ODF & INJ, i]  <- m_ODF_first[BUP & INJ, 2]
+    a_TDP_3[BUP & INJ, ODF & INJ, i]  <- m_ODF_first[BUP & INJ, 3]
+    
+    # BUPC
+    a_TDP_1[BUPC & INJ, ODN & INJ, i]  <- m_ODN_first[BUPC & INJ, 1]
+    a_TDP_2[BUPC & INJ, ODN & INJ, i]  <- m_ODN_first[BUPC & INJ, 2]
+    a_TDP_3[BUPC & INJ, ODN & INJ, i]  <- m_ODN_first[BUPC & INJ, 3]
+    
+    a_TDP_1[BUPC & INJ, ODF & INJ, i]  <- m_ODF_first[BUPC & INJ, 1]
+    a_TDP_2[BUPC & INJ, ODF & INJ, i]  <- m_ODF_first[BUPC & INJ, 2]
+    a_TDP_3[BUPC & INJ, ODF & INJ, i]  <- m_ODF_first[BUPC & INJ, 3]
+    
+    # MET
+    a_TDP_1[MET & INJ, ODN & INJ, i]  <- m_ODN_first[MET & INJ, 1]
+    a_TDP_2[MET & INJ, ODN & INJ, i]  <- m_ODN_first[MET & INJ, 2]
+    a_TDP_3[MET & INJ, ODN & INJ, i]  <- m_ODN_first[MET & INJ, 3]
+    
+    a_TDP_1[MET & INJ, ODF & INJ, i]  <- m_ODF_first[MET & INJ, 1]
+    a_TDP_2[MET & INJ, ODF & INJ, i]  <- m_ODF_first[MET & INJ, 2]
+    a_TDP_3[MET & INJ, ODF & INJ, i]  <- m_ODF_first[MET & INJ, 3]
+    
+    # METC
+    a_TDP_1[METC & INJ, ODN & INJ, i]  <- m_ODN_first[METC & INJ, 1]
+    a_TDP_2[METC & INJ, ODN & INJ, i]  <- m_ODN_first[METC & INJ, 2]
+    a_TDP_3[METC & INJ, ODN & INJ, i]  <- m_ODN_first[METC & INJ, 3]
+    
+    a_TDP_1[METC & INJ, ODF & INJ, i]  <- m_ODF_first[METC & INJ, 1]
+    a_TDP_2[METC & INJ, ODF & INJ, i]  <- m_ODF_first[METC & INJ, 2]
+    a_TDP_3[METC & INJ, ODF & INJ, i]  <- m_ODF_first[METC & INJ, 3]
+    
+    # ABS
+    a_TDP_1[ABS & INJ, ODN & INJ, i]  <- m_ODN_first[ABS & INJ, 1]
+    a_TDP_2[ABS & INJ, ODN & INJ, i]  <- m_ODN_first[ABS & INJ, 2]
+    a_TDP_3[ABS & INJ, ODN & INJ, i]  <- m_ODN_first[ABS & INJ, 3]
+    
+    a_TDP_1[ABS & INJ, ODF & INJ, i]  <- m_ODF_first[ABS & INJ, 1]
+    a_TDP_2[ABS & INJ, ODF & INJ, i]  <- m_ODF_first[ABS & INJ, 2]
+    a_TDP_3[ABS & INJ, ODF & INJ, i]  <- m_ODF_first[ABS & INJ, 3]
+    
+    # REL
+    a_TDP_1[REL & INJ, ODN & INJ, i]  <- m_ODN_first[REL & INJ, 1]
+    a_TDP_2[REL & INJ, ODN & INJ, i]  <- m_ODN_first[REL & INJ, 2]
+    a_TDP_3[REL & INJ, ODN & INJ, i]  <- m_ODN_first[REL & INJ, 3]
+    
+    a_TDP_1[REL & INJ, ODF & INJ, i]  <- m_ODF_first[REL & INJ, 1]
+    a_TDP_2[REL & INJ, ODF & INJ, i]  <- m_ODF_first[REL & INJ, 2]
+    a_TDP_3[REL & INJ, ODF & INJ, i]  <- m_ODF_first[REL & INJ, 3]
+    
+    # ODN
+    a_TDP_1[ODN & INJ, ODN & INJ, i]  <- m_ODN_first[ODN & INJ, 1]
+    a_TDP_2[ODN & INJ, ODN & INJ, i]  <- m_ODN_first[ODN & INJ, 2]
+    a_TDP_3[ODN & INJ, ODN & INJ, i]  <- m_ODN_first[ODN & INJ, 3]
+    
+    a_TDP_1[ODN & INJ, ODF & INJ, i]  <- m_ODF_first[ODN & INJ, 1]
+    a_TDP_2[ODN & INJ, ODF & INJ, i]  <- m_ODF_first[ODN & INJ, 2]
+    a_TDP_3[ODN & INJ, ODF & INJ, i]  <- m_ODF_first[ODN & INJ, 3]
+    
+    # Add overdose remain probabilities
+    # Non-injection
+    #a_TDP_1[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_ODN_first[EP1 & ODN & NI, 1]
+    #a_TDP_2[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_ODN_first[EP1 & ODN & NI, 2]
+    #a_TDP_3[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_ODN_first[EP1 & ODN & NI, 3]
+    
+    #a_TDP_1[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_ODN_first[EP2 & ODN & NI, 1]
+    #a_TDP_2[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_ODN_first[EP2 & ODN & NI, 2]
+    #a_TDP_3[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_ODN_first[EP2 & ODN & NI, 3]
+    
+    #a_TDP_1[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_ODN_first[EP3 & ODN & NI, 1]
+    #a_TDP_2[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_ODN_first[EP3 & ODN & NI, 2]
+    #a_TDP_3[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_ODN_first[EP3 & ODN & NI, 3]
+    
+    # Injection
+    #a_TDP_1[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_ODN_first[EP1 & ODN & INJ, 1]
+    #a_TDP_2[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_ODN_first[EP1 & ODN & INJ, 2]
+    #a_TDP_3[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_ODN_first[EP1 & ODN & INJ, 3]
+    
+    #a_TDP_1[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_ODN_first[EP2 & ODN & INJ, 1]
+    #a_TDP_2[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_ODN_first[EP2 & ODN & INJ, 2]
+    #a_TDP_3[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_ODN_first[EP2 & ODN & INJ, 3]
+    
+    #a_TDP_1[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_ODN_first[EP3 & ODN & INJ, 1]
+    #a_TDP_2[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_ODN_first[EP3 & ODN & INJ, 2]
+    #a_TDP_3[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_ODN_first[EP3 & ODN & INJ, 3]
   }
   # All transitions 2+ months
   for (i in 2:n_t){
     #a_TDP[, , i] <- m_UP * m_leave[, i]
-    a_TDP_1[, , i] <- a_UP[, , 1] * m_leave_1[, i]
-    a_TDP_2[, , i] <- a_UP[, , 2] * m_leave_2[, i]
-    a_TDP_3[, , i] <- a_UP[, , 3] * m_leave_3[, i]
+    a_TDP_1[, , i] <- a_UP[, , 1] * m_leave_1_non_OD[, i]
+    a_TDP_2[, , i] <- a_UP[, , 2] * m_leave_2_non_OD[, i]
+    a_TDP_3[, , i] <- a_UP[, , 3] * m_leave_3_non_OD[, i]
+    
+    # Add overdose transition probabilities
+    # Non-injection
+    # BUP
+    a_TDP_1[BUP & NI, ODN & NI, i]  <- m_ODN[BUP & NI, 1]
+    a_TDP_2[BUP & NI, ODN & NI, i]  <- m_ODN[BUP & NI, 2]
+    a_TDP_3[BUP & NI, ODN & NI, i]  <- m_ODN[BUP & NI, 3]
+    
+    a_TDP_1[BUP & NI, ODF & NI, i]  <- m_ODF[BUP & NI, 1]
+    a_TDP_2[BUP & NI, ODF & NI, i]  <- m_ODF[BUP & NI, 2]
+    a_TDP_3[BUP & NI, ODF & NI, i]  <- m_ODF[BUP & NI, 3]
+    
+    # BUPC
+    a_TDP_1[BUPC & NI, ODN & NI, i]  <- m_ODN[BUPC & NI, 1]
+    a_TDP_2[BUPC & NI, ODN & NI, i]  <- m_ODN[BUPC & NI, 2]
+    a_TDP_3[BUPC & NI, ODN & NI, i]  <- m_ODN[BUPC & NI, 3]
+    
+    a_TDP_1[BUPC & NI, ODF & NI, i]  <- m_ODF[BUPC & NI, 1]
+    a_TDP_2[BUPC & NI, ODF & NI, i]  <- m_ODF[BUPC & NI, 2]
+    a_TDP_3[BUPC & NI, ODF & NI, i]  <- m_ODF[BUPC & NI, 3]
+    
+    # MET
+    a_TDP_1[MET & NI, ODN & NI, i]  <- m_ODN[MET & NI, 1]
+    a_TDP_2[MET & NI, ODN & NI, i]  <- m_ODN[MET & NI, 2]
+    a_TDP_3[MET & NI, ODN & NI, i]  <- m_ODN[MET & NI, 3]
+    
+    a_TDP_1[MET & NI, ODF & NI, i]  <- m_ODF[MET & NI, 1]
+    a_TDP_2[MET & NI, ODF & NI, i]  <- m_ODF[MET & NI, 2]
+    a_TDP_3[MET & NI, ODF & NI, i]  <- m_ODF[MET & NI, 3]
+    
+    # METC
+    a_TDP_1[METC & NI, ODN & NI, i]  <- m_ODN[METC & NI, 1]
+    a_TDP_2[METC & NI, ODN & NI, i]  <- m_ODN[METC & NI, 2]
+    a_TDP_3[METC & NI, ODN & NI, i]  <- m_ODN[METC & NI, 3]
+    
+    a_TDP_1[METC & NI, ODF & NI, i]  <- m_ODF[METC & NI, 1]
+    a_TDP_2[METC & NI, ODF & NI, i]  <- m_ODF[METC & NI, 2]
+    a_TDP_3[METC & NI, ODF & NI, i]  <- m_ODF[METC & NI, 3]
+    
+    # ABS
+    a_TDP_1[ABS & NI, ODN & NI, i]  <- m_ODN[ABS & NI, 1]
+    a_TDP_2[ABS & NI, ODN & NI, i]  <- m_ODN[ABS & NI, 2]
+    a_TDP_3[ABS & NI, ODN & NI, i]  <- m_ODN[ABS & NI, 3]
+    
+    a_TDP_1[ABS & NI, ODF & NI, i]  <- m_ODF[ABS & NI, 1]
+    a_TDP_2[ABS & NI, ODF & NI, i]  <- m_ODF[ABS & NI, 2]
+    a_TDP_3[ABS & NI, ODF & NI, i]  <- m_ODF[ABS & NI, 3]
+    
+    # REL
+    a_TDP_1[REL & NI, ODN & NI, i]  <- m_ODN[REL & NI, 1]
+    a_TDP_2[REL & NI, ODN & NI, i]  <- m_ODN[REL & NI, 2]
+    a_TDP_3[REL & NI, ODN & NI, i]  <- m_ODN[REL & NI, 3]
+    
+    a_TDP_1[REL & NI, ODF & NI, i]  <- m_ODF[REL & NI, 1]
+    a_TDP_2[REL & NI, ODF & NI, i]  <- m_ODF[REL & NI, 2]
+    a_TDP_3[REL & NI, ODF & NI, i]  <- m_ODF[REL & NI, 3]
+    
+    # ODN
+    a_TDP_1[ODN & NI, ODN & NI, i]  <- m_ODN[ODN & NI, 1]
+    a_TDP_2[ODN & NI, ODN & NI, i]  <- m_ODN[ODN & NI, 2]
+    a_TDP_3[ODN & NI, ODN & NI, i]  <- m_ODN[ODN & NI, 3]
+    
+    a_TDP_1[ODN & NI, ODF & NI, i]  <- m_ODF[ODN & NI, 1]
+    a_TDP_2[ODN & NI, ODF & NI, i]  <- m_ODF[ODN & NI, 2]
+    a_TDP_3[ODN & NI, ODF & NI, i]  <- m_ODF[ODN & NI, 3]
+    
+    # Injection
+    # BUP
+    a_TDP_1[BUP & INJ, ODN & INJ, i]  <- m_ODN[BUP & INJ, 1]
+    a_TDP_2[BUP & INJ, ODN & INJ, i]  <- m_ODN[BUP & INJ, 2]
+    a_TDP_3[BUP & INJ, ODN & INJ, i]  <- m_ODN[BUP & INJ, 3]
+    
+    a_TDP_1[BUP & INJ, ODF & INJ, i]  <- m_ODF[BUP & INJ, 1]
+    a_TDP_2[BUP & INJ, ODF & INJ, i]  <- m_ODF[BUP & INJ, 2]
+    a_TDP_3[BUP & INJ, ODF & INJ, i]  <- m_ODF[BUP & INJ, 3]
+    
+    # BUPC
+    a_TDP_1[BUPC & INJ, ODN & INJ, i]  <- m_ODN[BUPC & INJ, 1]
+    a_TDP_2[BUPC & INJ, ODN & INJ, i]  <- m_ODN[BUPC & INJ, 2]
+    a_TDP_3[BUPC & INJ, ODN & INJ, i]  <- m_ODN[BUPC & INJ, 3]
+    
+    a_TDP_1[BUPC & INJ, ODF & INJ, i]  <- m_ODF[BUPC & INJ, 1]
+    a_TDP_2[BUPC & INJ, ODF & INJ, i]  <- m_ODF[BUPC & INJ, 2]
+    a_TDP_3[BUPC & INJ, ODF & INJ, i]  <- m_ODF[BUPC & INJ, 3]
+    
+    # MET
+    a_TDP_1[MET & INJ, ODN & INJ, i]  <- m_ODN[MET & INJ, 1]
+    a_TDP_2[MET & INJ, ODN & INJ, i]  <- m_ODN[MET & INJ, 2]
+    a_TDP_3[MET & INJ, ODN & INJ, i]  <- m_ODN[MET & INJ, 3]
+    
+    a_TDP_1[MET & INJ, ODF & INJ, i]  <- m_ODF[MET & INJ, 1]
+    a_TDP_2[MET & INJ, ODF & INJ, i]  <- m_ODF[MET & INJ, 2]
+    a_TDP_3[MET & INJ, ODF & INJ, i]  <- m_ODF[MET & INJ, 3]
+    
+    # METC
+    a_TDP_1[METC & INJ, ODN & INJ, i]  <- m_ODN[METC & INJ, 1]
+    a_TDP_2[METC & INJ, ODN & INJ, i]  <- m_ODN[METC & INJ, 2]
+    a_TDP_3[METC & INJ, ODN & INJ, i]  <- m_ODN[METC & INJ, 3]
+    
+    a_TDP_1[METC & INJ, ODF & INJ, i]  <- m_ODF[METC & INJ, 1]
+    a_TDP_2[METC & INJ, ODF & INJ, i]  <- m_ODF[METC & INJ, 2]
+    a_TDP_3[METC & INJ, ODF & INJ, i]  <- m_ODF[METC & INJ, 3]
+    
+    # ABS
+    a_TDP_1[ABS & INJ, ODN & INJ, i]  <- m_ODN[ABS & INJ, 1]
+    a_TDP_2[ABS & INJ, ODN & INJ, i]  <- m_ODN[ABS & INJ, 2]
+    a_TDP_3[ABS & INJ, ODN & INJ, i]  <- m_ODN[ABS & INJ, 3]
+    
+    a_TDP_1[ABS & INJ, ODF & INJ, i]  <- m_ODF[ABS & INJ, 1]
+    a_TDP_2[ABS & INJ, ODF & INJ, i]  <- m_ODF[ABS & INJ, 2]
+    a_TDP_3[ABS & INJ, ODF & INJ, i]  <- m_ODF[ABS & INJ, 3]
+    
+    # REL
+    a_TDP_1[REL & INJ, ODN & INJ, i]  <- m_ODN[REL & INJ, 1]
+    a_TDP_2[REL & INJ, ODN & INJ, i]  <- m_ODN[REL & INJ, 2]
+    a_TDP_3[REL & INJ, ODN & INJ, i]  <- m_ODN[REL & INJ, 3]
+    
+    a_TDP_1[REL & INJ, ODF & INJ, i]  <- m_ODF[REL & INJ, 1]
+    a_TDP_2[REL & INJ, ODF & INJ, i]  <- m_ODF[REL & INJ, 2]
+    a_TDP_3[REL & INJ, ODF & INJ, i]  <- m_ODF[REL & INJ, 3]
+    
+    # ODN
+    a_TDP_1[ODN & INJ, ODN & INJ, i]  <- m_ODN[ODN & INJ, 1]
+    a_TDP_2[ODN & INJ, ODN & INJ, i]  <- m_ODN[ODN & INJ, 2]
+    a_TDP_3[ODN & INJ, ODN & INJ, i]  <- m_ODN[ODN & INJ, 3]
+    
+    a_TDP_1[ODN & INJ, ODF & INJ, i]  <- m_ODF[ODN & INJ, 1]
+    a_TDP_2[ODN & INJ, ODF & INJ, i]  <- m_ODF[ODN & INJ, 2]
+    a_TDP_3[ODN & INJ, ODF & INJ, i]  <- m_ODF[ODN & INJ, 3]
+    
+    # Add overdose remain probabilities
+    # Non-injection
+    #a_TDP_1[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_ODN[EP1 & ODN & NI, 1]
+    #a_TDP_2[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_ODN[EP1 & ODN & NI, 2]
+    #a_TDP_3[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_ODN[EP1 & ODN & NI, 3]
+    
+    #a_TDP_1[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_ODN[EP2 & ODN & NI, 1]
+    #a_TDP_2[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_ODN[EP2 & ODN & NI, 2]
+    #a_TDP_3[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_ODN[EP2 & ODN & NI, 3]
+    
+    #a_TDP_1[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_ODN[EP3 & ODN & NI, 1]
+    #a_TDP_2[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_ODN[EP3 & ODN & NI, 2]
+    #a_TDP_3[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_ODN[EP3 & ODN & NI, 3]
+    
+    # Injection
+    #a_TDP_1[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_ODN[EP1 & ODN & INJ, 1]
+    #a_TDP_2[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_ODN[EP1 & ODN & INJ, 2]
+    #a_TDP_3[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_ODN[EP1 & ODN & INJ, 3]
+    
+    #a_TDP_1[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_ODN[EP2 & ODN & INJ, 1]
+    #a_TDP_2[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_ODN[EP2 & ODN & INJ, 2]
+    #a_TDP_3[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_ODN[EP2 & ODN & INJ, 3]
+    
+    #a_TDP_1[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_ODN[EP3 & ODN & INJ, 1]
+    #a_TDP_2[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_ODN[EP3 & ODN & INJ, 2]
+    #a_TDP_3[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_ODN[EP3 & ODN & INJ, 3]
   }
 
   # Add time-dependent remain probabilities
   for (i in 1:n_t){
     # Non-injection
     # Episode 1
-    a_TDP_1[EP1 & BUP & NI, EP1 & BUP & NI, i] <- m_TDP_1[EP1 & BUP & NI, i]
-    a_TDP_2[EP1 & BUP & NI, EP1 & BUP & NI, i] <- m_TDP_2[EP1 & BUP & NI, i]
-    a_TDP_3[EP1 & BUP & NI, EP1 & BUP & NI, i] <- m_TDP_3[EP1 & BUP & NI, i]
-    a_TDP_1[EP1 & BUPC & NI, EP1 & BUPC & NI, i] <- m_TDP_1[EP1 & BUPC & NI, i]
-    a_TDP_2[EP1 & BUPC & NI, EP1 & BUPC & NI, i] <- m_TDP_2[EP1 & BUPC & NI, i]
-    a_TDP_3[EP1 & BUPC & NI, EP1 & BUPC & NI, i] <- m_TDP_3[EP1 & BUPC & NI, i]
-    a_TDP_1[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP_1[EP1 & MET & NI, i]
-    a_TDP_2[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP_2[EP1 & MET & NI, i]
-    a_TDP_3[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP_3[EP1 & MET & NI, i]
-    a_TDP_1[EP1 & METC & NI, EP1 & METC & NI, i] <- m_TDP_1[EP1 & METC & NI, i]
-    a_TDP_2[EP1 & METC & NI, EP1 & METC & NI, i] <- m_TDP_2[EP1 & METC & NI, i]
-    a_TDP_3[EP1 & METC & NI, EP1 & METC & NI, i] <- m_TDP_3[EP1 & METC & NI, i]
-    a_TDP_1[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP_1[EP1 & ABS & NI, i]
-    a_TDP_2[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP_2[EP1 & ABS & NI, i]
-    a_TDP_3[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP_3[EP1 & ABS & NI, i]
-    a_TDP_1[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP_1[EP1 & REL & NI, i]
-    a_TDP_2[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP_2[EP1 & REL & NI, i]
-    a_TDP_3[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP_3[EP1 & REL & NI, i]
-    a_TDP_1[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP_1[EP1 & ODN & NI, i]
-    a_TDP_2[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP_2[EP1 & ODN & NI, i]
-    a_TDP_3[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP_3[EP1 & ODN & NI, i]
-    a_TDP_1[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP_1[EP1 & ODF & NI, i]
-    a_TDP_2[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP_2[EP1 & ODF & NI, i]
-    a_TDP_3[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP_3[EP1 & ODF & NI, i]
+    # BUP
+    a_TDP_1[EP1 & BUP & NI, EP1 & BUP & NI, i] <- m_TDP_1_non_OD[EP1 & BUP & NI, i]
+    a_TDP_2[EP1 & BUP & NI, EP1 & BUP & NI, i] <- m_TDP_2_non_OD[EP1 & BUP & NI, i]
+    a_TDP_3[EP1 & BUP & NI, EP1 & BUP & NI, i] <- m_TDP_3_non_OD[EP1 & BUP & NI, i]
+    
+    # BUPC
+    a_TDP_1[EP1 & BUPC & NI, EP1 & BUPC & NI, i] <- m_TDP_1_non_OD[EP1 & BUPC & NI, i]
+    a_TDP_2[EP1 & BUPC & NI, EP1 & BUPC & NI, i] <- m_TDP_2_non_OD[EP1 & BUPC & NI, i]
+    a_TDP_3[EP1 & BUPC & NI, EP1 & BUPC & NI, i] <- m_TDP_3_non_OD[EP1 & BUPC & NI, i]
+    
+    # MET
+    a_TDP_1[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP_1_non_OD[EP1 & MET & NI, i]
+    a_TDP_2[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP_2_non_OD[EP1 & MET & NI, i]
+    a_TDP_3[EP1 & MET & NI, EP1 & MET & NI, i] <- m_TDP_3_non_OD[EP1 & MET & NI, i]
+    
+    # METC
+    a_TDP_1[EP1 & METC & NI, EP1 & METC & NI, i] <- m_TDP_1_non_OD[EP1 & METC & NI, i]
+    a_TDP_2[EP1 & METC & NI, EP1 & METC & NI, i] <- m_TDP_2_non_OD[EP1 & METC & NI, i]
+    a_TDP_3[EP1 & METC & NI, EP1 & METC & NI, i] <- m_TDP_3_non_OD[EP1 & METC & NI, i]
+    
+    # ABS
+    a_TDP_1[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP_1_non_OD[EP1 & ABS & NI, i]
+    a_TDP_2[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP_2_non_OD[EP1 & ABS & NI, i]
+    a_TDP_3[EP1 & ABS & NI, EP1 & ABS & NI, i] <- m_TDP_3_non_OD[EP1 & ABS & NI, i]
+    
+    # REL
+    a_TDP_1[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP_1_non_OD[EP1 & REL & NI, i]
+    a_TDP_2[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP_2_non_OD[EP1 & REL & NI, i]
+    a_TDP_3[EP1 & REL & NI, EP1 & REL & NI, i] <- m_TDP_3_non_OD[EP1 & REL & NI, i]
+    
+    # ODN
+    #a_TDP_1[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP_1_non_OD[EP1 & ODN & NI, i]
+    #a_TDP_2[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP_2_non_OD[EP1 & ODN & NI, i]
+    #a_TDP_3[EP1 & ODN & NI, EP1 & ODN & NI, i] <- m_TDP_3_non_OD[EP1 & ODN & NI, i]
+    
+    # ODF
+    a_TDP_1[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP_1_non_OD[EP1 & ODF & NI, i]
+    a_TDP_2[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP_2_non_OD[EP1 & ODF & NI, i]
+    a_TDP_3[EP1 & ODF & NI, EP1 & ODF & NI, i] <- m_TDP_3_non_OD[EP1 & ODF & NI, i]
+    
     # Episode 2
-    a_TDP_1[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP_1[EP2 & BUP & NI, i]
-    a_TDP_2[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP_2[EP2 & BUP & NI, i]
-    a_TDP_3[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP_3[EP2 & BUP & NI, i]
-    a_TDP_1[EP2 & BUPC & NI, EP2 & BUPC & NI, i] <- m_TDP_1[EP2 & BUPC & NI, i]
-    a_TDP_2[EP2 & BUPC & NI, EP2 & BUPC & NI, i] <- m_TDP_2[EP2 & BUPC & NI, i]
-    a_TDP_3[EP2 & BUPC & NI, EP2 & BUPC & NI, i] <- m_TDP_3[EP2 & BUPC & NI, i]
-    a_TDP_1[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP_1[EP2 & MET & NI, i]
-    a_TDP_2[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP_2[EP2 & MET & NI, i]
-    a_TDP_3[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP_3[EP2 & MET & NI, i]
-    a_TDP_1[EP2 & METC & NI, EP2 & METC & NI, i] <- m_TDP_1[EP2 & METC & NI, i]
-    a_TDP_2[EP2 & METC & NI, EP2 & METC & NI, i] <- m_TDP_2[EP2 & METC & NI, i]
-    a_TDP_3[EP2 & METC & NI, EP2 & METC & NI, i] <- m_TDP_3[EP2 & METC & NI, i]
-    a_TDP_1[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP_1[EP2 & ABS & NI, i]
-    a_TDP_2[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP_2[EP2 & ABS & NI, i]
-    a_TDP_3[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP_3[EP2 & ABS & NI, i]
-    a_TDP_1[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP_1[EP2 & REL & NI, i]
-    a_TDP_2[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP_2[EP2 & REL & NI, i]
-    a_TDP_3[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP_3[EP2 & REL & NI, i]
-    a_TDP_1[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP_1[EP2 & ODN & NI, i]
-    a_TDP_2[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP_2[EP2 & ODN & NI, i]
-    a_TDP_3[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP_3[EP2 & ODN & NI, i]
-    a_TDP_1[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP_1[EP2 & ODF & NI, i]
-    a_TDP_2[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP_2[EP2 & ODF & NI, i]
-    a_TDP_3[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP_3[EP2 & ODF & NI, i]
+    # BUP
+    a_TDP_1[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP_1_non_OD[EP2 & BUP & NI, i]
+    a_TDP_2[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP_2_non_OD[EP2 & BUP & NI, i]
+    a_TDP_3[EP2 & BUP & NI, EP2 & BUP & NI, i] <- m_TDP_3_non_OD[EP2 & BUP & NI, i]
+    
+    # BUPC
+    a_TDP_1[EP2 & BUPC & NI, EP2 & BUPC & NI, i] <- m_TDP_1_non_OD[EP2 & BUPC & NI, i]
+    a_TDP_2[EP2 & BUPC & NI, EP2 & BUPC & NI, i] <- m_TDP_2_non_OD[EP2 & BUPC & NI, i]
+    a_TDP_3[EP2 & BUPC & NI, EP2 & BUPC & NI, i] <- m_TDP_3_non_OD[EP2 & BUPC & NI, i]
+    
+    # MET
+    a_TDP_1[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP_1_non_OD[EP2 & MET & NI, i]
+    a_TDP_2[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP_2_non_OD[EP2 & MET & NI, i]
+    a_TDP_3[EP2 & MET & NI, EP2 & MET & NI, i] <- m_TDP_3_non_OD[EP2 & MET & NI, i]
+    
+    # METC
+    a_TDP_1[EP2 & METC & NI, EP2 & METC & NI, i] <- m_TDP_1_non_OD[EP2 & METC & NI, i]
+    a_TDP_2[EP2 & METC & NI, EP2 & METC & NI, i] <- m_TDP_2_non_OD[EP2 & METC & NI, i]
+    a_TDP_3[EP2 & METC & NI, EP2 & METC & NI, i] <- m_TDP_3_non_OD[EP2 & METC & NI, i]
+    
+    # ABS
+    a_TDP_1[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP_1_non_OD[EP2 & ABS & NI, i]
+    a_TDP_2[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP_2_non_OD[EP2 & ABS & NI, i]
+    a_TDP_3[EP2 & ABS & NI, EP2 & ABS & NI, i] <- m_TDP_3_non_OD[EP2 & ABS & NI, i]
+    
+    # REL
+    a_TDP_1[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP_1_non_OD[EP2 & REL & NI, i]
+    a_TDP_2[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP_2_non_OD[EP2 & REL & NI, i]
+    a_TDP_3[EP2 & REL & NI, EP2 & REL & NI, i] <- m_TDP_3_non_OD[EP2 & REL & NI, i]
+    
+    # ODN
+    #a_TDP_1[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP_1[EP2 & ODN & NI, i]
+    #a_TDP_2[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP_2[EP2 & ODN & NI, i]
+    #a_TDP_3[EP2 & ODN & NI, EP2 & ODN & NI, i] <- m_TDP_3[EP2 & ODN & NI, i]
+    
+    # ODF
+    a_TDP_1[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP_1_non_OD[EP2 & ODF & NI, i]
+    a_TDP_2[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP_2_non_OD[EP2 & ODF & NI, i]
+    a_TDP_3[EP2 & ODF & NI, EP2 & ODF & NI, i] <- m_TDP_3_non_OD[EP2 & ODF & NI, i]
+    
     # Episode 3
-    a_TDP_1[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP_1[EP3 & BUP & NI, i]
-    a_TDP_2[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP_2[EP3 & BUP & NI, i]
-    a_TDP_3[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP_3[EP3 & BUP & NI, i]
-    a_TDP_1[EP3 & BUPC & NI, EP3 & BUPC & NI, i] <- m_TDP_1[EP3 & BUPC & NI, i]
-    a_TDP_2[EP3 & BUPC & NI, EP3 & BUPC & NI, i] <- m_TDP_2[EP3 & BUPC & NI, i]
-    a_TDP_3[EP3 & BUPC & NI, EP3 & BUPC & NI, i] <- m_TDP_3[EP3 & BUPC & NI, i]
-    a_TDP_1[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP_1[EP3 & MET & NI, i]
-    a_TDP_2[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP_2[EP3 & MET & NI, i]
-    a_TDP_3[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP_3[EP3 & MET & NI, i]
-    a_TDP_1[EP3 & METC & NI, EP3 & METC & NI, i] <- m_TDP_1[EP3 & METC & NI, i]
-    a_TDP_2[EP3 & METC & NI, EP3 & METC & NI, i] <- m_TDP_2[EP3 & METC & NI, i]
-    a_TDP_3[EP3 & METC & NI, EP3 & METC & NI, i] <- m_TDP_3[EP3 & METC & NI, i]
-    a_TDP_1[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP_1[EP3 & ABS & NI, i]
-    a_TDP_2[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP_2[EP3 & ABS & NI, i]
-    a_TDP_3[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP_3[EP3 & ABS & NI, i]
-    a_TDP_1[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP_1[EP3 & REL & NI, i]
-    a_TDP_2[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP_2[EP3 & REL & NI, i]
-    a_TDP_3[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP_3[EP3 & REL & NI, i]
-    a_TDP_1[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP_1[EP3 & ODN & NI, i]
-    a_TDP_2[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP_2[EP3 & ODN & NI, i]
-    a_TDP_3[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP_3[EP3 & ODN & NI, i]
-    a_TDP_1[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP_1[EP3 & ODF & NI, i]
-    a_TDP_2[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP_2[EP3 & ODF & NI, i]
-    a_TDP_3[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP_3[EP3 & ODF & NI, i]
+    # BUP
+    a_TDP_1[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP_1_non_OD[EP3 & BUP & NI, i]
+    a_TDP_2[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP_2_non_OD[EP3 & BUP & NI, i]
+    a_TDP_3[EP3 & BUP & NI, EP3 & BUP & NI, i] <- m_TDP_3_non_OD[EP3 & BUP & NI, i]
+    
+    # BUPC
+    a_TDP_1[EP3 & BUPC & NI, EP3 & BUPC & NI, i] <- m_TDP_1_non_OD[EP3 & BUPC & NI, i]
+    a_TDP_2[EP3 & BUPC & NI, EP3 & BUPC & NI, i] <- m_TDP_2_non_OD[EP3 & BUPC & NI, i]
+    a_TDP_3[EP3 & BUPC & NI, EP3 & BUPC & NI, i] <- m_TDP_3_non_OD[EP3 & BUPC & NI, i]
+    
+    # MET
+    a_TDP_1[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP_1_non_OD[EP3 & MET & NI, i]
+    a_TDP_2[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP_2_non_OD[EP3 & MET & NI, i]
+    a_TDP_3[EP3 & MET & NI, EP3 & MET & NI, i] <- m_TDP_3_non_OD[EP3 & MET & NI, i]
+    
+    # METC
+    a_TDP_1[EP3 & METC & NI, EP3 & METC & NI, i] <- m_TDP_1_non_OD[EP3 & METC & NI, i]
+    a_TDP_2[EP3 & METC & NI, EP3 & METC & NI, i] <- m_TDP_2_non_OD[EP3 & METC & NI, i]
+    a_TDP_3[EP3 & METC & NI, EP3 & METC & NI, i] <- m_TDP_3_non_OD[EP3 & METC & NI, i]
+    
+    # ABS
+    a_TDP_1[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP_1_non_OD[EP3 & ABS & NI, i]
+    a_TDP_2[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP_2_non_OD[EP3 & ABS & NI, i]
+    a_TDP_3[EP3 & ABS & NI, EP3 & ABS & NI, i] <- m_TDP_3_non_OD[EP3 & ABS & NI, i]
+    
+    # REL
+    a_TDP_1[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP_1_non_OD[EP3 & REL & NI, i]
+    a_TDP_2[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP_2_non_OD[EP3 & REL & NI, i]
+    a_TDP_3[EP3 & REL & NI, EP3 & REL & NI, i] <- m_TDP_3_non_OD[EP3 & REL & NI, i]
+    
+    # ODN
+    #a_TDP_1[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP_1[EP3 & ODN & NI, i]
+    #a_TDP_2[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP_2[EP3 & ODN & NI, i]
+    #a_TDP_3[EP3 & ODN & NI, EP3 & ODN & NI, i] <- m_TDP_3[EP3 & ODN & NI, i]
+    
+    # ODF
+    a_TDP_1[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP_1_non_OD[EP3 & ODF & NI, i]
+    a_TDP_2[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP_2_non_OD[EP3 & ODF & NI, i]
+    a_TDP_3[EP3 & ODF & NI, EP3 & ODF & NI, i] <- m_TDP_3_non_OD[EP3 & ODF & NI, i]
 
     # Injection
     # Episode 1
-    a_TDP_1[EP1 & BUP & INJ, EP1 & BUP & INJ, i] <- m_TDP_1[EP1 & BUP & INJ, i]
-    a_TDP_2[EP1 & BUP & INJ, EP1 & BUP & INJ, i] <- m_TDP_2[EP1 & BUP & INJ, i]
-    a_TDP_3[EP1 & BUP & INJ, EP1 & BUP & INJ, i] <- m_TDP_3[EP1 & BUP & INJ, i]
-    a_TDP_1[EP1 & BUPC & INJ, EP1 & BUPC & INJ, i] <- m_TDP_1[EP1 & BUPC & INJ, i]
-    a_TDP_2[EP1 & BUPC & INJ, EP1 & BUPC & INJ, i] <- m_TDP_2[EP1 & BUPC & INJ, i]
-    a_TDP_3[EP1 & BUPC & INJ, EP1 & BUPC & INJ, i] <- m_TDP_3[EP1 & BUPC & INJ, i]
-    a_TDP_1[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP_1[EP1 & MET & INJ, i]
-    a_TDP_2[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP_2[EP1 & MET & INJ, i]
-    a_TDP_3[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP_3[EP1 & MET & INJ, i]
-    a_TDP_1[EP1 & METC & INJ, EP1 & METC & INJ, i] <- m_TDP_1[EP1 & METC & INJ, i]
-    a_TDP_2[EP1 & METC & INJ, EP1 & METC & INJ, i] <- m_TDP_2[EP1 & METC & INJ, i]
-    a_TDP_3[EP1 & METC & INJ, EP1 & METC & INJ, i] <- m_TDP_3[EP1 & METC & INJ, i]
-    a_TDP_1[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP_1[EP1 & ABS & INJ, i]
-    a_TDP_2[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP_2[EP1 & ABS & INJ, i]
-    a_TDP_3[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP_3[EP1 & ABS & INJ, i]
-    a_TDP_1[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP_1[EP1 & REL & INJ, i]
-    a_TDP_2[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP_2[EP1 & REL & INJ, i]
-    a_TDP_3[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP_3[EP1 & REL & INJ, i]
-    a_TDP_1[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP_1[EP1 & ODN & INJ, i]
-    a_TDP_2[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP_2[EP1 & ODN & INJ, i]
-    a_TDP_3[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP_3[EP1 & ODN & INJ, i]
-    a_TDP_1[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP_1[EP1 & ODF & INJ, i]
-    a_TDP_2[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP_2[EP1 & ODF & INJ, i]
-    a_TDP_3[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP_3[EP1 & ODF & INJ, i]
+    # BUP
+    a_TDP_1[EP1 & BUP & INJ, EP1 & BUP & INJ, i] <- m_TDP_1_non_OD[EP1 & BUP & INJ, i]
+    a_TDP_2[EP1 & BUP & INJ, EP1 & BUP & INJ, i] <- m_TDP_2_non_OD[EP1 & BUP & INJ, i]
+    a_TDP_3[EP1 & BUP & INJ, EP1 & BUP & INJ, i] <- m_TDP_3_non_OD[EP1 & BUP & INJ, i]
+    
+    # BUPC
+    a_TDP_1[EP1 & BUPC & INJ, EP1 & BUPC & INJ, i] <- m_TDP_1_non_OD[EP1 & BUPC & INJ, i]
+    a_TDP_2[EP1 & BUPC & INJ, EP1 & BUPC & INJ, i] <- m_TDP_2_non_OD[EP1 & BUPC & INJ, i]
+    a_TDP_3[EP1 & BUPC & INJ, EP1 & BUPC & INJ, i] <- m_TDP_3_non_OD[EP1 & BUPC & INJ, i]
+    
+    # MET
+    a_TDP_1[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP_1_non_OD[EP1 & MET & INJ, i]
+    a_TDP_2[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP_2_non_OD[EP1 & MET & INJ, i]
+    a_TDP_3[EP1 & MET & INJ, EP1 & MET & INJ, i] <- m_TDP_3_non_OD[EP1 & MET & INJ, i]
+    
+    # METC
+    a_TDP_1[EP1 & METC & INJ, EP1 & METC & INJ, i] <- m_TDP_1_non_OD[EP1 & METC & INJ, i]
+    a_TDP_2[EP1 & METC & INJ, EP1 & METC & INJ, i] <- m_TDP_2_non_OD[EP1 & METC & INJ, i]
+    a_TDP_3[EP1 & METC & INJ, EP1 & METC & INJ, i] <- m_TDP_3_non_OD[EP1 & METC & INJ, i]
+    
+    # ABS
+    a_TDP_1[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP_1_non_OD[EP1 & ABS & INJ, i]
+    a_TDP_2[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP_2_non_OD[EP1 & ABS & INJ, i]
+    a_TDP_3[EP1 & ABS & INJ, EP1 & ABS & INJ, i] <- m_TDP_3_non_OD[EP1 & ABS & INJ, i]
+    
+    # REL
+    a_TDP_1[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP_1_non_OD[EP1 & REL & INJ, i]
+    a_TDP_2[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP_2_non_OD[EP1 & REL & INJ, i]
+    a_TDP_3[EP1 & REL & INJ, EP1 & REL & INJ, i] <- m_TDP_3_non_OD[EP1 & REL & INJ, i]
+    
+    # ODN
+    #a_TDP_1[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP_1[EP1 & ODN & INJ, i]
+    #a_TDP_2[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP_2[EP1 & ODN & INJ, i]
+    #a_TDP_3[EP1 & ODN & INJ, EP1 & ODN & INJ, i] <- m_TDP_3[EP1 & ODN & INJ, i]
+    
+    # ODF
+    a_TDP_1[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP_1_non_OD[EP1 & ODF & INJ, i]
+    a_TDP_2[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP_2_non_OD[EP1 & ODF & INJ, i]
+    a_TDP_3[EP1 & ODF & INJ, EP1 & ODF & INJ, i] <- m_TDP_3_non_OD[EP1 & ODF & INJ, i]
+    
     # Episode 2
-    a_TDP_1[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP_1[EP2 & BUP & INJ, i]
-    a_TDP_2[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP_2[EP2 & BUP & INJ, i]
-    a_TDP_3[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP_3[EP2 & BUP & INJ, i]
-    a_TDP_1[EP2 & BUPC & INJ, EP2 & BUPC & INJ, i] <- m_TDP_1[EP2 & BUPC & INJ, i]
-    a_TDP_2[EP2 & BUPC & INJ, EP2 & BUPC & INJ, i] <- m_TDP_2[EP2 & BUPC & INJ, i]
-    a_TDP_3[EP2 & BUPC & INJ, EP2 & BUPC & INJ, i] <- m_TDP_3[EP2 & BUPC & INJ, i]
-    a_TDP_1[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP_1[EP2 & MET & INJ, i]
-    a_TDP_2[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP_2[EP2 & MET & INJ, i]
-    a_TDP_3[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP_3[EP2 & MET & INJ, i]
-    a_TDP_1[EP2 & METC & INJ, EP2 & METC & INJ, i] <- m_TDP_1[EP2 & METC & INJ, i]
-    a_TDP_2[EP2 & METC & INJ, EP2 & METC & INJ, i] <- m_TDP_2[EP2 & METC & INJ, i]
-    a_TDP_3[EP2 & METC & INJ, EP2 & METC & INJ, i] <- m_TDP_3[EP2 & METC & INJ, i]
-    a_TDP_1[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP_1[EP2 & ABS & INJ, i]
-    a_TDP_2[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP_2[EP2 & ABS & INJ, i]
-    a_TDP_3[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP_3[EP2 & ABS & INJ, i]
-    a_TDP_1[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP_1[EP2 & REL & INJ, i]
-    a_TDP_2[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP_2[EP2 & REL & INJ, i]
-    a_TDP_3[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP_3[EP2 & REL & INJ, i]
-    a_TDP_1[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP_1[EP2 & ODN & INJ, i]
-    a_TDP_2[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP_2[EP2 & ODN & INJ, i]
-    a_TDP_3[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP_3[EP2 & ODN & INJ, i]
-    a_TDP_1[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP_1[EP2 & ODF & INJ, i]
-    a_TDP_2[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP_2[EP2 & ODF & INJ, i]
-    a_TDP_3[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP_3[EP2 & ODF & INJ, i]
+    # BUP
+    a_TDP_1[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP_1_non_OD[EP2 & BUP & INJ, i]
+    a_TDP_2[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP_2_non_OD[EP2 & BUP & INJ, i]
+    a_TDP_3[EP2 & BUP & INJ, EP2 & BUP & INJ, i] <- m_TDP_3_non_OD[EP2 & BUP & INJ, i]
+    
+    # BUPC
+    a_TDP_1[EP2 & BUPC & INJ, EP2 & BUPC & INJ, i] <- m_TDP_1_non_OD[EP2 & BUPC & INJ, i]
+    a_TDP_2[EP2 & BUPC & INJ, EP2 & BUPC & INJ, i] <- m_TDP_2_non_OD[EP2 & BUPC & INJ, i]
+    a_TDP_3[EP2 & BUPC & INJ, EP2 & BUPC & INJ, i] <- m_TDP_3_non_OD[EP2 & BUPC & INJ, i]
+    
+    # MET
+    a_TDP_1[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP_1_non_OD[EP2 & MET & INJ, i]
+    a_TDP_2[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP_2_non_OD[EP2 & MET & INJ, i]
+    a_TDP_3[EP2 & MET & INJ, EP2 & MET & INJ, i] <- m_TDP_3_non_OD[EP2 & MET & INJ, i]
+    
+    # METC
+    a_TDP_1[EP2 & METC & INJ, EP2 & METC & INJ, i] <- m_TDP_1_non_OD[EP2 & METC & INJ, i]
+    a_TDP_2[EP2 & METC & INJ, EP2 & METC & INJ, i] <- m_TDP_2_non_OD[EP2 & METC & INJ, i]
+    a_TDP_3[EP2 & METC & INJ, EP2 & METC & INJ, i] <- m_TDP_3_non_OD[EP2 & METC & INJ, i]
+    
+    # ABS
+    a_TDP_1[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP_1_non_OD[EP2 & ABS & INJ, i]
+    a_TDP_2[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP_2_non_OD[EP2 & ABS & INJ, i]
+    a_TDP_3[EP2 & ABS & INJ, EP2 & ABS & INJ, i] <- m_TDP_3_non_OD[EP2 & ABS & INJ, i]
+    
+    # REL
+    a_TDP_1[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP_1_non_OD[EP2 & REL & INJ, i]
+    a_TDP_2[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP_2_non_OD[EP2 & REL & INJ, i]
+    a_TDP_3[EP2 & REL & INJ, EP2 & REL & INJ, i] <- m_TDP_3_non_OD[EP2 & REL & INJ, i]
+    
+    # ODN
+    #a_TDP_1[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP_1[EP2 & ODN & INJ, i]
+    #a_TDP_2[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP_2[EP2 & ODN & INJ, i]
+    #a_TDP_3[EP2 & ODN & INJ, EP2 & ODN & INJ, i] <- m_TDP_3[EP2 & ODN & INJ, i]
+    
+    # ODF
+    a_TDP_1[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP_1_non_OD[EP2 & ODF & INJ, i]
+    a_TDP_2[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP_2_non_OD[EP2 & ODF & INJ, i]
+    a_TDP_3[EP2 & ODF & INJ, EP2 & ODF & INJ, i] <- m_TDP_3_non_OD[EP2 & ODF & INJ, i]
+    
     # Episode 3
-    a_TDP_1[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP_1[EP3 & BUP & INJ, i]
-    a_TDP_2[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP_2[EP3 & BUP & INJ, i]
-    a_TDP_3[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP_3[EP3 & BUP & INJ, i]
-    a_TDP_1[EP3 & BUPC & INJ, EP3 & BUPC & INJ, i] <- m_TDP_1[EP3 & BUPC & INJ, i]
-    a_TDP_2[EP3 & BUPC & INJ, EP3 & BUPC & INJ, i] <- m_TDP_2[EP3 & BUPC & INJ, i]
-    a_TDP_3[EP3 & BUPC & INJ, EP3 & BUPC & INJ, i] <- m_TDP_3[EP3 & BUPC & INJ, i]
-    a_TDP_1[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP_1[EP3 & MET & INJ, i]
-    a_TDP_2[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP_2[EP3 & MET & INJ, i]
-    a_TDP_3[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP_3[EP3 & MET & INJ, i]
-    a_TDP_1[EP3 & METC & INJ, EP3 & METC & INJ, i] <- m_TDP_1[EP3 & METC & INJ, i]
-    a_TDP_2[EP3 & METC & INJ, EP3 & METC & INJ, i] <- m_TDP_2[EP3 & METC & INJ, i]
-    a_TDP_3[EP3 & METC & INJ, EP3 & METC & INJ, i] <- m_TDP_3[EP3 & METC & INJ, i]
-    a_TDP_1[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP_1[EP3 & ABS & INJ, i]
-    a_TDP_2[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP_2[EP3 & ABS & INJ, i]
-    a_TDP_3[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP_3[EP3 & ABS & INJ, i]
-    a_TDP_1[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP_1[EP3 & REL & INJ, i]
-    a_TDP_2[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP_2[EP3 & REL & INJ, i]
-    a_TDP_3[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP_3[EP3 & REL & INJ, i]
-    a_TDP_1[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP_1[EP3 & ODN & INJ, i]
-    a_TDP_2[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP_2[EP3 & ODN & INJ, i]
-    a_TDP_3[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP_3[EP3 & ODN & INJ, i]
-    a_TDP_1[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP_1[EP3 & ODF & INJ, i]
-    a_TDP_2[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP_2[EP3 & ODF & INJ, i]
-    a_TDP_3[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP_3[EP3 & ODF & INJ, i]
+    # BUP
+    a_TDP_1[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP_1_non_OD[EP3 & BUP & INJ, i]
+    a_TDP_2[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP_2_non_OD[EP3 & BUP & INJ, i]
+    a_TDP_3[EP3 & BUP & INJ, EP3 & BUP & INJ, i] <- m_TDP_3_non_OD[EP3 & BUP & INJ, i]
+    
+    # BUPC
+    a_TDP_1[EP3 & BUPC & INJ, EP3 & BUPC & INJ, i] <- m_TDP_1_non_OD[EP3 & BUPC & INJ, i]
+    a_TDP_2[EP3 & BUPC & INJ, EP3 & BUPC & INJ, i] <- m_TDP_2_non_OD[EP3 & BUPC & INJ, i]
+    a_TDP_3[EP3 & BUPC & INJ, EP3 & BUPC & INJ, i] <- m_TDP_3_non_OD[EP3 & BUPC & INJ, i]
+    
+    # MET
+    a_TDP_1[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP_1_non_OD[EP3 & MET & INJ, i]
+    a_TDP_2[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP_2_non_OD[EP3 & MET & INJ, i]
+    a_TDP_3[EP3 & MET & INJ, EP3 & MET & INJ, i] <- m_TDP_3_non_OD[EP3 & MET & INJ, i]
+    
+    # METC
+    a_TDP_1[EP3 & METC & INJ, EP3 & METC & INJ, i] <- m_TDP_1_non_OD[EP3 & METC & INJ, i]
+    a_TDP_2[EP3 & METC & INJ, EP3 & METC & INJ, i] <- m_TDP_2_non_OD[EP3 & METC & INJ, i]
+    a_TDP_3[EP3 & METC & INJ, EP3 & METC & INJ, i] <- m_TDP_3_non_OD[EP3 & METC & INJ, i]
+    
+    # ABS
+    a_TDP_1[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP_1_non_OD[EP3 & ABS & INJ, i]
+    a_TDP_2[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP_2_non_OD[EP3 & ABS & INJ, i]
+    a_TDP_3[EP3 & ABS & INJ, EP3 & ABS & INJ, i] <- m_TDP_3_non_OD[EP3 & ABS & INJ, i]
+    
+    # REL
+    a_TDP_1[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP_1_non_OD[EP3 & REL & INJ, i]
+    a_TDP_2[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP_2_non_OD[EP3 & REL & INJ, i]
+    a_TDP_3[EP3 & REL & INJ, EP3 & REL & INJ, i] <- m_TDP_3_non_OD[EP3 & REL & INJ, i]
+    
+    # ODN
+    #a_TDP_1[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP_1[EP3 & ODN & INJ, i]
+    #a_TDP_2[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP_2[EP3 & ODN & INJ, i]
+    #a_TDP_3[EP3 & ODN & INJ, EP3 & ODN & INJ, i] <- m_TDP_3[EP3 & ODN & INJ, i]
+    
+    # ODF
+    a_TDP_1[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP_1_non_OD[EP3 & ODF & INJ, i]
+    a_TDP_2[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP_2_non_OD[EP3 & ODF & INJ, i]
+    a_TDP_3[EP3 & ODF & INJ, EP3 & ODF & INJ, i] <- m_TDP_3_non_OD[EP3 & ODF & INJ, i]
   }
   
   #### Seroconversion ####
