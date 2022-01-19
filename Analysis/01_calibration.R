@@ -38,30 +38,30 @@ v_cali_param_names <- c("'Overdose rate (treatment)'",
                         "'Overdose rate (treatment + opioid)'",
                         "'Overdose rate (active opioid)'", 
                         "'Overdose rate (inactive opioid)'",
-                        "'First month mult (treatment)'",
+                        #"'First month mult (treatment)'",
                         "'First month mult (treatment + opioid)'",
-                        "'First month mult (active opioid)'",
-                        "'Injection mult'",
+                        #"'First month mult (active opioid)'",
+                        #"'Injection mult'",
                         "'Fentanyl mult'",
                         "'Fatal overdose rate'")
 v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
              n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
              n_REL_OD_shape   = l_params_all$n_REL_OD_shape,
              n_ABS_OD_low    = l_params_all$n_ABS_OD_low,
-             n_TX_OD_mult_shape  = l_params_all$n_TX_OD_mult_shape,
+             #n_TX_OD_mult_shape  = l_params_all$n_TX_OD_mult_shape,
              n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
-             n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
-             n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
+             #n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
+             #n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
              n_fent_OD_mult_shape = l_params_all$n_fent_OD_mult_shape,
              n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
 v_par2 <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
             n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
             n_REL_OD_scale   = l_params_all$n_REL_OD_scale,
             n_ABS_OD_high    = l_params_all$n_ABS_OD_high,
-            n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
+            #n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
-            n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
-            n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
+            #n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
+            #n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
             n_fent_OD_mult_scale = l_params_all$n_fent_OD_mult_scale,
             n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
 
@@ -145,7 +145,7 @@ df_posterior_summ
 ### Save summary statistics of posterior distribution
 ## As .RData
 save(df_posterior_summ, 
-     file = "outputs/summary_posterior.RData")
+     file = "outputs/Calibration/summary_posterior.RData")
 ## As .csv
 write.csv(df_posterior_summ, 
           file = "tables/summary_posterior.csv", 
@@ -156,7 +156,7 @@ write.csv(df_posterior_summ,
 v_calib_alpha <- scales::rescale(v_calib_post)
 
 ### Plot the 1000 draws from the posterior
-png("plots/posterior_distribution_joint.png", 
+png("plots/Calibration/posterior_distribution_joint.png", 
     width = 8, height = 6, units = 'in', res = 300)
 s3d <- scatterplot3d::scatterplot3d(x = m_calib_post[, 1],
                                     y = m_calib_post[, 2],
@@ -179,7 +179,7 @@ legend(s3d$xyz.convert(0.05, 1.0, 5),
 dev.off()
 
 ### Plot the 1000 draws from the posterior with marginal histograms
-png("plots/posterior_distribution_marginal.png", 
+png("plots/Calibration/posterior_distribution_marginal.png", 
     width = 8, height = 6, units = 'in', res = 300)
 psych::pairs.panels(m_calib_post)
 dev.off()
@@ -187,11 +187,11 @@ dev.off()
 #### Store posterior and MAP from IMIS calibration ####
 save(m_calib_post,
      v_calib_post_map,
-     file = "outputs/imis_output.RData")
+     file = "outputs/Calibration/imis_output.RData")
 
 #### Plot prior vs. posterior distribution for calibration parameters ####
 # Load posterior
-imis_output <- load(file = "outputs/imis_output.RData")
+imis_output <- load(file = "outputs/Calibration/imis_output.RData")
 
 # Draw sample prior
 m_calib_prior <- sample.prior(n_samp = n_resamp)

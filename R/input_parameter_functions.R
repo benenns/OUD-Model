@@ -424,9 +424,19 @@ load_all_params <- function(file.init = NULL,
     # Overdose transition multipliers
     # First 4 weeks of treatment and relapse
     # Treatment states
-    n_TX_OD_mult = df_overdose["pe", "TX_OD_mult"],
-    n_TX_OD_mult_shape = df_overdose["shape", "TX_OD_mult"],
-    n_TX_OD_mult_scale = df_overdose["scale", "TX_OD_mult"],
+    #n_TX_OD_mult = df_overdose["pe", "TX_OD_mult"],
+    #n_TX_OD_mult_shape = df_overdose["shape", "TX_OD_mult"],
+    #n_TX_OD_mult_scale = df_overdose["scale", "TX_OD_mult"],
+    
+    # BUP
+    n_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
+    n_BUP_OD_mult_shape = df_overdose["shape", "BUP_OD_mult"],
+    n_BUP_OD_mult_scale = df_overdose["scale", "BUP_OD_mult"],
+    
+    # MET
+    n_MET_OD_mult = df_overdose["pe", "MET_OD_mult"],
+    n_MET_OD_mult_shape = df_overdose["shape", "MET_OD_mult"],
+    n_MET_OD_mult_scale = df_overdose["scale", "MET_OD_mult"],
     
     # Treatment + concurrent opioid
     n_TXC_OD_mult = df_overdose["pe", "TXC_OD_mult"],

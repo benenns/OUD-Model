@@ -80,12 +80,12 @@ sample.prior <- function(n_samp,
                        n_TXC_OD  = qgamma(m_lhs_unit[,2], shape = v_alpha[2], scale = v_beta[2]),  # n_TXC_OD
                        n_REL_OD  = qgamma(m_lhs_unit[,3], shape = v_alpha[3], scale = v_beta[3]), # n_REL_OD
                        n_ABS_OD  = qunif(m_lhs_unit[,4], min = v_alpha[4], max = v_beta[4]),   # n_ABS_OD
-                       n_TX_OD_mult   = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TX_OD_mult
-                       n_TXC_OD_mult  = qgamma(m_lhs_unit[,6], shape = v_alpha[6], scale = v_beta[6]),   # n_TXC_OD_mult
-                       n_REL_OD_mult  = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),                      # n_REL_OD_mult
-                       n_INJ_OD_mult  = qgamma(m_lhs_unit[,8], shape = v_alpha[8], scale = v_beta[8]),  # n_INJ_OD_mult
-                       n_fent_OD_mult  = qgamma(m_lhs_unit[,9], shape = v_alpha[9], scale = v_beta[9]),  # n_fent_OD_mult
-                       n_fatal_OD  = qgamma(m_lhs_unit[,10], shape = v_alpha[10], scale = v_beta[10]))  # n_fatal_OD
+                       #n_TX_OD_mult   = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TX_OD_mult
+                       n_TXC_OD_mult  = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TXC_OD_mult
+                       #n_REL_OD_mult  = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),                      # n_REL_OD_mult
+                       #n_INJ_OD_mult  = qgamma(m_lhs_unit[,8], shape = v_alpha[8], scale = v_beta[8]),  # n_INJ_OD_mult
+                       n_fent_OD_mult  = qgamma(m_lhs_unit[,6], shape = v_alpha[6], scale = v_beta[6]),  # n_fent_OD_mult
+                       n_fatal_OD  = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]))  # n_fatal_OD
   
   # draw parameters (uniform distribution)
   #for (i in 1:n_param){ 
@@ -118,12 +118,12 @@ log_prior <- function(v_params,
   lprior <- lprior + dgamma(v_params[, 2], shape = v_alpha[2], scale = v_beta[2], log = TRUE) # n_TXC_OD
   lprior <- lprior + dgamma(v_params[, 3], shape = v_alpha[3], scale = v_beta[3], log = TRUE) # n_REL_OD
   lprior <- lprior + dunif(v_params[, 4], min = v_alpha[4], max = v_beta[4], log = TRUE) # n_ABS_OD
-  lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TX_OD_mult
-  lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE) # n_TXC_OD_mult
-  lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_REL_OD_mult
-  lprior <- lprior + dgamma(v_params[, 8], shape = v_alpha[8], scale = v_beta[8], log = TRUE) # n_INJ_OD_mult
-  lprior <- lprior + dgamma(v_params[, 9], shape = v_alpha[9], scale = v_beta[9], log = TRUE) # n_fent_OD_mult
-  lprior <- lprior + dgamma(v_params[, 10], shape = v_alpha[10], scale = v_beta[10], log = TRUE) # n_fatal_OD
+  #lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TX_OD_mult
+  lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TXC_OD_mult
+  #lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_REL_OD_mult
+  #lprior <- lprior + dgamma(v_params[, 8], shape = v_alpha[8], scale = v_beta[8], log = TRUE) # n_INJ_OD_mult
+  lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE) # n_fent_OD_mult
+  lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_fatal_OD
   
   
   #for (i in 1:n_param){
@@ -165,20 +165,23 @@ log_lik <- function(v_params){ # User defined
                                      l_params_all = l_params_all)
       
       ###  Calculate log-likelihood of model outputs to targets  ###
+      ## Uses calibration weights from input file for each year (set all to 1 for equal weight)
       ## TARGET 1: Fatal overdoses ("fatal_overdose")
       ## Normal log-likelihood  
       v_llik[j, "Fatal Overdoses"] <- sum(dnorm(x = l_cali_targets$ODF$pe,
                                                 mean = l_model_res$fatal_overdose,
                                                 sd = l_cali_targets$ODF$se,
-                                                log = T))
+                                                log = T) * l_cali_targets$ODF$weight)
       ## TARGET 2: Non-fatal overdoses ("overdose")
       ## Normal log-likelihood
       v_llik[j, "Overdoses"] <- sum(dnorm(x = l_cali_targets$ODN$pe,
                                           mean = l_model_res$overdose,
                                           sd = l_cali_targets$ODN$se,
-                                          log = T))
+                                          log = T) * l_cali_targets$ODN$weight)
+      
       ## can give different targets different weights
-      v_weights <- rep(1, n_target) # currently weight fatal overdoses 1:1 to overall overdoses
+      v_weights <- c(1, 0.75) # 100% fatal overdose; 75% non-fatal overdose
+      #v_weights <- rep(1, n_target) # set to 1 for equal weight
       ## weighted sum
       v_llik_overall[j] <- v_llik[j, ] %*% v_weights
     }, error = function(e) NA) 

@@ -308,3 +308,52 @@ for(i in 7:n_t){
 
 v_fent_exp_prob <- c(0.2, 0.4, 0.5)
 v_fent_exp_prob[1]
+
+# Calibration log-liklihood test
+a <- c(0.0245, 0.0300, 0.0275)
+b <- c(0.210, 0.210, 0.260)
+model_res <- list(a = a, 
+                  b = b)
+
+#for(j in 1:n_samp) { # j=1
+#  jj <- tryCatch( { 
+    ###   Run model for parameter set "v_params" ###
+    l_model_res <- calibration_out(v_params_calib = v_params[j, ], 
+                                   l_params_all = l_params_all)
+    
+    ###  Calculate log-likelihood of model outputs to targets  ###
+    ## TARGET 1: Fatal overdoses ("fatal_overdose")
+    ## Normal log-likelihood  
+    v_llik[1, "Fatal Overdoses"] <- sum(dnorm(x = l_cali_targets$ODF$pe,
+                                              mean = model_res$a,
+                                              sd = l_cali_targets$ODF$se,
+                                              log = T))
+    ## TARGET 2: Non-fatal overdoses ("overdose")
+    ## Normal log-likelihood
+    v_llik[1, "Overdoses"] <- sum(dnorm(x = l_cali_targets$ODN$pe,
+                                        mean = model_res$a,
+                                        sd = l_cali_targets$ODN$se,
+                                        log = T))
+    ## can give different targets different weights
+    v_weights <- c(1, 0.75)
+    #v_weights <- rep(1, n_target) # currently weight fatal overdoses 1:1 to overall overdoses
+    ## weighted sum
+    v_llik_overall[j] <- v_llik[j, ] %*% v_weights
+#  }, error = function(e) NA) 
+#  if(is.na(jj)) { v_llik_overall <- -Inf }
+#} ## End loop over sampled parameter sets
+## return GOF
+    x <- l_cali_targets$ODF$pe
+    test <- model_res$a
+    sd <- l_cali_targets$ODF$se
+    odf_weight <- l_cali_targets$ODF$weight
+    odn_weight <- l_cali_targets$ODN$weight
+    
+try <-    dnorm(x = l_cali_targets$ODF$pe,
+              mean = model_res$a,
+              sd = l_cali_targets$ODF$se,
+              log = T)
+try2 <-    sum(dnorm(x = l_cali_targets$ODF$pe,
+                mean = model_res$a,
+                sd = l_cali_targets$ODF$se,
+                log = T) * l_cali_targets$ODN$weight)
