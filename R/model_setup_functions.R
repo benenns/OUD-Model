@@ -1776,14 +1776,14 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   }
   
   for (i in 1:n_t){
-    m_M_agg_trace_sero[i, "NEG-Alive"] <- sum(m_M_trace[i, NEG])
-    m_M_agg_trace_sero[i, "HIV-Alive"] <- sum(m_M_trace[i, HIV])
-    m_M_agg_trace_sero[i, "HCV-Alive"] <- sum(m_M_trace[i, HCV])
-    m_M_agg_trace_sero[i, "COI-Alive"] <- sum(m_M_trace[i, COI])
-    m_M_agg_trace_sero[i, "NEG-Dead"]  <- sum(m_M_trace_cumsum_death[i, NEG])
-    m_M_agg_trace_sero[i, "HIV-Dead"]  <- sum(m_M_trace_cumsum_death[i, HIV])
-    m_M_agg_trace_sero[i, "HCV-Dead"]  <- sum(m_M_trace_cumsum_death[i, HCV])
-    m_M_agg_trace_sero[i, "COI-Dead"]  <- sum(m_M_trace_cumsum_death[i, COI])
+    m_M_agg_trace_sero[i, "NEG-Alive"] <- sum(m_M_trace[i, NEG & !ODF])
+    m_M_agg_trace_sero[i, "HIV-Alive"] <- sum(m_M_trace[i, HIV & !ODF])
+    m_M_agg_trace_sero[i, "HCV-Alive"] <- sum(m_M_trace[i, HCV & !ODF])
+    m_M_agg_trace_sero[i, "COI-Alive"] <- sum(m_M_trace[i, COI & !ODF])
+    m_M_agg_trace_sero[i, "NEG-Dead"]  <- sum(m_M_trace_cumsum_death[i, NEG] + m_M_trace[i, NEG & ODF])
+    m_M_agg_trace_sero[i, "HIV-Dead"]  <- sum(m_M_trace_cumsum_death[i, HIV] + m_M_trace[i, HIV & ODF])
+    m_M_agg_trace_sero[i, "HCV-Dead"]  <- sum(m_M_trace_cumsum_death[i, HCV] + m_M_trace[i, HCV & ODF])
+    m_M_agg_trace_sero[i, "COI-Dead"]  <- sum(m_M_trace_cumsum_death[i, COI] + m_M_trace[i, COI & ODF])
   }
   
   return(list(l_index_s = l_index_s,

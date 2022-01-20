@@ -13,6 +13,10 @@ source("R/model_setup_functions.R")
 source("R/plot_functions.R")
 
 # Load parameters
+# Calibrated parameter values
+load(file = "outputs/Calibration/imis_output.RData")
+
+# Baseline
 l_params_all <- load_all_params(file.init = "data/init_params.csv",
                                 file.init_dist = "data/init_dist.csv", 
                                 file.mort = "data/all_cause_mortality.csv",
@@ -59,6 +63,11 @@ l_params_MET <- load_all_params(file.init = "data/init_params.csv",
                                 file.costs = "data/costs.csv",
                                 file.crime_costs = "data/crime_costs.csv",
                                 file.qalys = "data/qalys.csv")
+
+# Update parameter list with calibrated params
+l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_calib_post_map)
+l_params_BUP <- update_param_list(l_params_all = l_params_BUP, params_updated = v_calib_post_map)
+l_params_MET <- update_param_list(l_params_all = l_params_MET, params_updated = v_calib_post_map)
 
 # Run model
 l_out_markov_base <- markov_model(l_params_all = l_params_all, err_stop = FALSE, verbose = TRUE, checks = FALSE)

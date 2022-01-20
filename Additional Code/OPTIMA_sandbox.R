@@ -357,3 +357,8 @@ try2 <-    sum(dnorm(x = l_cali_targets$ODF$pe,
                 mean = model_res$a,
                 sd = l_cali_targets$ODF$se,
                 log = T) * l_cali_targets$ODN$weight)
+
+test <- c(-1, 5, 6, -1)
+EP1 <- test < 0
+test[EP1]
+test[!EP1]
