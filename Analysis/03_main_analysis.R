@@ -83,7 +83,7 @@ rownames(df_icer) <- c("Early take-home BNX vs. Methadone")
 
 # Output
 write.csv(df_outcomes,"outputs/main_output_det.csv", row.names = TRUE)
-write.csv(df_icer,"outputs/icer_det.csv", row.names = TRUE)
+write.csv(df_icer,"outputs/ICER/icer_det.csv", row.names = TRUE)
 
 # Raw outputs
 # Costs
@@ -105,7 +105,3 @@ write.csv(l_outcomes_BUP$m_crime_costs,"outputs/costs/crime_costs_BUP.csv", row.
 # QALYs
 write.csv(l_outcomes_MET$v_qalys,"outputs/qalys/qalys_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP$v_qalys,"outputs/qalys/qalys_BUP.csv", row.names = TRUE)
-
-# ICER
-write.csv(ICER$v_icer,"outputs/ICER/ICER.csv", row.names = TRUE)
-
