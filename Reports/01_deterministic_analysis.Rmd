@@ -28,52 +28,144 @@ source("R/plot_functions.R") # functions to create plots
 
 `# Load parameter sets for BNX and Methadone scenarios`
 ```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+source("R/input_parameter_functions.R")
+
+# Calibrated parameter values
+if(is.null(v_calib_post_map)){
+  load(file = "outputs/Calibration/imis_output.RData")
+} else{}
+
+# Modified Model Specification
 # BNX scenario
-l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_bup.csv",
-                                file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
-                                file.frailty = "data/frailty.csv",
-                                file.weibull = "data/weibull.csv",
-                                file.unconditional = "data/unconditional.csv",
-                                file.overdose = "data/overdose.csv",
-                                file.fentanyl = "data/fentanyl.csv",
-                                file.hiv = "data/hiv_sero.csv",
-                                file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
+if(is.null(l_params_BUP_MMS)){
+  l_params_BUP_MMS <- load_all_params(file.init = "data/init_params.csv",
+                                  file.init_dist = "data/init_dist_bup.csv",
+                                  file.mort = "data/all_cause_mortality.csv",
+                                  file.death_hr = "data/death_hr.csv",
+                                  file.frailty = "data/frailty.csv",
+                                  file.weibull = "data/Modified Model Specification/weibull.csv",
+                                  file.unconditional = "data/Modified Model Specification/unconditional.csv",
+                                  file.overdose = "data/overdose.csv",
+                                  file.fentanyl = "data/fentanyl.csv",
+                                  file.hiv = "data/hiv_sero.csv",
+                                  file.hcv = "data/hcv_sero.csv",
+                                  file.costs = "data/Modified Model Specification/costs.csv",
+                                  file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
+                                  file.qalys = "data/Modified Model Specification/qalys.csv")
+} else{}
 
 # Methadone scenario
-l_params_MET <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_met.csv",
-                                file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
-                                file.frailty = "data/frailty.csv",
-                                file.weibull = "data/weibull.csv",
-                                file.unconditional = "data/unconditional.csv",
-                                file.overdose = "data/overdose.csv",
-                                file.fentanyl = "data/fentanyl.csv",
-                                file.hiv = "data/hiv_sero.csv",
-                                file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
+if(is.null(l_params_MET_MMS)){
+  l_params_MET_MMS <- load_all_params(file.init = "data/init_params.csv",
+                                  file.init_dist = "data/init_dist_met.csv",
+                                  file.mort = "data/all_cause_mortality.csv",
+                                  file.death_hr = "data/death_hr.csv",
+                                  file.frailty = "data/frailty.csv",
+                                  file.weibull = "data/Modified Model Specification/weibull.csv",
+                                  file.unconditional = "data/Modified Model Specification/unconditional.csv",
+                                  file.overdose = "data/overdose.csv",
+                                  file.fentanyl = "data/fentanyl.csv",
+                                  file.hiv = "data/hiv_sero.csv",
+                                  file.hcv = "data/hcv_sero.csv",
+                                  file.costs = "data/Modified Model Specification/costs.csv",
+                                  file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
+                                  file.qalys = "data/Modified Model Specification/qalys.csv")
+} else{}
+
+# Trial Specification
+# BNX scenario
+if(is.null(l_params_BUP_TS)){
+  l_params_BUP_TS <- load_all_params(file.init = "data/init_params.csv",
+                                  file.init_dist = "data/init_dist_bup.csv",
+                                  file.mort = "data/all_cause_mortality.csv",
+                                  file.death_hr = "data/death_hr.csv",
+                                  file.frailty = "data/frailty.csv",
+                                  file.weibull = "data/Trial Specification/weibull.csv",
+                                  file.unconditional = "data/Trial Specification/unconditional.csv",
+                                  file.overdose = "data/overdose.csv",
+                                  file.fentanyl = "data/fentanyl.csv",
+                                  file.hiv = "data/hiv_sero.csv",
+                                  file.hcv = "data/hcv_sero.csv",
+                                  file.costs = "data/Trial Specification/costs.csv",
+                                  file.crime_costs = "data/Trial Specification/crime_costs.csv",
+                                  file.qalys = "data/Trial Specification/qalys.csv")
+} else{}
+
+# Methadone scenario
+if(is.null(l_params_MET_TS)){
+  l_params_MET_TS <- load_all_params(file.init = "data/init_params.csv",
+                                  file.init_dist = "data/init_dist_met.csv",
+                                  file.mort = "data/all_cause_mortality.csv",
+                                  file.death_hr = "data/death_hr.csv",
+                                  file.frailty = "data/frailty.csv",
+                                  file.weibull = "data/Trial Specification/weibull.csv",
+                                  file.unconditional = "data/Trial Specification/unconditional.csv",
+                                  file.overdose = "data/overdose.csv",
+                                  file.fentanyl = "data/fentanyl.csv",
+                                  file.hiv = "data/hiv_sero.csv",
+                                  file.hcv = "data/hcv_sero.csv",
+                                  file.costs = "data/Trial Specification/costs.csv",
+                                  file.crime_costs = "data/Trial Specification/crime_costs.csv",
+                                  file.qalys = "data/Trial Specification/qalys.csv")
+} else{}
 ```
 
 `# Run deterministic scenarios for BNX and methadone`
 ```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
-source("R/input_parameter_functions.R")
 source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
+
+# Update parameter list with calibrated params
+# Modified Model Specification
+#l_params_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = v_calib_post_map)
+#l_params_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = v_calib_post_map)
+
+# Trial Specification
+#l_params_BUP_TS <- update_param_list(l_params_all = l_params_BUP_TS, params_updated = v_calib_post_map)
+#l_params_MET_TS <- update_param_list(l_params_all = l_params_MET_TS, params_updated = v_calib_post_map)
+
+# Produce model outputs
+# Modified Model Specification
+if(is.null(l_outcomes_BUP_MMS)){
+  l_outcomes_BUP_MMS  <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
+} else{}
+
+if(is.null(l_outcomes_MET_MMS)){
+  l_outcomes_MET_MMS  <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
+} else{}
+
+df_outcomes_MMS <- rbind(l_outcomes_BUP_MMS$df_outcomes, l_outcomes_MET_MMS$df_outcomes)
+rownames(df_outcomes_MMS) <- c("Early take-home BNX", "Methadone")
+
+# Trial Specification
+if(is.null(l_outcomes_BUP_TS)){
+  l_outcomes_BUP_TS  <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map)
+} else{}
+
+if(is.null(l_outcomes_MET_TS)){
+  l_outcomes_MET_TS  <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map)
+} else{}
+
+df_outcomes_TS <- rbind(l_outcomes_BUP_TS$df_outcomes, l_outcomes_MET_TS$df_outcomes)
+rownames(df_outcomes_TS) <- c("Early take-home BNX", "Methadone")
+
+# Generate ICERs
+ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
 ```
 
 `# Create trace plots`
 ```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+source("R/plot_functions.R")
+
 #### Create plots ####
-l_trace_base <- trace_plots(outcomes = l_out_markov_base)
-l_trace_BUP  <- trace_plots(outcomes = l_out_markov_BUP)
-l_trace_MET  <- trace_plots(outcomes = l_out_markov_MET)
+# Modified Model Specification
+l_trace_BUP_MMS  <- trace_plots(outcomes = l_outcomes_BUP_MMS)
+l_trace_MET_MMS  <- trace_plots(outcomes = l_outcomes_MET_MMS)
+
+# Trial Specification
+l_trace_BUP_TS  <- trace_plots(outcomes = l_outcomes_BUP_TS)
+l_trace_MET_TS  <- trace_plots(outcomes = l_outcomes_MET_TS)
 ```
 
 # Model Trace Plots
@@ -81,68 +173,54 @@ l_trace_MET  <- trace_plots(outcomes = l_out_markov_MET)
 **1. Early Take-Home BNX** 
 ```{r, echo=F, eval=T}
 # BUP
-pdf(file = "Plots/Markov Trace/Modified Model Spec/full_trace_BUP.pdf", width = 8, height = 9)
-multiplot(plotlist = l_trace_BUP[[4]], layout = l_trace_BUP[[5]])
-dev.off()
+#pdf(file = "Plots/Markov Trace/Modified Model Spec/full_trace_BUP.pdf", width = 8, height = 9)
+multiplot(plotlist = l_trace_BUP_MMS[[4]], layout = l_trace_BUP_MMS[[5]])
+#dev.off()
 ```
 
 **1. Methadone Standard of Care** 
 ```{r, echo=F, eval=T}
 # MET
-pdf(file = "Plots/Markov Trace/Modified Model Spec/full_trace_MET.pdf", width = 8, height = 9)
-multiplot(plotlist = l_trace_MET[[4]], layout = l_trace_MET[[5]])
-dev.off()
+#pdf(file = "Plots/Markov Trace/Modified Model Spec/full_trace_MET.pdf", width = 8, height = 9)
+multiplot(plotlist = l_trace_MET_MMS[[4]], layout = l_trace_MET_MMS[[5]])
+#dev.off()
 ```
 
-<p>&nbsp;</p>
-**1.2 OAT treatment initiation characteristics**
-```{r, echo=F, eval=T}
-bl_oat_init <- tbl_df_baseline %>%
-  select(entity_id, oat_medication, oat_bnx, oat_rx_dose, oat_ing_dose, oat_dose_adj) #%>% filter(oat_medication == "MET")
-#bl_bnx_init <- tbl_df_baseline %>%
-#  select(entity_id, oat_medication, oat_bnx, oat_rx_dose, oat_ing_dose, oat_dose_adj) %>% filter(oat_medication == "BNX")
 
-label(bl_oat_init$oat_rx_dose) <- "Initial prescribed dose"
-label(bl_oat_init$oat_ing_dose) <- "Initial ingested dose"
-label(bl_oat_init$oat_dose_adj) <- "Dose adjusted"
+# Modified Model Specification (Outcomes)
 
-table1(~oat_rx_dose + oat_ing_dose + oat_dose_adj | oat_medication, data = bl_oat_init)
+**ICER** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(ICER_MMS$df_icer)
 ```
 
-```{r, echo=F, eval=F}
-p <- ggplot(bl_met_init, aes(x = oat_ing_dose)) +
-  geom_histogram(fill="#999999", position="dodge")+
-  #geom_vline(data = met_mean, aes(xintercept = grp.mean),
-  #           linetype="dashed")+
-  theme(legend.position="top")
-p
-# Use custom color palettes
-p + scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"))
-
+**Costs (Total)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 1:4])
 ```
 
-<p>&nbsp;</p>
-**2. Descriptive statistics for full trial observations (time-varying)**
-<p>&nbsp;</p>
-**2.1 Base health state observations and stratifications by trial arm (MET and BNX states allowing for concurrent opioid use)**
-```{r, echo=F, eval=T}
-tv_health_states <- tbl_df_hs_episode %>% 
-  select(trial_arm, health_state, co_stim, co_opioid, fent, co_tx) %>%
-  mutate(co_stim = ifelse(co_stim == 1, "Yes", "No"),
-         co_opioid = ifelse(co_opioid == 1, "Yes", "No"),
-         fent = ifelse(fent == 1, "Yes", "No"),
-         co_tx = ifelse(co_tx == 1, "Yes", "No"))
-         #health_state = ifelse(health_state == "ABS", "ABS (obs)",
-          #              ifelse(health_state == "BNX", "BNX (obs)",
-           #             ifelse(health_state == "MET", "MET (obs)",
-            #            ifelse(health_state == "REL", "REL (obs)", NA)))))
+**Costs (Health Sector)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 5:8])
+```
 
-label(tv_health_states$trial_arm) <- "Trial arm"
-label(tv_health_states$health_state) <- "Health state"
-label(tv_health_states$co_stim) <- "Concurrent stimulant"
-label(tv_health_states$co_opioid) <- "Concurrent opioid"
-label(tv_health_states$fent) <- "Fentanyl"
-label(tv_health_states$co_tx) <- "Concurrent treatment (MET + BNX)"
+**Costs (Crime)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 9:12])
+```
 
-table1(~health_state + co_stim + co_opioid + fent + co_tx | trial_arm, data = tv_health_states)
+**Costs (Treatment)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 13:16])
+```
+
+**QALYs (EQ-5D-5L)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 17:20])
 ```

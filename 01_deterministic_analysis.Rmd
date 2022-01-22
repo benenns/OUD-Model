@@ -1,0 +1,147 @@
+---
+title: "OPTIMA Cost-Effectiveness Analysis - Primary Deterministic Results"
+author: "Benjamin Enns"
+date: "1/21/2022"
+output: html_document
+---
+
+```{r,echo=T,eval=T,include=F}
+library(dplyr)    # to manipulate data
+library(ggplot2)  # for nice looking plots
+library(Hmisc)
+library(psych)
+library(stats)
+library(summarytools)
+library(table1)
+library(tidyverse)
+library(plyr)
+library(readr)
+```
+
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+source("R/input_parameter_functions.R") # load input parameter files
+source("R/model_setup_functions.R") # load model functions
+source("R/ICER_functions.R") # load functions to calculate outputs
+source("R/plot_functions.R") # functions to create plots
+```
+
+
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+# Load model outputs
+# Load MMS output
+l_outcomes_BUP_MMS <- readRDS("outputs/outcomes/outcomes_BUP_MMS.RData")
+l_outcomes_MET_MMS <- readRDS("outputs/outcomes/outcomes_MET_MMS.RData")
+df_outcomes_MMS <- readRDS("outputs/outcomes/outcomes_MMS.RData")
+
+# Load TS output
+l_outcomes_BUP_TS <- readRDS("outputs/outcomes/outcomes_BUP_TS.RData")
+l_outcomes_MET_TS <- readRDS("outputs/outcomes/outcomes_MET_TS.RData")
+df_outcomes_TS <- readRDS("outputs/outcomes/outcomes_TS.RData")
+
+# ICERs
+ICER_MMS <- readRDS("outputs/outcomes/ICER_MMS.RData")
+ICER_TS <- readRDS("outputs/outcomes/ICER_TS.RData")
+```
+
+
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+#source("R/plot_functions.R")
+
+#### Create plots ####
+# Modified Model Specification
+l_trace_BUP_MMS  <- trace_plots(outcomes = l_outcomes_BUP_MMS)
+l_trace_MET_MMS  <- trace_plots(outcomes = l_outcomes_MET_MMS)
+
+# Trial Specification
+l_trace_BUP_TS  <- trace_plots(outcomes = l_outcomes_BUP_TS)
+l_trace_MET_TS  <- trace_plots(outcomes = l_outcomes_MET_TS)
+```
+
+# Calibration Results
+<p>&nbsp;</p>
+# Prior vs. posterior calibrated values
+```{r out.height = "800px", out.width='1142px', echo=F}
+knitr::include_graphics("plots/Calibration/prior-v-posterior.png")
+```
+<p>&nbsp;</p>
+# Marginal posterior distributions
+```{r out.height = "800px", out.width='1066px', echo=F}
+knitr::include_graphics("plots/Calibration/posterior_distribution_marginal.png")
+```
+<p>&nbsp;</p>
+# Model fit to targets
+<p>&nbsp;</p>
+# Fatal overdoses
+```{r out.height = "400px", out.width='400px', echo=F}
+knitr::include_graphics("plots/Calibration/target-fit-ODF.png")
+```
+<p>&nbsp;</p>
+# Non-fatal overdoses
+```{r out.height = "400px", out.width='400px', echo=F}
+knitr::include_graphics("plots/Calibration/target-fit-ODN.png")
+```
+<p>&nbsp;</p>
+# Trace Plots (Modified Model Specification)
+
+***Early Take-Home BNX***
+
+```{r out.height = "1200px", out.width='800px', echo=F}
+knitr::include_graphics("plots/Markov Trace/Modified Model Spec/full_trace_BUP.pdf")
+```
+
+***Methadone Standard of Care***
+
+```{r out.height = "1200px", out.width='800px', echo=F}
+knitr::include_graphics("plots/Markov Trace/Modified Model Spec/full_trace_MET.pdf")
+```
+
+
+
+# Modified Model Specification (Outcomes)
+
+**ICER** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+df_icer <- ICER_MMS$df_icer[, 1:4]#data.frame(ICER$v_icer)
+rownames(df_icer) <- c("Early take-home BNX vs. Methadone")
+kable(df_icer, digits = 0)
+```
+<p>&nbsp;</p>
+**ICER (Health-Sector)**
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+df_icer <- ICER_MMS$df_icer[, 5:8]#data.frame(ICER$v_icer)
+rownames(df_icer) <- c("Early take-home BNX vs. Methadone")
+kable(df_icer, digits = 0)
+```
+<p>&nbsp;</p>
+
+**Costs (Total)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 1:4])
+```
+<p>&nbsp;</p>
+**Costs (Health Sector)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 5:8])
+```
+<p>&nbsp;</p>
+**Costs (Crime)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 9:12])
+```
+<p>&nbsp;</p>
+**Costs (Treatment)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 13:16])
+```
+<p>&nbsp;</p>
+**QALYs (EQ-5D-5L)** 
+```{r, echo=F, eval=T, results='asis'}
+library(knitr)
+kable(df_outcomes_MMS[, 17:20])
+```

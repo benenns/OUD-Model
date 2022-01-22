@@ -74,6 +74,8 @@ outcomes <- function(l_params_all,
   with(as.list(l_params_all), {
     ### Matrices of individual costs/QALYs ###
     m_M_trace <- l_out_markov$m_M_trace # Load full markov trace output
+    m_M_agg_trace <- l_out_markov$m_M_agg_trace # Load aggregated trace output
+    m_M_agg_trace_sero <- l_out_markov$m_M_agg_trace_sero # Load serostatus trace output
     m_TX_costs <- m_HRU_costs <- m_HIV_costs <- m_HCV_costs <- m_crime_costs <- m_qalys <- m_M_trace # All state occupancy to apply costs
     
     # Calculate periodic discount rate
@@ -82,10 +84,13 @@ outcomes <- function(l_params_all,
     ### Costs ###
     # Treatment
     for (i in 1:nrow(l_out_markov$m_M_trace)){
-      m_TX_costs[i, all_BUP] <- m_TX_costs[i, all_BUP] * c_BUP_TX
-      m_TX_costs[i, all_MET] <- m_TX_costs[i, all_MET] * c_MET_TX
+      m_TX_costs[i, BUP]     <- m_TX_costs[i, BUP] * c_BUP_TX
+      m_TX_costs[i, BUPC]    <- m_TX_costs[i, BUPC] * c_BUP_TX
+      m_TX_costs[i, MET]     <- m_TX_costs[i, MET] * c_MET_TX
+      m_TX_costs[i, METC]    <- m_TX_costs[i, METC] * c_MET_TX
       m_TX_costs[i, REL]     <- m_TX_costs[i, REL] * 0
       m_TX_costs[i, ODN]     <- m_TX_costs[i, ODN] * c_OD_TX # If adding detox costs to OD
+      m_TX_costs[i, ODF]     <- m_TX_costs[i, ODF] * 0
       m_TX_costs[i, ABS]     <- m_TX_costs[i, ABS] * 0
       
       m_TX_costs[i, ] <- m_TX_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
@@ -272,6 +277,8 @@ outcomes <- function(l_params_all,
                             "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
 
     return(list(m_M_trace = m_M_trace,
+                m_M_agg_trace = m_M_agg_trace,
+                m_M_agg_trace_sero = m_M_agg_trace_sero,
                 m_TX_costs = m_TX_costs,
                 m_HRU_costs = m_HRU_costs,
                 m_HIV_costs = m_HIV_costs,

@@ -9,7 +9,7 @@
 #' default to their original input value for each simulation.
 #' @param n_sim Number of PSA samples.
 #' @param seed Seed for reproducibility of Monte Carlo sampling.
-#' @param n_samp Sample size to determine dirichlet distribution variance.
+#' @param n_pop Sample size to determine dirichlet distribution variance.
 #' @return 
 #' A data frame with \code{n_sim} rows and {n_states} columns of parameters for PSA. 
 #' Each row is a parameter set sampled from distributions that characterize 
@@ -17,12 +17,10 @@
 #' @examples 
 #' generate_psa_params()
 #' @export
-generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
+generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scenario = scenario,
                                 file.death_hr = NULL,
                                 file.frailty = NULL,
                                 file.weibull = NULL,
-                                #file.weibull_scale = NULL,
-                                #file.weibull_shape = NULL,
                                 file.unconditional = NULL,
                                 file.overdose = NULL,
                                 file.fentanyl = NULL,
@@ -37,8 +35,6 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
   df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
   df_frailty <- read.csv(file = file.frailty, row.names = 1, header = TRUE) # Episode frailty params
   df_weibull <- read.csv(file = file.weibull, row.names = 1, header = TRUE) # Weibull shape and scale
-  #df_weibull_scale <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull scale params
-  #df_weibull_shape <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose params
   df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl params
@@ -66,8 +62,8 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
   #set_seed <- seed
   
   # Set sample-size for trial-based parameter uncertainty
-  n_samp <- n_samp
-  #write.csv(n_samp, file = "checks/n_samp.csv", row.names = TRUE)
+  n_pop <- n_pop
+  #write.csv(n_pop, file = "checks/n_pop.csv", row.names = TRUE)
   # Function to generate lognormal parameter
   location <- function(m = m, s = s){
     log(m^2 / sqrt(s^2 + m^2))
@@ -77,67 +73,68 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
   }
   
   # Set up dirichlet random sample
-  df_dirichlet_UP = df_UP * n_samp
-  write.csv(df_dirichlet_UP, file = "checks/df_dirichlet_UP.csv", row.names = TRUE)
+  df_dirichlet_UP = df_UP * n_pop
+  write.csv(df_dirichlet_UP, file = "checks/PSA/df_dirichlet_UP.csv", row.names = TRUE)
   
-  # Non-injection
-  # From BUP
-  v_dirichlet_UP_BUP_NI = df_dirichlet_UP["BUP_NI",]
-  m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "BUPC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "MET_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "METC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"])))
+  if (scenario = MMS){
+    # Non-injection
+    # From BUP
+    v_dirichlet_UP_BUP_NI = df_dirichlet_UP["BUP_NI",]
+    m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"])))
 
-  # From BUPC
-  v_dirichlet_UP_BUPC_NI = df_dirichlet_UP["BUPC_NI",]
-  m_BUPC_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_NI["BUPC_NI", "BUP_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "MET_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "METC_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "ABS_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "REL_NI"])) 
+    # From BUPC
+    v_dirichlet_UP_BUPC_NI = df_dirichlet_UP["BUPC_NI",]
+    m_BUPC_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_NI["BUPC_NI", "ABS_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "REL_NI"])))
   
-  # From MET
-  v_dirichlet_UP_MET_NI = df_dirichlet_UP["MET_NI",]
-  m_MET_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "METC_NI"], v_dirichlet_UP_MET_NI["MET_NI", "BUP_NI"], v_dirichlet_UP_MET_NI["MET_NI", "BUPC_NI"], v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"]))
+    # From MET
+    v_dirichlet_UP_MET_NI = df_dirichlet_UP["MET_NI",]
+    m_MET_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"])))
   
-  # From METC
-  v_dirichlet_UP_METC_NI = df_dirichlet_UP["METC_NI",]
-  m_METC_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_METC_NI["METC_NI", "MET_NI"], v_dirichlet_UP_METC_NI["METC_NI", "BUP_NI"], v_dirichlet_UP_METC_NI["METC_NI", "BUPC_NI"], v_dirichlet_UP_METC_NI["METC_NI", "ABS_NI"], v_dirichlet_UP_METC_NI["METC_NI", "REL_NI"]))
+    # From METC
+    v_dirichlet_UP_METC_NI = df_dirichlet_UP["METC_NI",]
+    m_METC_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_METC_NI["METC_NI", "ABS_NI"], v_dirichlet_UP_METC_NI["METC_NI", "REL_NI"])))
   
-  # From ABS
-  v_dirichlet_UP_ABS_NI = df_dirichlet_UP["ABS_NI",]
-  m_ABS_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_ABS_NI["ABS_NI", "MET_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "METC_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "BUP_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "BUPC_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "REL_NI"]))
+    # From ABS (not sampled, all return to relapse)
+    #v_dirichlet_UP_ABS_NI = df_dirichlet_UP["ABS_NI",]
+    #m_ABS_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_ABS_NI["ABS_NI", "REL_NI"]))
   
-  # From REL
-  v_dirichlet_UP_REL_NI = df_dirichlet_UP["REL_NI",]
-  m_REL_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "METC_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUPC_NI"], v_dirichlet_UP_REL_NI["REL_NI", "ABS_NI"]))
+    # From REL
+    v_dirichlet_UP_REL_NI = df_dirichlet_UP["REL_NI",]
+    m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "METC_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUPC_NI"])))
   
-  # From OD
-  v_dirichlet_UP_OD_NI = df_dirichlet_UP["ODN_NI",]
-  m_OD_UP_NI = rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "MET_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "METC_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "BUPC_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "ABS_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"]))
+    # From OD
+    v_dirichlet_UP_OD_NI = df_dirichlet_UP["ODN_NI",]
+    m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "MET_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "METC_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "BUPC_NI"])))
   
-  # Injection
-  # From BUP
-  v_dirichlet_UP_BUP_INJ = df_dirichlet_UP["BUP_INJ",]
-  m_BUP_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "BUPC_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "MET_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "METC_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"]))
+    # Injection
+    # From BUP
+    v_dirichlet_UP_BUP_INJ = df_dirichlet_UP["BUP_INJ",]
+    m_BUP_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"]))
   
-  # From BUPC
-  v_dirichlet_UP_BUPC_INJ = df_dirichlet_UP["BUPC_INJ",]
-  m_BUPC_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "BUP_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "MET_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "METC_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "ABS_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "REL_INJ"]))
+    # From BUPC
+    v_dirichlet_UP_BUPC_INJ = df_dirichlet_UP["BUPC_INJ",]
+    m_BUPC_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "ABS_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "REL_INJ"]))
   
-  # From MET
-  v_dirichlet_UP_MET_INJ = df_dirichlet_UP["MET_INJ",]
-  m_MET_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "METC_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "BUP_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "BUPC_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"]))
+    # From MET
+    v_dirichlet_UP_MET_INJ = df_dirichlet_UP["MET_INJ",]
+    m_MET_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"]))
   
-  # From METC
-  v_dirichlet_UP_METC_INJ = df_dirichlet_UP["METC_INJ",]
-  m_METC_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_METC_INJ["METC_INJ", "MET_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "BUP_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "BUPC_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "ABS_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "REL_INJ"]))
+    # From METC
+    v_dirichlet_UP_METC_INJ = df_dirichlet_UP["METC_INJ",]
+    m_METC_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_METC_INJ["METC_INJ", "ABS_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "REL_INJ"]))
   
-  # From ABS
-  v_dirichlet_UP_ABS_INJ = df_dirichlet_UP["ABS_INJ",]
-  m_ABS_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_ABS_INJ["ABS_INJ", "MET_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "METC_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "BUP_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "BUPC_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "REL_INJ"]))
+    # From ABS
+    #v_dirichlet_UP_ABS_INJ = df_dirichlet_UP["ABS_INJ",]
+    #m_ABS_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_ABS_INJ["ABS_INJ", "MET_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "METC_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "BUP_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "BUPC_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "REL_INJ"]))
   
-  # From REL
-  v_dirichlet_UP_REL_INJ = df_dirichlet_UP["REL_INJ",]
-  m_REL_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "METC_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUPC_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "ABS_INJ"]))
+    # From REL
+    v_dirichlet_UP_REL_INJ = df_dirichlet_UP["REL_INJ",]
+    m_REL_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "METC_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUPC_INJ"]))
   
-  # From OD
-  v_dirichlet_UP_OD_INJ = df_dirichlet_UP["ODN_INJ",]
-  m_OD_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "MET_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "METC_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "BUPC_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "ABS_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"]))
-  
+    # From OD
+    v_dirichlet_UP_OD_INJ = df_dirichlet_UP["ODN_INJ",]
+    m_OD_UP_INJ = rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "MET_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "METC_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "BUPC_INJ"]))
+  }
   
   # Set other parameters that are structurally equivalent for identical draws (e.g. probability of HIV seroconversion among all NI states)
   # HIV
@@ -300,9 +297,9 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     
     ### Transition probabilities conditional on leaving (use Dirichlet)
     #write.csv(df_UP, file = "checks/df_UP.csv", row.names = TRUE),
-    #df_dirichlet_UP = mutate_if(df_UP, is.numeric, ~ . * n_samp), # weight unconditional matrix by sample size to generate dirichlet PSA
-    #check = df_UP * n_samp,
-    #df_dirichlet_UP = df_UP * n_samp,
+    #df_dirichlet_UP = mutate_if(df_UP, is.numeric, ~ . * n_pop), # weight unconditional matrix by sample size to generate dirichlet PSA
+    #check = df_UP * n_pop,
+    #df_dirichlet_UP = df_UP * n_pop,
     
     #write.csv(df_dirichlet_UP, file = "checks/df_dirichlet_UP.csv", row.names = TRUE),
     
@@ -311,9 +308,9 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_samp = n_samp,
     #v_dirichlet_UP_BUP_NI = df_dirichlet_UP["BUP_NI",],
     #m_BUP_UP_NI = matrix(0, nrow = n_sim, ncol = ncol(v_dirichlet_UP_BUP_NI)),
     #m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "BUPC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "MET_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "METC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"]))),
-    p_BUP_BUPC_NI = m_BUP_UP_NI[,1], # assign probabilities by place
-    p_BUP_MET_NI  = m_BUP_UP_NI[,2],
-    p_BUP_METC_NI = m_BUP_UP_NI[,3],
+    #p_BUP_BUPC_NI = m_BUP_UP_NI[,1], # assign probabilities by place
+    #p_BUP_MET_NI  = m_BUP_UP_NI[,2],
+    #p_BUP_METC_NI = m_BUP_UP_NI[,3], Should be able to comment out any zero parameters so that PSA won't update
     p_BUP_ABS_NI  = m_BUP_UP_NI[,4],
     p_BUP_REL_NI  = m_BUP_UP_NI[,5],
     

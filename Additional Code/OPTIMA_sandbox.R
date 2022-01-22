@@ -362,3 +362,8 @@ test <- c(-1, 5, 6, -1)
 EP1 <- test < 0
 test[EP1]
 test[!EP1]
+
+
+l_test <- readRDS("outputs/outcomes/outcomes_BUP_MMS.RData")
+
+rdirichlet(10, c(4))

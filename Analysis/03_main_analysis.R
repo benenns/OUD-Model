@@ -4,6 +4,7 @@ library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(tidyverse)
+library(formattable)
 #library(xlsx)
 
 # Call model setup functions
@@ -13,95 +14,133 @@ source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
 
 # Load parameters
-# Calibrated parameter values
-load(file = "outputs/Calibration/imis_output.RData")
-
-# All parameters
-# BNX scenario (primary model definition)
-l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_bup.csv", # Change initial distributions (100% in BUP)
-                                file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
-                                file.frailty = "data/frailty.csv",
-                                file.weibull = "data/weibull.csv",
-                                #file.weibull_scale = "data/weibull_scale.csv",
-                                #file.weibull_shape = "data/weibull_shape.csv",
-                                file.unconditional = "data/unconditional.csv",
-                                file.overdose = "data/overdose.csv",
-                                file.fentanyl = "data/fentanyl.csv",
-                                file.hiv = "data/hiv_sero.csv",
-                                file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
-
-# Methadone scenario (primary model definition)
-l_params_MET <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_met.csv", # Change initial distributions (100% in MET)
-                                file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
-                                file.frailty = "data/frailty.csv",
-                                file.weibull = "data/weibull.csv",
-                                #file.weibull_scale = "data/weibull_scale.csv",
-                                #file.weibull_shape = "data/weibull_shape.csv",
-                                file.unconditional = "data/unconditional.csv",
-                                file.overdose = "data/overdose.csv",
-                                file.fentanyl = "data/fentanyl.csv",
-                                file.hiv = "data/hiv_sero.csv",
-                                file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
+source("Analysis/00_load_parameters") # load all model parameters for each scenario + calibrated parameters
 
 ### Main deterministic model outputs ###
 # Run Markov model and return outputs (using MAP point estimates from posterior distribution for calibrated params)
-l_outcomes_MET <- outcomes(l_params_all = l_params_MET, v_params_calib = v_calib_post_map)
-l_outcomes_BUP <- outcomes(l_params_all = l_params_BUP, v_params_calib = v_calib_post_map)
+#l_outcomes_MET <- outcomes(l_params_all = l_params_MET, v_params_calib = v_calib_post_map)
+#l_outcomes_BUP <- outcomes(l_params_all = l_params_BUP, v_params_calib = v_calib_post_map)
 
 # Calculate ICERs
-ICER <- ICER(outcomes_comp = l_outcomes_MET, outcomes_int = l_outcomes_BUP)
+#ICER <- ICER(outcomes_comp = l_outcomes_MET, outcomes_int = l_outcomes_BUP)
+
+#### Produce model outputs ####
+#### Modified Model Specification ####
+l_outcomes_BUP_MMS  <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
+l_outcomes_MET_MMS  <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
+
+df_outcomes_MMS <- rbind(l_outcomes_BUP_MMS$df_outcomes, l_outcomes_MET_MMS$df_outcomes)
+rownames(df_outcomes_MMS) <- c("Early take-home BNX", "Methadone")
+
+# Save output
+saveRDS(l_outcomes_BUP_MMS, file = "outputs/outcomes/outcomes_BUP_MMS.RData")
+saveRDS(l_outcomes_MET_MMS, file = "outputs/outcomes/outcomes_MET_MMS.RData")
+saveRDS(df_outcomes_MMS, file = "outputs/outcomes/outcomes_MMS.RData")
+
+#### Trial Specification ####
+l_outcomes_BUP_TS  <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map)
+l_outcomes_MET_TS  <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map)
+
+df_outcomes_TS <- rbind(l_outcomes_BUP_TS$df_outcomes, l_outcomes_MET_TS$df_outcomes)
+rownames(df_outcomes_TS) <- c("Early take-home BNX", "Methadone")
+
+# Save output
+saveRDS(l_outcomes_BUP_TS, file = "outputs/outcomes/outcomes_BUP_TS.RData")
+saveRDS(l_outcomes_MET_TS, file = "outputs/outcomes/outcomes_MET_TS.RData")
+saveRDS(df_outcomes_TS, file = "outputs/outcomes/df_outcomes_TS.RData")
+
+# Generate ICERs
+l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+l_ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
+
+# Save output
+saveRDS(l_ICER_MMS, file = "outputs/outcomes/ICER_MMS.RData")
+saveRDS(l_ICER_TS, file = "outputs/outcomes/ICER_TS.RData")
 
 #### OUTPUT RESULTS ####
+#### Modified Model Specification ####
 # Full model trace
-write.csv(l_outcomes_MET$m_M_trace,"outputs/trace/trace_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$m_M_trace,"outputs/trace/trace_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_BUP.csv", row.names = TRUE)
 
 # Full model costs
-write.csv(l_outcomes_MET$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$m_TOTAL_costs_states,"outputs/trace/full_trace_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_BUP.csv", row.names = TRUE)
 
 # Outcomes
 # Disaggregated
-df_outcomes <- rbind(l_outcomes_BUP$df_outcomes, l_outcomes_MET$df_outcomes)
-rownames(df_outcomes) <- c("Early take-home BNX", "Methadone")
-#df_outcomes <- df_outcomes %>% rename("Early take-home BNX" = l_outcomes_BUP.df_outcomes, "Methadone" = l_outcomes_MET.df_outcomes)
+df_outcomes_MMS <- rbind(l_outcomes_BUP_MMS$df_outcomes, l_outcomes_MET_MMS$df_outcomes)
+rownames(df_outcomes_MMS) <- c("Early take-home BNX", "Methadone")
 
 # ICER
-df_icer <- ICER$df_icer#data.frame(ICER$v_icer)
-rownames(df_icer) <- c("Early take-home BNX vs. Methadone")
-#df_icer <- df_icer %>% rename("Early take-home BNX vs. Methadone" = ICER.v_icer)
+df_icer_MMS <- l_ICER_MMS$df_icer
+rownames(df_icer_MMS) <- c("Early take-home BNX vs. Methadone")
 
 # Output
-write.csv(df_outcomes,"outputs/main_output_det.csv", row.names = TRUE)
-write.csv(df_icer,"outputs/ICER/icer_det.csv", row.names = TRUE)
+write.csv(df_outcomes_MMS,"outputs/main_output_det_MMS.csv", row.names = TRUE)
+write.csv(df_icer_MMS,"outputs/ICER/icer_det_MMS.csv", row.names = TRUE)
 
 # Raw outputs
 # Costs
-write.csv(l_outcomes_MET$v_costs,"outputs/costs/costs_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$v_costs,"outputs/costs/costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$v_costs,"outputs/costs/Modified Model Specification/costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$v_costs,"outputs/costs/Modified Model Specification/costs_BUP.csv", row.names = TRUE)
 
 # Treatment
-write.csv(l_outcomes_MET$m_TX_costs,"outputs/costs/tx_costs_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$m_TX_costs,"outputs/costs/tx_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$m_TX_costs,"outputs/costs/Modified Model Specification/tx_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$m_TX_costs,"outputs/costs/Modified Model Specification/tx_costs_BUP.csv", row.names = TRUE)
 
 # Health sector
-write.csv(l_outcomes_MET$m_HRU_costs,"outputs/costs/hru_costs_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$m_HRU_costs,"outputs/costs/hru_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$m_HRU_costs,"outputs/costs/Modified Model Specification/hru_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$m_HRU_costs,"outputs/costs/Modified Model Specification/hru_costs_BUP.csv", row.names = TRUE)
 
 # Crime
-write.csv(l_outcomes_MET$m_crime_costs,"outputs/costs/crime_costs_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$m_crime_costs,"outputs/costs/crime_costs_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$m_crime_costs,"outputs/costs/Modified Model Specification/crime_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$m_crime_costs,"outputs/costs/Modified Model Specification/crime_costs_BUP.csv", row.names = TRUE)
 
 # QALYs
-write.csv(l_outcomes_MET$v_qalys,"outputs/qalys/qalys_MET.csv", row.names = TRUE)
-write.csv(l_outcomes_BUP$v_qalys,"outputs/qalys/qalys_BUP.csv", row.names = TRUE)
+write.csv(l_outcomes_MET_MMS$v_qalys,"outputs/qalys/Modified Model Specification/qalys_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$v_qalys,"outputs/qalys/Modified Model Specification/qalys_BUP.csv", row.names = TRUE)
+
+
+#### Trial Specification ####
+# Full model trace
+write.csv(l_outcomes_MET_TS$m_M_trace,"outputs/trace/Trial Specification/trace_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$m_M_trace,"outputs/trace/Trial Specification/trace_BUP.csv", row.names = TRUE)
+
+# Full model costs
+write.csv(l_outcomes_MET_TS$m_TOTAL_costs_states,"outputs/trace/Trial Specification/full_trace_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$m_TOTAL_costs_states,"outputs/trace/Trial Specification/full_trace_costs_BUP.csv", row.names = TRUE)
+
+# Outcomes
+# Disaggregated
+df_outcomes_TS <- rbind(l_outcomes_BUP_TS$df_outcomes, l_outcomes_MET_TS$df_outcomes)
+rownames(df_outcomes_TS) <- c("Early take-home BNX", "Methadone")
+
+# ICER
+df_icer_TS <- l_ICER_TS$df_icer
+rownames(df_icer_TS) <- c("Early take-home BNX vs. Methadone")
+
+# Output
+write.csv(df_outcomes_TS,"outputs/main_output_det_TS.csv", row.names = TRUE)
+write.csv(df_icer_TS,"outputs/ICER/icer_det_TS.csv", row.names = TRUE)
+
+# Raw outputs
+# Costs
+write.csv(l_outcomes_MET_TS$v_costs,"outputs/costs/Trial Specification/costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$v_costs,"outputs/costs/Trial Specification/costs_BUP.csv", row.names = TRUE)
+
+# Treatment
+write.csv(l_outcomes_MET_TS$m_TX_costs,"outputs/costs/Trial Specification/tx_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$m_TX_costs,"outputs/costs/Trial Specification/tx_costs_BUP.csv", row.names = TRUE)
+
+# Health sector
+write.csv(l_outcomes_MET_TS$m_HRU_costs,"outputs/costs/Trial Specification/hru_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$m_HRU_costs,"outputs/costs/Trial Specification/hru_costs_BUP.csv", row.names = TRUE)
+
+# Crime
+write.csv(l_outcomes_MET_TS$m_crime_costs,"outputs/costs/Trial Specification/crime_costs_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$m_crime_costs,"outputs/costs/Trial Specification/crime_costs_BUP.csv", row.names = TRUE)
+
+# QALYs
+write.csv(l_outcomes_MET_TS$v_qalys,"outputs/qalys/Trial Specification/qalys_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$v_qalys,"outputs/qalys/Trial Specification/qalys_BUP.csv", row.names = TRUE)
