@@ -341,8 +341,50 @@ df_PSA_summary <- as.data.frame()
 
 ### Produce scatter plot for ICERs
 ## Modified Model Specification ##
-ggplot(df_incremental_PSA_MMS, aes(x = "Incremental QALYs (Lifetime)", y = "Incremental Costs (Lifetime)")) +
-  geom_point()
+# 1-year
+inc_qalys_1yr <- df_incremental_PSA_MMS[, "Incremental QALYs (1-year)"]
+inc_costs_1yr <- df_incremental_PSA_MMS[, "Incremental Costs (1-year)"]
+
+ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_1yr, y = inc_costs_1yr)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  #geom_abline(slope = 50000, intercept = 0)
+  #xlim(min(a), max(a)) +
+  #ylim(min(b), max(b))
+
+# 5-year
+inc_qalys_5yr <- df_incremental_PSA_MMS[, "Incremental QALYs (5-year)"]
+inc_costs_5yr <- df_incremental_PSA_MMS[, "Incremental Costs (5-year)"]
+
+ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_5yr, y = inc_costs_5yr)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0)
+#xlim(min(a), max(a)) +
+#ylim(min(b), max(b))
+
+# 10-year
+inc_qalys_10yr <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
+inc_costs_10yr <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
+
+ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10yr, y = inc_costs_10yr)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0)
+#xlim(min(a), max(a)) +
+#ylim(min(b), max(b))
+
+# Lifetime
+inc_qalys_lifetime <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
+inc_costs_lifetime <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
+
+ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_lifetime, y = inc_costs_lifetime)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0)
+#xlim(min(a), max(a)) +
+#ylim(min(b), max(b))
 
 
 ### Produce CEAC plot from cost-effectiveness results
