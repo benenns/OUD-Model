@@ -6,7 +6,7 @@ source("R/input_parameter_functions.R")
 
 # Load parameters
 # Calibrated parameter values
-load(file = "outputs/imis_output.RData")
+load(file = "outputs/Calibration/imis_output.RData")
 
 ######################################
 #### Modified Model Specification ####

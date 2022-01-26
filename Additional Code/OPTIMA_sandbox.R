@@ -366,4 +366,13 @@ test[!EP1]
 
 l_test <- readRDS("outputs/outcomes/outcomes_BUP_MMS.RData")
 
-rdirichlet(10, c(4))
+h<- rdirichlet(10, c(4, 5))
+ht <- as.matrix(rdirichlet(10, c(1, 5)))
+hg <- 1-ht
+n_sim <- 10
+g <- matrix(rep(0, n_sim), nrow = n_sim, ncol = 1)
+mat <- as.matrix()
+df <- data.frame(c(1, 2, 3, 4))
+df <- df[1:3,]
+df_calib_post <- as.data.frame(m_calib_post)
+df_calib_post <- df_calib_post[1:n_sim, ]

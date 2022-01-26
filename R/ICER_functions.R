@@ -370,33 +370,40 @@ ICER <- function(outcomes_comp, outcomes_int){
   
   ## Incremental outcomes - societal
   # 1-year
-  n_costs_TOTAL_1yr <- outcomes_int$n_TOTAL_costs_1yr - outcomes_comp$n_TOTAL_costs_1yr
-  n_qalys_TOTAL_1yr <- outcomes_int$n_TOTAL_qalys_1yr - outcomes_comp$n_TOTAL_qalys_1yr
+  n_inc_costs_TOTAL_1yr <- outcomes_int$n_TOTAL_costs_1yr - outcomes_comp$n_TOTAL_costs_1yr
+  n_inc_qalys_TOTAL_1yr <- outcomes_int$n_TOTAL_qalys_1yr - outcomes_comp$n_TOTAL_qalys_1yr
   # 5-year
-  n_costs_TOTAL_5yr <- outcomes_int$n_TOTAL_costs_5yr - outcomes_comp$n_TOTAL_costs_5yr
-  n_qalys_TOTAL_5yr <- outcomes_int$n_TOTAL_qalys_5yr - outcomes_comp$n_TOTAL_qalys_5yr
+  n_inc_costs_TOTAL_5yr <- outcomes_int$n_TOTAL_costs_5yr - outcomes_comp$n_TOTAL_costs_5yr
+  n_inc_qalys_TOTAL_5yr <- outcomes_int$n_TOTAL_qalys_5yr - outcomes_comp$n_TOTAL_qalys_5yr
   # 10-year
-  n_costs_TOTAL_10yr <- outcomes_int$n_TOTAL_costs_10yr - outcomes_comp$n_TOTAL_costs_10yr
-  n_qalys_TOTAL_10yr <- outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr
+  n_inc_costs_TOTAL_10yr <- outcomes_int$n_TOTAL_costs_10yr - outcomes_comp$n_TOTAL_costs_10yr
+  n_inc_qalys_TOTAL_10yr <- outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr
   # Lifetime
-  n_costs_TOTAL_life <- outcomes_int$n_TOTAL_costs_life - outcomes_comp$n_TOTAL_costs_life
-  n_qalys_TOTAL_life <- outcomes_int$n_TOTAL_qalys_life - outcomes_comp$n_TOTAL_qalys_life
+  n_inc_costs_TOTAL_life <- outcomes_int$n_TOTAL_costs_life - outcomes_comp$n_TOTAL_costs_life
+  n_inc_qalys_TOTAL_life <- outcomes_int$n_TOTAL_qalys_life - outcomes_comp$n_TOTAL_qalys_life
   
   ## Incremental outcomes - health sector
   # 1-year
-  n_costs_HEALTH_SECTOR_1yr <- outcomes_int$n_HEALTH_SECTOR_costs_1yr - outcomes_comp$n_HEALTH_SECTOR_costs_1yr
-  n_qalys_HEALTH_SECTOR_1yr <- outcomes_int$n_HEALTH_SECTOR_qalys_1yr - outcomes_comp$n_HEALTH_SECTOR_qalys_1yr
+  n_inc_costs_HEALTH_SECTOR_1yr <- outcomes_int$n_HEALTH_SECTOR_costs_1yr - outcomes_comp$n_HEALTH_SECTOR_costs_1yr
+  n_inc_qalys_HEALTH_SECTOR_1yr <- outcomes_int$n_HEALTH_SECTOR_qalys_1yr - outcomes_comp$n_HEALTH_SECTOR_qalys_1yr
   # 5-year
-  n_costs_HEALTH_SECTOR_5yr <- outcomes_int$n_HEALTH_SECTOR_costs_5yr - outcomes_comp$n_HEALTH_SECTOR_costs_5yr
-  n_qalys_HEALTH_SECTOR_5yr <- outcomes_int$n_HEALTH_SECTOR_qalys_5yr - outcomes_comp$n_HEALTH_SECTOR_qalys_5yr
+  n_inc_costs_HEALTH_SECTOR_5yr <- outcomes_int$n_HEALTH_SECTOR_costs_5yr - outcomes_comp$n_HEALTH_SECTOR_costs_5yr
+  n_inc_qalys_HEALTH_SECTOR_5yr <- outcomes_int$n_HEALTH_SECTOR_qalys_5yr - outcomes_comp$n_HEALTH_SECTOR_qalys_5yr
   # 10-year
-  n_costs_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_costs_10yr - outcomes_comp$n_HEALTH_SECTOR_costs_10yr
-  n_qalys_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_qalys_10yr - outcomes_comp$n_HEALTH_SECTOR_qalys_10yr
+  n_inc_costs_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_costs_10yr - outcomes_comp$n_HEALTH_SECTOR_costs_10yr
+  n_inc_qalys_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_qalys_10yr - outcomes_comp$n_HEALTH_SECTOR_qalys_10yr
   # Lifetime
-  n_costs_HEALTH_SECTOR_life <- outcomes_int$n_HEALTH_SECTOR_costs_life - outcomes_comp$n_HEALTH_SECTOR_costs_life
-  n_qalys_HEALTH_SECTOR_life <- outcomes_int$n_HEALTH_SECTOR_qalys_life - outcomes_comp$n_HEALTH_SECTOR_qalys_life
+  n_inc_costs_HEALTH_SECTOR_life <- outcomes_int$n_HEALTH_SECTOR_costs_life - outcomes_comp$n_HEALTH_SECTOR_costs_life
+  n_inc_qalys_HEALTH_SECTOR_life <- outcomes_int$n_HEALTH_SECTOR_qalys_life - outcomes_comp$n_HEALTH_SECTOR_qalys_life
 
-  ## Combined ICERs ##
+  ## Combined dataframes ##
+  df_incremental <- data.frame(n_inc_costs_TOTAL_1yr, n_inc_costs_TOTAL_5yr, n_inc_costs_TOTAL_10yr, n_inc_costs_TOTAL_life,
+                               n_inc_costs_HEALTH_SECTOR_1yr, n_inc_costs_HEALTH_SECTOR_5yr, n_inc_costs_HEALTH_SECTOR_10yr, n_inc_costs_HEALTH_SECTOR_life,
+                               n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr, n_inc_qalys_TOTAL_life)
+  names(df_incremental) <- c("Incremental Costs (1-year)", "Incremental Costs (5-year)", "Incremental Costs (10-year)", "Incremental Costs (Lifetime)", 
+                             "Incremental Costs (Health Sector 1-year)", "Incremental Costs (Health Sector 5-year)", "Incremental Costs (Health Sector 10-year)", "Incremental Costs (Health Sector Lifetime)",
+                             "Incremental QALYs (1-year)", "Incremental QALYs (5-year)", "Incremental QALYs (10-year)", "Incremental QALYs (Lifetime)")
+  
   df_icer <- data.frame(n_icer_TOTAL_1yr, n_icer_TOTAL_5yr, n_icer_TOTAL_10yr, n_icer_TOTAL_life,
                         n_icer_HEALTH_SECTOR_1yr, n_icer_HEALTH_SECTOR_5yr, n_icer_HEALTH_SECTOR_10yr, n_icer_HEALTH_SECTOR_life)
                         #n_costs_TOTAL_1yr, n_qalys_TOTAL_1yr, n_costs_TOTAL_5yr, n_qalys_TOTAL_5yr, n_costs_TOTAL_10yr, n_qalys_TOTAL_10yr, n_costs_TOTAL_life, n_qalys_TOTAL_life,
@@ -414,21 +421,22 @@ ICER <- function(outcomes_comp, outcomes_int){
               n_icer_HEALTH_SECTOR_5yr = n_icer_HEALTH_SECTOR_5yr,
               n_icer_HEALTH_SECTOR_10yr = n_icer_HEALTH_SECTOR_10yr,
               n_icer_HEALTH_SECTOR_life = n_icer_HEALTH_SECTOR_life,
-              n_costs_TOTAL_1yr = n_costs_TOTAL_1yr, 
-              n_qalys_TOTAL_1yr = n_qalys_TOTAL_1yr, 
-              n_costs_TOTAL_5yr = n_costs_TOTAL_5yr, 
-              n_qalys_TOTAL_5yr = n_qalys_TOTAL_5yr, 
-              n_costs_TOTAL_10yr = n_costs_TOTAL_10yr, 
-              n_qalys_TOTAL_10yr = n_qalys_TOTAL_10yr, 
-              n_costs_TOTAL_life = n_costs_TOTAL_life, 
-              n_qalys_TOTAL_life = n_qalys_TOTAL_life,
-              n_costs_HEALTH_SECTOR_1yr = n_costs_HEALTH_SECTOR_1yr,
-              n_qalys_HEALTH_SECTOR_1yr = n_qalys_HEALTH_SECTOR_1yr, 
-              n_costs_HEALTH_SECTOR_5yr = n_costs_HEALTH_SECTOR_5yr, 
-              n_qalys_HEALTH_SECTOR_5yr = n_qalys_HEALTH_SECTOR_5yr, 
-              n_costs_HEALTH_SECTOR_10yr = n_costs_HEALTH_SECTOR_10yr, 
-              n_qalys_HEALTH_SECTOR_10yr = n_qalys_HEALTH_SECTOR_10yr, 
-              n_costs_HEALTH_SECTOR_life = n_costs_HEALTH_SECTOR_life, 
-              n_qalys_HEALTH_SECTOR_life = n_qalys_HEALTH_SECTOR_life,
+              #n_costs_TOTAL_1yr = n_costs_TOTAL_1yr, 
+              #n_qalys_TOTAL_1yr = n_qalys_TOTAL_1yr, 
+              #n_costs_TOTAL_5yr = n_costs_TOTAL_5yr, 
+              #n_qalys_TOTAL_5yr = n_qalys_TOTAL_5yr, 
+              #n_costs_TOTAL_10yr = n_costs_TOTAL_10yr, 
+              #n_qalys_TOTAL_10yr = n_qalys_TOTAL_10yr, 
+              #n_costs_TOTAL_life = n_costs_TOTAL_life, 
+              #n_qalys_TOTAL_life = n_qalys_TOTAL_life,
+              #n_costs_HEALTH_SECTOR_1yr = n_costs_HEALTH_SECTOR_1yr,
+              #n_qalys_HEALTH_SECTOR_1yr = n_qalys_HEALTH_SECTOR_1yr, 
+              #n_costs_HEALTH_SECTOR_5yr = n_costs_HEALTH_SECTOR_5yr, 
+              #n_qalys_HEALTH_SECTOR_5yr = n_qalys_HEALTH_SECTOR_5yr, 
+              #n_costs_HEALTH_SECTOR_10yr = n_costs_HEALTH_SECTOR_10yr, 
+              #n_qalys_HEALTH_SECTOR_10yr = n_qalys_HEALTH_SECTOR_10yr, 
+              #n_costs_HEALTH_SECTOR_life = n_costs_HEALTH_SECTOR_life, 
+              #n_qalys_HEALTH_SECTOR_life = n_qalys_HEALTH_SECTOR_life,
+              df_incremental = df_incremental,
               df_icer = df_icer))  
 }
