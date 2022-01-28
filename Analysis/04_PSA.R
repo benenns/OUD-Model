@@ -26,7 +26,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 100 # just to test function (will be set as n_sim)
+n_sim <- 50 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
@@ -35,8 +35,7 @@ n_sim <- 100 # just to test function (will be set as n_sim)
 ######################################
 #### Modified Model Specification ####
 ######################################
-# BNX scenario
-df_psa_params_BUP_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "MMS",
+df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "MMS",
                                              file.death_hr = "data/death_hr.csv",
                                              file.frailty = "data/frailty.csv",
                                              file.weibull = "data/Modified Model Specification/weibull.csv",
@@ -50,24 +49,11 @@ df_psa_params_BUP_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_po
                                              file.qalys = "data/Modified Model Specification/qalys.csv",
                                              file.imis_output = "outputs/Calibration/imis_output.RData")
 
-# MET scenario
-df_psa_params_MET_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "MMS",
-                                             file.death_hr = "data/death_hr.csv",
-                                             file.frailty = "data/frailty.csv",
-                                             file.weibull = "data/Modified Model Specification/weibull.csv",
-                                             file.unconditional = "data/Modified Model Specification/unconditional.csv",
-                                             file.overdose = "data/overdose.csv",
-                                             file.fentanyl = "data/fentanyl.csv",
-                                             file.hiv = "data/hiv_sero.csv",
-                                             file.hcv = "data/hcv_sero.csv",
-                                             file.costs = "data/Modified Model Specification/costs.csv",
-                                             file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
-                                             file.qalys = "data/Modified Model Specification/qalys.csv",
-                                             file.imis_output = "outputs/Calibration/imis_output.RData")
 
 #############################
 #### Trial Specification ####
 #############################
+# Need to draw parameters for both scenarios due to differences in allowed transitions (Dirichlet)
 # BNX scenario
 df_psa_params_BUP_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "TS_BUP",
                                             file.death_hr = "data/death_hr.csv",
@@ -82,6 +68,9 @@ df_psa_params_BUP_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop
                                             file.crime_costs = "data/Trial Specification/crime_costs.csv",
                                             file.qalys = "data/Trial Specification/qalys.csv",
                                             file.imis_output = "outputs/Calibration/imis_output.RData")
+
+# Extract non-state-exit parameters from BUP
+df_psa_params_TS <- df_psa_params_BUP_TS %>% select(-c(p_BUP_BUPC_NI:p_ODN_REL_INJ))
 
 # MET scenario
 df_psa_params_MET_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "TS_MET",
@@ -98,11 +87,16 @@ df_psa_params_MET_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop
                                             file.qalys = "data/Trial Specification/qalys.csv",
                                             file.imis_output = "outputs/Calibration/imis_output.RData")
 
+# Extract MET state-exit
+df_psa_params_MET_TS_UP <- df_psa_params_MET_TS %>% select(c(p_BUP_BUPC_NI:p_ODN_REL_INJ))
+
+# Add MET state-exit to overall
+df_psa_params_MET_TS <- bind_cols(df_psa_params_TS, df_psa_params_MET_TS_UP)
+
 ################################
 #### Original Specification ####
 ################################
-# BNX scenario
-df_psa_params_BUP_OS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "OS",
+df_psa_params_OS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "OS",
                                             file.death_hr = "data/death_hr.csv",
                                             file.frailty = "data/frailty.csv",
                                             file.weibull = "data/Original Specification/weibull.csv",
@@ -116,20 +110,6 @@ df_psa_params_BUP_OS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop
                                             file.qalys = "data/Original Specification/qalys.csv",
                                             file.imis_output = "outputs/Calibration/imis_output.RData")
 
-# MET scenario
-df_psa_params_MET_OS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "OS",
-                                            file.death_hr = "data/death_hr.csv",
-                                            file.frailty = "data/frailty.csv",
-                                            file.weibull = "data/Original Specification/weibull.csv",
-                                            file.unconditional = "data/Original Specification/unconditional.csv",
-                                            file.overdose = "data/overdose.csv",
-                                            file.fentanyl = "data/fentanyl.csv",
-                                            file.hiv = "data/hiv_sero.csv",
-                                            file.hcv = "data/hcv_sero.csv",
-                                            file.costs = "data/Original Specification/costs.csv",
-                                            file.crime_costs = "data/Original Specification/crime_costs.csv",
-                                            file.qalys = "data/Original Specification/qalys.csv",
-                                            file.imis_output = "outputs/Calibration/imis_output.RData")
 
 ### Run decision model on each parameter set of PSA input dataset to produce
 ### PSA outputs for cost and effects
@@ -154,13 +134,13 @@ df_outcomes_BUP_PSA_OS <- data.frame()
 df_incremental_PSA_OS <- data.frame()
 df_ICER_PSA_OS <- data.frame()
 
-v_outcomes_names <- c("Total Costs (1-year)", "Total Costs (5-year)", "Total Costs (10-year)", "Total Costs (Lifetime)", "Health Sector Costs (1-year)", "Health Sector Costs (5-year)", "Health Sector Costs (10-year)", "Health Sector Costs (Lifetime)",
-                      "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)",
-                      "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
-v_ICER_names <- c("ICER (1-year)", "ICER (5-year)", "ICER (10-year)", "ICER (Lifetime)",
-                  "ICER (Health Sector 1-year)", "ICER (Health Sector 5-year)", "ICER (Health Sector 10-year)", "ICER (Health Sector Lifetime)",
-                  "Incremental Costs (1-year)", "Incremental QALYs (1-year)", "Incremental Costs (5-year)", "Incremental QALYs (5-year)", "Incremental Costs (10-year)", "Incremental QALYs (10-year)", "Incremental Costs (Lifetime)", "Incremental QALYs (Lifetime)",
-                  "Incremental Costs (Health Sector 1-year)", "Incremental QALYs (Health Sector 1-year)", "Incremental Costs (Health Sector 5-year)", "Incremental QALYs (Health Sector 5-year)", "Incremental Costs (Health Sector 10-year)", "Incremental QALYs (Health Sector 10-year)", "Incremental Costs (Health Sector Lifetime)", "Incremental QALYs (Health Sector Lifetime)")
+#v_outcomes_names <- c("Total Costs (1-year)", "Total Costs (5-year)", "Total Costs (10-year)", "Total Costs (Lifetime)", "Health Sector Costs (1-year)", "Health Sector Costs (5-year)", "Health Sector Costs (10-year)", "Health Sector Costs (Lifetime)",
+#                      "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)",
+#                      "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
+#v_ICER_names <- c("ICER (1-year)", "ICER (5-year)", "ICER (10-year)", "ICER (Lifetime)",
+#                  "ICER (Health Sector 1-year)", "ICER (Health Sector 5-year)", "ICER (Health Sector 10-year)", "ICER (Health Sector Lifetime)",
+#                  "Incremental Costs (1-year)", "Incremental QALYs (1-year)", "Incremental Costs (5-year)", "Incremental QALYs (5-year)", "Incremental Costs (10-year)", "Incremental QALYs (10-year)", "Incremental Costs (Lifetime)", "Incremental QALYs (Lifetime)",
+#                  "Incremental Costs (Health Sector 1-year)", "Incremental QALYs (Health Sector 1-year)", "Incremental Costs (Health Sector 5-year)", "Incremental QALYs (Health Sector 5-year)", "Incremental Costs (Health Sector 10-year)", "Incremental QALYs (Health Sector 10-year)", "Incremental Costs (Health Sector Lifetime)", "Incremental QALYs (Health Sector Lifetime)")
 
 ######################################
 #### Modified Model Specification ####
@@ -168,8 +148,8 @@ v_ICER_names <- c("ICER (1-year)", "ICER (5-year)", "ICER (10-year)", "ICER (Lif
 #foreach(i = 1:n_sim, .combine = c) %dopar% { # i <- 1
 for (i in 1:n_sim){
   # Update parameter set for each scenario with next set of PSA drawn parameters
-  l_psa_input_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_MET_MMS[i, ])
-  l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_BUP_MMS[i, ])
+  l_psa_input_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_MMS[i, ])
+  l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_MMS[i, ])
   
   # Run model and generate outputs
   l_outcomes_MET_MMS <- outcomes(l_params_all = l_psa_input_MET_MMS, v_params_calib = v_calib_post_map)
@@ -208,6 +188,9 @@ write.csv(df_outcomes_BUP_PSA_MMS,
 write.csv(df_ICER_PSA_MMS, 
           file = "outputs/PSA/ICER_PSA_MMS.csv",
           row.names = FALSE)
+write.csv(df_incremental_PSA_MMS, 
+          file = "outputs/PSA/incremental_PSA_MMS.csv",
+          row.names = FALSE)
 
 #############################
 #### Trial Specification ####
@@ -228,26 +211,33 @@ for(i in 1:n_sim){ # i <- 1
   # Calculate ICER (societal and health sector perspective)
   l_ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
   
+  df_incremental_PSA_TS <- rbind(df_incremental_PSA_TS, l_ICER_TS$df_incremental)
+  
   df_ICER_PSA_TS <- rbind(df_ICER_PSA_TS, l_ICER_TS$df_icer)
 }
 
 ### Output results
 ## As .RData
 save(df_outcomes_MET_PSA_TS, 
-     file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_TS.RData")
+     file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
 save(df_outcomes_BUP_PSA_TS, 
-     file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_TS.RData")
+     file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
 save(df_ICER_PSA_TS, 
-     file = "outputs/PSA/Modified Model Specification/ICER_PSA_TS.RData")
+     file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
+save(df_incremental_PSA_TS,
+     file = "outputs/PSA/Trial Specification/incremental_PSA_MMS.RData")
 ## As .csv
 write.csv(df_outcomes_MET_PSA_TS, 
-          file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_TS.csv",
+          file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.csv",
           row.names = FALSE)
 write.csv(df_outcomes_BUP_PSA_TS, 
-          file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_TS.csv",
+          file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.csv",
           row.names = FALSE)
 write.csv(df_ICER_PSA_TS, 
-          file = "outputs/PSA/ICER_PSA_TS.csv",
+          file = "outputs/PSA/Trial Specification/ICER_PSA_TS.csv",
+          row.names = FALSE)
+write.csv(df_incremental_PSA_TS, 
+          file = "outputs/PSA/Trial Specification/incremental_PSA_TS.csv",
           row.names = FALSE)
 
 ################################
@@ -255,8 +245,8 @@ write.csv(df_ICER_PSA_TS,
 ################################
 for(i in 1:n_sim){ # i <- 1
   # Update parameter set for each scenario with next set of PSA drawn parameters
-  l_psa_input_MET_OS <- update_param_list(l_params_all = l_params_MET_OS, params_updated = df_psa_params_MET_OS[i, ])
-  l_psa_input_BUP_OS <- update_param_list(l_params_all = l_params_BUP_OS, params_updated = df_psa_params_BUP_OS[i, ])
+  l_psa_input_MET_OS <- update_param_list(l_params_all = l_params_MET_OS, params_updated = df_psa_params_OS[i, ])
+  l_psa_input_BUP_OS <- update_param_list(l_params_all = l_params_BUP_OS, params_updated = df_psa_params_OS[i, ])
   
   # Run model and generate outputs
   l_outcomes_MET_OS <- outcomes(l_params_all = l_psa_input_MET_OS, v_params_calib = v_calib_post_map)
@@ -294,9 +284,10 @@ write.csv(df_ICER_PSA_OS,
 ### Process PSA results
 ## Read-in saved results
 ## Modified Model Specification
-#load(file = "outputs/PSA/outcomes_MET_PSA_MMS.RData")
-#load(file = "outputs/PSA/outcomes_BUP_PSA_MMS.RData")
-#load(file = "outputs/PSA/ICER_PSA_MMS.RData")
+load(file = "outputs/PSA/outcomes_MET_PSA_MMS.RData")
+load(file = "outputs/PSA/outcomes_BUP_PSA_MMS.RData")
+load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_MMS.RData")
+load(file = "outputs/PSA/ICER_PSA_MMS.RData")
 
 ## Trial Specification
 #load(file = "outputs/PSA/outcomes_MET_PSA_TS.RData")
@@ -342,50 +333,138 @@ df_PSA_summary <- as.data.frame()
 ### Produce scatter plot for ICERs
 ## Modified Model Specification ##
 # 1-year
-inc_qalys_1yr <- df_incremental_PSA_MMS[, "Incremental QALYs (1-year)"]
-inc_costs_1yr <- df_incremental_PSA_MMS[, "Incremental Costs (1-year)"]
+# Total
+inc_qalys_1yr <- df_incremental_PSA_MMS[, "n_inc_qalys_TOTAL_1yr"]
+inc_costs_1yr <- df_incremental_PSA_MMS[, "n_inc_costs_TOTAL_1yr"]
 
-ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_1yr, y = inc_costs_1yr)) +
+plot_PSA_MMS_1yr_scatter <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_1yr, y = inc_costs_1yr)) +
   geom_point() +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
-  #geom_abline(slope = 50000, intercept = 0)
-  #xlim(min(a), max(a)) +
-  #ylim(min(b), max(b))
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_MMS_1yr_scatter, 
+       filename = "Plots/PSA/PSA-MMS-1yr.png", 
+       width = 7, height = 10)
+
+# Health Sector
+inc_costs_1yr_health_sector <- df_incremental_PSA_MMS[, "n_inc_costs_HEALTH_SECTOR_1yr"]
+
+plot_PSA_MMS_1yr_scatter_health_sector <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_1yr, y = inc_costs_1yr_health_sector)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_MMS_1yr_scatter_health_sector, 
+       filename = "Plots/PSA/PSA-MMS-1yr-Health-Sector.png", 
+       width = 7, height = 10)
 
 # 5-year
-inc_qalys_5yr <- df_incremental_PSA_MMS[, "Incremental QALYs (5-year)"]
-inc_costs_5yr <- df_incremental_PSA_MMS[, "Incremental Costs (5-year)"]
+inc_qalys_5yr <- df_incremental_PSA_MMS[, "n_inc_qalys_TOTAL_5yr"]
+inc_costs_5yr <- df_incremental_PSA_MMS[, "n_inc_costs_TOTAL_5yr"]
 
-ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_5yr, y = inc_costs_5yr)) +
+plot_PSA_MMS_5yr_scatter <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_5yr, y = inc_costs_5yr)) +
   geom_point() +
   geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 0)
-#xlim(min(a), max(a)) +
-#ylim(min(b), max(b))
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_MMS_5yr_scatter, 
+       filename = "Plots/PSA/PSA-MMS-5yr.png", 
+       width = 7, height = 10)
+
+# Health Sector
+inc_costs_5yr_health_sector <- df_incremental_PSA_MMS[, "n_inc_costs_HEALTH_SECTOR_5yr"]
+
+plot_PSA_MMS_5yr_scatter_health_sector <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_5yr, y = inc_costs_5yr_health_sector)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_MMS_5yr_scatter_health_sector, 
+       filename = "Plots/PSA/PSA-MMS-5yr-Health-Sector.png", 
+       width = 7, height = 10)
 
 # 10-year
-inc_qalys_10yr <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
-inc_costs_10yr <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
+#inc_qalys_10yr <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
+#inc_costs_10yr <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
 
-ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10yr, y = inc_costs_10yr)) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 0)
+#ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10yr, y = inc_costs_10yr)) +
+#  geom_point() +
+#  geom_hline(yintercept = 0) +
+#  geom_vline(xintercept = 0)
 #xlim(min(a), max(a)) +
 #ylim(min(b), max(b))
 
 # Lifetime
-inc_qalys_lifetime <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
-inc_costs_lifetime <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
+#inc_qalys_lifetime <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
+#inc_costs_lifetime <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
 
-ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_lifetime, y = inc_costs_lifetime)) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 0)
+#ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_lifetime, y = inc_costs_lifetime)) +
+#  geom_point() +
+#  geom_hline(yintercept = 0) +
+#  geom_vline(xintercept = 0)
 #xlim(min(a), max(a)) +
 #ylim(min(b), max(b))
 
+## Trial Specification ##
+# 1-year
+# Total
+inc_qalys_1yr <- df_incremental_PSA_TS[, "n_inc_qalys_TOTAL_1yr"]
+inc_costs_1yr <- df_incremental_PSA_TS[, "n_inc_costs_TOTAL_1yr"]
+
+plot_PSA_TS_1yr_scatter <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_1yr, y = inc_costs_1yr)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_TS_1yr_scatter, 
+       filename = "Plots/PSA/PSA-TS-1yr.png", 
+       width = 7, height = 10)
+
+# Health Sector
+inc_costs_1yr_health_sector <- df_incremental_PSA_TS[, "n_inc_costs_HEALTH_SECTOR_1yr"]
+
+plot_PSA_TS_1yr_scatter_health_sector <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_1yr, y = inc_costs_1yr_health_sector)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_TS_1yr_scatter_health_sector, 
+       filename = "Plots/PSA/PSA-TS-1yr-Health-Sector.png", 
+       width = 7, height = 10)
+
+# 5-year
+# Total
+inc_qalys_5yr <- df_incremental_PSA_TS[, "n_inc_qalys_TOTAL_5yr"]
+inc_costs_5yr <- df_incremental_PSA_TS[, "n_inc_costs_TOTAL_5yr"]
+
+plot_PSA_TS_5yr_scatter <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_5yr, y = inc_costs_5yr)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_TS_5yr_scatter, 
+       filename = "Plots/PSA/PSA-TS-5yr.png", 
+       width = 7, height = 10)
+
+# Health Sector
+inc_costs_5yr_health_sector <- df_incremental_PSA_TS[, "n_inc_costs_HEALTH_SECTOR_5yr"]
+
+plot_PSA_TS_5yr_scatter_health_sector <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_1yr, y = inc_costs_5yr_health_sector)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_TS_5yr_scatter_health_sector, 
+       filename = "Plots/PSA/PSA-TS-5yr-Health-Sector.png", 
+       width = 7, height = 10)
 
 ### Produce CEAC plot from cost-effectiveness results
 ## Prep data
