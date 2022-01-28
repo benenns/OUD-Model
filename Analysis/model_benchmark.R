@@ -9,6 +9,7 @@ library(tidyverse)
 library(rbenchmark)
 library(microbenchmark)
 library(tictoc)
+library(rBeta2009)
 
 # Call model setup functions
 source("R/input_parameter_functions.R")
