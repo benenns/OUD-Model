@@ -152,8 +152,8 @@ for (i in 1:n_sim){
   l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_MMS[i, ])
   
   # Run model and generate outputs
-  l_outcomes_MET_MMS <- outcomes(l_params_all = l_psa_input_MET_MMS, v_params_calib = v_calib_post_map)
-  l_outcomes_BUP_MMS <- outcomes(l_params_all = l_psa_input_BUP_MMS, v_params_calib = v_calib_post_map)
+  l_outcomes_MET_MMS <- outcomes(l_params_all = l_psa_input_MET_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  l_outcomes_BUP_MMS <- outcomes(l_params_all = l_psa_input_BUP_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
   
   # Extract cost and QALY outputs
   df_outcomes_MET_PSA_MMS <- rbind(df_outcomes_MET_PSA_MMS, l_outcomes_MET_MMS$df_outcomes)
@@ -201,8 +201,8 @@ for(i in 1:n_sim){ # i <- 1
   l_psa_input_BUP_TS <- update_param_list(l_params_all = l_params_BUP_TS, params_updated = df_psa_params_BUP_TS[i, ])
   
   # Run model and generate outputs
-  l_outcomes_MET_TS <- outcomes(l_params_all = l_psa_input_MET_TS, v_params_calib = v_calib_post_map)
-  l_outcomes_BUP_TS <- outcomes(l_params_all = l_psa_input_BUP_TS, v_params_calib = v_calib_post_map)
+  l_outcomes_MET_TS <- outcomes(l_params_all = l_psa_input_MET_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  l_outcomes_BUP_TS <- outcomes(l_params_all = l_psa_input_BUP_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
   
   # Extract cost and QALY outputs
   df_outcomes_MET_PSA_TS <- rbind(df_outcomes_MET_PSA_TS, l_outcomes_MET_TS$df_outcomes)
@@ -249,8 +249,8 @@ for(i in 1:n_sim){ # i <- 1
   l_psa_input_BUP_OS <- update_param_list(l_params_all = l_params_BUP_OS, params_updated = df_psa_params_OS[i, ])
   
   # Run model and generate outputs
-  l_outcomes_MET_OS <- outcomes(l_params_all = l_psa_input_MET_OS, v_params_calib = v_calib_post_map)
-  l_outcomes_BUP_OS <- outcomes(l_params_all = l_psa_input_BUP_OS, v_params_calib = v_calib_post_map)
+  l_outcomes_MET_OS <- outcomes(l_params_all = l_psa_input_MET_OS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  l_outcomes_BUP_OS <- outcomes(l_params_all = l_psa_input_BUP_OS, v_params_calib = v_calib_post_map, PSA = TRUE)
   
   # Extract cost and QALY outputs
   df_outcomes_MET_PSA_OS <- rbind(df_outcomes_MET_PSA_OS, l_outcomes_MET_OS$df_outcomes)

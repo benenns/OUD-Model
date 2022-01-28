@@ -29,7 +29,8 @@
 #' @export
 outcomes <- function(l_params_all, 
                      v_params_calib,
-                     v_params_dsa = NULL){
+                     v_params_dsa = NULL,
+                     PSA = FALSE){
   
   # Substitute values of calibrated parameters in base-case with calibrated values
   # Combine with DSA ranges
@@ -41,7 +42,13 @@ outcomes <- function(l_params_all,
     v_params_updated <- v_params_calib
   }
   
-  l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_updated)
+  #l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_updated)
+  # PSA update already includes draws from posterior for cali parameters
+  if(PSA){
+    l_params_all <- l_params_all
+  } else{
+    l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_updated)
+  }
   
   # Substitute values of calibrated parameters in base-case with calibrated values 
   #l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_params_calib)
