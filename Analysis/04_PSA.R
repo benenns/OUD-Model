@@ -292,11 +292,13 @@ load(file = "outputs/PSA/ICER_PSA_MMS.RData")
 ## Trial Specification
 #load(file = "outputs/PSA/outcomes_MET_PSA_TS.RData")
 #load(file = "outputs/PSA/outcomes_BUP_PSA_TS.RData")
+#load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_TS.RData")
 #load(file = "outputs/PSA/ICER_PSA_TS.RData")
 
 ## Original Specification
 #load(file = "outputs/PSA/outcomes_MET_PSA_OS.RData")
 #load(file = "outputs/PSA/outcomes_BUP_PSA_OS.RData")
+#load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_OS.RData")
 #load(file = "outputs/PSA/ICER_PSA_OS.RData")
 
 ### Summary stats ###

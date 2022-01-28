@@ -109,7 +109,7 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, METC & NI]    <- m_HRU_costs[i, METC & NI] * c_METC_NI_HRU
       m_HRU_costs[i, REL & NI]     <- m_HRU_costs[i, REL & NI] * c_REL_NI_HRU
       m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-      m_HRU_costs[i, ODF & NI]     <- m_HRU_costs[i, ODF & NI] * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended)) # additional costs for fatal (break into fatal/non-fatal?)
+      #m_HRU_costs[i, ODF & NI]     <- m_HRU_costs[i, ODF & NI] * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended)) # additional costs for fatal (break into fatal/non-fatal?)
       m_HRU_costs[i, ABS & NI]     <- m_HRU_costs[i, ABS & NI] * c_ABS_NI_HRU
       m_HRU_costs[i, BUP & INJ]    <- m_HRU_costs[i, BUP & INJ] * c_BUP_INJ_HRU
       m_HRU_costs[i, BUPC & INJ]   <- m_HRU_costs[i, BUPC & INJ] * c_BUPC_INJ_HRU
@@ -117,17 +117,17 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, METC & INJ]   <- m_HRU_costs[i, METC & INJ] * c_METC_INJ_HRU
       m_HRU_costs[i, REL & INJ]    <- m_HRU_costs[i, REL & INJ] * c_REL_INJ_HRU
       m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-      m_HRU_costs[i, ODF & INJ]    <- m_HRU_costs[i, ODF & INJ] * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      #m_HRU_costs[i, ODF & INJ]    <- m_HRU_costs[i, ODF & INJ] * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ABS & INJ]    <- m_HRU_costs[i, ABS & INJ] * c_ABS_INJ_HRU
       
       # For fatal overdose costs (need to use i - 1 since trace is cumulative)
-      #if(i == 1){
-      #  m_HRU_costs[i, ODF & NI]  <- m_HRU_costs[i, ODF & NI] * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-      #  m_HRU_costs[i, ODF & INJ] <- m_HRU_costs[i, ODF & INJ] * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-      #} else if(i > 1){
-      #  m_HRU_costs[i, ODF & NI]  <- (m_HRU_costs[i, ODF & NI] - m_HRU_costs[(i-1), ODF & NI]) * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-      #  m_HRU_costs[i, ODF & INJ] <- (m_HRU_costs[i, ODF & INJ] - m_HRU_costs[(i-1), ODF & INJ]) * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-      #}
+      if(i == 1){
+        m_HRU_costs[i, ODF & NI]  <- m_HRU_costs[i, ODF & NI] * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+        m_HRU_costs[i, ODF & INJ] <- m_HRU_costs[i, ODF & INJ] * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      } else{
+        m_HRU_costs[i, ODF & NI]  <- (m_HRU_costs[i, ODF & NI] - m_HRU_costs[i - 1, ODF & NI]) * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+        m_HRU_costs[i, ODF & INJ] <- (m_HRU_costs[i, ODF & INJ] - m_HRU_costs[i - 1, ODF & INJ]) * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      }
       
       m_HRU_costs[i, ] <- m_HRU_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount
 
@@ -152,7 +152,7 @@ outcomes <- function(l_params_all,
       m_crime_costs[i, METC & NI] <- m_crime_costs[i, METC & NI] * c_METC_NI_crime
       m_crime_costs[i, REL & NI]  <- m_crime_costs[i, REL & NI] * c_REL_NI_crime
       m_crime_costs[i, ODN & NI]  <- m_crime_costs[i, ODN & NI] * c_ODN_NI_crime
-      m_crime_costs[i, ODF & NI]  <- m_crime_costs[i, ODF & NI] * 0
+      m_crime_costs[i, ODF & NI]  <- m_crime_costs[i, ODF & NI] * c_ODF_NI_crime
       m_crime_costs[i, ABS & NI]  <- m_crime_costs[i, ABS & NI] * c_ABS_NI_crime
       m_crime_costs[i, BUP & INJ] <- m_crime_costs[i, BUP & INJ] * c_BUP_INJ_crime
       m_crime_costs[i, BUPC & INJ] <- m_crime_costs[i, BUPC & INJ] * c_BUPC_INJ_crime
@@ -160,7 +160,7 @@ outcomes <- function(l_params_all,
       m_crime_costs[i, METC & INJ] <- m_crime_costs[i, METC & INJ] * c_METC_INJ_crime
       m_crime_costs[i, REL & INJ]  <- m_crime_costs[i, REL & INJ] * c_REL_INJ_crime
       m_crime_costs[i, ODN & INJ]  <- m_crime_costs[i, ODN & INJ] * c_ODN_INJ_crime
-      m_crime_costs[i, ODF & INJ]  <- m_crime_costs[i, ODF & INJ] * 0
+      m_crime_costs[i, ODF & INJ]  <- m_crime_costs[i, ODF & INJ] * c_ODF_INJ_crime
       m_crime_costs[i, ABS & INJ]  <- m_crime_costs[i, ABS & INJ] * c_ABS_INJ_crime
       
       m_crime_costs[i, ] <- m_crime_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount

@@ -637,6 +637,7 @@ load_all_params <- function(file.init = NULL,
     c_METC_NI_crime = df_crime_costs["pe", "METC"],
     c_REL_NI_crime  = df_crime_costs["pe", "REL"],
     c_ODN_NI_crime  = df_crime_costs["pe", "REL"],
+    c_ODF_NI_crime  = 0,
     c_ABS_NI_crime  = df_crime_costs["pe", "ABS"],
       
     c_BUP_INJ_crime  = df_crime_costs["pe", "BUP"],
@@ -645,6 +646,7 @@ load_all_params <- function(file.init = NULL,
     c_METC_INJ_crime = df_crime_costs["pe", "METC"],
     c_REL_INJ_crime  = df_crime_costs["pe", "REL"],
     c_ODN_INJ_crime  = df_crime_costs["pe", "REL"],
+    c_ODF_INJ_crime  = 0,
     c_ABS_INJ_crime  = df_crime_costs["pe", "ABS"],
     
     #### QALYs ####
