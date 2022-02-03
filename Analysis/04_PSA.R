@@ -284,16 +284,16 @@ write.csv(df_ICER_PSA_OS,
 ### Process PSA results
 ## Read-in saved results
 ## Modified Model Specification
-load(file = "outputs/PSA/outcomes_MET_PSA_MMS.RData")
-load(file = "outputs/PSA/outcomes_BUP_PSA_MMS.RData")
+load(file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_MMS.RData")
+load(file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_MMS.RData")
 load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_MMS.RData")
-load(file = "outputs/PSA/ICER_PSA_MMS.RData")
+load(file = "outputs/PSA/Modified Model Specification/ICER_PSA_MMS.RData")
 
 ## Trial Specification
-#load(file = "outputs/PSA/outcomes_MET_PSA_TS.RData")
-#load(file = "outputs/PSA/outcomes_BUP_PSA_TS.RData")
-#load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_TS.RData")
-#load(file = "outputs/PSA/ICER_PSA_TS.RData")
+load(file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
+load(file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
+load(file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
+load(file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
 
 ## Original Specification
 #load(file = "outputs/PSA/outcomes_MET_PSA_OS.RData")
@@ -458,7 +458,7 @@ ggsave(plot_PSA_TS_5yr_scatter,
 # Health Sector
 inc_costs_5yr_health_sector <- df_incremental_PSA_TS[, "n_inc_costs_HEALTH_SECTOR_5yr"]
 
-plot_PSA_TS_5yr_scatter_health_sector <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_1yr, y = inc_costs_5yr_health_sector)) +
+plot_PSA_TS_5yr_scatter_health_sector <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_5yr, y = inc_costs_5yr_health_sector)) +
   geom_point() +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +

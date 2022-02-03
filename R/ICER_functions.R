@@ -108,7 +108,7 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, MET & NI]     <- m_HRU_costs[i, MET & NI] * c_MET_NI_HRU
       m_HRU_costs[i, METC & NI]    <- m_HRU_costs[i, METC & NI] * c_METC_NI_HRU
       m_HRU_costs[i, REL & NI]     <- m_HRU_costs[i, REL & NI] * c_REL_NI_HRU
-      m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ODF & NI]     <- m_HRU_costs[i, ODF & NI] * 0 # additional costs for fatal (break into fatal/non-fatal?)
       m_HRU_costs[i, ABS & NI]     <- m_HRU_costs[i, ABS & NI] * c_ABS_NI_HRU
       m_HRU_costs[i, BUP & INJ]    <- m_HRU_costs[i, BUP & INJ] * c_BUP_INJ_HRU
@@ -116,7 +116,7 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, MET & INJ]    <- m_HRU_costs[i, MET & INJ] * c_MET_INJ_HRU
       m_HRU_costs[i, METC & INJ]   <- m_HRU_costs[i, METC & INJ] * c_METC_INJ_HRU
       m_HRU_costs[i, REL & INJ]    <- m_HRU_costs[i, REL & INJ] * c_REL_INJ_HRU
-      m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ODF & INJ]    <- m_HRU_costs[i, ODF & INJ] * 0
       m_HRU_costs[i, ABS & INJ]    <- m_HRU_costs[i, ABS & INJ] * c_ABS_INJ_HRU
       
@@ -222,7 +222,7 @@ outcomes <- function(l_params_all,
     # 5-year
     n_TOTAL_costs_5yr <- sum(v_TOTAL_costs[1:60])
     # 10-year
-    #n_TOTAL_costs_10yr <- sum(v_TOTAL_costs[1:120])
+    n_TOTAL_costs_10yr <- sum(v_TOTAL_costs[1:120])
     # Lifetime
     #n_TOTAL_costs_life <- sum(v_TOTAL_costs[1:n_t])
     
@@ -232,7 +232,7 @@ outcomes <- function(l_params_all,
     # 5-year
     n_HEALTH_SECTOR_costs_5yr <- sum(v_HEALTH_SECTOR_costs[1:60])
     # 10-year
-    #n_HEALTH_SECTOR_costs_10yr <- sum(v_HEALTH_SECTOR_costs[1:120])
+    n_HEALTH_SECTOR_costs_10yr <- sum(v_HEALTH_SECTOR_costs[1:120])
     # Lifetime
     #n_HEALTH_SECTOR_costs_life <- sum(v_HEALTH_SECTOR_costs[1:n_t])
     
@@ -242,7 +242,7 @@ outcomes <- function(l_params_all,
     # 5-year
     n_CRIMINAL_costs_5yr <- sum(v_CRIMINAL_costs[1:60])
     # 10-year
-    #n_CRIMINAL_costs_10yr <- sum(v_CRIMINAL_costs[1:120])
+    n_CRIMINAL_costs_10yr <- sum(v_CRIMINAL_costs[1:120])
     # Lifetime
     #n_CRIMINAL_costs_life <- sum(v_CRIMINAL_costs[1:n_t])
     
@@ -252,15 +252,15 @@ outcomes <- function(l_params_all,
     # 5-year
     n_TX_costs_5yr <- sum(v_TX_costs[1:60])
     # 10-year
-    #n_TX_costs_10yr <- sum(v_TX_costs[1:120])
+    n_TX_costs_10yr <- sum(v_TX_costs[1:120])
     # Lifetime
     #n_TX_costs_life <- sum(v_TX_costs[1:n_t])
     
     ## Combined costs ##
-    v_costs <- c(n_TOTAL_costs_1yr, n_TOTAL_costs_5yr, #n_TOTAL_costs_10yr, n_TOTAL_costs_life, 
-                 n_HEALTH_SECTOR_costs_1yr, n_HEALTH_SECTOR_costs_5yr, #n_HEALTH_SECTOR_costs_10yr, n_HEALTH_SECTOR_costs_life,
-                 n_CRIMINAL_costs_1yr, n_CRIMINAL_costs_5yr, #n_CRIMINAL_costs_10yr, n_CRIMINAL_costs_life, 
-                 n_TX_costs_1yr, n_TX_costs_5yr)#, n_TX_costs_10yr, n_TX_costs_life)
+    v_costs <- c(n_TOTAL_costs_1yr, n_TOTAL_costs_5yr, n_TOTAL_costs_10yr,# n_TOTAL_costs_life, 
+                 n_HEALTH_SECTOR_costs_1yr, n_HEALTH_SECTOR_costs_5yr, n_HEALTH_SECTOR_costs_10yr,# n_HEALTH_SECTOR_costs_life,
+                 n_CRIMINAL_costs_1yr, n_CRIMINAL_costs_5yr, n_CRIMINAL_costs_10yr,# n_CRIMINAL_costs_life, 
+                 n_TX_costs_1yr, n_TX_costs_5yr, n_TX_costs_10yr)#,# n_TX_costs_life)
     #names(v_costs) <- c("Total Costs (1-year)", "Total Costs (5-year)", "Total Costs (10-year)", "Total Costs (Lifetime)", "Health Sector Costs (1-year)", "Health Sector Costs (5-year)", "Health Sector Costs (10-year)", "Health Sector Costs (Lifetime)",
     #                    "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)")
     
@@ -270,20 +270,20 @@ outcomes <- function(l_params_all,
     # 5-year
     n_TOTAL_qalys_5yr <- sum(v_TOTAL_qalys[1:60])
     # 10-year
-    #n_TOTAL_qalys_10yr <- sum(v_TOTAL_qalys[1:120])
+    n_TOTAL_qalys_10yr <- sum(v_TOTAL_qalys[1:120])
     # Lifetime
     #n_TOTAL_qalys_life <- sum(v_TOTAL_qalys[1:n_t])
     
     ## Combined QALYs ##
-    v_qalys <- c(n_TOTAL_qalys_1yr, n_TOTAL_qalys_5yr)#, n_TOTAL_qalys_10yr, n_TOTAL_qalys_life)
+    v_qalys <- c(n_TOTAL_qalys_1yr, n_TOTAL_qalys_5yr, n_TOTAL_qalys_10yr)#, n_TOTAL_qalys_life)
     #names(v_qalys) <- c("Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
     
     ## Combined outcomes ##
-    df_outcomes <- data.frame(n_TOTAL_costs_1yr, n_TOTAL_costs_5yr,# n_TOTAL_costs_10yr, n_TOTAL_costs_life, 
-                              n_HEALTH_SECTOR_costs_1yr, n_HEALTH_SECTOR_costs_5yr,# n_HEALTH_SECTOR_costs_10yr, n_HEALTH_SECTOR_costs_life,
-                              n_CRIMINAL_costs_1yr, n_CRIMINAL_costs_5yr,# n_CRIMINAL_costs_10yr, n_CRIMINAL_costs_life, 
-                              n_TX_costs_1yr, n_TX_costs_5yr,# n_TX_costs_10yr, n_TX_costs_life,
-                              n_TOTAL_qalys_1yr, n_TOTAL_qalys_5yr)#, n_TOTAL_qalys_10yr, n_TOTAL_qalys_life)
+    df_outcomes <- data.frame(n_TOTAL_costs_1yr, n_TOTAL_costs_5yr, n_TOTAL_costs_10yr,# n_TOTAL_costs_life, 
+                              n_HEALTH_SECTOR_costs_1yr, n_HEALTH_SECTOR_costs_5yr, n_HEALTH_SECTOR_costs_10yr,# n_HEALTH_SECTOR_costs_life,
+                              n_CRIMINAL_costs_1yr, n_CRIMINAL_costs_5yr, n_CRIMINAL_costs_10yr,# n_CRIMINAL_costs_life, 
+                              n_TX_costs_1yr, n_TX_costs_5yr, n_TX_costs_10yr,# n_TX_costs_life,
+                              n_TOTAL_qalys_1yr, n_TOTAL_qalys_5yr, n_TOTAL_qalys_10yr)#,# n_TOTAL_qalys_life)
     #names(df_outcomes) <- c("Total Costs (1-year)", "Total Costs (5-year)", "Total Costs (10-year)", "Total Costs (Lifetime)", "Health Sector Costs (1-year)", "Health Sector Costs (5-year)", "Health Sector Costs (10-year)", "Health Sector Costs (Lifetime)",
     #                        "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)",
     #                        "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
@@ -304,24 +304,24 @@ outcomes <- function(l_params_all,
                 v_TOTAL_qalys = v_TOTAL_qalys,
                 n_TOTAL_costs_1yr = n_TOTAL_costs_1yr,
                 n_TOTAL_costs_5yr = n_TOTAL_costs_5yr,
-                #n_TOTAL_costs_10yr = n_TOTAL_costs_10yr,
+                n_TOTAL_costs_10yr = n_TOTAL_costs_10yr,
                 #n_TOTAL_costs_life = n_TOTAL_costs_life,
                 n_HEALTH_SECTOR_costs_1yr = n_HEALTH_SECTOR_costs_1yr,
                 n_HEALTH_SECTOR_costs_5yr = n_HEALTH_SECTOR_costs_5yr,
-                #n_HEALTH_SECTOR_costs_10yr = n_HEALTH_SECTOR_costs_10yr,
+                n_HEALTH_SECTOR_costs_10yr = n_HEALTH_SECTOR_costs_10yr,
                 #n_HEALTH_SECTOR_costs_life = n_HEALTH_SECTOR_costs_life,
                 n_CRIMINAL_costs_1yr = n_CRIMINAL_costs_1yr,
                 n_CRIMINAL_costs_5yr = n_CRIMINAL_costs_5yr,
-                #n_CRIMINAL_costs_10yr = n_CRIMINAL_costs_10yr,
+                n_CRIMINAL_costs_10yr = n_CRIMINAL_costs_10yr,
                 #n_CRIMINAL_costs_life = n_CRIMINAL_costs_life,
                 n_TX_costs_1yr = n_TX_costs_1yr,
                 n_TX_costs_5yr = n_TX_costs_5yr,
-                #n_TX_costs_10yr = n_TX_costs_10yr,
+                n_TX_costs_10yr = n_TX_costs_10yr,
                 #n_TX_costs_life = n_TX_costs_life,
                 v_costs = v_costs,
                 n_TOTAL_qalys_1yr = n_TOTAL_qalys_1yr,
                 n_TOTAL_qalys_5yr = n_TOTAL_qalys_5yr,
-                #n_TOTAL_qalys_10yr = n_TOTAL_qalys_10yr,
+                n_TOTAL_qalys_10yr = n_TOTAL_qalys_10yr,
                 #n_TOTAL_qalys_life = n_TOTAL_qalys_life,
                 v_qalys = v_qalys,
                 df_outcomes = df_outcomes))
@@ -366,7 +366,7 @@ ICER <- function(outcomes_comp, outcomes_int){
   # 5-year
   n_icer_TOTAL_5yr <- (outcomes_int$n_TOTAL_costs_5yr - outcomes_comp$n_TOTAL_costs_5yr)/(outcomes_int$n_TOTAL_qalys_5yr - outcomes_comp$n_TOTAL_qalys_5yr)
   # 10-year
-  #n_icer_TOTAL_10yr <- (outcomes_int$n_TOTAL_costs_10yr - outcomes_comp$n_TOTAL_costs_10yr)/(outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr)
+  n_icer_TOTAL_10yr <- (outcomes_int$n_TOTAL_costs_10yr - outcomes_comp$n_TOTAL_costs_10yr)/(outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr)
   # Lifetime
   #n_icer_TOTAL_life <- (outcomes_int$n_TOTAL_costs_life - outcomes_comp$n_TOTAL_costs_life)/(outcomes_int$n_TOTAL_qalys_life - outcomes_comp$n_TOTAL_qalys_life)
   
@@ -376,7 +376,7 @@ ICER <- function(outcomes_comp, outcomes_int){
   # 5-year
   n_icer_HEALTH_SECTOR_5yr <- (outcomes_int$n_HEALTH_SECTOR_costs_5yr - outcomes_comp$n_HEALTH_SECTOR_costs_5yr)/(outcomes_int$n_TOTAL_qalys_5yr - outcomes_comp$n_TOTAL_qalys_5yr)
   # 10-year
-  #n_icer_HEALTH_SECTOR_10yr <- (outcomes_int$n_HEALTH_SECTOR_costs_10yr - outcomes_comp$n_HEALTH_SECTOR_costs_10yr)/(outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr)
+  n_icer_HEALTH_SECTOR_10yr <- (outcomes_int$n_HEALTH_SECTOR_costs_10yr - outcomes_comp$n_HEALTH_SECTOR_costs_10yr)/(outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr)
   # Lifetime
   #n_icer_HEALTH_SECTOR_life <- (outcomes_int$n_HEALTH_SECTOR_costs_life - outcomes_comp$n_HEALTH_SECTOR_costs_life)/(outcomes_int$n_TOTAL_qalys_life - outcomes_comp$n_TOTAL_qalys_life)
   
@@ -388,8 +388,8 @@ ICER <- function(outcomes_comp, outcomes_int){
   n_inc_costs_TOTAL_5yr <- outcomes_int$n_TOTAL_costs_5yr - outcomes_comp$n_TOTAL_costs_5yr
   n_inc_qalys_TOTAL_5yr <- outcomes_int$n_TOTAL_qalys_5yr - outcomes_comp$n_TOTAL_qalys_5yr
   # 10-year
-  #n_inc_costs_TOTAL_10yr <- outcomes_int$n_TOTAL_costs_10yr - outcomes_comp$n_TOTAL_costs_10yr
-  #n_inc_qalys_TOTAL_10yr <- outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr
+  n_inc_costs_TOTAL_10yr <- outcomes_int$n_TOTAL_costs_10yr - outcomes_comp$n_TOTAL_costs_10yr
+  n_inc_qalys_TOTAL_10yr <- outcomes_int$n_TOTAL_qalys_10yr - outcomes_comp$n_TOTAL_qalys_10yr
   # Lifetime
   #n_inc_costs_TOTAL_life <- outcomes_int$n_TOTAL_costs_life - outcomes_comp$n_TOTAL_costs_life
   #n_inc_qalys_TOTAL_life <- outcomes_int$n_TOTAL_qalys_life - outcomes_comp$n_TOTAL_qalys_life
@@ -402,22 +402,22 @@ ICER <- function(outcomes_comp, outcomes_int){
   n_inc_costs_HEALTH_SECTOR_5yr <- outcomes_int$n_HEALTH_SECTOR_costs_5yr - outcomes_comp$n_HEALTH_SECTOR_costs_5yr
   n_inc_qalys_HEALTH_SECTOR_5yr <- outcomes_int$n_HEALTH_SECTOR_qalys_5yr - outcomes_comp$n_HEALTH_SECTOR_qalys_5yr
   # 10-year
-  #n_inc_costs_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_costs_10yr - outcomes_comp$n_HEALTH_SECTOR_costs_10yr
-  #n_inc_qalys_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_qalys_10yr - outcomes_comp$n_HEALTH_SECTOR_qalys_10yr
+  n_inc_costs_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_costs_10yr - outcomes_comp$n_HEALTH_SECTOR_costs_10yr
+  n_inc_qalys_HEALTH_SECTOR_10yr <- outcomes_int$n_HEALTH_SECTOR_qalys_10yr - outcomes_comp$n_HEALTH_SECTOR_qalys_10yr
   # Lifetime
   #n_inc_costs_HEALTH_SECTOR_life <- outcomes_int$n_HEALTH_SECTOR_costs_life - outcomes_comp$n_HEALTH_SECTOR_costs_life
   #n_inc_qalys_HEALTH_SECTOR_life <- outcomes_int$n_HEALTH_SECTOR_qalys_life - outcomes_comp$n_HEALTH_SECTOR_qalys_life
 
   ## Combined dataframes ##
-  df_incremental <- data.frame(n_inc_costs_TOTAL_1yr, n_inc_costs_TOTAL_5yr,# n_inc_costs_TOTAL_10yr, n_inc_costs_TOTAL_life,
-                               n_inc_costs_HEALTH_SECTOR_1yr, n_inc_costs_HEALTH_SECTOR_5yr,# n_inc_costs_HEALTH_SECTOR_10yr, n_inc_costs_HEALTH_SECTOR_life,
-                               n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr)#, n_inc_qalys_TOTAL_10yr, n_inc_qalys_TOTAL_life)
+  df_incremental <- data.frame(n_inc_costs_TOTAL_1yr, n_inc_costs_TOTAL_5yr, n_inc_costs_TOTAL_10yr,# n_inc_costs_TOTAL_life,
+                               n_inc_costs_HEALTH_SECTOR_1yr, n_inc_costs_HEALTH_SECTOR_5yr, n_inc_costs_HEALTH_SECTOR_10yr,# n_inc_costs_HEALTH_SECTOR_life,
+                               n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr)#, n_inc_qalys_TOTAL_life)
   #names(df_incremental) <- c("Incremental Costs (1-year)", "Incremental Costs (5-year)", "Incremental Costs (10-year)", "Incremental Costs (Lifetime)", 
   #                           "Incremental Costs (Health Sector 1-year)", "Incremental Costs (Health Sector 5-year)", "Incremental Costs (Health Sector 10-year)", "Incremental Costs (Health Sector Lifetime)",
   #                           "Incremental QALYs (1-year)", "Incremental QALYs (5-year)", "Incremental QALYs (10-year)", "Incremental QALYs (Lifetime)")
   
-  df_icer <- data.frame(n_icer_TOTAL_1yr, n_icer_TOTAL_5yr,# n_icer_TOTAL_10yr, n_icer_TOTAL_life,
-                        n_icer_HEALTH_SECTOR_1yr, n_icer_HEALTH_SECTOR_5yr)#, n_icer_HEALTH_SECTOR_10yr, n_icer_HEALTH_SECTOR_life)
+  df_icer <- data.frame(n_icer_TOTAL_1yr, n_icer_TOTAL_5yr, n_icer_TOTAL_10yr,# n_icer_TOTAL_life,
+                        n_icer_HEALTH_SECTOR_1yr, n_icer_HEALTH_SECTOR_5yr, n_icer_HEALTH_SECTOR_10yr)#, n_icer_HEALTH_SECTOR_life)
                         #n_costs_TOTAL_1yr, n_qalys_TOTAL_1yr, n_costs_TOTAL_5yr, n_qalys_TOTAL_5yr, n_costs_TOTAL_10yr, n_qalys_TOTAL_10yr, n_costs_TOTAL_life, n_qalys_TOTAL_life,
                         #n_costs_HEALTH_SECTOR_1yr, n_qalys_HEALTH_SECTOR_1yr, n_costs_HEALTH_SECTOR_5yr, n_qalys_HEALTH_SECTOR_5yr, n_costs_HEALTH_SECTOR_10yr, n_qalys_HEALTH_SECTOR_10yr, n_costs_HEALTH_SECTOR_life, n_qalys_HEALTH_SECTOR_life)
   #names(df_icer) <- c("ICER (1-year)", "ICER (5-year)", "ICER (10-year)", "ICER (Lifetime)",
@@ -427,11 +427,11 @@ ICER <- function(outcomes_comp, outcomes_int){
   
   return(list(n_icer_TOTAL_1yr = n_icer_TOTAL_1yr,
               n_icer_TOTAL_5yr = n_icer_TOTAL_5yr,
-              #n_icer_TOTAL_10yr = n_icer_TOTAL_10yr,
+              n_icer_TOTAL_10yr = n_icer_TOTAL_10yr,
               #n_icer_TOTAL_life = n_icer_TOTAL_life,
               n_icer_HEALTH_SECTOR_1yr = n_icer_HEALTH_SECTOR_1yr,
               n_icer_HEALTH_SECTOR_5yr = n_icer_HEALTH_SECTOR_5yr,
-              #n_icer_HEALTH_SECTOR_10yr = n_icer_HEALTH_SECTOR_10yr,
+              n_icer_HEALTH_SECTOR_10yr = n_icer_HEALTH_SECTOR_10yr,
               #n_icer_HEALTH_SECTOR_life = n_icer_HEALTH_SECTOR_life,
               #n_costs_TOTAL_1yr = n_costs_TOTAL_1yr, 
               #n_qalys_TOTAL_1yr = n_qalys_TOTAL_1yr, 

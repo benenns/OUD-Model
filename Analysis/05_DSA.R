@@ -1,56 +1,144 @@
+rm(list = ls()) # to clean the workspace
+
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(tidyverse)
-library(xlsx)
+library(data.table)
+library(formattable)
+library(tidyr)
+library(RColorBrewer)
 
 # Call model setup functions
 # To-do: Move into package eventually
 source("R/input_parameter_functions.R")
-source("R/generate_psa_parameter_functions.R")
+#source("R/generate_psa_parameter_functions.R")
 source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
 
 # Load parameters
-# Calibrated parameter values
-load(file = "outputs/imis_output.RData")
+source("Analysis/00_load_parameters.R")
 
-# All parameters
-# BNX scenario (primary model definition)
-l_params_BUP <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_bup.csv", # Change initial distributions (100% in BUP)
-                                file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
-                                file.frailty = "data/frailty.csv",
-                                file.weibull_scale = "data/weibull_scale.csv",
-                                file.weibull_shape = "data/weibull_shape.csv",
-                                file.unconditional = "data/unconditional.csv",
-                                file.overdose = "data/overdose.csv",
-                                file.hiv = "data/hiv_sero.csv",
-                                file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
+# Load DSA parameters
 
-# Methadone scenario (primary model definition)
-l_params_MET <- load_all_params(file.init = "data/init_params.csv",
-                                file.init_dist = "data/init_dist_met.csv", # Change initial distributions (100% in MET)
-                                file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
-                                file.frailty = "data/frailty.csv",
-                                file.weibull_scale = "data/weibull_scale.csv",
-                                file.weibull_shape = "data/weibull_shape.csv",
-                                file.unconditional = "data/unconditional.csv",
-                                file.overdose = "data/overdose.csv",
-                                file.hiv = "data/hiv_sero.csv",
-                                file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
 
-#### Deterministic sensitivity analysis scenarios ####
-## Single parameter OWSA ##
-## Overdose ##
+# Overdose
+
+## Costs
+# HRU costs
+df_dsa_HRU_costs_MMS <- read.csv(file = "data/DSA/Modified Model Specification/HRU_costs.csv", row.names = 1, header = TRUE)
+df_dsa_HRU_costs_TS <- read.csv(file = "data/DSA/Trial Specification/HRU_costs.csv", row.names = 1, header = TRUE)
+# MMS
+v_dsa_HRU_costs_alt_MMS <- unlist(df_dsa_HRU_costs_MMS["pe_alt",]) #as.numeric(df_dsa_costs["pe_alt",])
+# TS
+v_dsa_HRU_costs_alt_TS <- unlist(df_dsa_HRU_costs_TS["pe_alt",])
+
+# Crime costs
+# DSA data
+df_dsa_crime_costs_MMS <- read.csv(file = "data/DSA/Modified Model Specification/crime_costs.csv", row.names = 1, header = TRUE)
+df_dsa_crime_costs_TS <- read.csv(file = "data/DSA/Trial Specification/crime_costs.csv", row.names = 1, header = TRUE)
+# MMS
+v_dsa_crime_costs_low_MMS <- unlist(df_dsa_crime_costs_MMS["pe_low",])
+v_dsa_crime_costs_high_MMS <- unlist(df_dsa_crime_costs_MMS["pe_high",])
+v_dsa_crime_costs_alt_MMS <- unlist(df_dsa_crime_costs_MMS["pe_alt",])
+# TS
+v_dsa_crime_costs_alt_TS <- unlist(df_dsa_crime_costs_TS["pe_alt",])
+
+# QALYs
+df_dsa_qalys_MMS <- read.csv(file = "data/DSA/Modified Model Specification/qalys.csv", row.names = 1, header = TRUE)
+#df_dsa_qalys_TS <- read.csv(file = "data/DSA/Trial Specification/qalys.csv", row.names = 1, header = TRUE)
+# MMS
+v_dsa_qalys_reduced_eq_5d_5l_MMS <- unlist(df_dsa_qalys_MMS["pe_reduced_eq_5d_5l",])
+v_dsa_qalys_low_MMS <- unlist(df_dsa_qalys_MMS["pe_low",])
+v_dsa_qalys_high_MMS <- unlist(df_dsa_qalys_MMS["pe_high",])
+v_dsa_qalys_eq_5d_3l_MMS <- unlist(df_dsa_qalys_MMS["pe_eq_5d_3l",])
+v_dsa_qalys_hui_3_MMS <- unlist(df_dsa_qalys_MMS["pe_hui_3",])
+# TS
+
+# Transitions
+
+# Province-specific
+
+############################################
+#### Deterministic sensitivity analysis ####
+############################################
+
+################
+### Baseline ###
+################
+# MMS
+l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
+l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
+ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+# TS
+
+###################
+### Crime Costs ###
+###################
+# Low
+# MMS
+l_outcomes_MET_crime_costs_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_low_MMS)
+l_outcomes_BUP_crime_costs_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_low_MMS)
+ICER_crime_costs_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_crime_costs_low_MMS, outcomes_int = l_outcomes_BUP_crime_costs_low_MMS)
+# TS
+
+# High
+# MMS
+l_outcomes_MET_crime_costs_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_high_MMS)
+l_outcomes_BUP_crime_costs_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_high_MMS)
+ICER_crime_costs_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_crime_costs_high_MMS, outcomes_int = l_outcomes_BUP_crime_costs_high_MMS)
+# TS
+
+# Alternative (Krebs et al. 2014)
+# MMS
+l_outcomes_MET_crime_costs_alt_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_alt_MMS)
+l_outcomes_BUP_crime_costs_alt_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_alt_MMS)
+ICER_crime_costs_alt_MMS <- ICER(outcomes_comp = l_outcomes_MET_crime_costs_alt_MMS, outcomes_int = l_outcomes_BUP_crime_costs_alt_MMS)
+# TS
+l_outcomes_MET_crime_costs_alt_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_alt_TS)
+l_outcomes_BUP_crime_costs_alt_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_crime_costs_alt_TS)
+ICER_crime_costs_alt_TS <- ICER(outcomes_comp = l_outcomes_MET_crime_costs_alt_TS, outcomes_int = l_outcomes_BUP_crime_costs_alt_TS)
+
+# Reduced (all treatment costs equal)
+
+#############
+### QALYs ###
+#############
+# Low
+# MMS
+l_outcomes_MET_qalys_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_low_MMS)
+l_outcomes_BUP_qalys_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_low_MMS)
+ICER_qalys_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_low_MMS, outcomes_int = l_outcomes_BUP_qalys_low_MMS)
+# TS
+
+# High
+# MMS
+l_outcomes_MET_qalys_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_high_MMS)
+l_outcomes_BUP_qalys_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_high_MMS)
+ICER_qalys_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_high_MMS, outcomes_int = l_outcomes_BUP_qalys_high_MMS)
+# TS
+
+## Reduced (EQ-5D-5L) ##
+# MMS
+l_outcomes_MET_qalys_reduced_eq_5d_5l_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_reduced_eq_5d_5l_MMS)
+l_outcomes_BUP_qalys_reduced_eq_5d_5l_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_reduced_eq_5d_5l_MMS)
+ICER_qalys_reduced_eq_5d_5l_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_reduced_eq_5d_5l_MMS, outcomes_int = l_outcomes_BUP_qalys_reduced_eq_5d_5l_MMS)
+
+## Alternative (EQ-5D-3L) ##
+# MMS
+l_outcomes_MET_qalys_eq_5d_3l_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_eq_5d_3l_MMS)
+l_outcomes_BUP_qalys_eq_5d_3l_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_eq_5d_3l_MMS)
+ICER_qalys_eq_5d_3l_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_eq_5d_3l_MMS, outcomes_int = l_outcomes_BUP_qalys_eq_5d_3l_MMS)
+
+## Alternative (HUI-3) ##
+# MMS
+l_outcomes_MET_qalys_hui_3_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_hui_3_MMS)
+l_outcomes_BUP_qalys_hui_3_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_hui_3_MMS)
+ICER_qalys_hui_3_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_hui_3_MMS, outcomes_int = l_outcomes_BUP_qalys_hui_3_MMS)
+
+################
+### Overdose ###
+################
 # Witnessed OD
 # Low
 l_outcomes_MET_witness_low <- outcomes(l_params_all = l_params_MET, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_low)
@@ -84,10 +172,134 @@ ICER_naloxone <- ICER(outcomes_comp = l_outcomes_MET_naloxone, outcomes_int = l_
 
 # QALYs
 
-#### Tornado Diagram ####
-# Prepare data for plotting
-df_tornado <- data.frame()
+###################
+#### Data Prep ####
+###################
 
+# Baseline
+df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
+
+###################
+### Crime costs ###
+###################
+df_crime_costs_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_1yr, ICER_MMS$df_incremental$n_inc_costs_TOTAL_5yr, 
+                                          ICER_MMS$df_incremental$n_inc_costs_TOTAL_10yr, ICER_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                          ICER_MMS$df_icer$n_icer_TOTAL_5yr, ICER_MMS$df_icer$n_icer_TOTAL_10yr)
+df_crime_costs_reduced_MMS <- data.frame()
+df_crime_costs_low_MMS <- data.frame(ICER_crime_costs_low_MMS$df_incremental$n_inc_costs_TOTAL_1yr, ICER_crime_costs_low_MMS$df_incremental$n_inc_costs_TOTAL_5yr, 
+                                     ICER_crime_costs_low_MMS$df_incremental$n_inc_costs_TOTAL_10yr, ICER_crime_costs_low_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                     ICER_crime_costs_low_MMS$df_icer$n_icer_TOTAL_5yr, ICER_crime_costs_low_MMS$df_icer$n_icer_TOTAL_10yr)
+df_crime_costs_high_MMS <- data.frame(ICER_crime_costs_high_MMS$df_incremental$n_inc_costs_TOTAL_1yr, ICER_crime_costs_high_MMS$df_incremental$n_inc_costs_TOTAL_5yr, 
+                                      ICER_crime_costs_high_MMS$df_incremental$n_inc_costs_TOTAL_10yr, ICER_crime_costs_high_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                      ICER_crime_costs_high_MMS$df_icer$n_icer_TOTAL_5yr, ICER_crime_costs_high_MMS$df_icer$n_icer_TOTAL_10yr)
+df_crime_costs_alt_MMS <- data.frame(ICER_crime_costs_alt_MMS$df_incremental$n_inc_costs_TOTAL_1yr, ICER_crime_costs_alt_MMS$df_incremental$n_inc_costs_TOTAL_5yr, 
+                                     ICER_crime_costs_alt_MMS$df_incremental$n_inc_costs_TOTAL_10yr, ICER_crime_costs_alt_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                     ICER_crime_costs_alt_MMS$df_icer$n_icer_TOTAL_5yr, ICER_crime_costs_alt_MMS$df_icer$n_icer_TOTAL_10yr)
+
+colnames(df_crime_costs_baseline_MMS) <- colnames(df_crime_costs_low_MMS) <- colnames(df_crime_costs_high_MMS) <- colnames(df_crime_costs_alt_MMS) <- c("inc_costs_1yr", "inc_costs_5yr", "inc_costs_10yr", "icer_1yr", "icer_5yr", "icer_10yr")
+
+df_crime_costs <- rbind(df_crime_costs_baseline_MMS, df_crime_costs_low_MMS, df_crime_costs_high_MMS, df_crime_costs_alt_MMS)
+df_crime_costs <- data.frame("Scenario" = c("Baseline", "Low", "High", "Alternative"), df_crime_costs)
+
+# Custom table output
+# set colours
+crime_costs_palette <- brewer.pal(3,"BrBG")
+
+# table
+table_crime_costs <- df_crime_costs %>%
+  mutate(`Incremental Costs (1-year)` = round(inc_costs_1yr, 3),
+         `Incremental Costs (5-year)` = round(inc_costs_5yr, 3),
+         `Incremental Costs (10-year)` = round(inc_costs_10yr, 3),
+         `ICER (1-year)` = accounting(icer_1yr, 0),
+         `ICER (5-year)` = accounting(icer_5yr, 0),
+         `ICER (10-year)` = accounting(icer_10yr, 0)) %>%
+  select(c(`Scenario`, `Incremental Costs (1-year)`, `Incremental Costs (5-year)`, `Incremental Costs (10-year)`, `ICER (1-year)`, `ICER (5-year)`, `ICER (10-year)`)) #%>%
+
+formattable(table_crime_costs, align =c("l","c","c","c","c", "c", "c"), list(
+  `Scenario` = formatter("span", style = ~ style(color = "grey",font.weight = "bold")), 
+  `Incremental Costs (1-year)` = color_tile(crime_costs_palette[2], crime_costs_palette[1]),
+  `Incremental Costs (5-year)` = color_tile(crime_costs_palette[2], crime_costs_palette[1]),
+  `Incremental Costs (10-year)` = color_tile(crime_costs_palette[2], crime_costs_palette[1]),
+  `ICER (1-year)` = color_tile(crime_costs_palette[2], crime_costs_palette[3]),
+  `ICER (5-year)` = color_tile(crime_costs_palette[2], crime_costs_palette[3]),
+  `ICER (10-year)` = color_tile(crime_costs_palette[2], crime_costs_palette[3])))
+
+#############
+### QALYs ###
+#############
+df_qalys_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                    ICER_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                    ICER_MMS$df_icer$n_icer_TOTAL_5yr, ICER_MMS$df_icer$n_icer_TOTAL_10yr)
+df_qalys_reduced_eq_5d_5l_MMS <- data.frame(ICER_qalys_reduced_eq_5d_5l_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_reduced_eq_5d_5l_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                            ICER_qalys_reduced_eq_5d_5l_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_qalys_reduced_eq_5d_5l_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                            ICER_qalys_reduced_eq_5d_5l_MMS$df_icer$n_icer_TOTAL_5yr, ICER_qalys_reduced_eq_5d_5l_MMS$df_icer$n_icer_TOTAL_10yr)
+df_qalys_low_MMS <- data.frame(ICER_qalys_low_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_low_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                               ICER_qalys_low_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_qalys_low_MMS$df_icer$n_icer_TOTAL_1yr, 
+                               ICER_qalys_low_MMS$df_icer$n_icer_TOTAL_5yr, ICER_qalys_low_MMS$df_icer$n_icer_TOTAL_10yr)
+df_qalys_high_MMS <- data.frame(ICER_qalys_high_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_high_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                ICER_qalys_high_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_qalys_high_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                ICER_qalys_high_MMS$df_icer$n_icer_TOTAL_5yr, ICER_qalys_high_MMS$df_icer$n_icer_TOTAL_10yr)
+df_qalys_eq_5d_3l_MMS <- data.frame(ICER_qalys_eq_5d_3l_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_eq_5d_3l_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                    ICER_qalys_eq_5d_3l_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_qalys_eq_5d_3l_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                    ICER_qalys_eq_5d_3l_MMS$df_icer$n_icer_TOTAL_5yr, ICER_qalys_eq_5d_3l_MMS$df_icer$n_icer_TOTAL_10yr)
+df_qalys_hui_3_MMS <- data.frame(ICER_qalys_hui_3_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_hui_3_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                 ICER_qalys_hui_3_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_qalys_hui_3_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                 ICER_qalys_hui_3_MMS$df_icer$n_icer_TOTAL_5yr, ICER_qalys_hui_3_MMS$df_icer$n_icer_TOTAL_10yr)
+
+colnames(df_qalys_baseline_MMS) <- colnames(df_qalys_reduced_eq_5d_5l_MMS) <- colnames(df_qalys_low_MMS) <- colnames(df_qalys_high_MMS) <- colnames(df_qalys_eq_5d_3l_MMS) <- colnames(df_qalys_hui_3_MMS) <- c("inc_qalys_1yr", "inc_qalys_5yr", "inc_qalys_10yr", "icer_1yr", "icer_5yr", "icer_10yr")
+
+df_qalys <- rbind(df_qalys_baseline_MMS, df_qalys_reduced_eq_5d_5l_MMS, df_qalys_low_MMS, df_qalys_high_MMS, df_qalys_eq_5d_3l_MMS, df_qalys_hui_3_MMS)
+df_qalys <- data.frame("Scenario" = c("Baseline", "Reduced", "Low", "High", "EQ-5D-3L", "HUI-3"), df_qalys)
+#row.names(df_qalys) <- c("Baseline", "Reduced", "Low", "High", "EQ-5D-3L", "HUI-3")
+
+# Custom table output
+# set colours
+#customGreen0 <- "#DeF7E9"
+#customGreen <- "#71CA97"
+#customRed <- "#ff7f7f"
+qaly_palette <- brewer.pal(3,"PuOr")
+#qaly_palette <- brewer.pal(3,"RdYlBu")
+#qaly_palette[1]
+
+# table
+table_qalys <- df_qalys %>%
+  mutate(`Incremental QALYs (1-year)` = round(inc_qalys_1yr, 3),
+         `Incremental QALYs (5-year)` = round(inc_qalys_5yr, 3),
+         `Incremental QALYs (10-year)` = round(inc_qalys_10yr, 3),
+         `ICER (1-year)` = accounting(icer_1yr, 0),
+         `ICER (5-year)` = accounting(icer_5yr, 0),
+         `ICER (10-year)` = accounting(icer_10yr, 0)) %>%
+  select(c(`Scenario`, `Incremental QALYs (1-year)`, `Incremental QALYs (5-year)`, `Incremental QALYs (10-year)`, `ICER (1-year)`, `ICER (5-year)`, `ICER (10-year)`)) #%>%
+
+formattable(table_qalys, align =c("l","c","c","c","c", "c", "c"), list(
+  `Scenario` = formatter("span", style = ~ style(color = "grey",font.weight = "bold")), 
+    `Incremental QALYs (1-year)` = color_tile(qaly_palette[1], qaly_palette[2]),
+  `Incremental QALYs (5-year)` = color_tile(qaly_palette[1], qaly_palette[2]),
+  `Incremental QALYs (10-year)` = color_tile(qaly_palette[1], qaly_palette[2]),
+  `ICER (1-year)` = color_tile(qaly_palette[2], qaly_palette[3]),
+  `ICER (5-year)` = color_tile(qaly_palette[2], qaly_palette[3]),
+  `ICER (10-year)` = color_tile(qaly_palette[2], qaly_palette[3])))
+
+# Prepare data for plotting
+# Costs
+df_low_costs <- rbind(df_crime_costs_low_MMS$n_inc_costs_TOTAL_10yr, df_qalys_low_MMS$n_inc_costs_TOTAL_10yr)
+df_high_costs <- rbind(df_crime_costs_high_MMS$n_inc_costs_TOTAL_10yr, df_qalys_high_MMS$n_inc_costs_TOTAL_10yr)
+df_tornado_costs <- data.frame(df_low, df_high)
+
+colnames(df_tornado_costs) <- c("Low", "High")
+row.names(df_tornado_costs) <- c("Crime Costs", "QALYs")
+
+# ICER
+df_low_icer <- rbind(df_crime_costs_low_MMS$n_icer_TOTAL_10yr, df_qalys_low_MMS$n_icer_TOTAL_10yr)
+df_high_icer <- rbind(df_crime_costs_high_MMS$n_icer_TOTAL_10yr, df_qalys_high_MMS$n_icer_TOTAL_10yr)
+df_tornado_icer <- data.frame(df_low, df_high)
+
+colnames(df_tornado_icer) <- c("Low", "High")
+row.names(df_tornado_icer) <- c("Crime Costs", "QALYs")
+
+#########################
+#### Tornado Diagram ####
+#########################
 # this is throwing some warnings in my computer, but it is reading the data frame correctly
 df <- '
 Parameter Lower_Bound Upper_Bound UL_Difference
@@ -106,7 +318,9 @@ Parameter12 10036 8792 1244
 ' %>% read_table2()
 
 # original value of output
-base.value <- 9504
+baseline_icer <- df_baseline_MMS$n_icer_TOTAL_10yr
+baseline_costs <- df_baseline_MMS$n_inc_costs_TOTAL_10yr
+baseline_qalys <- df_baseline_MMS$n_inc_qalys_TOTAL_10yr
 
 # get order of parameters according to size of intervals
 # (I use this to define the ordering of the factors which I then use to define the positions in the plot)
