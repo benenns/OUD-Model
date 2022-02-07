@@ -470,6 +470,8 @@ load_all_params <- function(file.init = NULL,
     n_fent_OD_mult = df_overdose["pe", "fent_OD_mult"],
     n_fent_OD_mult_shape = df_overdose["shape", "fent_OD_mult"],
     n_fent_OD_mult_scale = df_overdose["scale", "fent_OD_mult"],
+    n_fent_OD_mult_low = df_overdose["low", "fent_OD_mult"],
+    n_fent_OD_mult_high = df_overdose["high", "fent_OD_mult"],
     
     # Probability of fentanyl exposure
     #p_fent_exp = df_overdose["pe", "fent_exp_prob"],
