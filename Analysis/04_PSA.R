@@ -10,8 +10,8 @@ library(foreach)
 library(doParallel)
 
 # Set number of cores
-n_cores <- detectCores()
-registerDoParallel(n_cores)
+#n_cores <- detectCores()
+#registerDoParallel(n_cores)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -26,7 +26,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 1500 # just to test function (will be set as n_sim)
+n_sim <- 1000 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
@@ -390,15 +390,31 @@ ggsave(plot_PSA_MMS_5yr_scatter_health_sector,
        width = 7, height = 10)
 
 # 10-year
-#inc_qalys_10yr <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
-#inc_costs_10yr <- df_incremental_PSA_MMS[, "Incremental Costs (10-year)"]
+inc_qalys_10yr <- df_incremental_PSA_MMS[, "n_inc_qalys_TOTAL_10yr"]
+inc_costs_10yr <- df_incremental_PSA_MMS[, "n_inc_costs_TOTAL_10yr"]
 
-#ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10yr, y = inc_costs_10yr)) +
-#  geom_point() +
-#  geom_hline(yintercept = 0) +
-#  geom_vline(xintercept = 0)
-#xlim(min(a), max(a)) +
-#ylim(min(b), max(b))
+plot_PSA_MMS_10yr_scatter <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10yr, y = inc_costs_10yr)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_MMS_10yr_scatter, 
+       filename = "Plots/PSA/PSA-MMS-10yr.png", 
+       width = 7, height = 10)
+
+# Health Sector
+inc_costs_10yr_health_sector <- df_incremental_PSA_MMS[, "n_inc_costs_HEALTH_SECTOR_10yr"]
+
+plot_PSA_MMS_10yr_scatter_health_sector <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10yr, y = inc_costs_10yr_health_sector)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_abline(slope = 100000, intercept = 0)
+
+ggsave(plot_PSA_MMS_10yr_scatter_health_sector, 
+       filename = "Plots/PSA/PSA-MMS-10yr-Health-Sector.png", 
+       width = 7, height = 10)
 
 # Lifetime
 #inc_qalys_lifetime <- df_incremental_PSA_MMS[, "Incremental QALYs (10-year)"]
@@ -442,31 +458,31 @@ ggsave(plot_PSA_TS_1yr_scatter_health_sector,
 
 # 5-year
 # Total
-inc_qalys_5yr <- df_incremental_PSA_TS[, "n_inc_qalys_TOTAL_5yr"]
-inc_costs_5yr <- df_incremental_PSA_TS[, "n_inc_costs_TOTAL_5yr"]
-
-plot_PSA_TS_5yr_scatter <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_5yr, y = inc_costs_5yr)) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 0) +
-  geom_abline(slope = 100000, intercept = 0)
-
-ggsave(plot_PSA_TS_5yr_scatter, 
-       filename = "Plots/PSA/PSA-TS-5yr.png", 
-       width = 7, height = 10)
-
-# Health Sector
-inc_costs_5yr_health_sector <- df_incremental_PSA_TS[, "n_inc_costs_HEALTH_SECTOR_5yr"]
-
-plot_PSA_TS_5yr_scatter_health_sector <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_5yr, y = inc_costs_5yr_health_sector)) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_vline(xintercept = 0) +
-  geom_abline(slope = 100000, intercept = 0)
-
-ggsave(plot_PSA_TS_5yr_scatter_health_sector, 
-       filename = "Plots/PSA/PSA-TS-5yr-Health-Sector.png", 
-       width = 7, height = 10)
+#inc_qalys_5yr <- df_incremental_PSA_TS[, "n_inc_qalys_TOTAL_5yr"]
+#inc_costs_5yr <- df_incremental_PSA_TS[, "n_inc_costs_TOTAL_5yr"]
+#
+#plot_PSA_TS_5yr_scatter <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_5yr, y = inc_costs_5yr)) +
+#  geom_point() +
+#  geom_hline(yintercept = 0) +
+#  geom_vline(xintercept = 0) +
+#  geom_abline(slope = 100000, intercept = 0)
+#
+#ggsave(plot_PSA_TS_5yr_scatter, 
+#       filename = "Plots/PSA/PSA-TS-5yr.png", 
+#       width = 7, height = 10)
+#
+## Health Sector
+#inc_costs_5yr_health_sector <- df_incremental_PSA_TS[, "n_inc_costs_HEALTH_SECTOR_5yr"]
+#
+#plot_PSA_TS_5yr_scatter_health_sector <- ggplot(df_incremental_PSA_TS, aes(x = inc_qalys_5yr, y = inc_costs_5yr_health_sector)) +
+#  geom_point() +
+#  geom_hline(yintercept = 0) +
+#  geom_vline(xintercept = 0) +
+#  geom_abline(slope = 100000, intercept = 0)
+#
+#ggsave(plot_PSA_TS_5yr_scatter_health_sector, 
+#       filename = "Plots/PSA/PSA-TS-5yr-Health-Sector.png", 
+#       width = 7, height = 10)
 
 ### Produce CEAC plot from cost-effectiveness results
 ## Prep data

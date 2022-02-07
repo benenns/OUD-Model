@@ -423,7 +423,8 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
   c_METC_HRU = rgamma(n_sim, shape = df_costs["shape", "METC_NI_HRU"], scale = df_costs["scale", "METC_NI_HRU"])
   c_ABS_HRU = rgamma(n_sim, shape = df_costs["shape", "ABS_NI_HRU"], scale = df_costs["scale", "ABS_NI_HRU"]) 
   c_REL_HRU = rgamma(n_sim, shape = df_costs["shape", "REL_NI_HRU"], scale = df_costs["scale", "REL_NI_HRU"]) 
-  c_OD_HRU  = rgamma(n_sim, shape = df_costs["shape", "OD_NI_HRU"] , scale = df_costs["scale", "OD_NI_HRU"] )
+  c_ODN_HRU  = rgamma(n_sim, shape = df_costs["shape", "ODN_NI_HRU"] , scale = df_costs["scale", "ODN_NI_HRU"])
+  c_ODF_HRU  = rgamma(n_sim, shape = df_costs["shape", "ODF_NI_HRU"] , scale = df_costs["scale", "ODF_NI_HRU"])
   
   # Crime Costs
   c_BUP_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUP"], scale = df_crime_costs["scale", "BUP"])
@@ -683,14 +684,16 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     c_METC_NI_HRU = c_METC_HRU,
     c_ABS_NI_HRU = c_ABS_HRU, 
     c_REL_NI_HRU = c_REL_HRU, 
-    c_OD_NI_HRU  = c_OD_HRU, 
+    c_ODN_NI_HRU  = c_ODN_HRU,
+    c_ODF_NI_HRU  = c_ODF_HRU, 
     c_BUP_INJ_HRU  = c_BUP_HRU, 
     c_BUPC_INJ_HRU = c_BUPC_HRU, 
     c_MET_INJ_HRU = c_MET_HRU,
     c_METC_INJ_HRU = c_METC_HRU,
     c_ABS_INJ_HRU = c_ABS_HRU, 
     c_REL_INJ_HRU = c_REL_HRU, 
-    c_OD_INJ_HRU  = c_OD_HRU, 
+    c_ODN_INJ_HRU  = c_ODN_HRU,
+    c_ODF_INJ_HRU  = c_ODF_HRU,
     
     # HIV Costs
     c_HIV_HRU = rgamma(n_sim, shape = df_costs["shape", "HIV_HRU"], scale = df_costs["scale", "HIV_HRU"]),

@@ -376,3 +376,12 @@ df <- data.frame(c(1, 2, 3, 4))
 df <- df[1:3,]
 df_calib_post <- as.data.frame(m_calib_post)
 df_calib_post <- df_calib_post[1:n_sim, ]
+
+g <- matrix(rep(0.5, 10), nrow = 10, ncol = 1)
+for (i in 1:10){
+  if(i == 1){
+    gt[i, ] <- g[i, ]*5
+  } else{
+    gt[i, ] <- (g[i, ] - g[i-1, ])*80
+  }
+}

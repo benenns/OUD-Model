@@ -1,0 +1,130 @@
+---
+title: "OPTIMA Cost-Effectiveness Analysis - Deterministic Sensitivity Analysis"
+author: "Benjamin Enns"
+date: "2/4/2022"
+output: html_document
+---
+
+```{r, echo=FALSE, eval=TRUE, warning=FALSE, cache=FALSE, message=FALSE}
+library(dplyr)    # to manipulate data
+library(reshape2) # to transform data
+library(ggplot2)  # for nice looking plots
+library(tidyverse)
+library(data.table)
+library(formattable)
+library(tidyr)
+library(RColorBrewer)
+```
+
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+improvement_formatter <- formatter("span", 
+                                   style = x ~ style(font.weight = "bold", 
+                                                     color = ifelse(x > 0, customGreen, ifelse(x < 0, customRed, "black"))), 
+                                   x ~ icontext(ifelse(x>0, "arrow-up", "arrow-down"), x))
+
+# set colours
+customGreen0 = "#DeF7E9"
+customGreen = "#71CA97"
+customRed = "#ff7f7f"
+overdose_nonfatal_palette <- brewer.pal(3,"PuOr")
+overdose_fatal_palette <- brewer.pal(3,"PuOr")
+qaly_palette <- brewer.pal(3,"PuOr")
+crime_costs_palette <- brewer.pal(3,"BrBG")
+```
+
+# DSA Results
+<p>&nbsp;</p>
+## QALY weights
+<p>&nbsp;</p>
+### Modified Model Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Modified Model Specification/ftable_qalys_out.RData")
+ftable_qalys_out
+```
+
+<p>&nbsp;</p>
+### Trial Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Trial Specification/ftable_qalys_TS_out.RData")
+ftable_qalys_TS_out
+```
+
+<p>&nbsp;</p>
+## Crime costs
+<p>&nbsp;</p>
+### Modified Model Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Modified Model Specification/ftable_crime_costs_out.RData")
+ftable_crime_costs_out
+```
+
+<p>&nbsp;</p>
+### Trial Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Trial Specification/ftable_crime_costs_TS_out.RData")
+ftable_crime_costs_TS_out
+```
+
+<p>&nbsp;</p>
+## Nonfatal Overdose
+<p>&nbsp;</p>
+### Modified Model Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Modified Model Specification/ftable_overdose_nonfatal_qalys_MMS_out.RData")
+ftable_overdose_nonfatal_qalys_MMS_out
+```
+
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Modified Model Specification/ftable_overdose_nonfatal_costs_MMS_out.RData")
+ftable_overdose_nonfatal_costs_MMS_out
+```
+
+<p>&nbsp;</p>
+### Trial Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Trial Specification/ftable_overdose_nonfatal_qalys_TS_out.RData")
+ftable_overdose_nonfatal_qalys_TS_out
+```
+
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Trial Specification/ftable_overdose_nonfatal_costs_TS_out.RData")
+ftable_overdose_nonfatal_costs_TS_out
+```
+
+<p>&nbsp;</p>
+## Fatal Overdose
+<p>&nbsp;</p>
+### Modified Model Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Modified Model Specification/ftable_overdose_fatal_qalys_MMS_out.RData")
+ftable_overdose_fatal_qalys_MMS_out
+```
+
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Modified Model Specification/ftable_overdose_fatal_costs_MMS_out.RData")
+ftable_overdose_fatal_costs_MMS_out
+```
+
+<p>&nbsp;</p>
+### Trial Specification
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Trial Specification/ftable_overdose_fatal_qalys_TS_out.RData")
+ftable_overdose_fatal_qalys_TS_out
+```
+
+<p>&nbsp;</p>
+```{r, echo=F, eval=T, warning=FALSE, cache=F, message=F}
+load(file = "outputs/DSA/Trial Specification/ftable_overdose_fatal_costs_TS_out.RData")
+ftable_overdose_fatal_costs_TS_out
+```
