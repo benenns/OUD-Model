@@ -12,7 +12,7 @@ load(file = "outputs/Calibration/imis_output.RData")
 #### Modified Model Specification ####
 ######################################
 # BNX scenario
-l_params_BUP_MMS <- load_all_params(file.init = "data/init_params.csv",
+l_params_BUP_MMS <- load_all_params(file.init = "data/Modified Model Specification/init_params.csv",
                                     file.init_dist = "data/init_dist_bup.csv",
                                     file.mort = "data/all_cause_mortality.csv",
                                     file.death_hr = "data/death_hr.csv",
@@ -27,7 +27,7 @@ l_params_BUP_MMS <- load_all_params(file.init = "data/init_params.csv",
                                     file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
                                     file.qalys = "data/Modified Model Specification/qalys.csv")
 # Methadone scenario
-l_params_MET_MMS <- load_all_params(file.init = "data/init_params.csv",
+l_params_MET_MMS <- load_all_params(file.init = "data/Modified Model Specification/init_params.csv",
                                     file.init_dist = "data/init_dist_met.csv",
                                     file.mort = "data/all_cause_mortality.csv",
                                     file.death_hr = "data/death_hr.csv",
@@ -46,7 +46,7 @@ l_params_MET_MMS <- load_all_params(file.init = "data/init_params.csv",
 #### Trial Specification ####
 #############################
 # BNX scenario
-l_params_BUP_TS <- load_all_params(file.init = "data/init_params.csv",
+l_params_BUP_TS <- load_all_params(file.init = "data/Trial Specification/init_params.csv",
                                    file.init_dist = "data/init_dist_bup.csv",
                                    file.mort = "data/all_cause_mortality.csv",
                                    file.death_hr = "data/death_hr.csv",
@@ -62,7 +62,7 @@ l_params_BUP_TS <- load_all_params(file.init = "data/init_params.csv",
                                    file.qalys = "data/Trial Specification/qalys.csv")
 
 # Methadone scenario
-l_params_MET_TS <- load_all_params(file.init = "data/init_params.csv",
+l_params_MET_TS <- load_all_params(file.init = "data/Trial Specification/init_params.csv",
                                    file.init_dist = "data/init_dist_met.csv",
                                    file.mort = "data/all_cause_mortality.csv",
                                    file.death_hr = "data/death_hr.csv",
@@ -81,7 +81,7 @@ l_params_MET_TS <- load_all_params(file.init = "data/init_params.csv",
 #### Original Specification ####
 ################################
 # BNX scenario
-l_params_BUP_OS <- load_all_params(file.init = "data/init_params.csv",
+l_params_BUP_OS <- load_all_params(file.init = "data/Original Specification/init_params.csv",
                                    file.init_dist = "data/init_dist_bup.csv",
                                    file.mort = "data/all_cause_mortality.csv",
                                    file.death_hr = "data/death_hr.csv",
@@ -97,7 +97,7 @@ l_params_BUP_OS <- load_all_params(file.init = "data/init_params.csv",
                                    file.qalys = "data/Original Specification/qalys.csv")
 
 # Methadone scenario
-l_params_MET_OS <- load_all_params(file.init = "data/init_params.csv",
+l_params_MET_OS <- load_all_params(file.init = "data/Original Specification/init_params.csv",
                                    file.init_dist = "data/init_dist_met.csv",
                                    file.mort = "data/all_cause_mortality.csv",
                                    file.death_hr = "data/death_hr.csv",

@@ -133,7 +133,31 @@ v_dsa_qalys_eq_5d_3l_TS <- unlist(df_dsa_qalys_TS["pe_eq_5d_3l",])
 v_dsa_qalys_hui_3_TS <- unlist(df_dsa_qalys_TS["pe_hui_3",])
 v_dsa_qalys_odn_low_TS <- unlist(df_dsa_qalys_TS["pe_odn_low",])
 
-# Transitions
+###################
+### Transitions ###
+###################
+df_dsa_threshold_MMS <- read.csv(file = "data/DSA/Modified Model Specification/threshold.csv", row.names = 1, header = TRUE)
+df_dsa_threshold_TS <- read.csv(file = "data/DSA/Trial Specification/threshold.csv", row.names = 1, header = TRUE)
+
+# Initialize matrices
+v_threshold_names_MMS <- colnames(df_dsa_threshold_MMS)
+v_threshold_names_TS <- colnames(df_dsa_threshold_TS)
+
+m_dsa_threshold_MMS <- array(0, dim = c(nrow(df_dsa_threshold_MMS), length(df_dsa_threshold_MMS)),
+                             dimnames = list(1:nrow(df_dsa_threshold_MMS), v_threshold_names_MMS))
+m_dsa_threshold_TS <- array(0, dim = c(nrow(df_dsa_threshold_TS), length(df_dsa_threshold_TS)),
+                             dimnames = list(1:nrow(df_dsa_threshold_TS), v_threshold_names_TS))
+
+## Threshold SA ##
+# MMS
+for (i in 1:nrow(df_dsa_threshold_MMS)){
+  m_dsa_threshold_MMS[i,] <- unlist(df_dsa_threshold_MMS[i,])
+}
+
+# TS
+for (i in 1:nrow(df_dsa_threshold_TS)){
+  m_dsa_threshold_TS[i,] <- unlist(df_dsa_threshold_TS[i,])
+}
 
 # Province-specific
 
@@ -418,6 +442,36 @@ ICER_fent_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_hi
 
 
 # QALYs
+
+###################
+### Transitions ###
+###################
+# Initialize lists
+l_outcomes_MET_threshold_MMS <- list()
+l_outcomes_BUP_threshold_MMS <- list()
+l_ICER_threshold_MMS <- list()
+
+l_outcomes_MET_threshold_TS <- list()
+l_outcomes_BUP_threshold_TS <- list()
+l_ICER_threshold_TS <- list()
+
+## Treatment retention (threshold SA for BNX retention) ##
+# MMS
+for (i in 1:nrow(m_dsa_threshold_MMS)){  
+  # +i%
+  l_outcomes_MET_threshold_MMS[[i]] <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_MMS[i,])
+  l_outcomes_BUP_threshold_MMS[[i]] <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_MMS[i,])
+  l_ICER_threshold_MMS[[i]] <- ICER(outcomes_comp = l_outcomes_MET_threshold_MMS[[i]], outcomes_int = l_outcomes_BUP_threshold_MMS[[i]])
+}
+
+# TS
+for (i in 1:nrow(m_dsa_threshold_TS)){
+  # +i%
+  l_outcomes_MET_threshold_TS[[i]] <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_TS[i,])
+  l_outcomes_BUP_threshold_TS[[i]] <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_TS[i,])
+  l_ICER_threshold_TS[[i]] <- ICER(outcomes_comp = l_outcomes_MET_threshold_TS[[i]], outcomes_int = l_outcomes_BUP_threshold_TS[[i]])
+}
+
 
 ###################
 #### Data Prep ####
@@ -954,6 +1008,110 @@ save(ftable_overdose_nonfatal_costs_TS_out,
 
 #colnames(df_tornado_icer) <- c("Low", "High")
 #row.names(df_tornado_icer) <- c("Crime Costs", "QALYs")
+
+###################
+### Transitions ###
+###################
+## Threshold ##
+df_threshold_MMS <- data.frame()
+df_threshold_MMS_temp <- data.frame()
+df_threshold_TS <- data.frame()
+df_threshold_TS_temp <- data.frame()
+
+v_ICER_names <- c("n_inc_costs_TOTAL_1yr", "n_inc_costs_TOTAL_5yr", "n_inc_costs_TOTAL_10yr", "n_inc_qalys_TOTAL_1yr", 
+                  "n_inc_qalys_TOTAL_5yr", "n_inc_qalys_TOTAL_10yr", "n_icer_TOTAL_1yr", "n_icer_TOTAL_5yr", "n_icer_TOTAL_10yr")
+
+# MMS
+for (i in 1:nrow(m_dsa_threshold_MMS)){
+df_threshold_MMS_temp <- data.frame(l_ICER_threshold_MMS[[i]]$df_incremental$n_inc_costs_TOTAL_1yr, l_ICER_threshold_MMS[[i]]$df_incremental$n_inc_costs_TOTAL_5yr, 
+                                    l_ICER_threshold_MMS[[i]]$df_incremental$n_inc_costs_TOTAL_10yr, l_ICER_threshold_MMS[[i]]$df_incremental$n_inc_qalys_TOTAL_1yr, 
+                                    l_ICER_threshold_MMS[[i]]$df_incremental$n_inc_qalys_TOTAL_5yr, l_ICER_threshold_MMS[[i]]$df_incremental$n_inc_qalys_TOTAL_10yr, 
+                                    l_ICER_threshold_MMS[[i]]$df_icer$n_icer_TOTAL_1yr, l_ICER_threshold_MMS[[i]]$df_icer$n_icer_TOTAL_5yr, l_ICER_threshold_MMS[[i]]$df_icer$n_icer_TOTAL_10yr)
+
+df_threshold_MMS <- rbind(df_threshold_MMS, df_threshold_MMS_temp)
+}
+
+names(df_threshold_MMS) <- v_ICER_names
+
+# TS
+for (i in 1:nrow(m_dsa_threshold_TS)){
+  df_threshold_TS_temp <- data.frame(l_ICER_threshold_TS[[i]]$df_incremental$n_inc_costs_TOTAL_1yr, l_ICER_threshold_TS[[i]]$df_incremental$n_inc_costs_TOTAL_5yr, 
+                                      l_ICER_threshold_TS[[i]]$df_incremental$n_inc_costs_TOTAL_10yr, l_ICER_threshold_TS[[i]]$df_incremental$n_inc_qalys_TOTAL_1yr, 
+                                      l_ICER_threshold_TS[[i]]$df_incremental$n_inc_qalys_TOTAL_5yr, l_ICER_threshold_TS[[i]]$df_incremental$n_inc_qalys_TOTAL_10yr, 
+                                      l_ICER_threshold_TS[[i]]$df_icer$n_icer_TOTAL_1yr, l_ICER_threshold_TS[[i]]$df_icer$n_icer_TOTAL_5yr, l_ICER_threshold_TS[[i]]$df_icer$n_icer_TOTAL_10yr)
+  
+  df_threshold_TS <- rbind(df_threshold_TS, df_threshold_TS_temp)
+}
+
+names(df_threshold_TS) <- v_ICER_names
+
+# Prepare data for plotting
+df_threshold_MMS <- df_threshold_MMS %>% as_tibble() %>% mutate(perc_increase = row_number())
+df_threshold_TS <- df_threshold_TS %>% as_tibble() %>% mutate(perc_increase = row_number())
+
+# MMS
+df_threshold_qalys_MMS <- df_threshold_MMS %>% gather("scenario", "inc_qalys", n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+  select(perc_increase, scenario, inc_qalys)
+
+df_threshold_icer_MMS <- df_threshold_MMS %>% gather("scenario", "icer", n_icer_TOTAL_1yr, n_icer_TOTAL_5yr, n_icer_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+  mutate(icer = ifelse(icer > 0, icer, NA)) %>%
+  select(perc_increase, scenario, icer)
+
+# TS
+df_threshold_qalys_TS <- df_threshold_TS %>% gather("scenario", "inc_qalys", n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+  select(perc_increase, scenario, inc_qalys)
+
+df_threshold_icer_TS <- df_threshold_TS %>% gather("scenario", "icer", n_icer_TOTAL_1yr, n_icer_TOTAL_5yr, n_icer_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+  mutate(icer = ifelse(icer > 0, icer, NA)) %>%
+  select(perc_increase, scenario, icer)
+
+# 1-year
+
+# 5-year
+
+# 10-year
+
+## Threshold plots ##
+# MMS
+# Incremental QALYs
+plot_DSA_qalys_MMS_threshold <- ggplot(df_threshold_qalys_MMS, aes(x = perc_increase, y = inc_qalys, group = scenario)) +
+  geom_line(aes(color = scenario)) +
+  geom_hline(yintercept = 0) +
+  xlim(0, 100) +
+  ylim(-0.01, 0.025)
+
+plot_DSA_qalys_MMS_threshold
+
+# ICER
+plot_DSA_icer_MMS_threshold <- ggplot(df_threshold_icer_MMS, aes(x = perc_increase, y = icer, group = scenario)) +
+  geom_line(aes(color = scenario)) +
+  geom_hline(yintercept = 0) +
+  geom_hline(yintercept = 100000) +
+  #xlim(0, 100) +
+  ylim(0, 50000000)
+
+plot_DSA_icer_MMS_threshold
+
+# TS
+# Incremental QALYs
+plot_DSA_qalys_TS_threshold <- ggplot(df_threshold_qalys_TS, aes(x = perc_increase, y = inc_qalys, group = scenario)) +
+  geom_line(aes(color = scenario)) +
+  geom_hline(yintercept = 0) +
+  xlim(0, 100) +
+  ylim(-0.01, 0.025)
+
+plot_DSA_qalys_TS_threshold
+
+# ICER
+plot_DSA_icer_TS_threshold <- ggplot(df_threshold_icer_TS, aes(x = perc_increase, y = icer, group = scenario)) +
+  geom_line(aes(color = scenario)) +
+  geom_hline(yintercept = 0) +
+  geom_hline(yintercept = 100000) +
+  #xlim(0, 100) +
+  ylim(0, 20000000)
+
+plot_DSA_icer_TS_threshold
+
 
 #########################
 #### Tornado Diagram ####

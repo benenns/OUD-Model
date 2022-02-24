@@ -484,6 +484,72 @@ ggsave(plot_PSA_TS_1yr_scatter_health_sector,
 #       filename = "Plots/PSA/PSA-TS-5yr-Health-Sector.png", 
 #       width = 7, height = 10)
 
+### Plot ellipses ###
+# Combine scenarios
+# MMS
+df_incremental_PSA_MMS_1yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_1yr = n_inc_qalys_TOTAL_1yr,
+                                                                                inc_costs_MMS_1yr = n_inc_costs_TOTAL_1yr) %>%
+  select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
+
+df_incremental_PSA_MMS_5yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_5yr = n_inc_qalys_TOTAL_5yr,
+                                                                                inc_costs_MMS_5yr = n_inc_costs_TOTAL_5yr) %>%
+  select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
+
+df_incremental_PSA_MMS_10yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
+                                                                                inc_costs_MMS_10yr = n_inc_costs_TOTAL_10yr) %>%
+  select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
+
+# TS
+df_incremental_PSA_TS_1yr <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
+                                                                              inc_costs_TS_1yr = n_inc_costs_TOTAL_1yr) %>%
+  select(inc_qalys_TS_1yr, inc_costs_TS_1yr) %>% slice(1:nrow(df_incremental_PSA_MMS_1yr))
+
+df_PSA_ellipse_combined <- cbind(df_incremental_PSA_MMS_1yr, df_incremental_PSA_MMS_5yr, df_incremental_PSA_MMS_10yr, df_incremental_PSA_TS_1yr)
+#df_PSA_ellipse_combined_1yr <- df_PSA_ellipse_combined_1yr %>% as_tibble() %>% gather("scenario", "inc_qalys", n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+ # select(scenario, inc_qalys, inc_costs)
+
+## 1-year
+#xlim <- c(min(frontier.matrix[ , costsCol]) *1.2, max(max(SA_comb.mx[ , 2]), max(frontier.matrix[ ,costsCol])))
+#ylim <- c(0 , max(SA_comb.mx[ , 1]))
+
+plot_PSA_ellipse <- ggplot() +
+  #ggtitle(paste0((CITY.name[ww]), "")) +
+  #geom_point(aes(x = n_inc_qalys_TOTAL_1yr, y = n_inc_costs_TOTAL_1yr), colour = "dodgerblue1", size =3) +
+  #geom_line(aes(x = n_inc_qalys_TOTAL_1yr, y = n_inc_costs_TOTAL_1yr), colour = "dodgerblue1", size =1) +
+  #geom_point(colour = "lightblue", size = 1.5) +
+  # MMS (1-year)
+  geom_point(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "wheat", size = 1.5) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "wheat3", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.5) +
+  
+  # MMS (5-year)
+  geom_point(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), colour = "wheat", size = 1.5) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = 2, color = "wheat3", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.5) +
+  
+  # MMS (10-year)
+  geom_point(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "wheat", size = 1.5) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "wheat3", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.5) +
+  
+  # TS
+  geom_point(data = df_PSA_ellipse_combined, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "lightblue", size = 1.5) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_combined, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "royalblue", size = 1, alpha = 1, level = 0.5) +
+  
+  geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  #geom_point(colour = "lightblue", size =3) +
+  #geom_line(colour = "dodgerblue1", size =1) +
+  #geom_point(aes(x = n_inc_qalys_TOTAL_1yr, y = n_inc_costs_TOTAL_1yr), colour = "firebrick", size =4, shape=18) +
+  #ylim(ylim) +
+  #xlim(xlim) +
+  labs(y = "Incremental costs", x = "Incremental QALYs") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
+
+plot_PSA_ellipse
+
 ### Produce CEAC plot from cost-effectiveness results
 ## Prep data
 # Set number of points (one for each quantile)
