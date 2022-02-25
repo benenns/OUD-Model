@@ -35,6 +35,7 @@ n_sim <- 1000 # just to test function (will be set as n_sim)
 ######################################
 #### Modified Model Specification ####
 ######################################
+## Base case (EQ-5D-5L)
 df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "MMS",
                                              file.death_hr = "data/death_hr.csv",
                                              file.frailty = "data/frailty.csv",
@@ -49,11 +50,27 @@ df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = 
                                              file.qalys = "data/Modified Model Specification/qalys.csv",
                                              file.imis_output = "outputs/Calibration/imis_output.RData")
 
+## SA (EQ-5D-3L)
+df_psa_params_qalys_3L_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_cohort, scenario = "MMS",
+                                                  file.death_hr = "data/death_hr.csv",
+                                                  file.frailty = "data/frailty.csv",
+                                                  file.weibull = "data/Modified Model Specification/weibull.csv",
+                                                  file.unconditional = "data/Modified Model Specification/unconditional.csv",
+                                                  file.overdose = "data/overdose.csv",
+                                                  file.fentanyl = "data/fentanyl.csv",
+                                                  file.hiv = "data/hiv_sero.csv",
+                                                  file.hcv = "data/hcv_sero.csv",
+                                                  file.costs = "data/Modified Model Specification/costs.csv",
+                                                  file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
+                                                  file.qalys = "data/PSA/qalys_3l_MMS.csv",
+                                                  file.imis_output = "outputs/Calibration/imis_output.RData")
+
 
 #############################
 #### Trial Specification ####
 #############################
 # Need to draw parameters for both scenarios due to differences in allowed transitions (Dirichlet)
+## Base case (EQ-5D-5L)
 # BNX scenario
 df_psa_params_BUP_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "TS_BUP",
                                             file.death_hr = "data/death_hr.csv",
@@ -93,6 +110,46 @@ df_psa_params_MET_TS_UP <- df_psa_params_MET_TS %>% select(c(p_BUP_BUPC_NI:p_ODN
 # Add MET state-exit to overall
 df_psa_params_MET_TS <- bind_cols(df_psa_params_TS, df_psa_params_MET_TS_UP)
 
+## SA (EQ-5D-3L)
+# BNX scenario
+df_psa_params_BUP_qalys_3L_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "TS_BUP",
+                                            file.death_hr = "data/death_hr.csv",
+                                            file.frailty = "data/frailty.csv",
+                                            file.weibull = "data/Trial Specification/weibull.csv",
+                                            file.unconditional = "data/Trial Specification/unconditional_bup.csv",
+                                            file.overdose = "data/overdose.csv",
+                                            file.fentanyl = "data/fentanyl.csv",
+                                            file.hiv = "data/hiv_sero.csv",
+                                            file.hcv = "data/hcv_sero.csv",
+                                            file.costs = "data/Trial Specification/costs.csv",
+                                            file.crime_costs = "data/Trial Specification/crime_costs.csv",
+                                            file.qalys = "data/PSA/qalys_3l_TS.csv",
+                                            file.imis_output = "outputs/Calibration/imis_output.RData")
+
+# Extract non-state-exit parameters from BUP
+df_psa_params_qalys_3L_TS <- df_psa_params_BUP_qalys_3L_TS %>% select(-c(p_BUP_BUPC_NI:p_ODN_REL_INJ))
+
+# MET scenario
+df_psa_params_MET_qalys_3L_TS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "TS_MET",
+                                            file.death_hr = "data/death_hr.csv",
+                                            file.frailty = "data/frailty.csv",
+                                            file.weibull = "data/Trial Specification/weibull.csv",
+                                            file.unconditional = "data/Trial Specification/unconditional_met.csv",
+                                            file.overdose = "data/overdose.csv",
+                                            file.fentanyl = "data/fentanyl.csv",
+                                            file.hiv = "data/hiv_sero.csv",
+                                            file.hcv = "data/hcv_sero.csv",
+                                            file.costs = "data/Trial Specification/costs.csv",
+                                            file.crime_costs = "data/Trial Specification/crime_costs.csv",
+                                            file.qalys = "data/PSA/qalys_3l_TS.csv",
+                                            file.imis_output = "outputs/Calibration/imis_output.RData")
+
+# Extract MET state-exit
+df_psa_params_MET_qalys_3L_TS_UP <- df_psa_params_MET_qalys_3L_TS %>% select(c(p_BUP_BUPC_NI:p_ODN_REL_INJ))
+
+# Add MET state-exit to overall
+df_psa_params_MET_qalys_3L_TS <- bind_cols(df_psa_params_TS, df_psa_params_MET_qalys_3L_TS_UP)
+
 ################################
 #### Original Specification ####
 ################################
@@ -122,11 +179,22 @@ df_outcomes_BUP_PSA_MMS <- data.frame()
 df_incremental_PSA_MMS <- data.frame()
 df_ICER_PSA_MMS <- data.frame()
 
+# SA (EQ-5D-3L)
+df_outcomes_MET_PSA_qalys_3L_MMS <- data.frame()
+df_outcomes_BUP_PSA_qalys_3L_MMS <- data.frame()
+df_incremental_PSA_qalys_3L_MMS <- data.frame()
+df_ICER_PSA_qalys_3L_MMS <- data.frame()
+
 # Trial Specification
 df_outcomes_MET_PSA_TS <- data.frame()
 df_outcomes_BUP_PSA_TS <- data.frame()
 df_incremental_PSA_TS <- data.frame()
 df_ICER_PSA_TS <- data.frame()
+
+df_outcomes_MET_PSA_qalys_3L_TS <- data.frame()
+df_outcomes_BUP_PSA_qalys_3L_TS <- data.frame()
+df_incremental_PSA_qalys_3L_TS <- data.frame()
+df_ICER_PSA_qalys_3L_TS <- data.frame()
 
 # Original Specification
 df_outcomes_MET_PSA_OS <- data.frame()
@@ -168,6 +236,28 @@ for (i in 1:n_sim){
 }
 #stopImplicitCluster()
 
+## SA (EQ-5D-3L)
+for (i in 1:n_sim){
+  # Update parameter set for each scenario with next set of PSA drawn parameters
+  l_psa_input_MET_qalys_3L_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_qalys_3L_MMS[i, ])
+  l_psa_input_BUP_qalys_3L_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_qalys_3L_MMS[i, ])
+  
+  # Run model and generate outputs
+  l_outcomes_MET_qalys_3L_MMS <- outcomes(l_params_all = l_psa_input_MET_qalys_3L_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  l_outcomes_BUP_qalys_3L_MMS <- outcomes(l_params_all = l_psa_input_BUP_qalys_3L_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  
+  # Extract cost and QALY outputs
+  df_outcomes_MET_PSA_qalys_3L_MMS <- rbind(df_outcomes_MET_PSA_qalys_3L_MMS, l_outcomes_MET_qalys_3L_MMS$df_outcomes)
+  df_outcomes_BUP_PSA_qalys_3L_MMS <- rbind(df_outcomes_BUP_PSA_qalys_3L_MMS, l_outcomes_BUP_qalys_3L_MMS$df_outcomes)
+  
+  # Calculate ICER (societal and health sector perspective)
+  l_ICER_qalys_3L_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_3L_MMS, outcomes_int = l_outcomes_BUP_qalys_3L_MMS)
+  
+  df_incremental_PSA_qalys_3L_MMS <- rbind(df_incremental_PSA_qalys_3L_MMS, l_ICER_qalys_3L_MMS$df_incremental)
+  
+  df_ICER_PSA_qalys_3L_MMS <- rbind(df_ICER_PSA_qalys_3L_MMS, l_ICER_qalys_3L_MMS$df_icer)
+}
+
 ### Output results
 ## As .RData
 save(df_outcomes_MET_PSA_MMS, 
@@ -190,6 +280,29 @@ write.csv(df_ICER_PSA_MMS,
           row.names = FALSE)
 write.csv(df_incremental_PSA_MMS, 
           file = "outputs/PSA/incremental_PSA_MMS.csv",
+          row.names = FALSE)
+
+## SA (EQ-5D-3L)
+save(df_outcomes_MET_PSA_qalys_3L_MMS, 
+     file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_qalys_3L_MMS.RData")
+save(df_outcomes_BUP_PSA_qalys_3L_MMS, 
+     file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_qalys_3L_MMS.RData")
+save(df_ICER_PSA_qalys_3L_MMS, 
+     file = "outputs/PSA/Modified Model Specification/ICER_PSA_qalys_3L_MMS.RData")
+save(df_incremental_PSA_qalys_3L_MMS,
+     file = "outputs/PSA/Modified Model Specification/incremental_PSA_qalys_3L_MMS.RData")
+## As .csv
+write.csv(df_outcomes_MET_PSA_qalys_3L_MMS, 
+          file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_qalys_3L_MMS.csv",
+          row.names = FALSE)
+write.csv(df_outcomes_BUP_PSA_qalys_3L_MMS, 
+          file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_qalys_3L_MMS.csv",
+          row.names = FALSE)
+write.csv(df_ICER_PSA_qalys_3L_MMS, 
+          file = "outputs/PSA/ICER_PSA_qalys_3L_MMS.csv",
+          row.names = FALSE)
+write.csv(df_incremental_PSA_qalys_3L_MMS, 
+          file = "outputs/PSA/incremental_PSA_qalys_3L_MMS.csv",
           row.names = FALSE)
 
 #############################
@@ -216,6 +329,28 @@ for(i in 1:n_sim){ # i <- 1
   df_ICER_PSA_TS <- rbind(df_ICER_PSA_TS, l_ICER_TS$df_icer)
 }
 
+## SA (EQ-5D-3L)
+for(i in 1:n_sim){ # i <- 1
+  # Update parameter set for each scenario with next set of PSA drawn parameters
+  l_psa_input_MET_qalys_3L_TS <- update_param_list(l_params_all = l_params_MET_qalys_3L_TS, params_updated = df_psa_params_MET_qalys_3L_TS[i, ])
+  l_psa_input_BUP_qalys_3L_TS <- update_param_list(l_params_all = l_params_BUP_qalys_3L_TS, params_updated = df_psa_params_BUP_qalys_3L_TS[i, ])
+  
+  # Run model and generate outputs
+  l_outcomes_MET_qalys_3L_TS <- outcomes(l_params_all = l_psa_input_MET_qalys_3L_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  l_outcomes_BUP_qalys_3L_TS <- outcomes(l_params_all = l_psa_input_BUP_qalys_3L_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
+  
+  # Extract cost and QALY outputs
+  df_outcomes_MET_PSA_qalys_3L_TS <- rbind(df_outcomes_MET_PSA_qalys_3L_TS, l_outcomes_MET_qalys_3L_TS$df_outcomes)
+  df_outcomes_BUP_PSA_qalys_3L_TS <- rbind(df_outcomes_BUP_PSA_qalys_3L_TS, l_outcomes_BUP_qalys_3L_TS$df_outcomes)
+  
+  # Calculate ICER (societal and health sector perspective)
+  l_ICER_qalys_3L_TS <- ICER(outcomes_comp = l_outcomes_MET_qalys_3L_TS, outcomes_int = l_outcomes_BUP_qalys_3L_TS)
+  
+  df_incremental_PSA_qalys_3L_TS <- rbind(df_incremental_PSA_qalys_3L_TS, l_ICER_qalys_3L_TS$df_incremental)
+  
+  df_ICER_PSA_qalys_3L_TS <- rbind(df_ICER_PSA_qalys_3L_TS, l_ICER_qalys_3L_TS$df_icer)
+}
+
 ### Output results
 ## As .RData
 save(df_outcomes_MET_PSA_TS, 
@@ -238,6 +373,29 @@ write.csv(df_ICER_PSA_TS,
           row.names = FALSE)
 write.csv(df_incremental_PSA_TS, 
           file = "outputs/PSA/Trial Specification/incremental_PSA_TS.csv",
+          row.names = FALSE)
+
+## SA (EQ-5D-3L)
+save(df_outcomes_MET_PSA_qalys_3L_TS, 
+     file = "outpuqalys_3L_TS/PSA/Trial Specification/outcomes_MET_PSA_qalys_3L_TS.RData")
+save(df_outcomes_BUP_PSA_qalys_3L_TS, 
+     file = "outpuqalys_3L_TS/PSA/Trial Specification/outcomes_BUP_PSA_qalys_3L_TS.RData")
+save(df_ICER_PSA_qalys_3L_TS, 
+     file = "outpuqalys_3L_TS/PSA/Trial Specification/ICER_PSA_qalys_3L_TS.RData")
+save(df_incremental_PSA_qalys_3L_TS,
+     file = "outpuqalys_3L_TS/PSA/Trial Specification/incremental_PSA_qalys_3L_TS.RData")
+## As .csv
+write.csv(df_outcomes_MET_PSA_qalys_3L_TS, 
+          file = "outpuqalys_3L_TS/PSA/Trial Specification/outcomes_MET_PSA_qalys_3L_TS.csv",
+          row.names = FALSE)
+write.csv(df_outcomes_BUP_PSA_qalys_3L_TS, 
+          file = "outpuqalys_3L_TS/PSA/Trial Specification/outcomes_BUP_PSA_qalys_3L_TS.csv",
+          row.names = FALSE)
+write.csv(df_ICER_PSA_qalys_3L_TS, 
+          file = "outpuqalys_3L_TS/PSA/Trial Specification/ICER_PSA_qalys_3L_TS.csv",
+          row.names = FALSE)
+write.csv(df_incremental_PSA_qalys_3L_TS, 
+          file = "outpuqalys_3L_TS/PSA/Trial Specification/incremental_PSA_qalys_3L_TS.csv",
           row.names = FALSE)
 
 ################################
@@ -331,8 +489,9 @@ tbl_df_summary_ICER_MMS <- df_ICER_PSA_MMS %>% as.tibble() %>% gather("variable"
 
 df_PSA_summary <- as.data.frame()
 
-
-### Produce scatter plot for ICERs
+######################################
+### Produce scatter plot for ICERs ###
+######################################
 ## Modified Model Specification ##
 # 1-year
 # Total

@@ -136,15 +136,13 @@ v_dsa_qalys_odn_low_TS <- unlist(df_dsa_qalys_TS["pe_odn_low",])
 ###################
 ### Transitions ###
 ###################
-df_dsa_transitions_MMS <- read.csv(file = "data/DSA/Modified Model Specification/transitions.csv", row.names = 1, header = TRUE)
-df_dsa_transitions_TS <- read.csv(file = "data/DSA/Trial Specification/transitions.csv", row.names = 1, header = TRUE)
+df_dsa_frailty <- read.csv(file = "data/DSA/frailty.csv", row.names = 1, header = TRUE)
+#df_dsa_frailty_TS <- read.csv(file = "data/DSA/Trial Specification/frailty.csv", row.names = 1, header = TRUE)
 
-# MMS
-v_dsa_transitions_episode_frailty_MMS <- unlist(df_dsa_transitions_MMS["",])
-v_dsa_transitions_no_tx_switch_MMS <- unlist(df_dsa_transitions_MMS["",])
-
-# TS
-v_dsa_transitions_episode_frailty_TS <- unlist(df_dsa_transitions_TS["",])
+v_dsa_frailty_episode <- unlist(df_dsa_frailty["pe_episode_frailty",])
+v_dsa_frailty_concurrent <- unlist(df_dsa_frailty["pe_concurrent_frailty",])
+v_dsa_frailty_inj <- unlist(df_dsa_frailty["pe_inj_frailty",])
+#v_dsa_frailty_no_tx_switch <- unlist(df_dsa_frailty["",])
 
 ### BNX threshold SA ###
 df_dsa_threshold_MMS <- read.csv(file = "data/DSA/Modified Model Specification/threshold.csv", row.names = 1, header = TRUE)
@@ -457,6 +455,29 @@ ICER_fent_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_hi
 ###################
 ### Transitions ###
 ###################
+## Frailty ##
+# Episode
+l_outcomes_MET_frailty_episode_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_episode)
+l_outcomes_BUP_frailty_episode_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_episode)
+ICER_frailty_episode_MMS <- ICER(outcomes_comp = l_outcomes_MET_frailty_episode_MMS, outcomes_int = l_outcomes_BUP_frailty_episode_MMS)
+
+l_outcomes_MET_frailty_episode_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_episode)
+l_outcomes_BUP_frailty_episode_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_episode)
+ICER_frailty_episode_TS <- ICER(outcomes_comp = l_outcomes_MET_frailty_episode_TS, outcomes_int = l_outcomes_BUP_frailty_episode_TS)
+
+# Concurrent opioid use
+l_outcomes_MET_frailty_concurrent_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_concurrent)
+l_outcomes_BUP_frailty_concurrent_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_concurrent)
+ICER_frailty_concurrent_MMS <- ICER(outcomes_comp = l_outcomes_MET_frailty_concurrent_MMS, outcomes_int = l_outcomes_BUP_frailty_concurrent_MMS)
+
+l_outcomes_MET_frailty_concurrent_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_concurrent)
+l_outcomes_BUP_frailty_concurrent_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_concurrent)
+ICER_frailty_concurrent_TS <- ICER(outcomes_comp = l_outcomes_MET_frailty_concurrent_TS, outcomes_int = l_outcomes_BUP_frailty_concurrent_TS)
+
+###############################
+### BNX Retention Threshold ###
+###############################
+
 # Initialize lists
 l_outcomes_MET_threshold_MMS <- list()
 l_outcomes_BUP_threshold_MMS <- list()
