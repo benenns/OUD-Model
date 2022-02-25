@@ -136,6 +136,17 @@ v_dsa_qalys_odn_low_TS <- unlist(df_dsa_qalys_TS["pe_odn_low",])
 ###################
 ### Transitions ###
 ###################
+df_dsa_transitions_MMS <- read.csv(file = "data/DSA/Modified Model Specification/transitions.csv", row.names = 1, header = TRUE)
+df_dsa_transitions_TS <- read.csv(file = "data/DSA/Trial Specification/transitions.csv", row.names = 1, header = TRUE)
+
+# MMS
+v_dsa_transitions_episode_frailty_MMS <- unlist(df_dsa_transitions_MMS["",])
+v_dsa_transitions_no_tx_switch_MMS <- unlist(df_dsa_transitions_MMS["",])
+
+# TS
+v_dsa_transitions_episode_frailty_TS <- unlist(df_dsa_transitions_TS["",])
+
+### BNX threshold SA ###
 df_dsa_threshold_MMS <- read.csv(file = "data/DSA/Modified Model Specification/threshold.csv", row.names = 1, header = TRUE)
 df_dsa_threshold_TS <- read.csv(file = "data/DSA/Trial Specification/threshold.csv", row.names = 1, header = TRUE)
 
@@ -1012,7 +1023,19 @@ save(ftable_overdose_nonfatal_costs_TS_out,
 ###################
 ### Transitions ###
 ###################
-## Threshold ##
+# Baseline
+df_transitions_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                    ICER_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                    ICER_MMS$df_icer$n_icer_TOTAL_5yr, ICER_MMS$df_icer$n_icer_TOTAL_10yr)
+df_transitions_baseline_TS <- data.frame(ICER_TS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_TS$df_icer$n_icer_TOTAL_1yr)
+
+# Episode frailty = 1
+df_qalys_reduced_eq_5d_5l_MMS <- data.frame(ICER_qalys_reduced_eq_5d_5l_MMS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_reduced_eq_5d_5l_MMS$df_incremental$n_inc_qalys_TOTAL_5yr, 
+                                            ICER_qalys_reduced_eq_5d_5l_MMS$df_incremental$n_inc_qalys_TOTAL_10yr, ICER_qalys_reduced_eq_5d_5l_MMS$df_icer$n_icer_TOTAL_1yr, 
+                                            ICER_qalys_reduced_eq_5d_5l_MMS$df_icer$n_icer_TOTAL_5yr, ICER_qalys_reduced_eq_5d_5l_MMS$df_icer$n_icer_TOTAL_10yr)
+df_qalys_reduced_eq_5d_5l_TS <- data.frame(ICER_qalys_reduced_eq_5d_5l_TS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_reduced_eq_5d_5l_TS$df_icer$n_icer_TOTAL_1yr)
+
+### BNX Threshold SA ###
 df_threshold_MMS <- data.frame()
 df_threshold_MMS_temp <- data.frame()
 df_threshold_TS <- data.frame()
