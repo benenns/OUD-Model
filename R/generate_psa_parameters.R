@@ -425,8 +425,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
   c_REL_HRU = rgamma(n_sim, shape = df_costs["shape", "REL_NI_HRU"], scale = df_costs["scale", "REL_NI_HRU"]) 
   c_ODN_HRU  = rgamma(n_sim, shape = df_costs["shape", "ODN_NI_HRU"] , scale = df_costs["scale", "ODN_NI_HRU"])
   c_ODF_HRU  = rgamma(n_sim, shape = df_costs["shape", "ODF_NI_HRU"] , scale = df_costs["scale", "ODF_NI_HRU"])
-  c_OD_TX    = rgamma(n_sim, shape = df_costs["shape", "OD_TX"] , scale = df_costs["scale", "OD_TX"])
-  
+
   # Crime Costs
   c_BUP_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUP"], scale = df_crime_costs["scale", "BUP"])
   c_BUPC_crime = rgamma(n_sim, shape = df_crime_costs["shape", "BUPC"], scale = df_crime_costs["scale", "BUPC"])
@@ -677,6 +676,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # Treatment Costs
     c_BUP_TX  = rgamma(n_sim, shape = df_costs["shape", "BUP_TX"], scale = df_costs["scale", "BUP_TX"]), # BUP treatment costs - change to normal
     c_MET_TX  = rgamma(n_sim, shape = df_costs["shape", "MET_TX"], scale = df_costs["scale", "MET_TX"]), # MET treatment costs - change to normal
+    c_OD_TX    = rgamma(n_sim, shape = df_costs["shape", "OD_TX"] , scale = df_costs["scale", "OD_TX"]),
     
     # HRU Costs
     c_BUP_NI_HRU  = c_BUP_HRU, 
