@@ -96,7 +96,7 @@ outcomes <- function(l_params_all,
       m_TX_costs[i, MET]     <- m_TX_costs[i, MET] * c_MET_TX
       m_TX_costs[i, METC]    <- m_TX_costs[i, METC] * c_MET_TX
       m_TX_costs[i, REL]     <- m_TX_costs[i, REL] * 0
-      m_TX_costs[i, ODN]     <- m_TX_costs[i, ODN] * c_OD_TX # If adding detox costs to OD
+      m_TX_costs[i, ODN]     <- m_TX_costs[i, ODN] * 0 # Change if adding detox costs to OD
       m_TX_costs[i, ODF]     <- m_TX_costs[i, ODF] * 0
       m_TX_costs[i, ABS]     <- m_TX_costs[i, ABS] * 0
       
@@ -108,7 +108,7 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, MET & NI]     <- m_HRU_costs[i, MET & NI] * c_MET_NI_HRU
       m_HRU_costs[i, METC & NI]    <- m_HRU_costs[i, METC & NI] * c_METC_NI_HRU
       m_HRU_costs[i, REL & NI]     <- m_HRU_costs[i, REL & NI] * c_REL_NI_HRU
-      m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended) + (c_OD_TX * p_attended))
       m_HRU_costs[i, ODF & NI]     <- m_HRU_costs[i, ODF & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ABS & NI]     <- m_HRU_costs[i, ABS & NI] * c_ABS_NI_HRU
       m_HRU_costs[i, BUP & INJ]    <- m_HRU_costs[i, BUP & INJ] * c_BUP_INJ_HRU
@@ -116,7 +116,7 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, MET & INJ]    <- m_HRU_costs[i, MET & INJ] * c_MET_INJ_HRU
       m_HRU_costs[i, METC & INJ]   <- m_HRU_costs[i, METC & INJ] * c_METC_INJ_HRU
       m_HRU_costs[i, REL & INJ]    <- m_HRU_costs[i, REL & INJ] * c_REL_INJ_HRU
-      m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended) + (c_OD_TX * p_attended))
       m_HRU_costs[i, ODF & INJ]    <- m_HRU_costs[i, ODF & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ABS & INJ]    <- m_HRU_costs[i, ABS & INJ] * c_ABS_INJ_HRU
       

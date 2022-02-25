@@ -225,7 +225,7 @@ save(df_outcomes_BUP_PSA_TS,
 save(df_ICER_PSA_TS, 
      file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
 save(df_incremental_PSA_TS,
-     file = "outputs/PSA/Trial Specification/incremental_PSA_MMS.RData")
+     file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
 ## As .csv
 write.csv(df_outcomes_MET_PSA_TS, 
           file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.csv",
@@ -504,7 +504,7 @@ df_incremental_PSA_MMS_TOTAL_10yr <- df_incremental_PSA_MMS %>% as_tibble() %>% 
 # TS
 df_incremental_PSA_TS_TOTAL_1yr <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
                                                                               inc_costs_TS_1yr = n_inc_costs_TOTAL_1yr) %>%
-  select(inc_qalys_TS_1yr, inc_costs_TS_1yr) %>% slice(1:nrow(df_incremental_PSA_MMS_1yr))
+  select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
 
 # OS
 
@@ -528,7 +528,7 @@ df_incremental_PSA_MMS_HEALTH_SECTOR_10yr <- df_incremental_PSA_MMS %>% as_tibbl
 # TS
 df_incremental_PSA_TS_HEALTH_SECTOR_1yr <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
                                                                                             inc_costs_TS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>%
-  select(inc_qalys_TS_1yr, inc_costs_TS_1yr) %>% slice(1:nrow(df_incremental_PSA_MMS_1yr))
+  select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
 
 # OS
 
@@ -624,15 +624,22 @@ plot_PSA_ellipse <- ggplot() +
   stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "mediumpurple", size = 1, alpha = 1, level = 0.5) +
   
   # Add labels
-  annotate("text", x = -0.275, y = 25000, label = "TS (1-year) \n Societal", fontface = "bold", size = 3) +
-  
+  annotate("text", x = -0.275, y = -40000, label = "TS (1-year) \n Societal", fontface = "bold", size = 3) +
   annotate("text", x =  0.02, y = 40000, label = "MMS (1-year) \n Societal", fontface = "bold", size = 3) +
   annotate("text", x = -0.065, y = 60000, label = "MMS (5-year) \n Societal", fontface = "bold", size = 3) +
-  annotate("text", x = -0.15, y = 55000, label = "MMS (10-year) \n Societal", fontface = "bold", size = 3) +
+  annotate("text", x = -0.18, y = 45000, label = "MMS (10-year) \n Societal", fontface = "bold", size = 3) +
+  
+  annotate("text", x = -0.275, y = 10000, label = "TS (1-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = 0.05, y = -10000, label = "MMS (1-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = -0.05, y = -20000, label = "MMS (5-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x =  -0.15, y = -20000, label = "MMS (10-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
   
   geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  geom_abline(slope = 100000, intercept = 0) +
   labs(y = "Incremental costs", x = "Incremental QALYs") +
+  xlim(-0.4, 0.1) +
+  ylim(-50000, 75000) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
         plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
 
