@@ -209,7 +209,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "ABS_NI"])))
     p_REL_BUP_NI = m_REL_UP_NI[,1]
     p_REL_ABS_NI = 1 - m_REL_UP_NI[,1]
-    p_REL_BUP_NI = p_REL_BUPC_NI = p_REL_MET_NI = p_REL_METC_NI = m_UP_zeros[,1]
+    p_REL_BUPC_NI = p_REL_MET_NI = p_REL_METC_NI = m_UP_zeros[,1]
     # From OD
     v_dirichlet_UP_OD_NI = df_dirichlet_UP["ODN_NI",]
     m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "ABS_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"])))
@@ -242,7 +242,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     m_REL_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "ABS_INJ"])))
     p_REL_BUP_INJ = m_REL_UP_INJ[,1]
     p_REL_ABS_INJ = 1 - m_REL_UP_INJ[,1]
-    p_REL_BUP_INJ = p_REL_BUPC_INJ = p_REL_MET_INJ = p_REL_METC_INJ = m_UP_zeros[,1]
+    p_REL_BUPC_INJ = p_REL_MET_INJ = p_REL_METC_INJ = m_UP_zeros[,1]
     # From OD
     v_dirichlet_UP_OD_INJ = df_dirichlet_UP["ODN_INJ",]
     m_OD_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "ABS_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"])))

@@ -332,8 +332,8 @@ for(i in 1:n_sim){ # i <- 1
 ## SA (EQ-5D-3L)
 for(i in 1:n_sim){ # i <- 1
   # Update parameter set for each scenario with next set of PSA drawn parameters
-  l_psa_input_MET_qalys_3L_TS <- update_param_list(l_params_all = l_params_MET_qalys_3L_TS, params_updated = df_psa_params_MET_qalys_3L_TS[i, ])
-  l_psa_input_BUP_qalys_3L_TS <- update_param_list(l_params_all = l_params_BUP_qalys_3L_TS, params_updated = df_psa_params_BUP_qalys_3L_TS[i, ])
+  l_psa_input_MET_qalys_3L_TS <- update_param_list(l_params_all = l_params_MET_TS, params_updated = df_psa_params_MET_qalys_3L_TS[i, ])
+  l_psa_input_BUP_qalys_3L_TS <- update_param_list(l_params_all = l_params_BUP_TS, params_updated = df_psa_params_BUP_qalys_3L_TS[i, ])
   
   # Run model and generate outputs
   l_outcomes_MET_qalys_3L_TS <- outcomes(l_params_all = l_psa_input_MET_qalys_3L_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
@@ -423,20 +423,20 @@ for(i in 1:n_sim){ # i <- 1
 ### Output results ###
 ## As .RData ##
 save(df_outcomes_MET_PSA_OS, 
-     file = "outpuOS/PSA/Modified Model Specification/outcomes_MET_PSA_OS.RData")
+     file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_OS.RData")
 save(df_outcomes_BUP_PSA_OS, 
-     file = "outpuOS/PSA/Modified Model Specification/outcomes_BUP_PSA_OS.RData")
+     file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_OS.RData")
 save(df_ICER_PSA_OS, 
-     file = "outpuOS/PSA/Modified Model Specification/ICER_PSA_OS.RData")
+     file = "outputs/PSA/Modified Model Specification/ICER_PSA_OS.RData")
 ## As .csv
 write.csv(df_outcomes_MET_PSA_OS, 
-          file = "outpuOS/PSA/Modified Model Specification/outcomes_MET_PSA_OS.csv",
+          file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_OS.csv",
           row.names = FALSE)
 write.csv(df_outcomes_BUP_PSA_OS, 
-          file = "outpuOS/PSA/Modified Model Specification/outcomes_BUP_PSA_OS.csv",
+          file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_OS.csv",
           row.names = FALSE)
 write.csv(df_ICER_PSA_OS, 
-          file = "outpuOS/PSA/ICER_PSA_OS.csv",
+          file = "outputs/PSA/ICER_PSA_OS.csv",
           row.names = FALSE)
 
 ### Process PSA results
@@ -452,6 +452,12 @@ load(file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
 load(file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
 load(file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
 load(file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
+
+# SA (EQ-5D-3L)
+load(file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_qalys_3l_TS.RData")
+load(file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_qalys_3l_TS.RData")
+load(file = "outputs/PSA/Trial Specification/incremental_PSA_qalys_3l_TS.RData")
+load(file = "outputs/PSA/Trial Specification/ICER_PSA_qalys_3l_TS.RData")
 
 ## Original Specification
 #load(file = "outputs/PSA/outcomes_MET_PSA_OS.RData")
@@ -649,21 +655,17 @@ ggsave(plot_PSA_TS_1yr_scatter_health_sector,
 ### Societal perspective ###
 # MMS
 df_incremental_PSA_MMS_TOTAL_1yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_1yr = n_inc_qalys_TOTAL_1yr,
-                                                                                inc_costs_MMS_1yr = n_inc_costs_TOTAL_1yr) %>%
-  select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
+                                                                                inc_costs_MMS_1yr = n_inc_costs_TOTAL_1yr) %>% select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
 
 df_incremental_PSA_MMS_TOTAL_5yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_5yr = n_inc_qalys_TOTAL_5yr,
-                                                                                inc_costs_MMS_5yr = n_inc_costs_TOTAL_5yr) %>%
-  select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
+                                                                                inc_costs_MMS_5yr = n_inc_costs_TOTAL_5yr) %>% select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
 
 df_incremental_PSA_MMS_TOTAL_10yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
-                                                                                inc_costs_MMS_10yr = n_inc_costs_TOTAL_10yr) %>%
-  select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
+                                                                                inc_costs_MMS_10yr = n_inc_costs_TOTAL_10yr) %>% select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
 
 # TS
 df_incremental_PSA_TS_TOTAL_1yr <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
-                                                                              inc_costs_TS_1yr = n_inc_costs_TOTAL_1yr) %>%
-  select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
+                                                                              inc_costs_TS_1yr = n_inc_costs_TOTAL_1yr) %>% select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
 
 # OS
 
@@ -673,26 +675,63 @@ df_PSA_ellipse_TOTAL <- cbind(df_incremental_PSA_MMS_TOTAL_1yr, df_incremental_P
 ### Health sector perspective ###
 # MMS
 df_incremental_PSA_MMS_HEALTH_SECTOR_1yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_1yr = n_inc_qalys_TOTAL_1yr,
-                                                                                              inc_costs_MMS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>%
-  select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
+                                                                                              inc_costs_MMS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>% select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
 
 df_incremental_PSA_MMS_HEALTH_SECTOR_5yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_5yr = n_inc_qalys_TOTAL_5yr,
-                                                                                              inc_costs_MMS_5yr = n_inc_costs_HEALTH_SECTOR_5yr) %>%
-  select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
+                                                                                              inc_costs_MMS_5yr = n_inc_costs_HEALTH_SECTOR_5yr) %>% select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
 
 df_incremental_PSA_MMS_HEALTH_SECTOR_10yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
-                                                                                               inc_costs_MMS_10yr = n_inc_costs_HEALTH_SECTOR_10yr) %>%
-  select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
+                                                                                               inc_costs_MMS_10yr = n_inc_costs_HEALTH_SECTOR_10yr) %>% select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
 
 # TS
 df_incremental_PSA_TS_HEALTH_SECTOR_1yr <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
-                                                                                            inc_costs_TS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>%
-  select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
+                                                                                            inc_costs_TS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>% select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
 
 # OS
 
 # Combine
 df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_1yr, df_incremental_PSA_MMS_HEALTH_SECTOR_5yr, df_incremental_PSA_MMS_HEALTH_SECTOR_10yr, df_incremental_PSA_TS_HEALTH_SECTOR_1yr)
+
+## SA (EQ-5D-3L)
+### Societal perspective ###
+# MMS
+df_incremental_PSA_qalys_3L_MMS_TOTAL_1yr <- df_incremental_PSA_qalys_3L_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_1yr = n_inc_qalys_TOTAL_1yr,
+                                                                                      inc_costs_MMS_1yr = n_inc_costs_TOTAL_1yr) %>% select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
+
+df_incremental_PSA_qalys_3L_MMS_TOTAL_5yr <- df_incremental_PSA_qalys_3L_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_5yr = n_inc_qalys_TOTAL_5yr,
+                                                                                      inc_costs_MMS_5yr = n_inc_costs_TOTAL_5yr) %>% select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
+
+df_incremental_PSA_qalys_3L_MMS_TOTAL_10yr <- df_incremental_PSA_qalys_3L_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
+                                                                                       inc_costs_MMS_10yr = n_inc_costs_TOTAL_10yr) %>% select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
+
+# TS
+df_incremental_PSA_qalys_3L_TS_TOTAL_1yr <- df_incremental_PSA_qalys_3L_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
+                                                                                    inc_costs_TS_1yr = n_inc_costs_TOTAL_1yr) %>% select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
+
+# OS
+
+# Combine
+df_PSA_ellipse_qalys_3L_TOTAL <- cbind(df_incremental_PSA_qalys_3L_MMS_TOTAL_1yr, df_incremental_PSA_qalys_3L_MMS_TOTAL_5yr, df_incremental_PSA_qalys_3L_MMS_TOTAL_10yr, df_incremental_PSA_qalys_3L_TS_TOTAL_1yr)
+
+### Health sector perspective ###
+# MMS
+df_incremental_PSA_qalys_3L_MMS_HEALTH_SECTOR_1yr <- df_incremental_PSA_qalys_3L_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_1yr = n_inc_qalys_TOTAL_1yr,
+                                                                                              inc_costs_MMS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>% select(inc_qalys_MMS_1yr, inc_costs_MMS_1yr)
+
+df_incremental_PSA_qalys_3L_MMS_HEALTH_SECTOR_5yr <- df_incremental_PSA_qalys_3L_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_5yr = n_inc_qalys_TOTAL_5yr,
+                                                                                              inc_costs_MMS_5yr = n_inc_costs_HEALTH_SECTOR_5yr) %>% select(inc_qalys_MMS_5yr, inc_costs_MMS_5yr)
+
+df_incremental_PSA_qalys_3L_MMS_HEALTH_SECTOR_10yr <- df_incremental_PSA_qalys_3L_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
+                                                                                               inc_costs_MMS_10yr = n_inc_costs_HEALTH_SECTOR_10yr) %>% select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
+
+# TS
+df_incremental_PSA_qalys_3L_TS_HEALTH_SECTOR_1yr <- df_incremental_PSA_qalys_3L_TS %>% as_tibble() %>% mutate(inc_qalys_TS_1yr = n_inc_qalys_TOTAL_1yr,
+                                                                                            inc_costs_TS_1yr = n_inc_costs_HEALTH_SECTOR_1yr) %>% select(inc_qalys_TS_1yr, inc_costs_TS_1yr)
+
+# OS
+
+# Combine
+df_PSA_ellipse_qalys_3L_HEALTH_SECTOR <- cbind(df_incremental_PSA_qalys_3L_MMS_HEALTH_SECTOR_1yr, df_incremental_PSA_qalys_3L_MMS_HEALTH_SECTOR_5yr, df_incremental_PSA_qalys_3L_MMS_HEALTH_SECTOR_10yr, df_incremental_PSA_qalys_3L_TS_HEALTH_SECTOR_1yr)
 
 #############
 ### Plots ###
@@ -702,37 +741,24 @@ plot_PSA_ellipse <- ggplot() +
   # Points
   # MMS (1-year)
   geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "wheat", size = 1.5) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
-  
   # MMS (5-year)
   geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), colour = "wheat", size = 1.5) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
-  
   # MMS (10-year)
   geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "wheat", size = 1.5) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
   
   # TS
   geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "lightblue", size = 1.5) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "royalblue", size = 1, alpha = 1, level = 0.5) +
   
   # Ellipses
   # MMS (1-year)
-  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "wheat", size = 1.5) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
   
   # MMS (5-year)
-  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), colour = "wheat", size = 1.5) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
   
   # MMS (10-year)
-  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "wheat", size = 1.5) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
   
@@ -741,23 +767,7 @@ plot_PSA_ellipse <- ggplot() +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "royalblue", size = 1, alpha = 1, level = 0.5) +
 
-  # Add labels
-  #annotate("text", x = -0.275, y = 25000, label = "TS (1-year)", size = 3) +
-  
-  #annotate("text", x =  0.01, y = 35000, label = "MMS (1-year)", size = 3) +
-  #annotate("text", x = -0.07, y = 55000, label = "MMS (5-year)", size = 3) +
-  #annotate("text", x = -0.13, y = 55000, label = "MMS (10-year)", size = 3) +
-  
-  #geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
-  #geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
-  #labs(y = "Incremental costs", x = "Incremental QALYs") +
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
-   #     plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
-
-#plot_PSA_ellipse_TOTAL
-
 ### Health sector perspective ###
-#plot_PSA_ellipse_HEALTH_SECTOR <- ggplot() +
   # Points
   # MMS (1-year)
   geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "tomato", size = 1.5) +
@@ -783,6 +793,138 @@ plot_PSA_ellipse <- ggplot() +
   stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "mediumpurple", size = 1, alpha = 1, level = 0.5) +
   
   # Add labels
+  annotate("text", x = 0.05, y = 15000, label = "TS (1-year) \n Societal", fontface = "bold", size = 3) +
+  annotate("text", x =  0.02, y = 40000, label = "MMS (1-year) \n Societal", fontface = "bold", size = 3) +
+  annotate("text", x = -0.065, y = 60000, label = "MMS (5-year) \n Societal", fontface = "bold", size = 3) +
+  annotate("text", x = -0.18, y = 45000, label = "MMS (10-year) \n Societal", fontface = "bold", size = 3) +
+  
+  annotate("text", x = 0.06, y = 3000, label = "TS (1-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = 0.05, y = -15000, label = "MMS (1-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = -0.05, y = -20000, label = "MMS (5-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x =  -0.15, y = -20000, label = "MMS (10-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  
+  geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  geom_abline(slope = 100000, intercept = 0) +
+  labs(y = "Incremental costs", x = "Incremental QALYs") +
+  xlim(-0.3, 0.1) +
+  ylim(-40000, 75000) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
+
+plot_PSA_ellipse
+
+ggsave(plot_PSA_ellipse, 
+       filename = "Plots/PSA/PSA-Ellipse.png", 
+       width = 10, height = 7)
+
+plot_PSA_ellipse_zoom <- ggplot() +
+  # Points
+  # MMS (1-year)
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "wheat", size = 1.5) +
+  # TS
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "lightblue", size = 1.5) +
+  # MMS (1-year)
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "tomato", size = 1.5) +
+  # TS
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "plum1", size = 1.5) +
+  
+  # MMS (1-year)
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
+  # TS
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "royalblue", size = 1, alpha = 1, level = 0.5) +
+  # MMS (1-year)
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
+  # TS
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "purple4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "mediumpurple", size = 1, alpha = 1, level = 0.5) +
+  
+  # Add labels
+  annotate("text", x = 0.01, y = 7000, label = "TS (1-year) \n Societal", fontface = "bold", size = 3) +
+  annotate("text", x =  -0.012, y = 22000, label = "MMS (1-year) \n Societal", fontface = "bold", size = 3) +
+  
+  annotate("text", x = 0.02, y = -3000, label = "TS (1-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = -0.02, y = -5000, label = "MMS (1-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  
+  geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
+  geom_abline(slope = 100000, intercept = 0) +
+  labs(y = "Incremental costs", x = "Incremental QALYs") +
+  #xlim(-0.4, 0.1) +
+  #ylim(-50000, 75000) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
+  
+  #plot_PSA_ellipse_zoom <- plot_PSA_ellipse + xlim(-0.025, 0.025) + ylim(-25000, 25000)
+
+plot_PSA_ellipse_zoom
+
+ggsave(plot_PSA_ellipse_zoom, 
+       filename = "Plots/PSA/PSA-Ellipse-zoom.png", 
+       width = 10, height = 7)
+
+
+## SA (EQ-5D-3L)
+### Societal perspective ###
+plot_PSA_ellipse <- ggplot() +
+  # Points
+  # MMS (1-year)
+  geom_point(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "wheat", size = 1.5) +
+  # MMS (5-year)
+  geom_point(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), colour = "wheat", size = 1.5) +
+  # MMS (10-year)
+  geom_point(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "wheat", size = 1.5) +
+  
+  # TS
+  geom_point(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "lightblue", size = 1.5) +
+  
+  # Ellipses
+  # MMS (1-year)
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
+  
+  # MMS (5-year)
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
+  
+  # MMS (10-year)
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
+  
+  # TS
+  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "lightblue", size = 1.5) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_TOTAL, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "royalblue", size = 1, alpha = 1, level = 0.5) +
+  
+  ### Health sector perspective ###
+  # Points
+  # MMS (1-year)
+  geom_point(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), colour = "tomato", size = 1.5) +
+  # MMS (5-year)
+  geom_point(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), colour = "tomato", size = 1.5) +
+  # MMS (10-year)
+  geom_point(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "tomato", size = 1.5) +
+  # TS
+  geom_point(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), colour = "plum1", size = 1.5) +
+  
+  # Ellipses
+  # MMS (1-year)
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_1yr, y = inc_costs_MMS_1yr), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
+  # MMS (5-year)
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_5yr, y = inc_costs_MMS_5yr), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
+  # MMS (10-year)
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
+  # TS
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = 2, color = "purple4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_qalys_3L_HEALTH_SECTOR, aes(x = inc_qalys_TS_1yr, y = inc_costs_TS_1yr), linetype = "solid", color = "mediumpurple", size = 1, alpha = 1, level = 0.5) +
+  
+  # Add labels
   annotate("text", x = -0.275, y = -40000, label = "TS (1-year) \n Societal", fontface = "bold", size = 3) +
   annotate("text", x =  0.02, y = 40000, label = "MMS (1-year) \n Societal", fontface = "bold", size = 3) +
   annotate("text", x = -0.065, y = 60000, label = "MMS (5-year) \n Societal", fontface = "bold", size = 3) +
@@ -802,9 +944,9 @@ plot_PSA_ellipse <- ggplot() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
         plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
 
-plot_PSA_ellipse
-
-
+ggsave(plot_PSA_qalys_3L_ellipse, 
+       filename = "Plots/PSA/PSA-Ellipse-SA-3L.png", 
+       width = 7, height = 10)
 
 
 

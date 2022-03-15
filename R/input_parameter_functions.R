@@ -488,9 +488,9 @@ load_all_params <- function(file.init = NULL,
     #p_fent_exp = df_fentanyl["2020", "CAN"],
     
     # Overall - Fentanyl prevalence
-    p_fent_exp_2018 = df_fentanyl["2018", "BC"],
-    p_fent_exp_2019 = df_fentanyl["2019", "BC"],
-    p_fent_exp_2020 = df_fentanyl["2020", "BC"],
+    p_fent_exp_2018 = df_fentanyl["2018", "pe"],
+    p_fent_exp_2019 = df_fentanyl["2019", "pe"],
+    p_fent_exp_2020 = df_fentanyl["2020", "pe"],
     
     # BC - Fentanyl prevalence
     #p_fent_exp_2018_bc = df_fentanyl["2018", "BC"],

@@ -13,73 +13,7 @@ source("R/model_setup_functions.R")
 source("R/plot_functions.R")
 
 # Load parameters
-# Calibrated parameter values
-load(file = "outputs/Calibration/imis_output.RData")
-
-# Modified Model Specification
-# BNX scenario
-l_params_BUP_MMS <- load_all_params(file.init = "data/init_params.csv",
-                                      file.init_dist = "data/init_dist_bup.csv",
-                                      file.mort = "data/all_cause_mortality.csv",
-                                      file.death_hr = "data/death_hr.csv",
-                                      file.frailty = "data/frailty.csv",
-                                      file.weibull = "data/Modified Model Specification/weibull.csv",
-                                      file.unconditional = "data/Modified Model Specification/unconditional.csv",
-                                      file.overdose = "data/overdose.csv",
-                                      file.fentanyl = "data/fentanyl.csv",
-                                      file.hiv = "data/hiv_sero.csv",
-                                      file.hcv = "data/hcv_sero.csv",
-                                      file.costs = "data/Modified Model Specification/costs.csv",
-                                      file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
-                                      file.qalys = "data/Modified Model Specification/qalys.csv")
-# Methadone scenario
-l_params_MET_MMS <- load_all_params(file.init = "data/init_params.csv",
-                                      file.init_dist = "data/init_dist_met.csv",
-                                      file.mort = "data/all_cause_mortality.csv",
-                                      file.death_hr = "data/death_hr.csv",
-                                      file.frailty = "data/frailty.csv",
-                                      file.weibull = "data/Modified Model Specification/weibull.csv",
-                                      file.unconditional = "data/Modified Model Specification/unconditional.csv",
-                                      file.overdose = "data/overdose.csv",
-                                      file.fentanyl = "data/fentanyl.csv",
-                                      file.hiv = "data/hiv_sero.csv",
-                                      file.hcv = "data/hcv_sero.csv",
-                                      file.costs = "data/Modified Model Specification/costs.csv",
-                                      file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
-                                      file.qalys = "data/Modified Model Specification/qalys.csv")
-
-# Trial Specification
-# BNX scenario
-l_params_BUP_TS <- load_all_params(file.init = "data/init_params.csv",
-                                     file.init_dist = "data/init_dist_bup.csv",
-                                     file.mort = "data/all_cause_mortality.csv",
-                                     file.death_hr = "data/death_hr.csv",
-                                     file.frailty = "data/frailty.csv",
-                                     file.weibull = "data/Trial Specification/weibull.csv",
-                                     file.unconditional = "data/Trial Specification/unconditional_bup.csv",
-                                     file.overdose = "data/overdose.csv",
-                                     file.fentanyl = "data/fentanyl.csv",
-                                     file.hiv = "data/hiv_sero.csv",
-                                     file.hcv = "data/hcv_sero.csv",
-                                     file.costs = "data/Trial Specification/costs.csv",
-                                     file.crime_costs = "data/Trial Specification/crime_costs.csv",
-                                     file.qalys = "data/Trial Specification/qalys.csv")
-
-# Methadone scenario
-l_params_MET_TS <- load_all_params(file.init = "data/init_params.csv",
-                                     file.init_dist = "data/init_dist_met.csv",
-                                     file.mort = "data/all_cause_mortality.csv",
-                                     file.death_hr = "data/death_hr.csv",
-                                     file.frailty = "data/frailty.csv",
-                                     file.weibull = "data/Trial Specification/weibull.csv",
-                                     file.unconditional = "data/Trial Specification/unconditional_met.csv",
-                                     file.overdose = "data/overdose.csv",
-                                     file.fentanyl = "data/fentanyl.csv",
-                                     file.hiv = "data/hiv_sero.csv",
-                                     file.hcv = "data/hcv_sero.csv",
-                                     file.costs = "data/Trial Specification/costs.csv",
-                                     file.crime_costs = "data/Trial Specification/crime_costs.csv",
-                                     file.qalys = "data/Trial Specification/qalys.csv")
+source("Analysis/00_load_parameters.R") # load all model parameters for each scenario + calibrated parameters
 
 # Update parameter list with calibrated params
 #l_params_all <- update_param_list(l_params_all = l_params_all, params_updated = v_calib_post_map)

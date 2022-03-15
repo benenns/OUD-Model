@@ -14,7 +14,7 @@ source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
 
 # Load parameters
-source("Analysis/00_load_parameters") # load all model parameters for each scenario + calibrated parameters
+source("Analysis/00_load_parameters.R") # load all model parameters for each scenario + calibrated parameters
 
 ### Main deterministic model outputs ###
 # Run Markov model and return outputs (using MAP point estimates from posterior distribution for calibrated params)
@@ -58,7 +58,9 @@ saveRDS(l_ICER_MMS, file = "outputs/outcomes/ICER_MMS.RData")
 saveRDS(l_ICER_TS, file = "outputs/outcomes/ICER_TS.RData")
 
 #### OUTPUT RESULTS ####
+######################################
 #### Modified Model Specification ####
+######################################
 # Full model trace
 write.csv(l_outcomes_MET_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_BUP.csv", row.names = TRUE)
@@ -76,9 +78,14 @@ rownames(df_outcomes_MMS) <- c("Early take-home BNX", "Methadone")
 df_icer_MMS <- l_ICER_MMS$df_icer
 rownames(df_icer_MMS) <- c("Early take-home BNX vs. Methadone")
 
+# Incremental costs & QALYs
+df_incremental_MMS <- l_ICER_MMS$df_incremental
+rownames(df_incremental_MMS) <- c("Early take-home BNX vs. Methadone")
+
 # Output
 write.csv(df_outcomes_MMS,"outputs/main_output_det_MMS.csv", row.names = TRUE)
 write.csv(df_icer_MMS,"outputs/ICER/icer_det_MMS.csv", row.names = TRUE)
+write.csv(df_incremental_MMS,"outputs/ICER/incremental_det_MMS.csv", row.names = TRUE)
 
 # Raw outputs
 # Costs
@@ -101,8 +108,9 @@ write.csv(l_outcomes_BUP_MMS$m_crime_costs,"outputs/costs/Modified Model Specifi
 write.csv(l_outcomes_MET_MMS$v_qalys,"outputs/qalys/Modified Model Specification/qalys_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_MMS$v_qalys,"outputs/qalys/Modified Model Specification/qalys_BUP.csv", row.names = TRUE)
 
-
+#############################
 #### Trial Specification ####
+#############################
 # Full model trace
 write.csv(l_outcomes_MET_TS$m_M_trace,"outputs/trace/Trial Specification/trace_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_TS$m_M_trace,"outputs/trace/Trial Specification/trace_BUP.csv", row.names = TRUE)
@@ -120,9 +128,14 @@ rownames(df_outcomes_TS) <- c("Early take-home BNX", "Methadone")
 df_icer_TS <- l_ICER_TS$df_icer
 rownames(df_icer_TS) <- c("Early take-home BNX vs. Methadone")
 
+# Incremental costs & QALYs
+df_incremental_TS <- l_ICER_TS$df_incremental
+rownames(df_incremental_TS) <- c("Early take-home BNX vs. Methadone")
+
 # Output
 write.csv(df_outcomes_TS,"outputs/main_output_det_TS.csv", row.names = TRUE)
 write.csv(df_icer_TS,"outputs/ICER/icer_det_TS.csv", row.names = TRUE)
+write.csv(df_incremental_TS,"outputs/ICER/incremental_det_TS.csv", row.names = TRUE)
 
 # Raw outputs
 # Costs
@@ -144,3 +157,4 @@ write.csv(l_outcomes_BUP_TS$m_crime_costs,"outputs/costs/Trial Specification/cri
 # QALYs
 write.csv(l_outcomes_MET_TS$v_qalys,"outputs/qalys/Trial Specification/qalys_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_TS$v_qalys,"outputs/qalys/Trial Specification/qalys_BUP.csv", row.names = TRUE)
+

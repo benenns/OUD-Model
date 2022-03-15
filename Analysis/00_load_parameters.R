@@ -57,9 +57,9 @@ l_params_BUP_TS <- load_all_params(file.init = "data/Trial Specification/init_pa
                                    file.fentanyl = "data/fentanyl.csv",
                                    file.hiv = "data/hiv_sero.csv",
                                    file.hcv = "data/hcv_sero.csv",
-                                   file.costs = "data/Trial Specification/costs.csv",
-                                   file.crime_costs = "data/Trial Specification/crime_costs.csv",
-                                   file.qalys = "data/Trial Specification/qalys.csv")
+                                   file.costs = "data/Trial Specification/costs_bup.csv",
+                                   file.crime_costs = "data/Trial Specification/crime_costs_bup.csv",
+                                   file.qalys = "data/Trial Specification/qalys_bup.csv")
 
 # Methadone scenario
 l_params_MET_TS <- load_all_params(file.init = "data/Trial Specification/init_params.csv",
@@ -73,9 +73,9 @@ l_params_MET_TS <- load_all_params(file.init = "data/Trial Specification/init_pa
                                    file.fentanyl = "data/fentanyl.csv",
                                    file.hiv = "data/hiv_sero.csv",
                                    file.hcv = "data/hcv_sero.csv",
-                                   file.costs = "data/Trial Specification/costs.csv",
-                                   file.crime_costs = "data/Trial Specification/crime_costs.csv",
-                                   file.qalys = "data/Trial Specification/qalys.csv")
+                                   file.costs = "data/Trial Specification/costs_met.csv",
+                                   file.crime_costs = "data/Trial Specification/crime_costs_met.csv",
+                                   file.qalys = "data/Trial Specification/qalys_met.csv")
 
 ################################
 #### Original Specification ####

@@ -1089,6 +1089,16 @@ for (i in 1:nrow(m_dsa_threshold_TS)){
 
 names(df_threshold_TS) <- v_ICER_names
 
+# Save outputs
+## As .RData ##
+save(df_threshold_MMS, 
+     file = "outputs/DSA/Modified Model Specification/df_threshold_MMS.RData")
+save(df_threshold_TS, 
+     file = "outputs/DSA/Trial Specification/df_threshold_TS.RData")
+
+load(file = "outputs/DSA/Modified Model Specification/df_threshold_MMS.RData")
+load(file = "outputs/DSA/Trial Specification/df_threshold_TS.RData")
+
 # Prepare data for plotting
 df_threshold_MMS <- df_threshold_MMS %>% as_tibble() %>% mutate(perc_increase = row_number())
 df_threshold_TS <- df_threshold_TS %>% as_tibble() %>% mutate(perc_increase = row_number())
@@ -1097,16 +1107,22 @@ df_threshold_TS <- df_threshold_TS %>% as_tibble() %>% mutate(perc_increase = ro
 df_threshold_qalys_MMS <- df_threshold_MMS %>% gather("scenario", "inc_qalys", n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
   select(perc_increase, scenario, inc_qalys)
 
+df_threshold_costs_MMS <- df_threshold_MMS %>% gather("scenario", "inc_costs", n_inc_costs_TOTAL_1yr, n_inc_costs_TOTAL_5yr, n_inc_costs_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+  select(perc_increase, scenario, inc_costs)
+
 df_threshold_icer_MMS <- df_threshold_MMS %>% gather("scenario", "icer", n_icer_TOTAL_1yr, n_icer_TOTAL_5yr, n_icer_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
-  mutate(icer = ifelse(icer > 0, icer, NA)) %>%
+  #mutate(icer = ifelse(icer > 0, icer, NA)) %>%
   select(perc_increase, scenario, icer)
 
 # TS
 df_threshold_qalys_TS <- df_threshold_TS %>% gather("scenario", "inc_qalys", n_inc_qalys_TOTAL_1yr, n_inc_qalys_TOTAL_5yr, n_inc_qalys_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
   select(perc_increase, scenario, inc_qalys)
 
+df_threshold_costs_TS <- df_threshold_TS %>% gather("scenario", "inc_costs", n_inc_costs_TOTAL_1yr, n_inc_costs_TOTAL_5yr, n_inc_costs_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
+  select(perc_increase, scenario, inc_costs)
+
 df_threshold_icer_TS <- df_threshold_TS %>% gather("scenario", "icer", n_icer_TOTAL_1yr, n_icer_TOTAL_5yr, n_icer_TOTAL_10yr, na.rm = FALSE, convert = FALSE) %>%
-  mutate(icer = ifelse(icer > 0, icer, NA)) %>%
+  #mutate(icer = ifelse(icer > 0, icer, NA)) %>%
   select(perc_increase, scenario, icer)
 
 # 1-year
@@ -1121,40 +1137,78 @@ df_threshold_icer_TS <- df_threshold_TS %>% gather("scenario", "icer", n_icer_TO
 plot_DSA_qalys_MMS_threshold <- ggplot(df_threshold_qalys_MMS, aes(x = perc_increase, y = inc_qalys, group = scenario)) +
   geom_line(aes(color = scenario)) +
   geom_hline(yintercept = 0) +
-  xlim(0, 100) +
-  ylim(-0.01, 0.025)
+  xlim(0, 100) #+
+  #ylim(-0.01, 0.025)
 
-plot_DSA_qalys_MMS_threshold
+#plot_DSA_qalys_MMS_threshold
+
+ggsave(plot_DSA_qalys_MMS_threshold, 
+       filename = "Plots/DSA/DSA-BNX-threshold-qalys-MMS.png", 
+       width = 7, height = 10)
+
+# Incremental Costs
+plot_DSA_costs_MMS_threshold <- ggplot(df_threshold_costs_MMS, aes(x = perc_increase, y = inc_costs, group = scenario)) +
+  geom_line(aes(color = scenario)) +
+  geom_hline(yintercept = 0) +
+  xlim(0, 100) #+
+ # ylim(-0.01, 0.025)
+
+#plot_DSA_qalys_MMS_threshold
+
+ggsave(plot_DSA_costs_MMS_threshold, 
+       filename = "Plots/DSA/DSA-BNX-threshold-costs-MMS.png", 
+       width = 7, height = 10)
 
 # ICER
 plot_DSA_icer_MMS_threshold <- ggplot(df_threshold_icer_MMS, aes(x = perc_increase, y = icer, group = scenario)) +
   geom_line(aes(color = scenario)) +
   geom_hline(yintercept = 0) +
   geom_hline(yintercept = 100000) +
-  #xlim(0, 100) +
-  ylim(0, 50000000)
+  xlim(0, 100) #+
+  #ylim(0, 50000000)
 
-plot_DSA_icer_MMS_threshold
+#plot_DSA_icer_MMS_threshold
+ggsave(plot_DSA_icer_MMS_threshold, 
+       filename = "Plots/DSA/DSA-BNX-threshold-icer-MMS.png", 
+       width = 7, height = 10)
 
 # TS
 # Incremental QALYs
 plot_DSA_qalys_TS_threshold <- ggplot(df_threshold_qalys_TS, aes(x = perc_increase, y = inc_qalys, group = scenario)) +
   geom_line(aes(color = scenario)) +
   geom_hline(yintercept = 0) +
-  xlim(0, 100) +
-  ylim(-0.01, 0.025)
+  xlim(0, 100) #+
+  #ylim(-0.01, 0.025)
 
-plot_DSA_qalys_TS_threshold
+#plot_DSA_qalys_TS_threshold
+ggsave(plot_DSA_qalys_TS_threshold, 
+       filename = "Plots/DSA/DSA-BNX-threshold-qalys-TS.png", 
+       width = 7, height = 10)
+
+# Incremental Costs
+plot_DSA_costs_TS_threshold <- ggplot(df_threshold_costs_TS, aes(x = perc_increase, y = inc_costs, group = scenario)) +
+  geom_line(aes(color = scenario)) +
+  geom_hline(yintercept = 0) +
+  xlim(0, 100) #+
+  #ylim(-0.01, 0.025)
+
+#plot_DSA_costs_TS_threshold
+ggsave(plot_DSA_costs_TS_threshold, 
+       filename = "Plots/DSA/DSA-BNX-threshold-costs-TS.png", 
+       width = 7, height = 10)
 
 # ICER
 plot_DSA_icer_TS_threshold <- ggplot(df_threshold_icer_TS, aes(x = perc_increase, y = icer, group = scenario)) +
   geom_line(aes(color = scenario)) +
   geom_hline(yintercept = 0) +
   geom_hline(yintercept = 100000) +
-  #xlim(0, 100) +
-  ylim(0, 20000000)
+  xlim(0, 100) #+
+  #ylim(0, 20000000)
 
-plot_DSA_icer_TS_threshold
+#plot_DSA_icer_TS_threshold
+ggsave(plot_DSA_icer_TS_threshold, 
+       filename = "Plots/DSA/DSA-BNX-threshold-icer-TS.png", 
+       width = 7, height = 10)
 
 
 #########################

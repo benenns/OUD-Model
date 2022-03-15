@@ -16,17 +16,15 @@ source("R/model_setup_functions.R")
 source("R/calibration_functions.R")
 
 # Load model inputs #
-l_params_all <- load_all_params(file.init = "data/init_params.csv",
+l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
                                 file.init_dist = "data/init_dist.csv", # calibrate on full trial sample (x% bup; x% met)
                                 file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/death_hr.csv",
+                                file.death_hr = "data/Calibration/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
-                                file.weibull = "data/weibull.csv",
-                                #file.weibull_scale = "data/weibull_scale.csv",
-                                #file.weibull_shape = "data/weibull_shape.csv",
-                                file.unconditional = "data/unconditional.csv",
+                                file.weibull = "data/Calibration/weibull.csv",
+                                file.unconditional = "data/Calibration/unconditional.csv",
                                 file.overdose = "data/overdose.csv", # includes calibration-related parameters
-                                file.fentanyl = "data/fentanyl.csv",
+                                file.fentanyl = "data/Calibration/fentanyl.csv",
                                 file.hiv = "data/hiv_sero.csv",
                                 file.hcv = "data/hcv_sero.csv",
                                 file.costs = "data/costs.csv",
