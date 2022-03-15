@@ -17,9 +17,9 @@ source("R/calibration_functions.R")
 
 # Load model inputs #
 l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
-                                file.init_dist = "data/init_dist.csv", # calibrate on full trial sample (x% bup; x% met)
+                                file.init_dist = "data/init_dist.csv", # calibrate on BC OUD cohort data for 2018
                                 file.mort = "data/all_cause_mortality.csv",
-                                file.death_hr = "data/Calibration/death_hr.csv",
+                                file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
                                 file.weibull = "data/Calibration/weibull.csv",
                                 file.unconditional = "data/Calibration/unconditional.csv",
@@ -27,9 +27,9 @@ l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
                                 file.fentanyl = "data/Calibration/fentanyl.csv",
                                 file.hiv = "data/hiv_sero.csv",
                                 file.hcv = "data/hcv_sero.csv",
-                                file.costs = "data/costs.csv",
-                                file.crime_costs = "data/crime_costs.csv",
-                                file.qalys = "data/qalys.csv")
+                                file.costs = "data/Modified Model Specification/costs.csv",
+                                file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
+                                file.qalys = "data/Modified Model Specification/qalys.csv")
 
 # Load calibration inputs #
 v_cali_param_names <- c("'Overdose rate (treatment)'",
