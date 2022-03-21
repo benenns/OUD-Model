@@ -584,7 +584,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # Fentanyl
     p_ni_fent_reduction = rbeta(n_sim, shape1 = df_overdose["shape1", "ni_fent_reduction"], shape2 = df_overdose["shape2", "ni_fent_reduction"]),
     #p_fent_exp_2020 = df_fentanyl["2020", "CAN"], # add distribution parameters (uniform between range of multiple fentanyl % estimates)
-    p_fent_exp_2020 = runif(n_sim, min = df_fentanyl["low", "BC"], max = df_fentanyl["high", "BC"]),
+    p_fent_exp_2020 = runif(n_sim, min = df_fentanyl["low", "pe"], max = df_fentanyl["high", "pe"]),
     
     # Naloxone (OD reversal)
     p_witness = rbeta(n_sim, shape1 = df_overdose["shape1", "witness_prob"], shape2 = df_overdose["shape2", "witness_prob"]),
