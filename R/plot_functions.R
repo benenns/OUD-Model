@@ -25,7 +25,8 @@ df_M_agg_state_time <- df_M_agg_trace %>% gather(state, proportion, "ODN", "REL"
 df_M_agg_state_time <- df_M_agg_state_time %>% 
   group_by(state) %>% 
   summarise_each(funs(sum), proportion) %>%
-  mutate(percentage = round((proportion / sum(proportion)) * 100,1))
+  mutate(percentage = round((proportion / sum(proportion)) * 100,1),
+         time_alive = sum(proportion))
 
 # Preserve order for plotting
 state_order_trace <- factor(df_M_agg_trace_plot$state, levels = c("Death", "ODF", "ODN", "REL", "BUP", "BUPC", "MET", "METC", "ABS"))
@@ -70,6 +71,7 @@ main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = pr
   geom_bar(stat = "identity") +
   scale_fill_manual(values = state_colours_time2) +
   geom_text(aes(label = paste0(round(proportion,1)," (",percentage,"%)")), hjust = -0.25, size = 3.5) +
+  annotate('text', x = 1.25, y = 190, label = paste0(round((df_M_agg_state_time$time_alive)/12,1)," years alive"), size = 3.5) +
   coord_flip(ylim = c(0, 200))
 
 ### Combined plot ###

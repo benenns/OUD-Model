@@ -385,3 +385,51 @@ for (i in 1:10){
     gt[i, ] <- (g[i, ] - g[i-1, ])*80
   }
 }
+
+
+library(parallel)
+library(foreach)
+library(doParallel)
+library(tidyr)
+
+l_psa_input_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_MMS[1, ])
+l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_MMS[1, ])
+
+# Run model and generate outputs
+l_outcomes_MET_MMS <- outcomes(l_params_all = l_psa_input_MET_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+l_outcomes_BUP_MMS <- outcomes(l_params_all = l_psa_input_BUP_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+
+df_outcomes_MET_PSA_MMS <- l_outcomes_MET_MMS$df_outcomes
+df_outcomes_BUP_PSA_MMS <- l_outcomes_BUP_MMS$df_outcomes
+
+# Calculate ICER (societal and health sector perspective)
+l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+df_incremental_PSA_MMS <- l_ICER_MMS$df_incremental
+df_ICER_PSA_MMS <- l_ICER_MMS$df_icer
+
+# Set number of cores
+n_cores <- detectCores() - 1
+registerDoParallel(n_cores)
+n_sim <- 6
+
+combine_custom_j <- function(LL1, LL2) {
+  x <- rbind(LL1$x, LL2$x)
+  y <- rbind(LL1$y, LL2$y)
+  z <- rbind(LL1$z, LL2$z)
+  q <- rbind(LL1$q, LL2$q)
+  return(list(x = x, y = y, z = z, q = q))
+}
+
+l_incremental_PSA_MMS <- foreach(i = 1:n_sim, .combine = combine_custom_j) %dopar% { # i <- 1
+  x <- as.data.frame(i)
+  y <- as.data.frame(i+2)
+  z <- as.data.frame(i+3)
+  q <- as.data.frame(i+6)
+  
+  l_test <- list(x, y, z, q)
+  
+  return(list(x = x, y = y, z = z, q = q))
+}
+#stopImplicitCluster()
+
+test <- as.data.frame(45)

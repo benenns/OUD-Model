@@ -19,7 +19,6 @@ source("R/ICER_functions.R")
 source("Analysis/00_load_parameters.R")
 
 # Load DSA parameters
-
 ################
 ### Overdose ###
 ################
@@ -56,8 +55,8 @@ names(v_dsa_fatal_OD_high) <- c("n_fatal_OD")
 
 ## Non-fatal overdose ##
 # Fentanyl prevalence
-v_dsa_fent_exp_2020_low <- unlist(df_dsa_fentanyl["low", "BC"])
-v_dsa_fent_exp_2020_high <- unlist(df_dsa_fentanyl["high", "BC"])
+v_dsa_fent_exp_2020_low <- unlist(df_dsa_fentanyl["low", "pe"])
+v_dsa_fent_exp_2020_high <- unlist(df_dsa_fentanyl["high", "pe"])
 names(v_dsa_fent_exp_2020_low) <- c("p_fent_exp_2020")
 names(v_dsa_fent_exp_2020_high) <- c("p_fent_exp_2020")
 
@@ -84,6 +83,10 @@ v_dsa_MET_OD_mult_high <- unlist(df_dsa_overdose["high", "n_MET_OD_mult"])
 # REL OD multiplier
 v_dsa_REL_OD_mult_low <- unlist(df_dsa_overdose["low", "n_REL_OD_mult"])
 v_dsa_REL_OD_mult_high <- unlist(df_dsa_overdose["high", "n_REL_OD_mult"])
+
+# INJ OD multiplier
+v_dsa_INJ_OD_mult_low <- unlist(df_dsa_overdose["low", "n_INJ_OD_mult"])
+v_dsa_INJ_OD_mult_high <- unlist(df_dsa_overdose["high", "n_INJ_OD_mult"])
 
 #################
 ### HRU costs ###
@@ -145,28 +148,28 @@ v_dsa_frailty_inj <- unlist(df_dsa_frailty["pe_inj_frailty",])
 #v_dsa_frailty_no_tx_switch <- unlist(df_dsa_frailty["",])
 
 ### BNX threshold SA ###
-df_dsa_threshold_MMS <- read.csv(file = "data/DSA/Modified Model Specification/threshold.csv", row.names = 1, header = TRUE)
-df_dsa_threshold_TS <- read.csv(file = "data/DSA/Trial Specification/threshold.csv", row.names = 1, header = TRUE)
-
-# Initialize matrices
-v_threshold_names_MMS <- colnames(df_dsa_threshold_MMS)
-v_threshold_names_TS <- colnames(df_dsa_threshold_TS)
-
-m_dsa_threshold_MMS <- array(0, dim = c(nrow(df_dsa_threshold_MMS), length(df_dsa_threshold_MMS)),
-                             dimnames = list(1:nrow(df_dsa_threshold_MMS), v_threshold_names_MMS))
-m_dsa_threshold_TS <- array(0, dim = c(nrow(df_dsa_threshold_TS), length(df_dsa_threshold_TS)),
-                             dimnames = list(1:nrow(df_dsa_threshold_TS), v_threshold_names_TS))
-
-## Threshold SA ##
-# MMS
-for (i in 1:nrow(df_dsa_threshold_MMS)){
-  m_dsa_threshold_MMS[i,] <- unlist(df_dsa_threshold_MMS[i,])
-}
-
-# TS
-for (i in 1:nrow(df_dsa_threshold_TS)){
-  m_dsa_threshold_TS[i,] <- unlist(df_dsa_threshold_TS[i,])
-}
+# df_dsa_threshold_MMS <- read.csv(file = "data/DSA/Modified Model Specification/threshold.csv", row.names = 1, header = TRUE)
+# df_dsa_threshold_TS <- read.csv(file = "data/DSA/Trial Specification/threshold.csv", row.names = 1, header = TRUE)
+# 
+# # Initialize matrices
+# v_threshold_names_MMS <- colnames(df_dsa_threshold_MMS)
+# v_threshold_names_TS <- colnames(df_dsa_threshold_TS)
+# 
+# m_dsa_threshold_MMS <- array(0, dim = c(nrow(df_dsa_threshold_MMS), length(df_dsa_threshold_MMS)),
+#                              dimnames = list(1:nrow(df_dsa_threshold_MMS), v_threshold_names_MMS))
+# m_dsa_threshold_TS <- array(0, dim = c(nrow(df_dsa_threshold_TS), length(df_dsa_threshold_TS)),
+#                              dimnames = list(1:nrow(df_dsa_threshold_TS), v_threshold_names_TS))
+# 
+# ## Threshold SA ##
+# # MMS
+# for (i in 1:nrow(df_dsa_threshold_MMS)){
+#   m_dsa_threshold_MMS[i,] <- unlist(df_dsa_threshold_MMS[i,])
+# }
+# 
+# # TS
+# for (i in 1:nrow(df_dsa_threshold_TS)){
+#   m_dsa_threshold_TS[i,] <- unlist(df_dsa_threshold_TS[i,])
+# }
 
 # Province-specific
 
@@ -433,10 +436,80 @@ l_outcomes_BUP_fent_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, 
 ICER_fent_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_fent_OD_mult_high_TS)
 
 # BUP OD multiplier
+# Low
+l_outcomes_MET_BUP_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
+l_outcomes_BUP_BUP_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
+ICER_BUP_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_low_MMS)
+
+l_outcomes_MET_BUP_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
+l_outcomes_BUP_BUP_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
+ICER_BUP_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_low_TS)
+
+# High
+l_outcomes_MET_BUP_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
+l_outcomes_BUP_BUP_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
+ICER_BUP_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_high_MMS)
+
+l_outcomes_MET_BUP_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
+l_outcomes_BUP_BUP_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
+ICER_BUP_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_high_TS)
 
 # MET OD multiplier
+# Low
+l_outcomes_MET_MET_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
+l_outcomes_BUP_MET_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
+ICER_MET_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_MET_OD_mult_low_MMS)
+
+l_outcomes_MET_MET_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
+l_outcomes_BUP_MET_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
+ICER_MET_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_MET_OD_mult_low_TS)
+
+# High
+l_outcomes_MET_MET_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
+l_outcomes_BUP_MET_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
+ICER_MET_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_MET_OD_mult_high_MMS)
+
+l_outcomes_MET_MET_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
+l_outcomes_BUP_MET_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
+ICER_MET_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_MET_OD_mult_high_TS)
 
 # REL OD multiplier
+# Low
+l_outcomes_MET_REL_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
+l_outcomes_BUP_REL_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
+ICER_REL_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_REL_OD_mult_low_MMS)
+
+l_outcomes_MET_REL_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
+l_outcomes_BUP_REL_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
+ICER_REL_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_REL_OD_mult_low_TS)
+
+# High
+l_outcomes_MET_REL_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
+l_outcomes_BUP_REL_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
+ICER_REL_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_REL_OD_mult_high_MMS)
+
+l_outcomes_MET_REL_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
+l_outcomes_BUP_REL_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
+ICER_REL_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_REL_OD_mult_high_TS)
+
+# INJ OD multiplier
+# Low
+l_outcomes_MET_INJ_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
+l_outcomes_BUP_INJ_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
+ICER_INJ_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_low_MMS)
+
+l_outcomes_MET_INJ_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
+l_outcomes_BUP_INJ_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
+ICER_INJ_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_low_TS)
+
+# High
+l_outcomes_MET_INJ_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
+l_outcomes_BUP_INJ_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
+ICER_INJ_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_high_MMS)
+
+l_outcomes_MET_INJ_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
+l_outcomes_BUP_INJ_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
+ICER_INJ_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_high_TS)
 
 ##############################
 ### Cohort characteristics ###
@@ -478,31 +551,31 @@ ICER_frailty_concurrent_TS <- ICER(outcomes_comp = l_outcomes_MET_frailty_concur
 ### BNX Retention Threshold ###
 ###############################
 
-# Initialize lists
-l_outcomes_MET_threshold_MMS <- list()
-l_outcomes_BUP_threshold_MMS <- list()
-l_ICER_threshold_MMS <- list()
-
-l_outcomes_MET_threshold_TS <- list()
-l_outcomes_BUP_threshold_TS <- list()
-l_ICER_threshold_TS <- list()
-
-## Treatment retention (threshold SA for BNX retention) ##
-# MMS
-for (i in 1:nrow(m_dsa_threshold_MMS)){  
-  # +i%
-  l_outcomes_MET_threshold_MMS[[i]] <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_MMS[i,])
-  l_outcomes_BUP_threshold_MMS[[i]] <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_MMS[i,])
-  l_ICER_threshold_MMS[[i]] <- ICER(outcomes_comp = l_outcomes_MET_threshold_MMS[[i]], outcomes_int = l_outcomes_BUP_threshold_MMS[[i]])
-}
-
-# TS
-for (i in 1:nrow(m_dsa_threshold_TS)){
-  # +i%
-  l_outcomes_MET_threshold_TS[[i]] <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_TS[i,])
-  l_outcomes_BUP_threshold_TS[[i]] <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_TS[i,])
-  l_ICER_threshold_TS[[i]] <- ICER(outcomes_comp = l_outcomes_MET_threshold_TS[[i]], outcomes_int = l_outcomes_BUP_threshold_TS[[i]])
-}
+# # Initialize lists
+# l_outcomes_MET_threshold_MMS <- list()
+# l_outcomes_BUP_threshold_MMS <- list()
+# l_ICER_threshold_MMS <- list()
+# 
+# l_outcomes_MET_threshold_TS <- list()
+# l_outcomes_BUP_threshold_TS <- list()
+# l_ICER_threshold_TS <- list()
+# 
+# ## Treatment retention (threshold SA for BNX retention) ##
+# # MMS
+# for (i in 1:nrow(m_dsa_threshold_MMS)){  
+#   # +i%
+#   l_outcomes_MET_threshold_MMS[[i]] <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_MMS[i,])
+#   l_outcomes_BUP_threshold_MMS[[i]] <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_MMS[i,])
+#   l_ICER_threshold_MMS[[i]] <- ICER(outcomes_comp = l_outcomes_MET_threshold_MMS[[i]], outcomes_int = l_outcomes_BUP_threshold_MMS[[i]])
+# }
+# 
+# # TS
+# for (i in 1:nrow(m_dsa_threshold_TS)){
+#   # +i%
+#   l_outcomes_MET_threshold_TS[[i]] <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_TS[i,])
+#   l_outcomes_BUP_threshold_TS[[i]] <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = m_dsa_threshold_TS[i,])
+#   l_ICER_threshold_TS[[i]] <- ICER(outcomes_comp = l_outcomes_MET_threshold_TS[[i]], outcomes_int = l_outcomes_BUP_threshold_TS[[i]])
+# }
 
 
 ###################
@@ -569,7 +642,7 @@ df_crime_costs_TS <- rbind(df_crime_costs_baseline_TS, df_crime_costs_low_TS, df
 df_crime_costs <- data.frame("Scenario" = c("Baseline", "Low", "High", "Alternative", "Combined Tx"), df_crime_costs)
 df_crime_costs_TS <- data.frame("Scenario" = c("Baseline", "Low", "High", "Alternative", "Combined Tx"), df_crime_costs_TS)
 
-# Custom table output
+#### Custom table output ####
 crime_costs_palette <- brewer.pal(3,"BrBG")
 
 table_crime_costs <- df_crime_costs %>%
@@ -671,7 +744,7 @@ df_qalys_TS <- rbind(df_qalys_baseline_TS, df_qalys_reduced_eq_5d_5l_TS, df_qaly
 df_qalys <- data.frame("Scenario" = c("Baseline", "Combined Tx", "Low", "High", "EQ-5D-3L", "HUI-3", "ODN (low)"), df_qalys)
 df_qalys_TS <- data.frame("Scenario" = c("Baseline", "Combined Tx", "Low", "High", "EQ-5D-3L", "HUI-3", "ODN (low)"), df_qalys_TS)
 
-# Custom table output
+#### Custom table output ####
 qaly_palette <- brewer.pal(3,"PuOr")
 
 table_qalys_MMS <- df_qalys_MMS %>%
@@ -795,7 +868,7 @@ df_overdose_fatal_TS <- rbind(df_overdose_baseline_TS, df_overdose_witness_low_T
 df_overdose_fatal_MMS <- data.frame("Scenario" = c("Baseline", "Witness (low)", "Witness (high)", "NX prob (low)", "NX prob (high)", "NX success (low)", "NX success (high)", "Fatal OD rate (low)", "Fatal OD rate (high)"), df_overdose_fatal_MMS)
 df_overdose_fatal_TS <- data.frame("Scenario" = c("Baseline", "Witness (low)", "Witness (high)", "NX prob (low)", "NX prob (high)", "NX success (low)", "NX success (high)", "Fatal OD rate (low)", "Fatal OD rate (high)"), df_overdose_fatal_TS)
 
-# Custom table output
+#### Custom table output ####
 overdose_fatal_palette <- brewer.pal(3,"PuOr")
 
 table_overdose_fatal_costs_MMS <- df_overdose_fatal_MMS %>%

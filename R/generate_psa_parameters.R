@@ -81,6 +81,9 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
   ########################################
   #### Set up dirichlet random sample ####
   ########################################
+  #df_UP <- read.csv("data/Modified Model Specification/unconditional.csv", row.names = 1)
+  #n_pop <- 500
+  #n_sim <- 1000
   # Need to adjust Dirichlet draws to account for zero transition probabilities from different scenarios
   df_dirichlet_UP = df_UP * n_pop
   write.csv(df_dirichlet_UP, file = "checks/PSA/df_dirichlet_UP.csv", row.names = TRUE)
@@ -93,30 +96,43 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     ## Non-injection ##
     # From BUP
     v_dirichlet_UP_BUP_NI = df_dirichlet_UP["BUP_NI",]
-    m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"])))
-    p_BUP_BUPC_NI = p_BUP_MET_NI = p_BUP_METC_NI = m_UP_zeros[,1]
-    p_BUP_ABS_NI = m_BUP_UP_NI[,1]
-    p_BUP_REL_NI = 1 - m_BUP_UP_NI[,1]
+    m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "BUPC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "MET_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "METC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"])))
+    #p_BUP_BUPC_NI = p_BUP_MET_NI = p_BUP_METC_NI = m_UP_zeros[,1]
+    p_BUP_BUPC_NI = m_BUP_UP_NI[,1]
+    p_BUP_MET_NI  = m_BUP_UP_NI[,2]
+    p_BUP_METC_NI = m_BUP_UP_NI[,3]
+    p_BUP_REL_NI  = m_BUP_UP_NI[,4]
+    p_BUP_ABS_NI  = m_BUP_UP_NI[,5]
     # From BUPC
     v_dirichlet_UP_BUPC_NI = df_dirichlet_UP["BUPC_NI",]
-    m_BUPC_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_NI["BUPC_NI", "ABS_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "REL_NI"])))
-    p_BUPC_BUP_NI = p_BUPC_MET_NI = p_BUPC_METC_NI = m_UP_zeros[,1]
-    p_BUPC_ABS_NI = m_BUPC_UP_NI[,1]
-    p_BUPC_REL_NI = 1 - m_BUPC_UP_NI[,1]
+    m_BUPC_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_NI["BUPC_NI", "BUP_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "METC_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "REL_NI"], v_dirichlet_UP_BUPC_NI["BUPC_NI", "ABS_NI"])))
+    p_BUPC_MET_NI  = m_UP_zeros[,1]
+    p_BUPC_BUP_NI  = m_BUPC_UP_NI[,1]
+    #p_BUP_MET_NI  = m_BUPC_UP_NI[,2]
+    p_BUPC_METC_NI = m_BUPC_UP_NI[,2]
+    p_BUPC_REL_NI  = m_BUPC_UP_NI[,3]
+    p_BUPC_ABS_NI  = m_BUPC_UP_NI[,4]
+    
     # From MET
     v_dirichlet_UP_MET_NI = df_dirichlet_UP["MET_NI",]
-    m_MET_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"])))
-    p_MET_BUPC_NI = p_MET_BUP_NI = p_MET_METC_NI = m_UP_zeros[,1]
-    p_MET_ABS_NI = m_MET_UP_NI[,1]
-    p_MET_REL_NI = 1 - m_MET_UP_NI[,1]
+    m_MET_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "BUP_NI"], v_dirichlet_UP_MET_NI["MET_NI", "METC_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"], v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"])))
+    p_MET_BUPC_NI = m_UP_zeros[,1]
+    p_MET_BUP_NI  = m_MET_UP_NI[,1]
+    p_MET_METC_NI = m_MET_UP_NI[,2]
+    p_MET_REL_NI  = m_MET_UP_NI[,3]
+    p_MET_ABS_NI  = m_MET_UP_NI[,4]
     # From METC
     v_dirichlet_UP_METC_NI = df_dirichlet_UP["METC_NI",]
-    m_METC_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_METC_NI["METC_NI", "ABS_NI"], v_dirichlet_UP_METC_NI["METC_NI", "REL_NI"])))
-    p_METC_BUPC_NI = p_METC_BUP_NI = p_METC_MET_NI = m_UP_zeros[,1]
-    p_METC_ABS_NI = m_METC_UP_NI[,1]
-    p_METC_REL_NI = 1 - m_METC_UP_NI[,1]
+    m_METC_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_METC_NI["METC_NI", "BUPC_NI"], v_dirichlet_UP_METC_NI["METC_NI", "MET_NI"], v_dirichlet_UP_METC_NI["METC_NI", "REL_NI"], v_dirichlet_UP_METC_NI["METC_NI", "ABS_NI"])))
+    p_METC_BUP_NI = m_UP_zeros[,1]
+    p_METC_BUPC_NI = m_METC_UP_NI[,1]
+    p_METC_MET_NI  = m_METC_UP_NI[,2]
+    p_METC_REL_NI  = m_METC_UP_NI[,3]
+    p_METC_ABS_NI  = m_METC_UP_NI[,4]
+    
     # From ABS (not sampled, all return to relapse)
-    p_ABS_BUP_NI = p_ABS_BUPC_NI = p_ABS_MET_NI = p_ABS_METC_NI = p_ABS_REL_NI = m_UP_zeros[,1]
+    #p_ABS_BUP_NI = p_ABS_BUPC_NI = p_ABS_MET_NI = p_ABS_METC_NI = p_ABS_REL_NI = m_UP_zeros[,1]
+    
     # From REL
     v_dirichlet_UP_REL_NI = df_dirichlet_UP["REL_NI",]
     m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "METC_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUPC_NI"])))
@@ -138,30 +154,43 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     ## Injection ##
     # From BUP
     v_dirichlet_UP_BUP_INJ = df_dirichlet_UP["BUP_INJ",]
-    m_BUP_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"])))
-    p_BUP_BUPC_INJ = p_BUP_MET_INJ = p_BUP_METC_INJ = m_UP_zeros[,1]
-    p_BUP_ABS_INJ = m_BUP_UP_INJ[,1]
-    p_BUP_REL_INJ = 1 - m_BUP_UP_INJ[,1]
+    m_BUP_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "BUPC_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "MET_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "METC_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"])))
+    #p_BUP_BUPC_INJ = p_BUP_MET_INJ = p_BUP_METC_INJ = m_UP_zeros[,1]
+    p_BUP_BUPC_INJ = m_BUP_UP_INJ[,1]
+    p_BUP_MET_INJ  = m_BUP_UP_INJ[,2]
+    p_BUP_METC_INJ = m_BUP_UP_INJ[,3]
+    p_BUP_REL_INJ  = m_BUP_UP_INJ[,4]
+    p_BUP_ABS_INJ  = m_BUP_UP_INJ[,5]
     # From BUPC
     v_dirichlet_UP_BUPC_INJ = df_dirichlet_UP["BUPC_INJ",]
-    m_BUPC_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "ABS_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "REL_INJ"])))
-    p_BUPC_BUP_INJ = p_BUPC_MET_INJ = p_BUPC_METC_INJ = m_UP_zeros[,1]
-    p_BUPC_ABS_INJ = m_BUPC_UP_INJ[,1]
-    p_BUPC_REL_INJ = 1 - m_BUPC_UP_INJ[,1]
+    m_BUPC_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "BUP_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "METC_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "REL_INJ"], v_dirichlet_UP_BUPC_INJ["BUPC_INJ", "ABS_INJ"])))
+    p_BUPC_MET_INJ  = m_UP_zeros[,1]
+    p_BUPC_BUP_INJ  = m_BUPC_UP_INJ[,1]
+    #p_BUP_MET_INJ  = m_BUPC_UP_INJ[,2]
+    p_BUPC_METC_INJ = m_BUPC_UP_INJ[,2]
+    p_BUPC_REL_INJ  = m_BUPC_UP_INJ[,3]
+    p_BUPC_ABS_INJ  = m_BUPC_UP_INJ[,4]
+    
     # From MET
     v_dirichlet_UP_MET_INJ = df_dirichlet_UP["MET_INJ",]
-    m_MET_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"])))
-    p_MET_BUPC_INJ = p_MET_BUP_INJ = p_MET_METC_INJ = m_UP_zeros[,1]
-    p_MET_ABS_INJ = m_MET_UP_INJ[,1]
-    p_MET_REL_INJ = 1 - m_MET_UP_INJ[,1]
+    m_MET_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "BUP_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "METC_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"])))
+    p_MET_BUPC_INJ = m_UP_zeros[,1]
+    p_MET_BUP_INJ  = m_MET_UP_INJ[,1]
+    p_MET_METC_INJ = m_MET_UP_INJ[,2]
+    p_MET_REL_INJ  = m_MET_UP_INJ[,3]
+    p_MET_ABS_INJ  = m_MET_UP_INJ[,4]
     # From METC
     v_dirichlet_UP_METC_INJ = df_dirichlet_UP["METC_INJ",]
-    m_METC_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_METC_INJ["METC_INJ", "ABS_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "REL_INJ"])))
-    p_METC_BUPC_INJ = p_METC_BUP_INJ = p_METC_MET_INJ = m_UP_zeros[,1]
-    p_METC_ABS_INJ = m_METC_UP_INJ[,1]
-    p_METC_REL_INJ = 1 - m_METC_UP_INJ[,1]
-    # From ABS
-    p_ABS_BUP_INJ = p_ABS_BUPC_INJ = p_ABS_MET_INJ = p_ABS_METC_INJ = p_ABS_REL_INJ = 0
+    m_METC_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_METC_INJ["METC_INJ", "BUPC_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "MET_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "REL_INJ"], v_dirichlet_UP_METC_INJ["METC_INJ", "ABS_INJ"])))
+    p_METC_BUP_INJ = m_UP_zeros[,1]
+    p_METC_BUPC_INJ = m_METC_UP_INJ[,1]
+    p_METC_MET_INJ  = m_METC_UP_INJ[,2]
+    p_METC_REL_INJ  = m_METC_UP_INJ[,3]
+    p_METC_ABS_INJ  = m_METC_UP_INJ[,4]
+    
+    # From ABS (not sampled, all return to relapse)
+    #p_ABS_BUP_INJ = p_ABS_BUPC_INJ = p_ABS_MET_INJ = p_ABS_METC_INJ = p_ABS_REL_INJ = m_UP_zeros[,1]
+    
     # From REL
     v_dirichlet_UP_REL_INJ = df_dirichlet_UP["REL_INJ",]
     m_REL_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "METC_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUPC_INJ"])))
@@ -432,6 +461,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
   c_MET_crime = rgamma(n_sim, shape = df_crime_costs["shape", "MET"], scale = df_crime_costs["scale", "MET"])
   c_METC_crime = rgamma(n_sim, shape = df_crime_costs["shape", "METC"], scale = df_crime_costs["scale", "METC"])
   c_REL_crime = rgamma(n_sim, shape = df_crime_costs["shape", "REL"], scale = df_crime_costs["scale", "REL"])
+  c_ABS_crime = rgamma(n_sim, shape = df_crime_costs["shape", "ABS"], scale = df_crime_costs["scale", "ABS"])
   c_ODN_crime = rgamma(n_sim, shape = df_crime_costs["shape", "REL"], scale = df_crime_costs["scale", "REL"])
   
   # QALYs
@@ -526,7 +556,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # From METC
     p_METC_BUP_NI, p_METC_BUPC_NI, p_METC_MET_NI, p_METC_ABS_NI, p_METC_REL_NI,
     # From ABS
-    p_ABS_BUP_NI, p_ABS_BUPC_NI, p_ABS_MET_NI, p_ABS_METC_NI, p_ABS_REL_NI,
+    #p_ABS_BUP_NI, p_ABS_BUPC_NI, p_ABS_MET_NI, p_ABS_METC_NI, p_ABS_REL_NI,
     # From REL
     p_REL_BUP_NI, p_REL_BUPC_NI, p_REL_MET_NI, p_REL_METC_NI, p_REL_ABS_NI,
     # From OD
@@ -542,7 +572,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # From METC
     p_METC_BUP_INJ, p_METC_BUPC_INJ, p_METC_MET_INJ, p_METC_ABS_INJ, p_METC_REL_INJ,
     # From ABS
-    p_ABS_BUP_INJ, p_ABS_BUPC_INJ, p_ABS_MET_INJ, p_ABS_METC_INJ, p_ABS_REL_INJ,
+    #p_ABS_BUP_INJ, p_ABS_BUPC_INJ, p_ABS_MET_INJ, p_ABS_METC_INJ, p_ABS_REL_INJ,
     # From REL
     p_REL_BUP_INJ, p_REL_BUPC_INJ, p_REL_MET_INJ, p_REL_METC_INJ, p_REL_ABS_INJ,
     # From OD
@@ -715,6 +745,8 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     c_METC_INJ_crime = c_METC_crime,
     c_REL_NI_crime = c_REL_crime,
     c_REL_INJ_crime = c_REL_crime,
+    c_ABS_NI_crime = c_ABS_crime,
+    c_ABS_INJ_crime = c_ABS_crime,
     c_ODN_NI_crime = c_ODN_crime,
     c_ODN_INJ_crime = c_ODN_crime,
     
