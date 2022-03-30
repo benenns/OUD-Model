@@ -65,6 +65,10 @@ saveRDS(l_ICER_TS, file = "outputs/outcomes/ICER_TS.RData")
 write.csv(l_outcomes_MET_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_BUP.csv", row.names = TRUE)
 
+# Aggregate trace
+write.csv(l_outcomes_MET_MMS$m_M_agg_trace,"outputs/trace/Modified Model Specification/trace_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_MMS$m_M_agg_trace,"outputs/trace/Modified Model Specification/trace_BUP.csv", row.names = TRUE)
+
 # Full model costs
 write.csv(l_outcomes_MET_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_BUP.csv", row.names = TRUE)
@@ -114,6 +118,10 @@ write.csv(l_outcomes_BUP_MMS$v_qalys,"outputs/qalys/Modified Model Specification
 # Full model trace
 write.csv(l_outcomes_MET_TS$m_M_trace,"outputs/trace/Trial Specification/trace_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_TS$m_M_trace,"outputs/trace/Trial Specification/trace_BUP.csv", row.names = TRUE)
+
+# Aggregate trace
+write.csv(l_outcomes_MET_TS$m_M_agg_trace,"outputs/trace/Trial Specification/trace_MET.csv", row.names = TRUE)
+write.csv(l_outcomes_BUP_TS$m_M_agg_trace,"outputs/trace/Trial Specification/trace_BUP.csv", row.names = TRUE)
 
 # Full model costs
 write.csv(l_outcomes_MET_TS$m_TOTAL_costs_states,"outputs/trace/Trial Specification/full_trace_costs_MET.csv", row.names = TRUE)

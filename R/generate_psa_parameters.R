@@ -217,10 +217,12 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     ## Non-injection ##
     # From BUP
     v_dirichlet_UP_BUP_NI = df_dirichlet_UP["BUP_NI",]
-    m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"])))
-    p_BUP_BUPC_NI = p_BUP_MET_NI = p_BUP_METC_NI = m_UP_zeros[,1]
-    p_BUP_ABS_NI = m_BUP_UP_NI[,1]
-    p_BUP_REL_NI = 1 - m_BUP_UP_NI[,1]
+    m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "MET_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "METC_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"])))
+    p_BUP_BUPC_NI = m_UP_zeros[,1]
+    p_BUP_MET_NI  = m_BUP_UP_NI[,1]
+    p_BUP_METC_NI = m_BUP_UP_NI[,2]
+    p_BUP_REL_NI  = m_BUP_UP_NI[,3]
+    p_BUP_ABS_NI  = m_BUP_UP_NI[,4]
     # From BUPC
     p_BUPC_BUP_NI = p_BUPC_MET_NI = p_BUPC_METC_NI = p_BUPC_ABS_NI = p_BUPC_REL_NI = m_UP_zeros[,1]
     # From MET
@@ -228,196 +230,129 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # From METC
     p_METC_BUP_NI = p_METC_BUPC_NI = p_METC_MET_NI = p_METC_ABS_NI = p_METC_REL_NI = m_UP_zeros[,1]
     # From ABS
-    v_dirichlet_UP_ABS_NI = df_dirichlet_UP["ABS_NI",]
-    m_ABS_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_ABS_NI["ABS_NI", "BUP_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "REL_NI"])))
-    p_ABS_BUP_NI = m_ABS_UP_NI[,1]
-    p_ABS_REL_NI = 1 - m_ABS_UP_NI[,1]
-    p_ABS_BUPC_NI = p_ABS_MET_NI = p_ABS_METC_NI = m_UP_zeros[,1]
+    #v_dirichlet_UP_ABS_NI = df_dirichlet_UP["ABS_NI",]
+    #m_ABS_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_ABS_NI["ABS_NI", "BUP_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "REL_NI"])))
+    #p_ABS_BUP_NI = m_ABS_UP_NI[,1]
+    #p_ABS_REL_NI = 1 - m_ABS_UP_NI[,1]
+    #p_ABS_BUPC_NI = p_ABS_MET_NI = p_ABS_METC_NI = m_UP_zeros[,1]
     # From REL
     v_dirichlet_UP_REL_NI = df_dirichlet_UP["REL_NI",]
-    m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "ABS_NI"])))
-    p_REL_BUP_NI = m_REL_UP_NI[,1]
-    p_REL_ABS_NI = 1 - m_REL_UP_NI[,1]
-    p_REL_BUPC_NI = p_REL_MET_NI = p_REL_METC_NI = m_UP_zeros[,1]
+    m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "METC_NI"])))
+    p_REL_BUP_NI  = m_REL_UP_NI[,1]
+    p_REL_MET_NI  = m_REL_UP_NI[,2]
+    p_REL_METC_NI = m_REL_UP_NI[,3]
+    p_REL_BUPC_NI = m_UP_zeros[,1]
+    p_REL_ABS_NI = m_UP_zeros[,1]
     # From OD
     v_dirichlet_UP_OD_NI = df_dirichlet_UP["ODN_NI",]
-    m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "ABS_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"])))
+    m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "MET_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "METC_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"])))
     p_ODN_BUP_NI = m_OD_UP_NI[,1]
-    p_ODN_ABS_NI = m_OD_UP_NI[,2]
-    p_ODN_REL_NI = m_OD_UP_NI[,3]
-    p_ODN_BUPC_NI = p_ODN_MET_NI = p_ODN_METC_NI = m_UP_zeros[,1]
+    p_ODN_MET_NI = m_OD_UP_NI[,2]
+    p_ODN_METC_NI = m_OD_UP_NI[,3]
+    p_ODN_REL_NI = m_OD_UP_NI[,4]
+    p_ODN_BUPC_NI = m_UP_zeros[,1]
+    p_ODN_ABS_NI = m_UP_zeros[,1]
     
     ## Injection ##
     # From BUP
     v_dirichlet_UP_BUP_INJ = df_dirichlet_UP["BUP_INJ",]
-    m_BUP_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"])))
-    p_BUP_BUPC_INJ = p_BUP_MET_INJ = p_BUP_METC_INJ = m_UP_zeros[,1]
-    p_BUP_ABS_INJ = m_BUP_UP_INJ[,1]
-    p_BUP_REL_INJ = 1 - m_BUP_UP_INJ[,1]
+    m_BUP_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "MET_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "METC_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"])))
+    p_BUP_BUPC_INJ = m_UP_zeros[,1]
+    p_BUP_MET_INJ  = m_BUP_UP_INJ[,1]
+    p_BUP_METC_INJ = m_BUP_UP_INJ[,2]
+    p_BUP_REL_INJ  = m_BUP_UP_INJ[,3]
+    p_BUP_ABS_INJ  = m_BUP_UP_INJ[,4]
     # From BUPC
     p_BUPC_BUP_INJ = p_BUPC_MET_INJ = p_BUPC_METC_INJ = p_BUPC_ABS_INJ = p_BUPC_REL_INJ = m_UP_zeros[,1]
     # From MET
     p_MET_BUP_INJ = p_MET_BUPC_INJ = p_MET_METC_INJ = p_MET_ABS_INJ = p_MET_REL_INJ = m_UP_zeros[,1]
     # From METC
     p_METC_BUP_INJ = p_METC_BUPC_INJ = p_METC_MET_INJ = p_METC_ABS_INJ = p_METC_REL_INJ = m_UP_zeros[,1]
-    # From ABS
-    v_dirichlet_UP_ABS_INJ = df_dirichlet_UP["ABS_INJ",]
-    m_ABS_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_ABS_INJ["ABS_INJ", "BUP_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "REL_INJ"])))
-    p_ABS_BUP_INJ = m_ABS_UP_INJ[,1]
-    p_ABS_REL_INJ = 1 - m_ABS_UP_INJ[,1]
-    p_ABS_BUPC_INJ = p_ABS_MET_INJ = p_ABS_METC_INJ = m_UP_zeros[,1]
     # From REL
     v_dirichlet_UP_REL_INJ = df_dirichlet_UP["REL_INJ",]
-    m_REL_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "ABS_INJ"])))
-    p_REL_BUP_INJ = m_REL_UP_INJ[,1]
-    p_REL_ABS_INJ = 1 - m_REL_UP_INJ[,1]
-    p_REL_BUPC_INJ = p_REL_MET_INJ = p_REL_METC_INJ = m_UP_zeros[,1]
+    m_REL_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "METC_INJ"])))
+    p_REL_BUP_INJ  = m_REL_UP_INJ[,1]
+    p_REL_MET_INJ  = m_REL_UP_INJ[,2]
+    p_REL_METC_INJ = m_REL_UP_INJ[,3]
+    p_REL_BUPC_INJ = m_UP_zeros[,1]
+    p_REL_ABS_INJ = m_UP_zeros[,1]
     # From OD
     v_dirichlet_UP_OD_INJ = df_dirichlet_UP["ODN_INJ",]
-    m_OD_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "ABS_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"])))
+    m_OD_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "MET_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "METC_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"])))
     p_ODN_BUP_INJ = m_OD_UP_INJ[,1]
-    p_ODN_ABS_INJ = m_OD_UP_INJ[,2]
-    p_ODN_REL_INJ = m_OD_UP_INJ[,3]
-    p_ODN_BUPC_INJ = p_ODN_MET_INJ = p_ODN_METC_INJ = m_UP_zeros[,1]
+    p_ODN_MET_INJ = m_OD_UP_INJ[,2]
+    p_ODN_METC_INJ = m_OD_UP_INJ[,3]
+    p_ODN_REL_INJ = m_OD_UP_INJ[,4]
+    p_ODN_BUPC_INJ = m_UP_zeros[,1]
+    p_ODN_ABS_INJ = m_UP_zeros[,1]
     
   } else if (scenario == "TS_MET"){
     ### MET Scenario ###
     # Non-injection
     # From MET
     v_dirichlet_UP_MET_NI = df_dirichlet_UP["MET_NI",]
-    m_MET_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"])))
-    p_MET_BUPC_NI = p_MET_BUP_NI = p_MET_METC_NI = m_UP_zeros[,1]
-    p_MET_ABS_NI = m_MET_UP_NI[,1]
-    p_MET_REL_NI = 1 - m_MET_UP_NI[,1]
-    # From METC
-    p_METC_MET_NI = p_METC_BUP_NI = p_METC_BUPC_NI = p_METC_ABS_NI = p_METC_REL_NI = m_UP_zeros[,1]
-    # From BUP
-    p_BUP_BUPC_NI = p_BUP_MET_NI = p_BUP_METC_NI = p_BUP_ABS_NI = p_BUP_REL_NI = m_UP_zeros[,1]
+    m_MET_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "BUP_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"], v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"])))
+    p_MET_BUP_NI = m_MET_UP_NI[,1]
+    p_MET_BUPC_NI = m_UP_zeros[,1]
+    p_MET_METC_NI = m_UP_zeros[,1]
+    p_MET_REL_NI = m_MET_UP_NI[,2]
+    p_MET_ABS_NI = m_MET_UP_NI[,3]
     # From BUPC
     p_BUPC_BUP_NI = p_BUPC_MET_NI = p_BUPC_METC_NI = p_BUPC_ABS_NI = p_BUPC_REL_NI = m_UP_zeros[,1]
-    # From ABS
-    v_dirichlet_UP_ABS_NI = df_dirichlet_UP["ABS_NI",]
-    m_ABS_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_ABS_NI["ABS_NI", "MET_NI"], v_dirichlet_UP_ABS_NI["ABS_NI", "REL_NI"])))
-    p_ABS_MET_NI = m_ABS_UP_NI[,1]
-    p_ABS_REL_NI = 1 - m_ABS_UP_NI[,1]
-    p_ABS_BUP_NI = p_ABS_BUPC_NI = p_ABS_METC_NI = m_UP_zeros[,1]
+    # From BUP
+    p_BUP_MET_NI = p_BUP_BUPC_NI = p_BUP_METC_NI = p_BUP_ABS_NI = p_BUP_REL_NI = m_UP_zeros[,1]
+    # From METC
+    p_METC_BUP_NI = p_METC_BUPC_NI = p_METC_MET_NI = p_METC_ABS_NI = p_METC_REL_NI = m_UP_zeros[,1]
     # From REL
     v_dirichlet_UP_REL_NI = df_dirichlet_UP["REL_NI",]
-    m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "ABS_NI"])))
-    p_REL_MET_NI = m_REL_UP_NI[,1]
-    p_REL_ABS_NI = 1 - m_REL_UP_NI[,1]
-    p_REL_BUP_NI = p_REL_BUPC_NI = p_REL_METC_NI = m_UP_zeros[,1]
+    m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUPC_NI"], v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "METC_NI"])))
+    p_REL_BUP_NI = m_REL_UP_NI[,1]
+    p_REL_BUPC_NI = m_REL_UP_NI[,2]
+    p_REL_MET_NI = m_REL_UP_NI[,3]
+    p_REL_METC_NI = m_REL_UP_NI[,4]
+    p_REL_ABS_NI = m_UP_zeros[,1]
     # From OD
     v_dirichlet_UP_OD_NI = df_dirichlet_UP["ODN_NI",]
-    m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "MET_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "ABS_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"])))
-    p_ODN_MET_NI = m_OD_UP_NI[,1]
-    p_ODN_ABS_NI = m_OD_UP_NI[,2]
-    p_ODN_REL_NI = m_OD_UP_NI[,3]
-    p_ODN_BUP_NI = p_ODN_BUPC_NI = p_ODN_METC_NI = m_UP_zeros[,1]
+    m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "MET_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "METC_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"])))
+    p_ODN_BUP_NI = m_OD_UP_NI[,1]
+    p_ODN_MET_NI = m_OD_UP_NI[,2]
+    p_ODN_METC_NI = m_OD_UP_NI[,3]
+    p_ODN_REL_NI = m_OD_UP_NI[,4]
+    p_ODN_BUPC_NI = m_UP_zeros[,1]
+    p_ODN_ABS_NI = m_UP_zeros[,1]
     
     # Injection
     # From MET
     v_dirichlet_UP_MET_INJ = df_dirichlet_UP["MET_INJ",]
-    m_MET_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"])))
-    p_MET_BUPC_INJ = p_MET_BUP_INJ = p_MET_METC_INJ = m_UP_zeros[,1]
-    p_MET_ABS_INJ = m_MET_UP_INJ[,1]
-    p_MET_REL_INJ = 1 - m_MET_UP_INJ[,1]
-    # From METC
-    p_METC_MET_INJ = p_METC_BUP_INJ = p_METC_BUPC_INJ = p_METC_ABS_INJ = p_METC_REL_INJ = m_UP_zeros[,1]
-    # From BUP
-    p_BUP_BUPC_INJ = p_BUP_MET_INJ = p_BUP_METC_INJ = p_BUP_ABS_INJ = p_BUP_REL_INJ = m_UP_zeros[,1]
+    m_MET_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "BUP_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"])))
+    p_MET_BUP_INJ = m_MET_UP_INJ[,1]
+    p_MET_BUPC_INJ = m_UP_zeros[,1]
+    p_MET_METC_INJ = m_UP_zeros[,1]
+    p_MET_REL_INJ = m_MET_UP_INJ[,2]
+    p_MET_ABS_INJ = m_MET_UP_INJ[,3]
     # From BUPC
     p_BUPC_BUP_INJ = p_BUPC_MET_INJ = p_BUPC_METC_INJ = p_BUPC_ABS_INJ = p_BUPC_REL_INJ = m_UP_zeros[,1]
-    # From ABS
-    v_dirichlet_UP_ABS_INJ = df_dirichlet_UP["ABS_INJ",]
-    m_ABS_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_ABS_INJ["ABS_INJ", "MET_INJ"], v_dirichlet_UP_ABS_INJ["ABS_INJ", "REL_INJ"])))
-    p_ABS_MET_INJ = m_ABS_UP_INJ[,1]
-    p_ABS_REL_INJ = 1 - m_ABS_UP_INJ[,1]
-    p_ABS_BUP_INJ = p_ABS_BUPC_INJ = p_ABS_METC_INJ = m_UP_zeros[,1]
+    # From BUP
+    p_BUP_MET_INJ = p_BUP_BUPC_INJ = p_BUP_METC_INJ = p_BUP_ABS_INJ = p_BUP_REL_INJ = m_UP_zeros[,1]
+    # From METC
+    p_METC_BUP_INJ = p_METC_BUPC_INJ = p_METC_MET_INJ = p_METC_ABS_INJ = p_METC_REL_INJ = m_UP_zeros[,1]
     # From REL
     v_dirichlet_UP_REL_INJ = df_dirichlet_UP["REL_INJ",]
-    m_REL_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "ABS_INJ"])))
-    p_REL_MET_INJ = m_REL_UP_INJ[,1]
-    p_REL_ABS_INJ = 1 - m_REL_UP_INJ[,1]
-    p_REL_BUP_INJ = p_REL_BUPC_INJ = p_REL_METC_INJ = m_UP_zeros[,1]
+    m_REL_UP_INJ  = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUPC_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "METC_INJ"])))
+    p_REL_BUP_INJ  = m_REL_UP_INJ[,1]
+    p_REL_BUPC_INJ = m_REL_UP_INJ[,2]
+    p_REL_MET_INJ  = m_REL_UP_INJ[,3]
+    p_REL_METC_INJ = m_REL_UP_INJ[,4]
+    p_REL_ABS_INJ = m_UP_zeros[,1]
     # From OD
     v_dirichlet_UP_OD_INJ = df_dirichlet_UP["ODN_INJ",]
-    m_OD_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "MET_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "ABS_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"])))
-    p_ODN_MET_INJ = m_OD_UP_INJ[,1]
-    p_ODN_ABS_INJ = m_OD_UP_INJ[,2]
-    p_ODN_REL_INJ = m_OD_UP_INJ[,3]
-    p_ODN_BUP_INJ = p_ODN_BUPC_INJ = p_ODN_METC_INJ = m_UP_zeros[,1]
-    
-  ################################  
-  #### Original Specification ####
-  ################################ 
-    
-  } else if(scenario == "OS"){
-    ## Non-injection ##
-    # From BUP
-    v_dirichlet_UP_BUP_NI = df_dirichlet_UP["BUP_NI",]
-    m_BUP_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_NI["BUP_NI", "ABS_NI"], v_dirichlet_UP_BUP_NI["BUP_NI", "REL_NI"])))
-    p_BUP_BUPC_NI = p_BUP_MET_NI = p_BUP_METC_NI = m_UP_zeros[,1]
-    p_BUP_ABS_NI = m_BUP_UP_NI[,1]
-    p_BUP_REL_NI = 1 - m_BUP_UP_NI[,1]
-    # From BUPC
-    p_BUPC_BUP_NI = p_BUPC_MET_NI = p_BUPC_METC_NI = p_BUPC_ABS_NI = p_BUPC_REL_NI = m_UP_zeros[,1]
-    # From MET
-    v_dirichlet_UP_MET_NI = df_dirichlet_UP["MET_NI",]
-    m_MET_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_NI["MET_NI", "ABS_NI"], v_dirichlet_UP_MET_NI["MET_NI", "REL_NI"])))
-    p_MET_BUPC_NI = p_MET_BUP_NI = p_MET_METC_NI = m_UP_zeros[,1]
-    p_MET_ABS_NI = m_MET_UP_NI[,1]
-    p_MET_REL_NI = 1 - m_MET_UP_NI[,1]
-    # From METC
-    p_METC_BUPC_NI = p_METC_BUP_NI = p_METC_MET_NI = p_METC_ABS_NI = p_METC_REL_NI = m_UP_zeros[,1]
-    # From ABS (not sampled, all return to relapse)
-    p_ABS_BUP_NI = p_ABS_BUPC_NI = p_ABS_MET_NI = p_ABS_METC_NI = p_ABS_REL_NI = m_UP_zeros[,1]
-    # From REL
-    v_dirichlet_UP_REL_NI = df_dirichlet_UP["REL_NI",]
-    m_REL_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_NI["REL_NI", "MET_NI"], v_dirichlet_UP_REL_NI["REL_NI", "BUP_NI"])))
-    p_REL_BUPC_NI = p_REL_METC_NI = p_REL_ABS_NI = m_UP_zeros[,1]
-    p_REL_MET_NI  = m_REL_UP_NI[,1]
-    p_REL_BUP_NI  = 1 - m_REL_UP_NI[,1]
-    # From OD
-    v_dirichlet_UP_OD_NI = df_dirichlet_UP["ODN_NI",]
-    m_OD_UP_NI = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_NI["ODN_NI", "MET_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "BUP_NI"], v_dirichlet_UP_OD_NI["ODN_NI", "REL_NI"])))
-    p_ODN_BUPC_NI = p_ODN_METC_NI = p_ODN_ABS_NI = m_UP_zeros[,1]
-    p_ODN_MET_NI  = m_OD_UP_NI[,1]
-    p_ODN_BUP_NI  = m_OD_UP_NI[,2]
-    p_ODN_REL_NI  = m_OD_UP_NI[,3]
-    
-    ## Injection ##
-    # From BUP
-    v_dirichlet_UP_BUP_INJ = df_dirichlet_UP["BUP_INJ",]
-    m_BUP_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_BUP_INJ["BUP_INJ", "ABS_INJ"], v_dirichlet_UP_BUP_INJ["BUP_INJ", "REL_INJ"])))
-    p_BUP_BUPC_INJ = p_BUP_MET_INJ = p_BUP_METC_INJ = m_UP_zeros[,1]
-    p_BUP_ABS_INJ = m_BUP_UP_INJ[,1]
-    p_BUP_REL_INJ = 1 - m_BUP_UP_INJ[,1]
-    # From BUPC
-    p_BUPC_BUP_INJ = p_BUPC_MET_INJ = p_BUPC_METC_INJ = p_BUPC_ABS_INJ = p_BUPC_REL_INJ = m_UP_zeros[,1]
-    # From MET
-    v_dirichlet_UP_MET_INJ = df_dirichlet_UP["MET_INJ",]
-    m_MET_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_MET_INJ["MET_INJ", "ABS_INJ"], v_dirichlet_UP_MET_INJ["MET_INJ", "REL_INJ"])))
-    p_MET_BUPC_INJ = p_MET_BUP_INJ = p_MET_METC_INJ = m_UP_zeros[,1]
-    p_MET_ABS_INJ = m_MET_UP_INJ[,1]
-    p_MET_REL_INJ = 1 - m_MET_UP_INJ[,1]
-    # From METC
-    p_METC_BUPC_INJ = p_METC_BUP_INJ = p_METC_MET_INJ = p_METC_ABS_INJ = p_METC_REL_INJ = m_UP_zeros[,1]
-    # From ABS (not sampled, all return to relapse)
-    p_ABS_BUP_INJ = p_ABS_BUPC_INJ = p_ABS_MET_INJ = p_ABS_METC_INJ = p_ABS_REL_INJ = m_UP_zeros[,1]
-    # From REL
-    v_dirichlet_UP_REL_INJ = df_dirichlet_UP["REL_INJ",]
-    m_REL_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_REL_INJ["REL_INJ", "MET_INJ"], v_dirichlet_UP_REL_INJ["REL_INJ", "BUP_INJ"])))
-    p_REL_BUPC_INJ = p_REL_METC_INJ = p_REL_ABS_INJ = m_UP_zeros[,1]
-    p_REL_MET_INJ  = m_REL_UP_INJ[,1]
-    p_REL_BUP_INJ  = 1 - m_REL_UP_INJ[,1]
-    # From OD
-    v_dirichlet_UP_OD_INJ = df_dirichlet_UP["ODN_INJ",]
-    m_OD_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "MET_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"])))
-    p_ODN_BUPC_INJ = p_ODN_METC_INJ = p_ODN_ABS_INJ = m_UP_zeros[,1]
-    p_ODN_MET_INJ  = m_OD_UP_INJ[,1]
-    p_ODN_BUP_INJ  = m_OD_UP_INJ[,2]
-    p_ODN_REL_INJ  = m_OD_UP_INJ[,3]
+    m_OD_UP_INJ = as.matrix(rdirichlet(n_sim, c(v_dirichlet_UP_OD_INJ["ODN_INJ", "BUP_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "MET_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "METC_INJ"], v_dirichlet_UP_OD_INJ["ODN_INJ", "REL_INJ"])))
+    p_ODN_BUP_INJ  = m_OD_UP_INJ[,1]
+    p_ODN_MET_INJ  = m_OD_UP_INJ[,2]
+    p_ODN_METC_INJ = m_OD_UP_INJ[,3]
+    p_ODN_REL_INJ  = m_OD_UP_INJ[,4]
+    p_ODN_BUPC_INJ = m_UP_zeros[,1]
+    p_ODN_ABS_INJ = m_UP_zeros[,1]
   } else{
     print("No scenario selected")
   }
@@ -555,8 +490,6 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     p_MET_BUP_NI, p_MET_BUPC_NI, p_MET_METC_NI, p_MET_ABS_NI, p_MET_REL_NI,
     # From METC
     p_METC_BUP_NI, p_METC_BUPC_NI, p_METC_MET_NI, p_METC_ABS_NI, p_METC_REL_NI,
-    # From ABS
-    #p_ABS_BUP_NI, p_ABS_BUPC_NI, p_ABS_MET_NI, p_ABS_METC_NI, p_ABS_REL_NI,
     # From REL
     p_REL_BUP_NI, p_REL_BUPC_NI, p_REL_MET_NI, p_REL_METC_NI, p_REL_ABS_NI,
     # From OD
@@ -571,8 +504,6 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     p_MET_BUP_INJ, p_MET_BUPC_INJ, p_MET_METC_INJ, p_MET_ABS_INJ, p_MET_REL_INJ,
     # From METC
     p_METC_BUP_INJ, p_METC_BUPC_INJ, p_METC_MET_INJ, p_METC_ABS_INJ, p_METC_REL_INJ,
-    # From ABS
-    #p_ABS_BUP_INJ, p_ABS_BUPC_INJ, p_ABS_MET_INJ, p_ABS_METC_INJ, p_ABS_REL_INJ,
     # From REL
     p_REL_BUP_INJ, p_REL_BUPC_INJ, p_REL_MET_INJ, p_REL_METC_INJ, p_REL_ABS_INJ,
     # From OD
@@ -583,31 +514,12 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # First month
     # BUP
     n_BUP_OD_mult = rgamma(n_sim, shape = df_overdose["shape", "BUP_OD_mult"], scale = df_overdose["scale", "BUP_OD_mult"]),
-    #n_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
-    #n_BUP_OD_mult_shape = df_overdose["shape", "BUP_OD_mult"],
-    #n_BUP_OD_mult_scale = df_overdose["scale", "BUP_OD_mult"],
-    
+
     # MET
     n_MET_OD_mult = rgamma(n_sim, shape = df_overdose["shape", "MET_OD_mult"], scale = df_overdose["scale", "MET_OD_mult"]),
-    #n_MET_OD_mult = df_overdose["pe", "MET_OD_mult"],
-    #n_MET_OD_mult_shape = df_overdose["shape", "MET_OD_mult"],
-    #n_MET_OD_mult_scale = df_overdose["scale", "MET_OD_mult"],
 
     # Relapse
     n_REL_OD_mult = rgamma(n_sim, shape = df_overdose["shape", "REL_OD_mult"], scale = df_overdose["scale", "REL_OD_mult"]),
-    #n_REL_OD_mult  = df_overdose["pe", "REL_OD_mult"],
-    #n_REL_OD_mult_shape  = df_overdose["shape", "REL_OD_mult"],
-    #n_REL_OD_mult_scale  = df_overdose["scale", "REL_OD_mult"],
-    
-    # Abstinence
-    #n_ABS_OD_mult  = df_overdose["pe", "ABS_OD_mult"],
-    #n_ABS_OD_mult_shape  = df_overdose["shape", "ABS_OD_mult"],
-    #n_ABS_OD_mult_scale  = df_overdose["scale", "ABS_OD_mult"],
-    
-    # Injection (vs. non-injection)
-    #n_INJ_OD_mult = df_overdose["pe", "INJ_OD_mult"],
-    #n_INJ_OD_mult_shape = df_overdose["shape", "INJ_OD_mult"],
-    #n_INJ_OD_mult_scale = df_overdose["scale", "INJ_OD_mult"],
 
     #n_fent_OD = rgamma(n_sim, shape = df_overdose["shape", "fent_OD_rate"], scale = df_overdose["scale", "fent_OD_rate"]),
     #p_fent_exp = rbeta(n_sim, shape1 = df_overdose["shape1", "fent_exp_prob"], shape2 = df_overdose["shape2", "fent_exp_prob"]),
