@@ -162,7 +162,7 @@ l_incremental_PSA_MMS <- foreach(i = 1:n_sim, .combine = combine_custom_MMS, .pa
               df_incremental_PSA_MMS = df_incremental_PSA_MMS,
               df_ICER_PSA_MMS = df_ICER_PSA_MMS))
 }
-#stopImplicitCluster()
+stopImplicitCluster()
 
 df_outcomes_MET_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_MET_PSA_MMS
 df_outcomes_BUP_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_BUP_PSA_MMS
@@ -336,6 +336,36 @@ tbl_df_summary_BUP_MMS <- df_outcomes_BUP_PSA_MMS %>% as.tibble() %>% select(n_T
             q975 = quantile(value, probs = .975),
             min = min(value),
             max = max(value))
+
+# Incremental
+tbl_df_summary_incremental_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% select(n_inc_costs_TOTAL_6mo,
+                                                                                    n_inc_costs_TOTAL_10yr,
+                                                                                    n_inc_costs_TOTAL_life,
+                                                                                    n_inc_costs_HEALTH_SECTOR_6mo,
+                                                                                    n_inc_costs_HEALTH_SECTOR_10yr,
+                                                                                    n_inc_costs_HEALTH_SECTOR_life,
+                                                                                    n_inc_qalys_TOTAL_6mo,
+                                                                                    n_inc_qalys_TOTAL_10yr,
+                                                                                    n_inc_qalys_TOTAL_life,
+                                                                                    n_inc_costs_TX_6mo,
+                                                                                    n_inc_costs_TX_10yr,
+                                                                                    n_inc_costs_TX_life,
+                                                                                    n_inc_costs_HRU_6mo,
+                                                                                    n_inc_costs_HRU_10yr,
+                                                                                    n_inc_costs_HRU_life,
+                                                                                    n_inc_costs_CRIMINAL_6mo,
+                                                                                    n_inc_costs_CRIMINAL_10yr,
+                                                                                    n_inc_costs_CRIMINAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
 # ICER
 tbl_df_summary_ICER_MMS <- df_ICER_PSA_MMS %>% as.tibble() %>% select(n_icer_TOTAL_6mo,
                                                                       n_icer_HEALTH_SECTOR_6mo,
@@ -360,7 +390,10 @@ write.csv(tbl_df_summary_MET_MMS,
 write.csv(tbl_df_summary_BUP_MMS,
           file = "outputs/PSA/Modified Model Specification/summary_outcomes_BUP_PSA_MMS.csv",
           row.names = FALSE)
-write.csv(df_ICER_PSA_MMS,
+write.csv(tbl_df_summary_incremental_MMS,
+          file = "outputs/PSA/Modified Model Specification/summary_incremental_PSA_MMS.csv",
+          row.names = FALSE)
+write.csv(tbl_df_summary_ICER_MMS,
           file = "outputs/PSA/Modified Model Specification/summary_ICER_PSA_MMS.csv",
           row.names = FALSE)
 
