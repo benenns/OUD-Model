@@ -466,6 +466,11 @@ tbl_df_dominant_sim_TS <- tbl_df_summary_inc_TS %>% select(BNX_dominate_TOTAL_6m
 
 # MMS
 tbl_df_dom_summary_MMS <- summarise_all(tbl_df_dominant_sim_MMS, mean)
+## As .csv
+write.csv(tbl_df_dom_summary_MMS,
+          file = "outputs/PSA/Modified Model Specification/summary_dom_MMS.csv",
+          row.names = FALSE)
+
 # TS
 tbl_df_dom_summary_TS <- summarise_all(tbl_df_dominant_sim_TS, mean)
 
