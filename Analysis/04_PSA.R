@@ -533,16 +533,16 @@ plot_PSA_MMS_10yr_scatter <- ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_10
         filename = "Plots/PSA/PSA-MMS-10yr-Health-Sector.png",
         width = 7, height = 10)
 
-# # Lifetime
-# inc_qalys_lifetime <- df_incremental_PSA_MMS[, "Incremental QALYs (Lifetime)"]
-# inc_costs_lifetime <- df_incremental_PSA_MMS[, "Incremental Costs (Lifetime)"]
-# 
-# ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_lifetime, y = inc_costs_lifetime)) +
-#   geom_point() +
-#   geom_hline(yintercept = 0) +
-#   geom_vline(xintercept = 0)
-# xlim(min(a), max(a)) +
-# ylim(min(b), max(b))
+# Lifetime
+inc_qalys_lifetime <- df_incremental_PSA_MMS[, "Incremental QALYs (Lifetime)"]
+inc_costs_lifetime <- df_incremental_PSA_MMS[, "Incremental Costs (Lifetime)"]
+
+ggplot(df_incremental_PSA_MMS, aes(x = inc_qalys_lifetime, y = inc_costs_lifetime)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0)
+xlim(min(a), max(a)) +
+ylim(min(b), max(b))
 
 ## Trial Specification ##
 # 1-year
@@ -592,7 +592,7 @@ df_incremental_PSA_TS_TOTAL_6mo <- df_incremental_PSA_TS %>% as_tibble() %>% mut
                                                                               inc_costs_TS_6mo = n_inc_costs_TOTAL_6mo) %>% select(inc_qalys_TS_6mo, inc_costs_TS_6mo)
 
 # Combine
-df_PSA_ellipse_TOTAL <- cbind(df_incremental_PSA_MMS_TOTAL_6mo, df_incremental_PSA_MMS_TOTAL_10yr, df_incremental_PSA_MMS_TOTAL_life, df_incremental_PSA_TS_TOTAL_6mo)
+df_PSA_ellipse_TOTAL <- cbind(df_incremental_PSA_MMS_TOTAL_6mo, df_incremental_PSA_MMS_TOTAL_10yr, df_incremental_PSA_MMS_TOTAL_life)
 
 ### Health sector perspective ###
 # MMS
@@ -610,7 +610,7 @@ df_incremental_PSA_TS_HEALTH_SECTOR_6mo <- df_incremental_PSA_TS %>% as_tibble()
                                                                                             inc_costs_TS_6mo = n_inc_costs_HEALTH_SECTOR_6mo) %>% select(inc_qalys_TS_6mo, inc_costs_TS_6mo)
 
 # Combine
-df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, df_incremental_PSA_MMS_HEALTH_SECTOR_10yr, df_incremental_PSA_MMS_HEALTH_SECTOR_life, df_incremental_PSA_TS_HEALTH_SECTOR_6mo)
+df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, df_incremental_PSA_MMS_HEALTH_SECTOR_10yr, df_incremental_PSA_MMS_HEALTH_SECTOR_life)
 
 #############
 ### Plots ###
@@ -626,7 +626,7 @@ plot_PSA_ellipse <- ggplot() +
   # MMS (10-year)
   geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "wheat", size = 1.5) +
   # MMS (Lifetime)
-  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), colour = "wheat", size = 1.5) +
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), colour = "wheat", size = 1.5) +
   
   # TS
   #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), colour = "lightblue", size = 1.5) +
@@ -641,8 +641,8 @@ plot_PSA_ellipse <- ggplot() +
   stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
   
   # MMS (Lifetime)
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "wheat4", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "wheat3", size = 1, alpha = 1, level = 0.5) +
   
   # TS
   #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
@@ -655,7 +655,7 @@ plot_PSA_ellipse <- ggplot() +
   # MMS (10-year)
   geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "tomato", size = 1.5) +
   # MMS (Lifetime)
-  #geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), colour = "tomato", size = 1.5) +
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), colour = "tomato", size = 1.5) +
   # TS
   #geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), colour = "plum1", size = 1.5) +
   
@@ -667,22 +667,22 @@ plot_PSA_ellipse <- ggplot() +
   stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
   stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
   # MMS (Lifetime)
-  #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "firebrick1", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "firebrick4", size = 1, alpha = 1, level = 0.5) +
   # TS
   #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = 2, color = "purple4", size = 1, alpha = 1, level = 0.95) +
   #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = "solid", color = "mediumpurple", size = 1, alpha = 1, level = 0.5) +
   
   # Add labels
   #annotate("text", x = 0.05, y = 15000, label = "TS (6-month) \n Societal", fontface = "bold", size = 3) +
-  annotate("text", x =  0.02, y = 40000, label = "MMS (6-month) \n Societal", fontface = "bold", size = 3) +
-  annotate("text", x = -0.065, y = 60000, label = "MMS (10-year) \n Societal", fontface = "bold", size = 3) +
-  #annotate("text", x = -0.18, y = 45000, label = "MMS (Lifetime) \n Societal", fontface = "bold", size = 3) +
+  annotate("text", x =  0.023, y = 15000, label = "Societal Perspective \n (6-month)", fontface = "bold", size = 3) +
+  annotate("text", x = -0.08, y = 50000, label = "Societal Perspective \n (10-year)", fontface = "bold", size = 3) +
+  annotate("text", x = -0.24, y = 27000, label = "Societal Perspective \n (Lifetime)", fontface = "bold", size = 3) +
   
   #annotate("text", x = 0.06, y = 3000, label = "TS (6-month) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
-  annotate("text", x = 0.05, y = -15000, label = "MMS (6-month) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
-  annotate("text", x = -0.05, y = -20000, label = "MMS (10-year) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
-  #annotate("text", x =  -0.15, y = -20000, label = "MMS (Lifetime) \n Health Sector", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = 0.03, y = -7000, label = "Health-Sector Perspective \n (6-month)", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x = -0.05, y = -10000, label = "Health-Sector Perspective \n (10-year)", fontface = "bold", size = 3, color = "royalblue") +
+  annotate("text", x =  -0.2, y = -10000, label = "Health-Sector Perspective \n (Lifetime)", fontface = "bold", size = 3, color = "royalblue") +
   
   geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
