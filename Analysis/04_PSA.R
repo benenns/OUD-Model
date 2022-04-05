@@ -28,7 +28,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 1000 # just to test function (will be set as n_sim)
+n_sim <- 2000 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
