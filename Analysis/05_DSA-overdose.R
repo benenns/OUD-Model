@@ -107,10 +107,6 @@ names(v_dsa_INJ_OD_mult_high) <- c("n_INJ_OD_mult")
 l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
 l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
 ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
-# TS
-l_outcomes_MET_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map)
-l_outcomes_BUP_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map)
-ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
 
 ################
 ### Overdose ###
@@ -122,18 +118,10 @@ l_outcomes_MET_witness_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_pa
 l_outcomes_BUP_witness_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_low)
 ICER_witness_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_witness_low_MMS, outcomes_int = l_outcomes_BUP_witness_low_MMS)
 
-l_outcomes_MET_witness_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_low)
-l_outcomes_BUP_witness_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_low)
-ICER_witness_low_TS <- ICER(outcomes_comp = l_outcomes_MET_witness_low_TS, outcomes_int = l_outcomes_BUP_witness_low_TS)
-
 # High
 l_outcomes_MET_witness_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_high)
 l_outcomes_BUP_witness_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_high)
 ICER_witness_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_witness_high_MMS, outcomes_int = l_outcomes_BUP_witness_high_MMS)
-
-l_outcomes_MET_witness_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_high)
-l_outcomes_BUP_witness_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_witness_high)
-ICER_witness_high_TS <- ICER(outcomes_comp = l_outcomes_MET_witness_high_TS, outcomes_int = l_outcomes_BUP_witness_high_TS)
 
 #### Naloxone prevalence ####
 # Low
@@ -141,18 +129,10 @@ l_outcomes_MET_NX_prob_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_pa
 l_outcomes_BUP_NX_prob_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_low)
 ICER_NX_prob_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_NX_prob_low_MMS, outcomes_int = l_outcomes_BUP_NX_prob_low_MMS)
 
-l_outcomes_MET_NX_prob_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_low)
-l_outcomes_BUP_NX_prob_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_low)
-ICER_NX_prob_low_TS <- ICER(outcomes_comp = l_outcomes_MET_NX_prob_low_TS, outcomes_int = l_outcomes_BUP_NX_prob_low_TS)
-
 # High
 l_outcomes_MET_NX_prob_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_high)
 l_outcomes_BUP_NX_prob_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_high)
 ICER_NX_prob_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_NX_prob_high_MMS, outcomes_int = l_outcomes_BUP_NX_prob_high_MMS)
-
-l_outcomes_MET_NX_prob_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_high)
-l_outcomes_BUP_NX_prob_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_prob_high)
-ICER_NX_prob_high_TS <- ICER(outcomes_comp = l_outcomes_MET_NX_prob_high_TS, outcomes_int = l_outcomes_BUP_NX_prob_high_TS)
 
 #### Naloxone effectiveness ####
 # Low
@@ -160,18 +140,10 @@ l_outcomes_MET_NX_success_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v
 l_outcomes_BUP_NX_success_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_low)
 ICER_NX_success_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_NX_success_low_MMS, outcomes_int = l_outcomes_BUP_NX_success_low_MMS)
 
-l_outcomes_MET_NX_success_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_low)
-l_outcomes_BUP_NX_success_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_low)
-ICER_NX_success_low_TS <- ICER(outcomes_comp = l_outcomes_MET_NX_success_low_TS, outcomes_int = l_outcomes_BUP_NX_success_low_TS)
-
 # High
 l_outcomes_MET_NX_success_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_high)
 l_outcomes_BUP_NX_success_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_high)
 ICER_NX_success_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_NX_success_high_MMS, outcomes_int = l_outcomes_BUP_NX_success_high_MMS)
-
-l_outcomes_MET_NX_success_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_high)
-l_outcomes_BUP_NX_success_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_NX_success_high)
-ICER_NX_success_high_TS <- ICER(outcomes_comp = l_outcomes_MET_NX_success_high_TS, outcomes_int = l_outcomes_BUP_NX_success_high_TS)
 
 #### Fatal overdose risk ####
 # Low
@@ -179,19 +151,10 @@ l_outcomes_MET_fatal_OD_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_p
 l_outcomes_BUP_fatal_OD_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_low)
 ICER_fatal_OD_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_fatal_OD_low_MMS, outcomes_int = l_outcomes_BUP_fatal_OD_low_MMS)
 
-l_outcomes_MET_fatal_OD_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_low)
-l_outcomes_BUP_fatal_OD_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_low)
-ICER_fatal_OD_low_TS <- ICER(outcomes_comp = l_outcomes_MET_fatal_OD_low_TS, outcomes_int = l_outcomes_BUP_fatal_OD_low_TS)
-
 # High
 l_outcomes_MET_fatal_OD_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_high)
 l_outcomes_BUP_fatal_OD_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_high)
 ICER_fatal_OD_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_fatal_OD_high_MMS, outcomes_int = l_outcomes_BUP_fatal_OD_high_MMS)
-
-l_outcomes_MET_fatal_OD_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_high)
-l_outcomes_BUP_fatal_OD_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fatal_OD_high)
-ICER_fatal_OD_high_TS <- ICER(outcomes_comp = l_outcomes_MET_fatal_OD_high_TS, outcomes_int = l_outcomes_BUP_fatal_OD_high_TS)
-
 
 ### Non-fatal overdose ###
 #### Fentanyl prevalence ####
@@ -200,18 +163,10 @@ l_outcomes_MET_fent_exp_2020_low_MMS <- outcomes(l_params_all = l_params_MET_MMS
 l_outcomes_BUP_fent_exp_2020_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_low)
 ICER_fent_exp_2020_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_fent_exp_2020_low_MMS, outcomes_int = l_outcomes_BUP_fent_exp_2020_low_MMS)
 
-l_outcomes_MET_fent_exp_2020_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_low)
-l_outcomes_BUP_fent_exp_2020_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_low)
-ICER_fent_exp_2020_low_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_exp_2020_low_TS, outcomes_int = l_outcomes_BUP_fent_exp_2020_low_TS)
-
 # High
 l_outcomes_MET_fent_exp_2020_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_high)
 l_outcomes_BUP_fent_exp_2020_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_high)
 ICER_fent_exp_2020_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_fent_exp_2020_high_MMS, outcomes_int = l_outcomes_BUP_fent_exp_2020_high_MMS)
-
-l_outcomes_MET_fent_exp_2020_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_high)
-l_outcomes_BUP_fent_exp_2020_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_exp_2020_high)
-ICER_fent_exp_2020_high_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_exp_2020_high_TS, outcomes_int = l_outcomes_BUP_fent_exp_2020_high_TS)
 
 #### Reduction in fentanyl exposure for non-injection v. injection ####
 # Low
@@ -219,18 +174,10 @@ l_outcomes_MET_ni_fent_reduction_low_MMS <- outcomes(l_params_all = l_params_MET
 l_outcomes_BUP_ni_fent_reduction_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_low)
 ICER_ni_fent_reduction_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_ni_fent_reduction_low_MMS, outcomes_int = l_outcomes_BUP_ni_fent_reduction_low_MMS)
 
-l_outcomes_MET_ni_fent_reduction_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_low)
-l_outcomes_BUP_ni_fent_reduction_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_low)
-ICER_ni_fent_reduction_low_TS <- ICER(outcomes_comp = l_outcomes_MET_ni_fent_reduction_low_TS, outcomes_int = l_outcomes_BUP_ni_fent_reduction_low_TS)
-
 # High
 l_outcomes_MET_ni_fent_reduction_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_high)
 l_outcomes_BUP_ni_fent_reduction_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_high)
 ICER_ni_fent_reduction_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_ni_fent_reduction_high_MMS, outcomes_int = l_outcomes_BUP_ni_fent_reduction_high_MMS)
-
-l_outcomes_MET_ni_fent_reduction_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_high)
-l_outcomes_BUP_ni_fent_reduction_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_ni_fent_reduction_high)
-ICER_ni_fent_reduction_high_TS <- ICER(outcomes_comp = l_outcomes_MET_ni_fent_reduction_high_TS, outcomes_int = l_outcomes_BUP_ni_fent_reduction_high_TS)
 
 #### Fent OD multiplier ####
 # Low
@@ -238,18 +185,10 @@ l_outcomes_MET_fent_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS,
 l_outcomes_BUP_fent_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_low)
 ICER_fent_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_fent_OD_mult_low_MMS)
 
-l_outcomes_MET_fent_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_low)
-l_outcomes_BUP_fent_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_low)
-ICER_fent_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_fent_OD_mult_low_TS)
-
 # High
 l_outcomes_MET_fent_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_high)
 l_outcomes_BUP_fent_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_high)
 ICER_fent_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_fent_OD_mult_high_MMS)
-
-l_outcomes_MET_fent_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_high)
-l_outcomes_BUP_fent_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_fent_OD_mult_high)
-ICER_fent_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_fent_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_fent_OD_mult_high_TS)
 
 #### BUP OD multiplier ####
 # Low
@@ -257,18 +196,10 @@ l_outcomes_MET_BUP_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, 
 l_outcomes_BUP_BUP_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
 ICER_BUP_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_low_MMS)
 
-l_outcomes_MET_BUP_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
-l_outcomes_BUP_BUP_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_low)
-ICER_BUP_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_low_TS)
-
 # High
 l_outcomes_MET_BUP_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
 l_outcomes_BUP_BUP_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
 ICER_BUP_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_high_MMS)
-
-l_outcomes_MET_BUP_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
-l_outcomes_BUP_BUP_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_BUP_OD_mult_high)
-ICER_BUP_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_BUP_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_BUP_OD_mult_high_TS)
 
 #### MET OD multiplier ####
 # Low
@@ -276,18 +207,10 @@ l_outcomes_MET_MET_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, 
 l_outcomes_BUP_MET_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
 ICER_MET_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_MET_OD_mult_low_MMS)
 
-l_outcomes_MET_MET_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
-l_outcomes_BUP_MET_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_low)
-ICER_MET_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_MET_OD_mult_low_TS)
-
 # High
 l_outcomes_MET_MET_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
 l_outcomes_BUP_MET_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
 ICER_MET_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_MET_OD_mult_high_MMS)
-
-l_outcomes_MET_MET_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
-l_outcomes_BUP_MET_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_MET_OD_mult_high)
-ICER_MET_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_MET_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_MET_OD_mult_high_TS)
 
 #### REL OD multiplier ####
 # Low
@@ -295,18 +218,10 @@ l_outcomes_MET_REL_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, 
 l_outcomes_BUP_REL_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
 ICER_REL_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_REL_OD_mult_low_MMS)
 
-l_outcomes_MET_REL_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
-l_outcomes_BUP_REL_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_low)
-ICER_REL_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_REL_OD_mult_low_TS)
-
 # High
 l_outcomes_MET_REL_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
 l_outcomes_BUP_REL_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
 ICER_REL_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_REL_OD_mult_high_MMS)
-
-l_outcomes_MET_REL_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
-l_outcomes_BUP_REL_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_REL_OD_mult_high)
-ICER_REL_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_REL_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_REL_OD_mult_high_TS)
 
 #### INJ OD multiplier ####
 # Low
@@ -314,24 +229,15 @@ l_outcomes_MET_INJ_OD_mult_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, 
 l_outcomes_BUP_INJ_OD_mult_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
 ICER_INJ_OD_mult_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_low_MMS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_low_MMS)
 
-l_outcomes_MET_INJ_OD_mult_low_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
-l_outcomes_BUP_INJ_OD_mult_low_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_low)
-ICER_INJ_OD_mult_low_TS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_low_TS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_low_TS)
-
 # High
 l_outcomes_MET_INJ_OD_mult_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
 l_outcomes_BUP_INJ_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
 ICER_INJ_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_high_MMS)
 
-l_outcomes_MET_INJ_OD_mult_high_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
-l_outcomes_BUP_INJ_OD_mult_high_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_INJ_OD_mult_high)
-ICER_INJ_OD_mult_high_TS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_high_TS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_high_TS)
-
 ################
 ### Baseline ###
 ################
 df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
-df_baseline_TS  <- data.frame(ICER_TS$df_incremental, ICER_TS$df_icer)
 
 ################
 ### Overdose ###
@@ -339,8 +245,6 @@ df_baseline_TS  <- data.frame(ICER_TS$df_incremental, ICER_TS$df_icer)
 # Baseline
 df_overdose_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life, 
                                        ICER_MMS$df_icer$n_icer_TOTAL_life)
-#df_overdose_baseline_TS <- data.frame(ICER_TS$df_incremental$n_inc_costs_TOTAL_1yr, ICER_TS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_TS$df_icer$n_icer_TOTAL_1yr)
-
 # Costs
 # Non-fatal OD
 v_overdose_fent_exp_costs_MMS <- c(ICER_fent_exp_2020_low_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_fent_exp_2020_high_MMS$df_incremental$n_inc_costs_TOTAL_life)
@@ -439,23 +343,23 @@ df.2 <- df_overdose_costs_MMS %>%
 
 # create plot
 # (use scale_x_continuous to change labels in y axis to name of parameters)
-p_tornado_overdose_costs <- ggplot() + 
-  geom_rect(data = df.2, 
-            aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-  theme_bw() + 
-  scale_fill_manual(values = c("Upper" = "#5ab4ac",
-                               "Lower" = "#d8b365")) +
-  theme(axis.title.y = element_blank(), legend.position = 'bottom',
-        legend.title = element_blank()) + 
-  geom_hline(yintercept = df.2$base) +
-  scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
-                     labels = v_order_parameters) +
-  xlab("Parameter") + ylab("Incremental Cost") +
-  coord_flip()
-
-png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_costs.png", width = 600, height = 600)
-p_tornado_overdose_costs
-dev.off()
+# p_tornado_overdose_costs <- ggplot() + 
+#   geom_rect(data = df.2, 
+#             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
+#   theme_bw() + 
+#   scale_fill_manual(values = c("Upper" = "#5ab4ac",
+#                                "Lower" = "#d8b365")) +
+#   theme(axis.title.y = element_blank(), legend.position = 'bottom',
+#         legend.title = element_blank()) + 
+#   geom_hline(yintercept = df.2$base) +
+#   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
+#                      labels = v_order_parameters) +
+#   xlab("Parameter") + ylab("Incremental Cost") +
+#   coord_flip()
+# 
+# png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_costs.png", width = 600, height = 600)
+# p_tornado_overdose_costs
+# dev.off()
 
 # QALYs
 v_order_parameters <- df_overdose_qalys_MMS %>% arrange(diff) %>%
@@ -480,28 +384,21 @@ df.2 <- df_overdose_qalys_MMS %>%
 # create plot
 # (use scale_x_continuous to change labels in y axis to name of parameters)
 #png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 960, height = 540)
-p_tornado_overdose_qalys <- ggplot() + 
-  geom_rect(data = df.2, 
-            aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-  theme_bw() + 
-  scale_fill_manual(values = c("Upper" = "#5ab4ac",
-                               "Lower" = "#d8b365")) +
-  theme(axis.title.y=element_blank(), legend.position = 'bottom',
-        legend.title = element_blank()) + 
-  geom_hline(yintercept = df.2$base) +
-  scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
-                     labels = v_order_parameters) +
-  xlab("Parameter") + ylab("Incremental Cost") +
-  coord_flip()
-#dev.off()
-
-png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 600, height = 600)
-p_tornado_overdose_qalys
-dev.off()
-
-#p_tornado_overdose_costs
-#p_tornado_overdose_qalys
-
-## Trial health state versus model health state definition ##
-
-## Province-specific analysis ##
+# p_tornado_overdose_qalys <- ggplot() + 
+#   geom_rect(data = df.2, 
+#             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
+#   theme_bw() + 
+#   scale_fill_manual(values = c("Upper" = "#5ab4ac",
+#                                "Lower" = "#d8b365")) +
+#   theme(axis.title.y=element_blank(), legend.position = 'bottom',
+#         legend.title = element_blank()) + 
+#   geom_hline(yintercept = df.2$base) +
+#   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
+#                      labels = v_order_parameters) +
+#   xlab("Parameter") + ylab("Incremental Cost") +
+#   coord_flip()
+# #dev.off()
+# 
+# png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 600, height = 600)
+# p_tornado_overdose_qalys
+# dev.off()

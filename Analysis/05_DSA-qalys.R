@@ -51,9 +51,9 @@ l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib =
 l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
 ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
 # TS
-l_outcomes_MET_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map)
-l_outcomes_BUP_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map)
-ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
+#l_outcomes_MET_TS <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map)
+#l_outcomes_BUP_TS <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map)
+#ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
 
 #############
 ### QALYs ###
@@ -156,6 +156,10 @@ colnames(df_qalys_MMS) <- c("Lower", "Upper")
 df_qalys_MMS <- as_data_frame(df_qalys_MMS) %>% mutate(diff = abs(Upper - Lower),
                                                        base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
   add_column(var_name = c("Combined Tx", "Range", "EQ-5D-3L", "HUI-3", "ODN (low)"))
+
+## As .RData ##
+save(df_qalys_MMS, 
+     file = "outputs/DSA/Modified Model Specification/df_qalys_MMS.RData")
 
 #########################
 #### Tornado Diagram ####

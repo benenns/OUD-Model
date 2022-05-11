@@ -194,6 +194,14 @@ df_transitions_qalys_MMS <- as_data_frame(df_transitions_qalys_MMS) %>% mutate(d
                                                                                base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
   add_column(var_name = c("All episode frailty equal", "No difference for concurrent use", "No difference for injection", "Combined TX from Kurz (2021)"))
 
+# Save output
+## As .RData ##
+save(df_transitions_costs_MMS, 
+     file = "outputs/DSA/Modified Model Specification/df_transitions_costs_MMS.RData")
+save(df_transitions_qalys_MMS, 
+     file = "outputs/DSA/Modified Model Specification/df_transitions_qalys_MMS.RData")
+
+
 ##########################
 #### BNX Threshold SA ####
 ##########################

@@ -21,8 +21,8 @@ l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
-                                file.weibull = "data/Calibration/weibull.csv",
-                                file.unconditional = "data/Calibration/unconditional.csv",
+                                file.weibull = "data/Modified Model Specification/weibull.csv",
+                                file.unconditional = "data/Modified Model Specification/unconditional.csv",
                                 file.overdose = "data/overdose.csv", # includes calibration-related parameters
                                 file.fentanyl = "data/Calibration/fentanyl.csv",
                                 file.hiv = "data/hiv_sero.csv",
@@ -92,7 +92,7 @@ plotrix::plotCI(x    = l_cali_targets$ODN$Time,
 set.seed(3730687)
 
 ### Number of random samples to obtain from the posterior distribution 
-n_resamp <- 2000 # to match number of PSA draws
+n_resamp <- 5000 # to match number of PSA draws
 
 ### Names and number of input parameters to be calibrated
 #v_param_names  <- c("Overdose Rate (TX)",
