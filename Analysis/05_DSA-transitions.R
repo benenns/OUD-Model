@@ -8,6 +8,7 @@ library(data.table)
 library(formattable)
 library(tidyr)
 library(RColorBrewer)
+library(Rmisc)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -295,87 +296,87 @@ save(df_threshold_MMS,
 #########################
 #### Tornado Diagram ####
 #########################
-# Costs
-v_order_parameters <- df_transitions_costs_MMS %>% arrange(diff) %>%
-  mutate(var_name = factor(x = var_name, levels = var_name)) %>%
-  select(var_name) %>% unlist() %>% levels()
-
-# width of columns in plot (value between 0 and 1)
-width <- 0.75
-# get data frame in shape for ggplot and geom_rect
-df.2 <- df_transitions_costs_MMS %>% 
-  # gather columns Lower_Bound and Upper_Bound into a single column using gather
-  gather(key = 'type', value = 'output.value', Lower:Upper) %>%
-  # just reordering columns
-  select(var_name, type, output.value, diff, base) %>%
-  # create the columns for geom_rect
-  mutate(var_name = factor(var_name, levels = v_order_parameters),
-         ymin = pmin(output.value, base),
-         ymax = pmax(output.value, base),
-         xmin = as.numeric(var_name) - width/2,
-         xmax = as.numeric(var_name) + width/2)
-
-# create plot
-# (use scale_x_continuous to change labels in y axis to name of parameters)
-p_tornado_transitions_costs <- ggplot() + 
-  geom_rect(data = df.2, 
-            aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-  theme_bw() + 
-  scale_fill_manual(values = c("Upper" = "#5ab4ac",
-                               "Lower" = "#d8b365")) +
-  theme(axis.title.y = element_blank(), legend.position = 'bottom',
-        legend.title = element_blank()) + 
-  geom_hline(yintercept = df.2$base) +
-  scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
-                     labels = v_order_parameters) +
-  xlab("Parameter") + ylab("Incremental Cost") +
-  coord_flip()
-
-png(file = "Plots/DSA/Modified Model Spec/tornado_transitions_costs.png", width = 600, height = 600)
-p_tornado_transitions_costs
-dev.off()
-
-# QALYs
-v_order_parameters <- df_transitions_qalys_MMS %>% arrange(diff) %>%
-  mutate(var_name = factor(x = var_name, levels = var_name)) %>%
-  select(var_name) %>% unlist() %>% levels()
-
-# width of columns in plot (value between 0 and 1)
-width <- 0.75
-# get data frame in shape for ggplot and geom_rect
-df.2 <- df_transitions_qalys_MMS %>% 
-  # gather columns Lower_Bound and Upper_Bound into a single column using gather
-  gather(key = 'type', value = 'output.value', Lower:Upper) %>%
-  # just reordering columns
-  select(var_name, type, output.value, diff, base) %>%
-  # create the columns for geom_rect
-  mutate(var_name = factor(var_name, levels = v_order_parameters),
-         ymin = pmin(output.value, base),
-         ymax = pmax(output.value, base),
-         xmin = as.numeric(var_name) - width/2,
-         xmax = as.numeric(var_name) + width/2)
-
-# create plot
-# (use scale_x_continuous to change labels in y axis to name of parameters)
-#png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 960, height = 540)
-p_tornado_transitions_qalys <- ggplot() + 
-  geom_rect(data = df.2, 
-            aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-  theme_bw() + 
-  scale_fill_manual(values = c("Upper" = "#5ab4ac",
-                               "Lower" = "#d8b365")) +
-  theme(axis.title.y=element_blank(), legend.position = 'bottom',
-        legend.title = element_blank()) + 
-  geom_hline(yintercept = df.2$base) +
-  scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
-                     labels = v_order_parameters) +
-  xlab("Parameter") + ylab("Incremental Cost") +
-  coord_flip()
-#dev.off()
-
-png(file = "Plots/DSA/Modified Model Spec/tornado_transitions_qalys.png", width = 600, height = 600)
-p_tornado_transitions_qalys
-dev.off()
+# # Costs
+# v_order_parameters <- df_transitions_costs_MMS %>% arrange(diff) %>%
+#   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
+#   select(var_name) %>% unlist() %>% levels()
+# 
+# # width of columns in plot (value between 0 and 1)
+# width <- 0.75
+# # get data frame in shape for ggplot and geom_rect
+# df.2 <- df_transitions_costs_MMS %>% 
+#   # gather columns Lower_Bound and Upper_Bound into a single column using gather
+#   gather(key = 'type', value = 'output.value', Lower:Upper) %>%
+#   # just reordering columns
+#   select(var_name, type, output.value, diff, base) %>%
+#   # create the columns for geom_rect
+#   mutate(var_name = factor(var_name, levels = v_order_parameters),
+#          ymin = pmin(output.value, base),
+#          ymax = pmax(output.value, base),
+#          xmin = as.numeric(var_name) - width/2,
+#          xmax = as.numeric(var_name) + width/2)
+# 
+# # create plot
+# # (use scale_x_continuous to change labels in y axis to name of parameters)
+# p_tornado_transitions_costs <- ggplot() + 
+#   geom_rect(data = df.2, 
+#             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
+#   theme_bw() + 
+#   scale_fill_manual(values = c("Upper" = "#5ab4ac",
+#                                "Lower" = "#d8b365")) +
+#   theme(axis.title.y = element_blank(), legend.position = 'bottom',
+#         legend.title = element_blank()) + 
+#   geom_hline(yintercept = df.2$base) +
+#   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
+#                      labels = v_order_parameters) +
+#   xlab("Parameter") + ylab("Incremental Cost") +
+#   coord_flip()
+# 
+# png(file = "Plots/DSA/Modified Model Spec/tornado_transitions_costs.png", width = 600, height = 600)
+# p_tornado_transitions_costs
+# dev.off()
+# 
+# # QALYs
+# v_order_parameters <- df_transitions_qalys_MMS %>% arrange(diff) %>%
+#   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
+#   select(var_name) %>% unlist() %>% levels()
+# 
+# # width of columns in plot (value between 0 and 1)
+# width <- 0.75
+# # get data frame in shape for ggplot and geom_rect
+# df.2 <- df_transitions_qalys_MMS %>% 
+#   # gather columns Lower_Bound and Upper_Bound into a single column using gather
+#   gather(key = 'type', value = 'output.value', Lower:Upper) %>%
+#   # just reordering columns
+#   select(var_name, type, output.value, diff, base) %>%
+#   # create the columns for geom_rect
+#   mutate(var_name = factor(var_name, levels = v_order_parameters),
+#          ymin = pmin(output.value, base),
+#          ymax = pmax(output.value, base),
+#          xmin = as.numeric(var_name) - width/2,
+#          xmax = as.numeric(var_name) + width/2)
+# 
+# # create plot
+# # (use scale_x_continuous to change labels in y axis to name of parameters)
+# #png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 960, height = 540)
+# p_tornado_transitions_qalys <- ggplot() + 
+#   geom_rect(data = df.2, 
+#             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
+#   theme_bw() + 
+#   scale_fill_manual(values = c("Upper" = "#5ab4ac",
+#                                "Lower" = "#d8b365")) +
+#   theme(axis.title.y=element_blank(), legend.position = 'bottom',
+#         legend.title = element_blank()) + 
+#   geom_hline(yintercept = df.2$base) +
+#   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
+#                      labels = v_order_parameters) +
+#   xlab("Parameter") + ylab("Incremental Cost") +
+#   coord_flip()
+# #dev.off()
+# 
+# png(file = "Plots/DSA/Modified Model Spec/tornado_transitions_qalys.png", width = 600, height = 600)
+# p_tornado_transitions_qalys
+# dev.off()
 
 #########################
 #### Threshold plots ####
@@ -397,12 +398,18 @@ df_threshold_qalys_MMS <- df_threshold_MMS %>% select(perc_increase, n_inc_qalys
 df_threshold_costs_MMS <- df_threshold_MMS %>% select(perc_increase, n_inc_costs_TOTAL_life, prov)
 
 ## Threshold plots ##
+# Set colours
+# AB, BC, CAN, ON, QC
+#v_threshold_colours <- c()
+
 # MMS
 # Incremental QALYs
 plot_DSA_qalys_MMS_threshold <- ggplot(df_threshold_qalys_MMS, aes(x = perc_increase, y = n_inc_qalys_TOTAL_life, group = prov)) +
   theme_bw() +
   scale_fill_discrete(name = "Provincial Fentanyl Prevalence") +
-  geom_line(aes(color = prov)) +
+  theme(legend.title = element_blank(), legend.position = "right") +
+  geom_line(aes(color = prov), size = 1) +
+  scale_colour_viridis_d() +
   geom_hline(yintercept = 0) +
   #scale_x_continuous(labels = scales::percent) +
   xlab("Increase in BNX Episode Duration") + ylab("Incremental QALYs") +
@@ -413,16 +420,18 @@ plot_DSA_qalys_MMS_threshold
 
 ggsave(plot_DSA_qalys_MMS_threshold, 
        filename = "Plots/DSA/Threshold SA/DSA-BNX-threshold-qalys-MMS.png", 
-       width = 6, height = 6)
+       width = 8, height = 6)
 
 # Incremental Costs
 plot_DSA_costs_MMS_threshold <- ggplot(df_threshold_costs_MMS, aes(x = perc_increase, y = n_inc_costs_TOTAL_life, group = prov)) +
   theme_bw() +
   scale_fill_discrete(name = "Provincial Fentanyl Prevalence") +
-  #theme(legend.position = "none") +
-  geom_line(aes(color = prov)) +
+  theme(legend.position = "none") +
+  geom_line(aes(color = prov), size = 1) +
+  scale_colour_viridis_d() +
+  #scale_color_manual(values = v_threshold_colours) +
   geom_hline(yintercept = 0) +
-  #scale_x_continuous(limits = c(0, 200))
+  scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
   xlab("Increase in BNX Episode Duration") + ylab("Incremental Costs") +
   xlim(0, 200) #+
 # ylim(-0.01, 0.025)
@@ -432,3 +441,8 @@ plot_DSA_costs_MMS_threshold
 ggsave(plot_DSA_costs_MMS_threshold, 
        filename = "Plots/DSA/Threshold SA/DSA-BNX-threshold-costs-MMS.png", 
        width = 6, height = 6)
+
+## Combined plot ##
+png(file = "Plots/DSA/Threshold SA/DSA-BNX-threshold-combined-MMS.png", width = 800, height = 400)
+  multiplot(plot_DSA_costs_MMS_threshold, plot_DSA_qalys_MMS_threshold, cols = 2)
+dev.off()

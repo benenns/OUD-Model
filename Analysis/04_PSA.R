@@ -619,64 +619,56 @@ df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, 
 #############
 ### Plots ###
 #############
-
 ## Full plot ##
-
 ### Societal perspective ###
 plot_PSA_ellipse <- ggplot() +
   # Points
-  # MMS (6-month)
-  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), colour = "steelblue1", size = 1.5) +
-  # MMS (10-year)
-  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "royalblue2", size = 1.5) +
   # MMS (Lifetime)
-  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), colour = "navy", size = 1.5) +
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, alpha = 0.1), colour = "#005778", size = 1) +
+  geom_raster(fill = "maroon")+
   
-  # TS
-  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), colour = "lightblue", size = 1.5) +
+  # MMS (10-year)
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr, alpha = 0.1), colour = "#FC4C02", size = 1) +
+  #geom_hex(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), bins = 250) +  scale_fill_viridis_c(option = "magma") +
+  
+  # MMS (6-month)
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, alpha = 0.1), colour = "#008E97", size = 1) +
+  #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), colour = "#e5f5f9", size = 1.5) +
+  #geom_hex(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), bins = 250) + scale_fill_viridis_c(option = "magma") +
   
   # Ellipses
   # MMS (6-month)
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "firebrick3", size = 1, alpha = 1, level = 0.95) +
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "grey69", size = 1, alpha = 1, level = 0.5) +
-  
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "#000000", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
   # MMS (10-year)
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "firebrick3", size = 1, alpha = 1, level = 0.95) +
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "grey69", size = 1, alpha = 1, level = 0.5) +
-  
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "#000000", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
   # MMS (Lifetime)
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "firebrick3", size = 1, alpha = 1, level = 0.95) +
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "grey69", size = 1, alpha = 1, level = 0.5) +
-  
-  # TS
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = 2, color = "navyblue", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = "solid", color = "royalblue", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "#000000", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
 
 ### Health sector perspective ###
   # Points
-  # MMS (6-month)
-  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), colour = "palegreen1", size = 1.5) +
-  # MMS (10-year)
-  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), colour = "palegreen2", size = 1.5) +
   # MMS (Lifetime)
-  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), colour = "palegreen3", size = 1.5) +
-  # TS
-  #geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), colour = "plum1", size = 1.5) +
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, alpha = 0.1), colour = "#000000", size = 1) +
+  
+  # MMS (10-year)
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr, alpha = 0.1), colour = "#241773", size = 1) +
+  
+  # MMS (6-month)
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, alpha = 0.1), colour = "#9E7C0C", size = 1) +
   
   # Ellipses
   # MMS (6-month)
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "snow4", size = 1, alpha = 1, level = 0.95) +
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "snow3", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "#000000", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
   # MMS (10-year)
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "snow4", size = 1, alpha = 1, level = 0.95) +
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "snow3", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = 2, color = "#000000", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
   # MMS (Lifetime)
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "snow4", size = 1, alpha = 1, level = 0.95) +
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "snow3", size = 1, alpha = 1, level = 0.5) +
-  # TS
-  #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = 2, color = "purple4", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_TS_6mo, y = inc_costs_TS_6mo), linetype = "solid", color = "mediumpurple", size = 1, alpha = 1, level = 0.5) +
-  
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "#000000", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
+
   # Add labels
   #annotate("text", x = 0.05, y = 15000, label = "TS (6-month) \n Societal", fontface = "bold", size = 3) +
   annotate("text", x =  0.023, y = 15000, label = "Societal Perspective \n (6-month)", fontface = "bold", size = 3) +
@@ -691,11 +683,12 @@ plot_PSA_ellipse <- ggplot() +
   geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_abline(slope = 100000, intercept = 0) +
-  labs(y = "Incremental costs", x = "Incremental QALYs") +
+  labs(y = "Incremental costs (2020 CAD)", x = "Incremental QALYs") +
   xlim(-0.3, 0.1) +
   ylim(-40000, 75000) +
+  scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        plot.title=element_text(hjust=0.02, vjust=-7), legend.justification=c(1,0), legend.position=c(1,0))
+        plot.title=element_text(hjust=0.02, vjust=-7), legend.position = "none")
 
 plot_PSA_ellipse
 
