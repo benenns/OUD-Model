@@ -28,7 +28,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 2000 # just to test function (will be set as n_sim)
+n_sim <- 5000 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
@@ -130,44 +130,64 @@ combine_custom_MMS <- function(LL1, LL2) {
               df_ICER_PSA_MMS = df_ICER_PSA_MMS))
 }
 
-l_incremental_PSA_MMS <- foreach(i = 1:n_sim, .combine = combine_custom_MMS, .packages = 'tidyr') %dopar% { # i <- 1
-#for (i in 1:n_sim){
-  #PSA_output(i)
-  # Update parameter set for each scenario with next set of PSA drawn parameters
-  l_psa_input_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_MMS[i, ])
-  l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_MMS[i, ])
+# Run PSA for each block to help memory issues
+n_sim <- 500
+n_block_size <- 100 # size of block for each loop
+n_blocks <- n_sim/n_block_size
 
-  # Run model and generate outputs
-  l_outcomes_MET_MMS <- outcomes(l_params_all = l_psa_input_MET_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
-  l_outcomes_BUP_MMS <- outcomes(l_params_all = l_psa_input_BUP_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+# Initialize lists
+l_outcomes_MET_PSA_MMS <- list()
+l_outcomes_BUP_PSA_MMS <- list()
+l_ICER_PSA_MMS         <- list()        
+l_incremental_PSA_MMS  <- list()
 
-  # Extract cost and QALY outputs
-  #df_outcomes_MET_PSA_MMS <- rbind(df_outcomes_MET_PSA_MMS, l_outcomes_MET_MMS$df_outcomes)
-  #df_outcomes_BUP_PSA_MMS <- rbind(df_outcomes_BUP_PSA_MMS, l_outcomes_BUP_MMS$df_outcomes)
+for (j in (0:(n_blocks - 1))){
+  l_PSA_MMS <- foreach(i = (1 + j*n_block_size):((j + 1)*n_block_size), .combine = combine_custom_MMS, .packages = 'tidyr') %dopar% {
+    # Update parameter set for each scenario with next set of PSA drawn parameters
+    l_psa_input_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_MMS[i, ])
+    l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_MMS[i, ])
   
-  df_outcomes_MET_PSA_MMS <- l_outcomes_MET_MMS$df_outcomes
-  df_outcomes_BUP_PSA_MMS <- l_outcomes_BUP_MMS$df_outcomes
-
-  # Calculate ICER (societal and health sector perspective)
-  l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
-
-  #df_incremental_PSA_MMS <- rbind(df_incremental_PSA_MMS, l_ICER_MMS$df_incremental)
-  df_incremental_PSA_MMS <- l_ICER_MMS$df_incremental
-
-  #df_ICER_PSA_MMS <- rbind(df_ICER_PSA_MMS, l_ICER_MMS$df_icer)
-  df_ICER_PSA_MMS <- l_ICER_MMS$df_icer
+    # Run model and generate outputs
+    l_outcomes_MET_MMS <- outcomes(l_params_all = l_psa_input_MET_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
+    l_outcomes_BUP_MMS <- outcomes(l_params_all = l_psa_input_BUP_MMS, v_params_calib = v_calib_post_map, PSA = TRUE)
   
-  return(list(df_outcomes_MET_PSA_MMS = df_outcomes_MET_PSA_MMS, 
-              df_outcomes_BUP_PSA_MMS = df_outcomes_BUP_PSA_MMS, 
-              df_incremental_PSA_MMS = df_incremental_PSA_MMS,
-              df_ICER_PSA_MMS = df_ICER_PSA_MMS))
+    df_outcomes_MET_PSA_MMS <- l_outcomes_MET_MMS$df_outcomes
+    df_outcomes_BUP_PSA_MMS <- l_outcomes_BUP_MMS$df_outcomes
+  
+    # Calculate ICER (societal and health sector perspective)
+    l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+  
+    #df_incremental_PSA_MMS <- rbind(df_incremental_PSA_MMS, l_ICER_MMS$df_incremental)
+    df_incremental_PSA_MMS <- l_ICER_MMS$df_incremental
+  
+    #df_ICER_PSA_MMS <- rbind(df_ICER_PSA_MMS, l_ICER_MMS$df_icer)
+    df_ICER_PSA_MMS <- l_ICER_MMS$df_icer
+    
+    return(list(df_outcomes_MET_PSA_MMS = df_outcomes_MET_PSA_MMS, 
+                df_outcomes_BUP_PSA_MMS = df_outcomes_BUP_PSA_MMS, 
+                df_incremental_PSA_MMS = df_incremental_PSA_MMS,
+                df_ICER_PSA_MMS = df_ICER_PSA_MMS))
+  }
+  
+  df_outcomes_MET_PSA_MMS <- l_PSA_MMS$df_outcomes_MET_PSA_MMS
+  df_outcomes_BUP_PSA_MMS <- l_PSA_MMS$df_outcomes_BUP_PSA_MMS
+  df_ICER_PSA_MMS         <- l_PSA_MMS$df_ICER_PSA_MMS
+  df_incremental_PSA_MMS  <- l_PSA_MMS$df_incremental_PSA_MMS
+  
+  l_outcomes_MET_PSA_MMS[[j + 1]] <- df_outcomes_MET_PSA_MMS
+  l_outcomes_BUP_PSA_MMS[[j + 1]] <- df_outcomes_BUP_PSA_MMS
+  l_ICER_PSA_MMS[[j + 1]]         <- df_ICER_PSA_MMS
+  l_incremental_PSA_MMS[[j + 1]]  <- df_incremental_PSA_MMS
 }
-stopImplicitCluster()
 
-df_outcomes_MET_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_MET_PSA_MMS
-df_outcomes_BUP_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_BUP_PSA_MMS
-df_ICER_PSA_MMS         <- l_incremental_PSA_MMS$df_ICER_PSA_MMS
-df_incremental_PSA_MMS  <- l_incremental_PSA_MMS$df_incremental_PSA_MMS
+#stopImplicitCluster()
+
+# df_outcomes_MET_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_MET_PSA_MMS
+# df_outcomes_BUP_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_BUP_PSA_MMS
+# df_ICER_PSA_MMS         <- l_incremental_PSA_MMS$df_ICER_PSA_MMS
+# df_incremental_PSA_MMS  <- l_incremental_PSA_MMS$df_incremental_PSA_MMS
+
+stopImplicitCluster()
 
 ### Output results
 ## As .RData
