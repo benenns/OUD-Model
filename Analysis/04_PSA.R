@@ -9,6 +9,8 @@ library(parallel)
 library(foreach)
 library(doParallel)
 library(tidyr)
+#library(mail)
+library(RPushbullet)
 
 # Set number of cores
 #n_cores <- detectCores()
@@ -180,6 +182,30 @@ for (j in (0:(n_blocks - 1))){
   l_incremental_PSA_MMS[[j + 1]]  <- df_incremental_PSA_MMS
 }
 
+#sendmail("ben.enns@gmail.com", subject = "Notification from R", message = "PSA finished running!", password="rmail")
+pbPost("note", "Notification from R", "PSA runs complete (office desktop)")
+
+# combine output data sets
+# initialize empty data frames
+df_outcomes_MET_PSA_MMS_comb <- df_outcomes_BUP_PSA_MMS_comb <- df_ICER_PSA_MMS_comb <- df_incremental_PSA_MMS_comb <- data.frame()
+
+for (i in 1:n_blocks){
+  df_temp <- l_outcomes_MET_PSA_MMS[[i]]
+  df_outcomes_MET_PSA_MMS_comb <- rbind(df_outcomes_MET_PSA_MMS_comb, df_temp)
+}
+for (i in 1:n_blocks){
+  df_temp <- l_outcomes_BUP_PSA_MMS[[i]]
+  df_outcomes_BUP_PSA_MMS_comb <- rbind(df_outcomes_BUP_PSA_MMS_comb, df_temp)
+}
+for (i in 1:n_blocks){
+  df_temp <- l_ICER_PSA_MMS[[i]]
+  df_ICER_PSA_MMS_comb <- rbind(df_ICER_PSA_MMS_comb, df_temp)
+}
+for (i in 1:n_blocks){
+  df_temp <- l_ICER_PSA_MMS[[i]]
+  df_incremental_PSA_MMS_comb <- rbind(df_incremental_PSA_MMS_comb, df_temp)
+}
+
 #stopImplicitCluster()
 
 # df_outcomes_MET_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_MET_PSA_MMS
@@ -191,26 +217,26 @@ stopImplicitCluster()
 
 ### Output results
 ## As .RData
-save(df_outcomes_MET_PSA_MMS, 
+save(df_outcomes_MET_PSA_MMS_comb, 
      file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_MMS.RData")
-save(df_outcomes_BUP_PSA_MMS, 
+save(df_outcomes_BUP_PSA_MMS_comb, 
      file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_MMS.RData")
-save(df_ICER_PSA_MMS, 
+save(df_ICER_PSA_MMS_comb, 
      file = "outputs/PSA/Modified Model Specification/ICER_PSA_MMS.RData")
-save(df_incremental_PSA_MMS,
+save(df_incremental_PSA_MMS_comb,
      file = "outputs/PSA/Modified Model Specification/incremental_PSA_MMS.RData")
 ## As .csv
-write.csv(df_outcomes_MET_PSA_MMS, 
+write.csv(df_outcomes_MET_PSA_MMS_comb, 
           file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_MMS.csv",
           row.names = FALSE)
-write.csv(df_outcomes_BUP_PSA_MMS, 
+write.csv(df_outcomes_BUP_PSA_MMS_comb, 
           file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_MMS.csv",
           row.names = FALSE)
-write.csv(df_ICER_PSA_MMS, 
-          file = "outputs/PSA/ICER_PSA_MMS.csv",
+write.csv(df_ICER_PSA_MMS_comb, 
+          file = "outputs/PSA/Modified Model Specification/ICER_PSA_MMS.csv",
           row.names = FALSE)
-write.csv(df_incremental_PSA_MMS, 
-          file = "outputs/PSA/incremental_PSA_MMS.csv",
+write.csv(df_incremental_PSA_MMS_comb, 
+          file = "outputs/PSA/Modified Model Specification/incremental_PSA_MMS.csv",
           row.names = FALSE)
 
 #############################
