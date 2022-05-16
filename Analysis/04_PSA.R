@@ -133,9 +133,10 @@ combine_custom_MMS <- function(LL1, LL2) {
 }
 
 # Run PSA for each block to help memory issues
-n_sim <- 500
-n_block_size <- 100 # size of block for each loop
+n_sim <- 1500
+n_block_size <- 500 # size of block for each loop
 n_blocks <- n_sim/n_block_size
+n_start <- 500 # set to 0 if running full PSA
 
 # Initialize lists
 l_outcomes_MET_PSA_MMS <- list()
@@ -143,8 +144,12 @@ l_outcomes_BUP_PSA_MMS <- list()
 l_ICER_PSA_MMS         <- list()        
 l_incremental_PSA_MMS  <- list()
 
+#k<-0
+#s1 <- n_start + 1 + k*n_block_size
+#e1 <- n_start + (k + 1)*n_block_size
+
 for (j in (0:(n_blocks - 1))){
-  l_PSA_MMS <- foreach(i = (1 + j*n_block_size):((j + 1)*n_block_size), .combine = combine_custom_MMS, .packages = 'tidyr') %dopar% {
+  l_PSA_MMS <- foreach(i = (n_start + 1 + j*n_block_size):(n_start + (j + 1)*n_block_size), .combine = combine_custom_MMS, .packages = 'tidyr') %dopar% {
     # Update parameter set for each scenario with next set of PSA drawn parameters
     l_psa_input_MET_MMS <- update_param_list(l_params_all = l_params_MET_MMS, params_updated = df_psa_params_MMS[i, ])
     l_psa_input_BUP_MMS <- update_param_list(l_params_all = l_params_BUP_MMS, params_updated = df_psa_params_MMS[i, ])
