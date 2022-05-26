@@ -29,7 +29,7 @@ df_dsa_frailty <- read.csv(file = "data/DSA/frailty.csv", row.names = 1, header 
 v_dsa_frailty_episode <- unlist(df_dsa_frailty["pe_episode_frailty",])
 v_dsa_frailty_concurrent <- unlist(df_dsa_frailty["pe_concurrent_frailty",])
 v_dsa_frailty_inj <- unlist(df_dsa_frailty["pe_inj_frailty",])
-v_dsa_frailty_kurz <- unlist(df_dsa_frailty["pe_kurz_frailty",])
+# v_dsa_frailty_kurz <- unlist(df_dsa_frailty["pe_kurz_frailty",])
 
 ### BNX threshold SA ###
 df_dsa_threshold_CAN_MMS <- read.csv(file = "data/DSA/Modified Model Specification/threshold_CAN.csv", row.names = 1, header = TRUE)
@@ -77,9 +77,9 @@ for (i in 1:nrow(df_dsa_threshold_QC_MMS)){
 ### Baseline ###
 ################
 # MMS
-l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
-l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
-ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+# l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
+# l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
+# ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
 
 ###################
 ### Transitions ###
@@ -101,9 +101,9 @@ l_outcomes_BUP_frailty_inj_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_pa
 ICER_frailty_inj_MMS <- ICER(outcomes_comp = l_outcomes_MET_frailty_inj_MMS, outcomes_int = l_outcomes_BUP_frailty_inj_MMS)
 
 # Kurz results (combined for treatment states)
-l_outcomes_MET_frailty_kurz_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_kurz)
-l_outcomes_BUP_frailty_kurz_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_kurz)
-ICER_frailty_kurz_MMS <- ICER(outcomes_comp = l_outcomes_MET_frailty_kurz_MMS, outcomes_int = l_outcomes_BUP_frailty_kurz_MMS)
+# l_outcomes_MET_frailty_kurz_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_kurz)
+# l_outcomes_BUP_frailty_kurz_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_frailty_kurz)
+# ICER_frailty_kurz_MMS <- ICER(outcomes_comp = l_outcomes_MET_frailty_kurz_MMS, outcomes_int = l_outcomes_BUP_frailty_kurz_MMS)
 
 ###############################
 ### BNX Retention Threshold ###
@@ -158,42 +158,42 @@ for (i in 1:nrow(m_dsa_threshold_QC_MMS)){
 ################
 ### Baseline ###
 ################
-df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
+#df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
 
 ###################
 ### Transitions ###
 ###################
 # Baseline
-df_transitions_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life, 
-                                          ICER_MMS$df_icer$n_icer_TOTAL_life)
+# df_transitions_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life, 
+#                                           ICER_MMS$df_icer$n_icer_TOTAL_life)
 
 # Costs
 v_transitions_frailty_episode_MMS <- c(ICER_frailty_episode_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_frailty_episode_MMS$df_incremental$n_inc_costs_TOTAL_life)
 v_transitions_frailty_concurrent_MMS <- c(ICER_frailty_concurrent_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_frailty_concurrent_MMS$df_incremental$n_inc_costs_TOTAL_life)
 v_transitions_frailty_inj_MMS <- c(ICER_frailty_inj_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_frailty_inj_MMS$df_incremental$n_inc_costs_TOTAL_life)
-v_transitions_frailty_kurz_MMS <- c(ICER_frailty_kurz_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_frailty_kurz_MMS$df_incremental$n_inc_costs_TOTAL_life)
+#v_transitions_frailty_kurz_MMS <- c(ICER_frailty_kurz_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_frailty_kurz_MMS$df_incremental$n_inc_costs_TOTAL_life)
 
-m_transitions_costs_MMS <- rbind(v_transitions_frailty_episode_MMS, v_transitions_frailty_concurrent_MMS, v_transitions_frailty_inj_MMS, v_transitions_frailty_kurz_MMS)
+m_transitions_costs_MMS <- rbind(v_transitions_frailty_episode_MMS, v_transitions_frailty_concurrent_MMS, v_transitions_frailty_inj_MMS)
 
 df_transitions_costs_MMS <- as.data.frame(m_transitions_costs_MMS)
 colnames(df_transitions_costs_MMS) <- c("Lower", "Upper")
-df_transitions_costs_MMS <- as_data_frame(df_transitions_costs_MMS) %>% mutate(diff = abs(Upper - Lower),
-                                                                         base = ICER_MMS$df_incremental$n_inc_costs_TOTAL_life) %>%
-  add_column(var_name = c("All episode frailty equal", "No difference for concurrent use", "No difference for injection", "Combined TX from Kurz (2021)"))
+df_transitions_costs_MMS <- as_data_frame(df_transitions_costs_MMS) %>% #mutate(diff = abs(Upper - Lower),
+                                                                         #base = ICER_MMS$df_incremental$n_inc_costs_TOTAL_life) %>%
+  add_column(var_name = c("All episode frailty equal", "No difference for concurrent use", "No difference for injection"))
 
 # QALYs
 v_transitions_frailty_episode_MMS <- c(ICER_frailty_episode_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_frailty_episode_MMS$df_incremental$n_inc_qalys_TOTAL_life)
 v_transitions_frailty_concurrent_MMS <- c(ICER_frailty_concurrent_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_frailty_concurrent_MMS$df_incremental$n_inc_qalys_TOTAL_life)
 v_transitions_frailty_inj_MMS <- c(ICER_frailty_inj_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_frailty_inj_MMS$df_incremental$n_inc_qalys_TOTAL_life)
-v_transitions_frailty_kurz_MMS <- c(ICER_frailty_kurz_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_frailty_kurz_MMS$df_incremental$n_inc_qalys_TOTAL_life)
+#v_transitions_frailty_kurz_MMS <- c(ICER_frailty_kurz_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_frailty_kurz_MMS$df_incremental$n_inc_qalys_TOTAL_life)
 
-m_transitions_qalys_MMS <- rbind(v_transitions_frailty_episode_MMS, v_transitions_frailty_concurrent_MMS, v_transitions_frailty_inj_MMS, v_transitions_frailty_kurz_MMS)
+m_transitions_qalys_MMS <- rbind(v_transitions_frailty_episode_MMS, v_transitions_frailty_concurrent_MMS, v_transitions_frailty_inj_MMS)
 
 df_transitions_qalys_MMS <- as.data.frame(m_transitions_qalys_MMS)
 colnames(df_transitions_qalys_MMS) <- c("Lower", "Upper")
-df_transitions_qalys_MMS <- as_data_frame(df_transitions_qalys_MMS) %>% mutate(diff = abs(Upper - Lower),
-                                                                               base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
-  add_column(var_name = c("All episode frailty equal", "No difference for concurrent use", "No difference for injection", "Combined TX from Kurz (2021)"))
+df_transitions_qalys_MMS <- as_data_frame(df_transitions_qalys_MMS) %>% #mutate(diff = abs(Upper - Lower),
+                                                                         #      base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
+  add_column(var_name = c("All episode frailty equal", "No difference for concurrent use", "No difference for injection"))
 
 # Save output
 ## As .RData ##
@@ -412,8 +412,9 @@ plot_DSA_qalys_MMS_threshold <- ggplot(df_threshold_qalys_MMS, aes(x = perc_incr
   scale_colour_viridis_d() +
   geom_hline(yintercept = 0) +
   #scale_x_continuous(labels = scales::percent) +
-  xlab("Increase in BNX Episode Duration") + ylab("Incremental QALYs") +
-  xlim(0, 200) #+
+  scale_x_continuous(labels = scales::label_number(accuracy = 1, suffix = "x"), limits = c(1, 5)) +
+  xlab("Increase in BNX Episode Duration") + ylab("Incremental QALYs") #+
+  #xlim(1, 5) #+
 #ylim(-0.01, 0.025)
 
 plot_DSA_qalys_MMS_threshold
@@ -431,9 +432,10 @@ plot_DSA_costs_MMS_threshold <- ggplot(df_threshold_costs_MMS, aes(x = perc_incr
   scale_colour_viridis_d() +
   #scale_color_manual(values = v_threshold_colours) +
   geom_hline(yintercept = 0) +
+  scale_x_continuous(labels = scales::label_number(accuracy = 1, suffix = "x"), limits = c(1, 5)) +
   scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
-  xlab("Increase in BNX Episode Duration") + ylab("Incremental Costs") +
-  xlim(0, 200) #+
+  xlab("Increase in BNX Episode Duration") + ylab("Incremental Costs (2020 CAD)") #+
+  #xlim(1, 5) #+
 # ylim(-0.01, 0.025)
 
 plot_DSA_costs_MMS_threshold

@@ -104,9 +104,9 @@ names(v_dsa_INJ_OD_mult_high) <- c("n_INJ_OD_mult")
 ### Baseline ###
 ################
 # MMS
-l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
-l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
-ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
+# l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
+# l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
+# ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
 
 ################
 ### Overdose ###
@@ -237,14 +237,14 @@ ICER_INJ_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_hig
 ################
 ### Baseline ###
 ################
-df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
+# df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
 
 ################
 ### Overdose ###
 ################
 # Baseline
-df_overdose_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life, 
-                                       ICER_MMS$df_icer$n_icer_TOTAL_life)
+# df_overdose_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life, 
+#                                        ICER_MMS$df_icer$n_icer_TOTAL_life)
 # Costs
 # Non-fatal OD
 v_overdose_fent_exp_costs_MMS <- c(ICER_fent_exp_2020_low_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_fent_exp_2020_high_MMS$df_incremental$n_inc_costs_TOTAL_life)
@@ -268,8 +268,8 @@ m_overdose_costs_MMS <- rbind(v_overdose_fent_exp_costs_MMS, v_overdose_ni_fent_
 
 df_overdose_costs_MMS <- as.data.frame(m_overdose_costs_MMS)
 colnames(df_overdose_costs_MMS) <- c("Lower", "Upper")
-df_overdose_costs_MMS <- as_data_frame(df_overdose_costs_MMS) %>% mutate(diff = abs(Upper - Lower),
-                                                                         base = ICER_MMS$df_incremental$n_inc_costs_TOTAL_life) %>%
+df_overdose_costs_MMS <- as_data_frame(df_overdose_costs_MMS) %>% #mutate(diff = abs(Upper - Lower),
+                                                                  #       base = ICER_MMS$df_incremental$n_inc_costs_TOTAL_life) %>%
   add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction (non-injection)", "Fentanyl OD mult", "BUP OD first month mult", "MET OD first month mult", 
                           "REL OD first month mult", "INJ OD mult", "Probability witnessed", "Probability NX", "NX success", "Fatal OD rate"))
 
@@ -301,8 +301,8 @@ m_overdose_qalys_MMS <- rbind(v_overdose_fent_exp_qalys_MMS, v_overdose_ni_fent_
 
 df_overdose_qalys_MMS <- as.data.frame(m_overdose_qalys_MMS)
 colnames(df_overdose_qalys_MMS) <- c("Lower", "Upper")
-df_overdose_qalys_MMS <- as_data_frame(df_overdose_qalys_MMS) %>% mutate(diff = abs(Upper - Lower),
-                                                                         base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
+df_overdose_qalys_MMS <- as_data_frame(df_overdose_qalys_MMS) %>% #mutate(diff = abs(Upper - Lower),
+                                                                  #       base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
   add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction (non-injection)", "Fentanyl OD mult", "BUP OD first month mult", "MET OD first month mult", 
                           "REL OD first month mult", "INJ OD mult", "Probability witnessed", "Probability NX", "NX success", "Fatal OD rate"))
 
@@ -322,24 +322,24 @@ save(df_overdose_qalys_MMS,
 #### Tornado Diagram ####
 #########################
 # Costs
-v_order_parameters <- df_overdose_costs_MMS %>% arrange(diff) %>%
-  mutate(var_name = factor(x = var_name, levels = var_name)) %>%
-  select(var_name) %>% unlist() %>% levels()
-
-# width of columns in plot (value between 0 and 1)
-width <- 0.75
-# get data frame in shape for ggplot and geom_rect
-df.2 <- df_overdose_costs_MMS %>% 
-  # gather columns Lower_Bound and Upper_Bound into a single column using gather
-  gather(key = 'type', value = 'output.value', Lower:Upper) %>%
-  # just reordering columns
-  select(var_name, type, output.value, diff, base) %>%
-  # create the columns for geom_rect
-  mutate(var_name = factor(var_name, levels = v_order_parameters),
-         ymin = pmin(output.value, base),
-         ymax = pmax(output.value, base),
-         xmin = as.numeric(var_name) - width/2,
-         xmax = as.numeric(var_name) + width/2)
+# v_order_parameters <- df_overdose_costs_MMS %>% arrange(diff) %>%
+#   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
+#   select(var_name) %>% unlist() %>% levels()
+# 
+# # width of columns in plot (value between 0 and 1)
+# width <- 0.75
+# # get data frame in shape for ggplot and geom_rect
+# df.2 <- df_overdose_costs_MMS %>% 
+#   # gather columns Lower_Bound and Upper_Bound into a single column using gather
+#   gather(key = 'type', value = 'output.value', Lower:Upper) %>%
+#   # just reordering columns
+#   select(var_name, type, output.value, diff, base) %>%
+#   # create the columns for geom_rect
+#   mutate(var_name = factor(var_name, levels = v_order_parameters),
+#          ymin = pmin(output.value, base),
+#          ymax = pmax(output.value, base),
+#          xmin = as.numeric(var_name) - width/2,
+#          xmax = as.numeric(var_name) + width/2)
 
 # create plot
 # (use scale_x_continuous to change labels in y axis to name of parameters)
@@ -362,24 +362,24 @@ df.2 <- df_overdose_costs_MMS %>%
 # dev.off()
 
 # QALYs
-v_order_parameters <- df_overdose_qalys_MMS %>% arrange(diff) %>%
-  mutate(var_name = factor(x = var_name, levels = var_name)) %>%
-  select(var_name) %>% unlist() %>% levels()
-
-# width of columns in plot (value between 0 and 1)
-width <- 0.75
-# get data frame in shape for ggplot and geom_rect
-df.2 <- df_overdose_qalys_MMS %>% 
-  # gather columns Lower_Bound and Upper_Bound into a single column using gather
-  gather(key = 'type', value = 'output.value', Lower:Upper) %>%
-  # just reordering columns
-  select(var_name, type, output.value, diff, base) %>%
-  # create the columns for geom_rect
-  mutate(var_name = factor(var_name, levels = v_order_parameters),
-         ymin = pmin(output.value, base),
-         ymax = pmax(output.value, base),
-         xmin = as.numeric(var_name) - width/2,
-         xmax = as.numeric(var_name) + width/2)
+# v_order_parameters <- df_overdose_qalys_MMS %>% arrange(diff) %>%
+#   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
+#   select(var_name) %>% unlist() %>% levels()
+# 
+# # width of columns in plot (value between 0 and 1)
+# width <- 0.75
+# # get data frame in shape for ggplot and geom_rect
+# df.2 <- df_overdose_qalys_MMS %>% 
+#   # gather columns Lower_Bound and Upper_Bound into a single column using gather
+#   gather(key = 'type', value = 'output.value', Lower:Upper) %>%
+#   # just reordering columns
+#   select(var_name, type, output.value, diff, base) %>%
+#   # create the columns for geom_rect
+#   mutate(var_name = factor(var_name, levels = v_order_parameters),
+#          ymin = pmin(output.value, base),
+#          ymax = pmax(output.value, base),
+#          xmin = as.numeric(var_name) - width/2,
+#          xmax = as.numeric(var_name) + width/2)
 
 # create plot
 # (use scale_x_continuous to change labels in y axis to name of parameters)

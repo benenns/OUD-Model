@@ -207,7 +207,7 @@ for (i in 1:n_blocks){
   df_ICER_PSA_MMS_comb <- rbind(df_ICER_PSA_MMS_comb, df_temp)
 }
 for (i in 1:n_blocks){
-  df_temp <- l_ICER_PSA_MMS[[i]]
+  df_temp <- l_incremental_PSA_MMS[[i]]
   df_incremental_PSA_MMS_comb <- rbind(df_incremental_PSA_MMS_comb, df_temp)
 }
 
@@ -247,72 +247,72 @@ write.csv(df_incremental_PSA_MMS_comb,
 #############################
 #### Trial Specification ####
 #############################
-combine_custom_TS <- function(LL1, LL2) {
-  df_outcomes_MET_PSA_TS <- rbind(LL1$df_outcomes_MET_PSA_TS, LL2$df_outcomes_MET_PSA_TS)
-  df_outcomes_BUP_PSA_TS <- rbind(LL1$df_outcomes_BUP_PSA_TS, LL2$df_outcomes_BUP_PSA_TS)
-  df_incremental_PSA_TS  <- rbind(LL1$df_incremental_PSA_TS, LL2$df_incremental_PSA_TS)
-  df_ICER_PSA_TS <- rbind(LL1$df_ICER_PSA_TS, LL2$df_ICER_PSA_TS)
-  
-  return(list(df_outcomes_MET_PSA_TS = df_outcomes_MET_PSA_TS, 
-              df_outcomes_BUP_PSA_TS = df_outcomes_BUP_PSA_TS, 
-              df_incremental_PSA_TS = df_incremental_PSA_TS,
-              df_ICER_PSA_TS = df_ICER_PSA_TS))
-}
-
-l_incremental_PSA_TS <- foreach(i = 1:n_sim, .combine = combine_custom_TS, .packages = 'tidyr') %dopar% { # i <- 1
-  # Update parameter set for each scenario with next set of PSA drawn parameters
-  l_psa_input_MET_TS <- update_param_list(l_params_all = l_params_MET_TS, params_updated = df_psa_params_MET_TS[i, ])
-  l_psa_input_BUP_TS <- update_param_list(l_params_all = l_params_BUP_TS, params_updated = df_psa_params_BUP_TS[i, ])
-  
-  # Run model and generate outputs
-  l_outcomes_MET_TS <- outcomes(l_params_all = l_psa_input_MET_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
-  l_outcomes_BUP_TS <- outcomes(l_params_all = l_psa_input_BUP_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
-  
-  df_outcomes_MET_PSA_TS <- l_outcomes_MET_TS$df_outcomes
-  df_outcomes_BUP_PSA_TS <- l_outcomes_BUP_TS$df_outcomes
-  
-  # Calculate ICER (societal and health sector perspective)
-  l_ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
-  
-  df_incremental_PSA_TS <- l_ICER_TS$df_incremental
-  
-  df_ICER_PSA_TS <- l_ICER_TS$df_icer
-  
-  return(list(df_outcomes_MET_PSA_TS = df_outcomes_MET_PSA_TS, 
-              df_outcomes_BUP_PSA_TS = df_outcomes_BUP_PSA_TS, 
-              df_incremental_PSA_TS = df_incremental_PSA_TS,
-              df_ICER_PSA_TS = df_ICER_PSA_TS))
-}
-stopImplicitCluster()
-
-df_outcomes_MET_PSA_TS <- l_incremental_PSA_TS$df_outcomes_MET_PSA_TS
-df_outcomes_BUP_PSA_TS <- l_incremental_PSA_TS$df_outcomes_BUP_PSA_TS
-df_ICER_PSA_TS         <- l_incremental_PSA_TS$df_ICER_PSA_TS
-df_incremental_PSA_TS  <- l_incremental_PSA_TS$df_incremental_PSA_TS
-
-### Output results
-## As .RData
-save(df_outcomes_MET_PSA_TS,
-     file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
-save(df_outcomes_BUP_PSA_TS,
-     file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
-save(df_ICER_PSA_TS,
-     file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
-save(df_incremental_PSA_TS,
-     file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
-## As .csv
-write.csv(df_outcomes_MET_PSA_TS,
-          file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.csv",
-          row.names = FALSE)
-write.csv(df_outcomes_BUP_PSA_TS,
-          file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.csv",
-          row.names = FALSE)
-write.csv(df_ICER_PSA_TS,
-          file = "outputs/PSA/Trial Specification/ICER_PSA_TS.csv",
-          row.names = FALSE)
-write.csv(df_incremental_PSA_TS,
-          file = "outputs/PSA/Trial Specification/incremental_PSA_TS.csv",
-          row.names = FALSE)
+# combine_custom_TS <- function(LL1, LL2) {
+#   df_outcomes_MET_PSA_TS <- rbind(LL1$df_outcomes_MET_PSA_TS, LL2$df_outcomes_MET_PSA_TS)
+#   df_outcomes_BUP_PSA_TS <- rbind(LL1$df_outcomes_BUP_PSA_TS, LL2$df_outcomes_BUP_PSA_TS)
+#   df_incremental_PSA_TS  <- rbind(LL1$df_incremental_PSA_TS, LL2$df_incremental_PSA_TS)
+#   df_ICER_PSA_TS <- rbind(LL1$df_ICER_PSA_TS, LL2$df_ICER_PSA_TS)
+#   
+#   return(list(df_outcomes_MET_PSA_TS = df_outcomes_MET_PSA_TS, 
+#               df_outcomes_BUP_PSA_TS = df_outcomes_BUP_PSA_TS, 
+#               df_incremental_PSA_TS = df_incremental_PSA_TS,
+#               df_ICER_PSA_TS = df_ICER_PSA_TS))
+# }
+# 
+# l_incremental_PSA_TS <- foreach(i = 1:n_sim, .combine = combine_custom_TS, .packages = 'tidyr') %dopar% { # i <- 1
+#   # Update parameter set for each scenario with next set of PSA drawn parameters
+#   l_psa_input_MET_TS <- update_param_list(l_params_all = l_params_MET_TS, params_updated = df_psa_params_MET_TS[i, ])
+#   l_psa_input_BUP_TS <- update_param_list(l_params_all = l_params_BUP_TS, params_updated = df_psa_params_BUP_TS[i, ])
+#   
+#   # Run model and generate outputs
+#   l_outcomes_MET_TS <- outcomes(l_params_all = l_psa_input_MET_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
+#   l_outcomes_BUP_TS <- outcomes(l_params_all = l_psa_input_BUP_TS, v_params_calib = v_calib_post_map, PSA = TRUE)
+#   
+#   df_outcomes_MET_PSA_TS <- l_outcomes_MET_TS$df_outcomes
+#   df_outcomes_BUP_PSA_TS <- l_outcomes_BUP_TS$df_outcomes
+#   
+#   # Calculate ICER (societal and health sector perspective)
+#   l_ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
+#   
+#   df_incremental_PSA_TS <- l_ICER_TS$df_incremental
+#   
+#   df_ICER_PSA_TS <- l_ICER_TS$df_icer
+#   
+#   return(list(df_outcomes_MET_PSA_TS = df_outcomes_MET_PSA_TS, 
+#               df_outcomes_BUP_PSA_TS = df_outcomes_BUP_PSA_TS, 
+#               df_incremental_PSA_TS = df_incremental_PSA_TS,
+#               df_ICER_PSA_TS = df_ICER_PSA_TS))
+# }
+# stopImplicitCluster()
+# 
+# df_outcomes_MET_PSA_TS <- l_incremental_PSA_TS$df_outcomes_MET_PSA_TS
+# df_outcomes_BUP_PSA_TS <- l_incremental_PSA_TS$df_outcomes_BUP_PSA_TS
+# df_ICER_PSA_TS         <- l_incremental_PSA_TS$df_ICER_PSA_TS
+# df_incremental_PSA_TS  <- l_incremental_PSA_TS$df_incremental_PSA_TS
+# 
+# ### Output results
+# ## As .RData
+# save(df_outcomes_MET_PSA_TS,
+#      file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
+# save(df_outcomes_BUP_PSA_TS,
+#      file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
+# save(df_ICER_PSA_TS,
+#      file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
+# save(df_incremental_PSA_TS,
+#      file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
+# ## As .csv
+# write.csv(df_outcomes_MET_PSA_TS,
+#           file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.csv",
+#           row.names = FALSE)
+# write.csv(df_outcomes_BUP_PSA_TS,
+#           file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.csv",
+#           row.names = FALSE)
+# write.csv(df_ICER_PSA_TS,
+#           file = "outputs/PSA/Trial Specification/ICER_PSA_TS.csv",
+#           row.names = FALSE)
+# write.csv(df_incremental_PSA_TS,
+#           file = "outputs/PSA/Trial Specification/incremental_PSA_TS.csv",
+#           row.names = FALSE)
 
 
 ### Process PSA results
@@ -324,10 +324,27 @@ load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_MMS.RData"
 load(file = "outputs/PSA/Modified Model Specification/ICER_PSA_MMS.RData")
 
 ## Trial Specification
-load(file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
-load(file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
-load(file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
-load(file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
+# load(file = "outputs/PSA/Trial Specification/outcomes_MET_PSA_TS.RData")
+# load(file = "outputs/PSA/Trial Specification/outcomes_BUP_PSA_TS.RData")
+# load(file = "outputs/PSA/Trial Specification/incremental_PSA_TS.RData")
+# load(file = "outputs/PSA/Trial Specification/ICER_PSA_TS.RData")
+
+# ## TEMP CODE ##
+# m_outcomes_BUP_PSA_MMS <- as.matrix(df_outcomes_BUP_PSA_MMS)
+# m_outcomes_MET_PSA_MMS <- as.matrix(df_outcomes_MET_PSA_MMS)
+# 
+# m_incremental_PSA_MMS <- m_outcomes_BUP_PSA_MMS - m_outcomes_MET_PSA_MMS
+# df_incremental_PSA_MMS <- as.data.frame(m_incremental_PSA_MMS)
+# names(df_incremental_PSA_MMS) <- c("n_inc_costs_TOTAL_6mo", "n_inc_costs_TOTAL_1yr", "n_inc_costs_TOTAL_5yr", "n_inc_costs_TOTAL_10yr", "n_inc_costs_TOTAL_life", 
+#                                    "n_inc_costs_HEALTH_SECTOR_6mo", "n_inc_costs_HEALTH_SECTOR_1yr", "n_inc_costs_HEALTH_SECTOR_5yr", "n_inc_costs_HEALTH_SECTOR_10yr", "n_inc_costs_HEALTH_SECTOR_life",
+#                                    "n_inc_costs_CRIMINAL_6mo", "n_inc_costs_CRIMINAL_1yr", "n_inc_costs_CRIMINAL_5yr", "n_inc_costs_CRIMINAL_10yr", "n_inc_costs_CRIMINAL_life",  
+#                                    "n_inc_costs_TX_6mo", "n_inc_costs_TX_1yr", "n_inc_costs_TX_5yr", "n_inc_costs_TX_10yr", "n_inc_costs_TX_life", 
+#                                    "n_inc_costs_HRU_6mo", "n_inc_costs_HRU_1yr", "n_inc_costs_HRU_5yr", "n_inc_costs_HRU_10yr", "n_inc_costs_HRU_life",
+#                                    "n_inc_qalys_TOTAL_6mo", "n_inc_qalys_TOTAL_1yr", "n_inc_qalys_TOTAL_5yr", "n_inc_qalys_TOTAL_10yr", "n_inc_qalys_TOTAL_life")
+
+#df_ICER_PSA_MMS <- df_ICER_PSA_MMS
+#df_outcomes_BUP_PSA_MMS <- df_outcomes_BUP_PSA_MMS_comb
+#df_outcomes_MET_PSA_MMS <- df_outcomes_MET_PSA_MMS_comb
 
 ### Summary stats ###
 ## Modified Model Specification ##
@@ -407,6 +424,26 @@ tbl_df_summary_incremental_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% sel
                                                                                     n_inc_costs_CRIMINAL_6mo,
                                                                                     n_inc_costs_CRIMINAL_10yr,
                                                                                     n_inc_costs_CRIMINAL_life) %>%
+  
+  # tbl_df_summary_incremental_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% select(n_TOTAL_costs_6mo,
+  #                                                                                     n_TOTAL_costs_10yr,
+  #                                                                                     n_TOTAL_costs_life,
+  #                                                                                     n_HEALTH_SECTOR_costs_6mo,
+  #                                                                                     n_HEALTH_SECTOR_costs_10yr,
+  #                                                                                     n_HEALTH_SECTOR_costs_life,
+  #                                                                                     n_TOTAL_qalys_6mo,
+  #                                                                                     n_TOTAL_qalys_10yr,
+  #                                                                                     n_TOTAL_qalys_life,
+  #                                                                                     n_TX_costs_6mo,
+  #                                                                                     n_TX_costs_10yr,
+  #                                                                                     n_TX_costs_life,
+  #                                                                                     n_HRU_costs_6mo,
+  #                                                                                     n_HRU_costs_10yr,
+  #                                                                                     n_HRU_costs_life,
+  #                                                                                     n_CRIMINAL_costs_6mo,
+  #                                                                                     n_CRIMINAL_costs_10yr,
+  #                                                                                     n_CRIMINAL_costs_life) %>%
+  
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -434,6 +471,88 @@ tbl_df_summary_ICER_MMS <- df_ICER_PSA_MMS %>% as.tibble() %>% select(n_icer_TOT
             min = min(value),
             max = max(value))
 
+# ICER CI STABILITY
+tbl_df_summary_ICER_MMS_2000 <- df_ICER_PSA_MMS[1:2000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_2500 <- df_ICER_PSA_MMS[1:2500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_3000 <- df_ICER_PSA_MMS[1:3000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_3500 <- df_ICER_PSA_MMS[1:3500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_4000 <- df_ICER_PSA_MMS[1:4000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_4500 <- df_ICER_PSA_MMS[1:4500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_5000 <- df_ICER_PSA_MMS[1:5000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_CI_stability <- rbind(tbl_df_summary_ICER_MMS_2000, tbl_df_summary_ICER_MMS_2500, tbl_df_summary_ICER_MMS_3000, tbl_df_summary_ICER_MMS_3500, tbl_df_summary_ICER_MMS_4000, tbl_df_summary_ICER_MMS_4500, tbl_df_summary_ICER_MMS_5000)
+#add_rownames(tbl_df_CI_stability) <- c("2000", "2500", "3000", "3500", "4000")
+
+
 ## As .csv
 write.csv(tbl_df_summary_MET_MMS,
           file = "outputs/PSA/Modified Model Specification/summary_outcomes_MET_PSA_MMS.csv",
@@ -454,41 +573,41 @@ save(tbl_df_summary_incremental_MMS,
 
 ## Trial Specification ##
 # Methadone
-tbl_df_summary_MET_TS <- df_outcomes_MET_PSA_TS %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
-                                                                           n_HEALTH_SECTOR_costs_6mo, 
-                                                                           n_CRIMINAL_costs_6mo,
-                                                                           n_TX_costs_6mo,
-                                                                           n_HRU_costs_6mo,
-                                                                           n_TOTAL_qalys_6mo) %>% gather("variable", "value") %>% 
-  group_by(variable) %>% summarize(mean = mean(value),
-                                   sd = sd(value),
-                                   q50 = quantile(value, probs = .5),
-                                   q025 = quantile(value, probs = .025),
-                                   q975 = quantile(value, probs = .975),
-                                   min = min(value),
-                                   max = max(value))
+# tbl_df_summary_MET_TS <- df_outcomes_MET_PSA_TS %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
+#                                                                            n_HEALTH_SECTOR_costs_6mo, 
+#                                                                            n_CRIMINAL_costs_6mo,
+#                                                                            n_TX_costs_6mo,
+#                                                                            n_HRU_costs_6mo,
+#                                                                            n_TOTAL_qalys_6mo) %>% gather("variable", "value") %>% 
+#   group_by(variable) %>% summarize(mean = mean(value),
+#                                    sd = sd(value),
+#                                    q50 = quantile(value, probs = .5),
+#                                    q025 = quantile(value, probs = .025),
+#                                    q975 = quantile(value, probs = .975),
+#                                    min = min(value),
+#                                    max = max(value))
 # BNX
-tbl_df_summary_BUP_TS <- df_outcomes_BUP_PSA_TS %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
-                                                                           n_HEALTH_SECTOR_costs_6mo, 
-                                                                           n_CRIMINAL_costs_6mo,
-                                                                           n_TX_costs_6mo,
-                                                                           n_HRU_costs_6mo,
-                                                                           n_TOTAL_qalys_6mo) %>% gather("variable", "value") %>% group_by(variable) %>% summarize(mean = mean(value),
-                                                                                                                                       sd = sd(value),
-                                                                                                                                       q50 = quantile(value, probs = .5),
-                                                                                                                                       q025 = quantile(value, probs = .025),
-                                                                                                                                       q975 = quantile(value, probs = .975),
-                                                                                                                                       min = min(value),
-                                                                                                                                       max = max(value))
+# tbl_df_summary_BUP_TS <- df_outcomes_BUP_PSA_TS %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
+#                                                                            n_HEALTH_SECTOR_costs_6mo, 
+#                                                                            n_CRIMINAL_costs_6mo,
+#                                                                            n_TX_costs_6mo,
+#                                                                            n_HRU_costs_6mo,
+#                                                                            n_TOTAL_qalys_6mo) %>% gather("variable", "value") %>% group_by(variable) %>% summarize(mean = mean(value),
+#                                                                                                                                        sd = sd(value),
+#                                                                                                                                        q50 = quantile(value, probs = .5),
+#                                                                                                                                        q025 = quantile(value, probs = .025),
+#                                                                                                                                        q975 = quantile(value, probs = .975),
+#                                                                                                                                        min = min(value),
+#                                                                                                                                        max = max(value))
 # ICER
-tbl_df_summary_ICER_TS <- df_ICER_PSA_TS %>% as.tibble() %>% select(n_icer_TOTAL_6mo,
-                                                                    n_icer_HEALTH_SECTOR_6mo) %>% gather("variable", "value") %>% group_by(variable) %>% summarize(mean = mean(value),
-                                                                                                                                sd = sd(value),
-                                                                                                                                q50 = quantile(value, probs = .5),
-                                                                                                                                q025 = quantile(value, probs = .025),
-                                                                                                                                q975 = quantile(value, probs = .975),
-                                                                                                                                min = min(value),
-                                                                                                                                max = max(value))
+# tbl_df_summary_ICER_TS <- df_ICER_PSA_TS %>% as.tibble() %>% select(n_icer_TOTAL_6mo,
+#                                                                     n_icer_HEALTH_SECTOR_6mo) %>% gather("variable", "value") %>% group_by(variable) %>% summarize(mean = mean(value),
+#                                                                                                                                 sd = sd(value),
+#                                                                                                                                 q50 = quantile(value, probs = .5),
+#                                                                                                                                 q025 = quantile(value, probs = .025),
+#                                                                                                                                 q975 = quantile(value, probs = .975),
+#                                                                                                                                 min = min(value),
+#                                                                                                                                 max = max(value))
 
 df_PSA_summary <- as.data.frame()
 
@@ -508,16 +627,16 @@ tbl_df_summary_inc_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% mutate(BNX_
                                                                             MET_dominate_HEALTH_SECTOR_life = ifelse(n_inc_costs_HEALTH_SECTOR_life > 0 & n_inc_qalys_TOTAL_life < 0, 1, 0))
 
 # TS
-tbl_df_summary_inc_TS <- df_incremental_PSA_TS %>% as.tibble() %>% mutate(BNX_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
-                                                                          BNX_dominate_HEALTH_SECTOR_6mo = ifelse(n_inc_costs_HEALTH_SECTOR_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
-                                                                          MET_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo > 0 & n_inc_qalys_TOTAL_6mo < 0, 1, 0),
-                                                                          MET_dominate_HEALTH_SECTOR_6mo = ifelse(n_inc_costs_HEALTH_SECTOR_6mo > 0 & n_inc_qalys_TOTAL_6mo < 0, 1, 0))
+# tbl_df_summary_inc_TS <- df_incremental_PSA_TS %>% as.tibble() %>% mutate(BNX_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
+#                                                                           BNX_dominate_HEALTH_SECTOR_6mo = ifelse(n_inc_costs_HEALTH_SECTOR_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
+#                                                                           MET_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo > 0 & n_inc_qalys_TOTAL_6mo < 0, 1, 0),
+#                                                                           MET_dominate_HEALTH_SECTOR_6mo = ifelse(n_inc_costs_HEALTH_SECTOR_6mo > 0 & n_inc_qalys_TOTAL_6mo < 0, 1, 0))
 
 # MMS
 tbl_df_dominant_sim_MMS <- tbl_df_summary_inc_MMS %>% select(BNX_dominate_TOTAL_6mo, BNX_dominate_TOTAL_10yr, BNX_dominate_TOTAL_life, BNX_dominate_HEALTH_SECTOR_6mo, BNX_dominate_HEALTH_SECTOR_10yr, BNX_dominate_HEALTH_SECTOR_life,
                                                              MET_dominate_TOTAL_6mo, MET_dominate_TOTAL_10yr, MET_dominate_TOTAL_life, MET_dominate_HEALTH_SECTOR_6mo, MET_dominate_HEALTH_SECTOR_10yr, MET_dominate_HEALTH_SECTOR_life)
 # TS
-tbl_df_dominant_sim_TS <- tbl_df_summary_inc_TS %>% select(BNX_dominate_TOTAL_6mo, BNX_dominate_HEALTH_SECTOR_6mo, MET_dominate_TOTAL_6mo, MET_dominate_HEALTH_SECTOR_6mo)
+#tbl_df_dominant_sim_TS <- tbl_df_summary_inc_TS %>% select(BNX_dominate_TOTAL_6mo, BNX_dominate_HEALTH_SECTOR_6mo, MET_dominate_TOTAL_6mo, MET_dominate_HEALTH_SECTOR_6mo)
 
 # MMS
 tbl_df_dom_summary_MMS <- summarise_all(tbl_df_dominant_sim_MMS, mean)
@@ -643,8 +762,8 @@ df_incremental_PSA_MMS_TOTAL_life <- df_incremental_PSA_MMS %>% as_tibble() %>% 
                                                                                 inc_costs_MMS_life = n_inc_costs_TOTAL_life) %>% select(inc_qalys_MMS_life, inc_costs_MMS_life)
 
 # TS
-df_incremental_PSA_TS_TOTAL_6mo <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_6mo = n_inc_qalys_TOTAL_6mo,
-                                                                              inc_costs_TS_6mo = n_inc_costs_TOTAL_6mo) %>% select(inc_qalys_TS_6mo, inc_costs_TS_6mo)
+# df_incremental_PSA_TS_TOTAL_6mo <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_6mo = n_inc_qalys_TOTAL_6mo,
+#                                                                               inc_costs_TS_6mo = n_inc_costs_TOTAL_6mo) %>% select(inc_qalys_TS_6mo, inc_costs_TS_6mo)
 
 # Combine
 df_PSA_ellipse_TOTAL <- cbind(df_incremental_PSA_MMS_TOTAL_6mo, df_incremental_PSA_MMS_TOTAL_10yr, df_incremental_PSA_MMS_TOTAL_life)
@@ -661,8 +780,8 @@ df_incremental_PSA_MMS_HEALTH_SECTOR_life <- df_incremental_PSA_MMS %>% as_tibbl
                                                                                                inc_costs_MMS_life = n_inc_costs_HEALTH_SECTOR_life) %>% select(inc_qalys_MMS_life, inc_costs_MMS_life)
 
 # TS
-df_incremental_PSA_TS_HEALTH_SECTOR_6mo <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_6mo = n_inc_qalys_TOTAL_6mo,
-                                                                                            inc_costs_TS_6mo = n_inc_costs_HEALTH_SECTOR_6mo) %>% select(inc_qalys_TS_6mo, inc_costs_TS_6mo)
+# df_incremental_PSA_TS_HEALTH_SECTOR_6mo <- df_incremental_PSA_TS %>% as_tibble() %>% mutate(inc_qalys_TS_6mo = n_inc_qalys_TOTAL_6mo,
+#                                                                                             inc_costs_TS_6mo = n_inc_costs_HEALTH_SECTOR_6mo) %>% select(inc_qalys_TS_6mo, inc_costs_TS_6mo)
 
 # Combine
 df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, df_incremental_PSA_MMS_HEALTH_SECTOR_10yr, df_incremental_PSA_MMS_HEALTH_SECTOR_life)
@@ -675,17 +794,22 @@ df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, 
 plot_PSA_ellipse <- ggplot() +
   # Points
   # MMS (Lifetime)
-  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, alpha = 0.1), colour = "#005778", size = 1) +
-  geom_raster(fill = "maroon")+
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, alpha = 0.1), colour = "#08306b", size = 1) +
+  #geom_raster(fill = "maroon")+
   
   # MMS (10-year)
-  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr, alpha = 0.1), colour = "#FC4C02", size = 1) +
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr, alpha = 0.1), colour = "#4292c6", size = 1) +
   #geom_hex(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr), bins = 250) +  scale_fill_viridis_c(option = "magma") +
   
   # MMS (6-month)
-  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, alpha = 0.1), colour = "#008E97", size = 1) +
+  geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, alpha = 0.1), colour = "#c6dbef", size = 1) +
   #geom_point(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), colour = "#e5f5f9", size = 1.5) +
   #geom_hex(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), bins = 250) + scale_fill_viridis_c(option = "magma") +
+  
+  # Colours: darkblue: #08306b; med blue: #4292c6; light: #c6dbef
+  # Miami dolphins: #005778; #FC4C02; #008E97
+  # Balimore: #000000; #241773; #9E7C0C
+  # Reds: #67000d; #ef3b2c; #fcbba1
   
   # Ellipses
   # MMS (6-month)
@@ -701,13 +825,13 @@ plot_PSA_ellipse <- ggplot() +
 ### Health sector perspective ###
   # Points
   # MMS (Lifetime)
-  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, alpha = 0.1), colour = "#000000", size = 1) +
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, alpha = 0.1), colour = "#67000d", size = 1) +
   
   # MMS (10-year)
-  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr, alpha = 0.1), colour = "#241773", size = 1) +
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_10yr, y = inc_costs_MMS_10yr, alpha = 0.1), colour = "#ef3b2c", size = 1) +
   
   # MMS (6-month)
-  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, alpha = 0.1), colour = "#9E7C0C", size = 1) +
+  geom_point(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, alpha = 0.1), colour = "#fcbba1", size = 1) +
   
   # Ellipses
   # MMS (6-month)
@@ -731,15 +855,22 @@ plot_PSA_ellipse <- ggplot() +
   annotate("text", x = -0.05, y = -10000, label = "Health-Sector Perspective \n (10-year)", fontface = "bold", size = 3, color = "royalblue") +
   annotate("text", x =  -0.2, y = -10000, label = "Health-Sector Perspective \n (Lifetime)", fontface = "bold", size = 3, color = "royalblue") +
   
+  annotate("text", x =  -0.38, y = -48000, label = "ICER = $100,000/QALY", size = 3) +
+  
   geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_abline(slope = 100000, intercept = 0) +
   labs(y = "Incremental costs (2020 CAD)", x = "Incremental QALYs") +
-  xlim(-0.3, 0.1) +
-  ylim(-40000, 75000) +
-  scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
+  xlim(-0.4, 0.1) +
+  #ylim(-40000, 75000) +
+  scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K"), limits = c(-80000, 75000)) +
+  
+  # Try this part for adding legend
+  # scale_fill_manual(values = c("red", "green", "blue"), name = "My name", 
+  #                   guide = guide_legend(reverse = TRUE)) +
+  
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        plot.title=element_text(hjust=0.02, vjust=-7), legend.position = "none")
+        plot.title = element_text(hjust=0.02, vjust=-7))#, legend.position = "none")
 
 plot_PSA_ellipse
 
@@ -800,25 +931,25 @@ ggsave(plot_PSA_ellipse_zoom,
 ### Produce CEAC plot from cost-effectiveness results
 ## Prep data
 # Set number of points (one for each quantile)
-quantiles <- seq(0,1,0.01)
-
-tbl_df_CEAC <- df_ICER_PSA %>% as.tibble() %>% gather("variable", "value") %>% group_by(variable) %>% summarise_at(vars('value'), 
-                                                                                                                   funs(quantile = list(as.tibble(as.list(quantile(., probs = quantiles)))))) %>% unnest
-
-## Create plot
-#CEAC <- function(scenario = scenario){
-# Subset by ICER (e.g. societal-lifetime)
-tbl_df_CEAC_subset <- tbl_df_CEAC %>% filter(variable == "ICER (1-year)") %>% select(-variable)
-tbl_df_CEAC_subset <- gather(tbl_df_CEAC_subset)
-
-len <- nrow(tbl_df_CEAC_subset)
-increment <- 1/(len - 1)
-p <- seq(0, 1, increment)
-
-# Final data for plotting
-tbl_df_CEAC_plot <- cbind(tbl_df_CEAC_subset, p)
-
-# Create plot
-ggplot(data = tbl_df_CEAC_plot, aes(x = value, y = p)) +
-  geom_line() + xlim(0, NA)
-#}
+# quantiles <- seq(0,1,0.01)
+# 
+# tbl_df_CEAC <- df_ICER_PSA %>% as.tibble() %>% gather("variable", "value") %>% group_by(variable) %>% summarise_at(vars('value'), 
+#                                                                                                                    funs(quantile = list(as.tibble(as.list(quantile(., probs = quantiles)))))) %>% unnest
+# 
+# ## Create plot
+# #CEAC <- function(scenario = scenario){
+# # Subset by ICER (e.g. societal-lifetime)
+# tbl_df_CEAC_subset <- tbl_df_CEAC %>% filter(variable == "ICER (1-year)") %>% select(-variable)
+# tbl_df_CEAC_subset <- gather(tbl_df_CEAC_subset)
+# 
+# len <- nrow(tbl_df_CEAC_subset)
+# increment <- 1/(len - 1)
+# p <- seq(0, 1, increment)
+# 
+# # Final data for plotting
+# tbl_df_CEAC_plot <- cbind(tbl_df_CEAC_subset, p)
+# 
+# # Create plot
+# ggplot(data = tbl_df_CEAC_plot, aes(x = value, y = p)) +
+#   geom_line() + xlim(0, NA)
+# #}

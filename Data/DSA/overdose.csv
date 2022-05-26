@@ -1,4 +1,3 @@
 ,p_witness,p_NX_used,p_NX_success,p_ni_fent_reduction,n_BUP_OD_mult,n_MET_OD_mult,n_REL_OD_mult,n_INJ_OD_mult
-pe,0.85,0.37,0.85,0.271806463,1,2.01,4.04,1
 low,0.32,0.18,0.73,0.040136473,0.18,1.55,1.43,1
 high,0.94,0.55,0.97,0.459617834,1.85,5.09,11.43,2.9
