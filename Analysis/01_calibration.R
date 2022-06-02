@@ -9,6 +9,9 @@ library(ggridges) # specialized ridge plots
 library(tidyverse)
 library(lhs)
 library(IMIS)
+library(grid)
+library(gridExtra)
+library(lattice)
 
 # To-do: Move functions into R package for OUD model
 source("R/input_parameter_functions.R")
@@ -274,6 +277,12 @@ for(i in 1:n_resamp){
   m_model_targets_ODN[i, 3] <- l_model_target_fit$overdose[3]
 }
 
+## As .RData
+save(m_model_targets_ODF, 
+     file = "outputs/Calibration/model_targets_ODF.RData")
+save(m_model_targets_ODN, 
+     file = "outputs/Calibration/model_targets_ODN.RData")
+
 # Model outputs
 m_model_targets_ODF_stats <- cbind(matrixStats::colQuantiles(m_model_targets_ODF, 
                                                              probs = c(0.025, 0.5, 0.975)),
@@ -319,7 +328,7 @@ p_temp_ODF <- ggplot(df_fit_ODF, aes(x = Time, y = Num, group = Target, color = 
 
 plot_fit_ODF <- p_temp_ODF + labs(title = NULL, x = "Year", y = "Fatal overdoses") +
                              theme_classic() +
-                             theme(legend.position="bottom") + 
+                             theme(legend.position="none") + 
                              theme(legend.title = element_blank()) +
                              scale_color_manual(values = c('#999999','#E69F00')) +
                              scale_x_continuous(breaks = c(12, 24, 36),
@@ -335,11 +344,26 @@ p_temp_ODN <- ggplot(df_fit_ODN, aes(x = Time, y = Num, group = Target, color = 
 
 plot_fit_ODN <- p_temp_ODN + labs(title = NULL, x = "Year", y = "Non-fatal overdoses")+
                              theme_classic() +
-                             theme(legend.position="bottom") + 
+                             theme(legend.position = "none") + 
                              theme(legend.title = element_blank()) +
                              scale_color_manual(values = c('#999999','#E69F00')) +
                              scale_x_continuous(breaks = c(12, 24, 36),
                                                 labels = c("2018", "2019", "2020"))
+
+# Code to extract legend from plots
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+mylegend <- g_legend(plot_fit_ODF)
+
+# Combined
+#plot_fit_comb <- grid.arrange(plot_fit_ODF, plot_fit_ODN, nrow = 1, ncol = 2, common.legend = TRUE, legend = "bottom")
+
+plot_fit_comb <- grid.arrange(arrangeGrob(plot_fit_ODF, plot_fit_ODN, nrow = 1),
+                                          mylegend, nrow = 2, heights = c(6, 1))
 
 # Outputs
 ggsave(plot_fit_ODF, 
@@ -348,3 +372,6 @@ ggsave(plot_fit_ODF,
 ggsave(plot_fit_ODN, 
        filename = "Plots/Calibration/target-fit-ODN.png", 
        width = 4, height = 4)
+ggsave(plot_fit_comb, 
+       filename = "Plots/Calibration/target-fit-comb.png", 
+       width = 8, height = 4)

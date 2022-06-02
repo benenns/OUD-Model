@@ -45,6 +45,10 @@ state_colours_time3 <-                        c("#c83803", "#FFAE5C", "#003594",
 
 state_colours_trace_sero <- c("#252525", "#cb181d", "#2171b5", "#6a51a3", "#969696", "#fc9272", "#9ecae1", "#bcbddc")
 
+# Labels
+state_trace_label <- c("Death", "Fatal overdose", "Non-fatal overdose", "Opioid use", "BNX", "BNX + opioid", "MET", "MET + opioid", "No opioid use")
+state_time_label  <- c("ODN", "OU", "BNX", "BNXC", "MET", "METC", "NOU")
+
 ### Markov trace plots ###
 # Model 1 (Primary health state definition)
 # Base model states
@@ -53,7 +57,9 @@ main_states_trace_plot <- ggplot(df_M_agg_trace_plot, aes(x = month, y = proport
   theme(legend.position = "bottom") +
   xlab("Time (months)") + ylab("Proportion in state") +
   geom_area() +
-  scale_fill_manual(name = "Health States", values = state_colours_trace2)
+  scale_fill_manual(name = "Health States", 
+                    labels = state_trace_label,
+                    values = state_colours_trace2)
 
 # Serostatus
 sero_states_trace_plot <- ggplot(df_M_agg_trace_sero_plot, aes(x = month, y = proportion, fill = state_order_trace_sero)) + 
@@ -70,6 +76,7 @@ main_states_time <- ggplot(df_M_agg_state_time, aes(x = state_order_time, y = pr
   xlab("Health State") + ylab("Time") +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = state_colours_time2) +
+  scale_x_discrete(labels = state_time_label) +
   geom_text(aes(label = paste0(round(proportion,1)," (",percentage,"%)")), hjust = -0.25, size = 3.5) +
   annotate('text', x = 1.25, y = 190, label = paste0(round((df_M_agg_state_time$time_alive)/12,1)," years alive"), size = 3.5) +
   coord_flip(ylim = c(0, 200))

@@ -270,8 +270,8 @@ df_overdose_costs_MMS <- as.data.frame(m_overdose_costs_MMS)
 colnames(df_overdose_costs_MMS) <- c("Lower", "Upper")
 df_overdose_costs_MMS <- as_data_frame(df_overdose_costs_MMS) %>% #mutate(diff = abs(Upper - Lower),
                                                                   #       base = ICER_MMS$df_incremental$n_inc_costs_TOTAL_life) %>%
-  add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction (non-injection)", "Fentanyl OD mult", "BUP OD first month mult", "MET OD first month mult", 
-                          "REL OD first month mult", "INJ OD mult", "Probability witnessed", "Probability NX", "NX success", "Fatal OD rate"))
+  add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction for non-injection", "Fentanyl overdose multiplier", "First month overdose multiplier (BNX)", "First month overdose multiplier (MET)", 
+                          "First month overdose multiplier (opioid use)", "Overdose multiplier (injection)", "Probability overdose witnessed", "Probability receive NX", "Probability NX success", "Fatal overdose rate"))
 
 # Save outputs
 ## As .RData ##
@@ -303,8 +303,8 @@ df_overdose_qalys_MMS <- as.data.frame(m_overdose_qalys_MMS)
 colnames(df_overdose_qalys_MMS) <- c("Lower", "Upper")
 df_overdose_qalys_MMS <- as_data_frame(df_overdose_qalys_MMS) %>% #mutate(diff = abs(Upper - Lower),
                                                                   #       base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
-  add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction (non-injection)", "Fentanyl OD mult", "BUP OD first month mult", "MET OD first month mult", 
-                          "REL OD first month mult", "INJ OD mult", "Probability witnessed", "Probability NX", "NX success", "Fatal OD rate"))
+  add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction for non-injection", "Fentanyl overdose multiplier", "First month overdose multiplier (BNX)", "First month overdose multiplier (MET)", 
+                          "First month overdose multiplier (opioid use)", "Overdose multiplier (injection)", "Probability overdose witnessed", "Probability receive NX", "Probability NX success", "Fatal overdose rate"))
 
 # Save outputs
 ## As .RData ##
