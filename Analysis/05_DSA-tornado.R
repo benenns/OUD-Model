@@ -80,12 +80,11 @@ df.2 <- df_DSA_costs_MMS %>%
 p_tornado_costs <- ggplot() + 
   geom_rect(data = df.2, 
             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-  geom_text(data = eggcounts, aes(y = 1, label = counts), size = 4) +
+  #geom_text(data = eggcounts, aes(y = 1, label = counts), size = 4) +
   theme_bw() + 
   scale_fill_manual(values = c("Upper" = "midnightblue",
                                "Lower" = "slategray2")) +
-  theme(axis.title.y = element_blank(), legend.position = 'none', legend.title = element_blank(),
-        panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(axis.title.y = element_blank(), legend.position = 'none', legend.title = element_blank()) + 
   geom_hline(yintercept = df.2$base) +
   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
                      labels = v_order_parameters) +
