@@ -25,6 +25,7 @@ source("Analysis/00_load_parameters.R")
 # DSA data
 df_dsa_overdose <- read.csv(file = "data/DSA/overdose.csv", row.names = 1, header = TRUE)
 df_dsa_fentanyl <- read.csv(file = "data/DSA/fentanyl.csv", row.names = 1, header = TRUE)
+
 # Load posterior
 load(file = "outputs/Calibration/summary_posterior.RData")
 

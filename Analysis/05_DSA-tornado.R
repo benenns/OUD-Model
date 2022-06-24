@@ -3,6 +3,7 @@ rm(list = ls()) # to clean the workspace
 library(dplyr)    # to manipulate data
 library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
+library(ggbreak)
 library(tidyverse)
 library(data.table)
 library(formattable)
@@ -25,6 +26,10 @@ load(file = "outputs/ICER/incremental_det_MMS.RData")
 
 ## Load PSA outputs for baseline values
 load(file = "outputs/PSA/Modified Model Specification/summary_incremental_PSA_MMS.RData")
+
+#DSA labels
+df_dsa_cost_labels <- read.csv(file = "data/DSA/Modified Model Specification/DSA_tornado_labels_costs.csv", header = TRUE)
+df_dsa_qaly_labels <- read.csv(file = "data/DSA/Modified Model Specification/DSA_tornado_labels_qalys.csv", header = TRUE)
 
 # Subset by mean
 # Deterministic
@@ -55,11 +60,6 @@ v_order_parameters <- df_DSA_costs_MMS %>% arrange(diff) %>%
   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
   select(var_name) %>% unlist() %>% levels()
 
-v_cost_labels_lower <- c("test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10", "test11", "test12", "test13", "test14", "test15", "test16", "test17")
-v_cost_labels_upper <- c("test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10", "test11", "test12", "test13", "test14", "test15", "test16", "test17")
-
-#eggcounts <- cbind(df_DSA_costs_MMS[, "var_name"], counts)
-
 # width of columns in plot (value between 0 and 1)
 width <- 0.6
 # get data frame in shape for ggplot and geom_rect
@@ -74,12 +74,16 @@ df.2 <- df_DSA_costs_MMS %>%
          ymax = pmax(output.value, base),
          xmin = as.numeric(var_name) - width/2,
          xmax = as.numeric(var_name) + width/2)
+  # Add value labels for SA ranges
+  data_merge2 <- inner_join(df.2, df_dsa_cost_labels, by = c("var_name", "type"))  # Applying inner_join() function
 
 # create plot
 # (use scale_x_continuous to change labels in y axis to name of parameters)
 p_tornado_costs <- ggplot() + 
-  geom_rect(data = df.2, 
+  geom_rect(data = data_merge2, 
             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
+  geom_text(data = data_merge2, aes(y = output.value, x = (xmax+xmin)/2, label = dsa_val_u), hjust = 0) +
+  geom_text(data = data_merge2, aes(y = output.value, x = (xmax+xmin)/2, label = dsa_val_l), hjust = 1) +
   #geom_text(data = eggcounts, aes(y = 1, label = counts), size = 4) +
   theme_bw() + 
   scale_fill_manual(values = c("Upper" = "midnightblue",
@@ -88,7 +92,9 @@ p_tornado_costs <- ggplot() +
   geom_hline(yintercept = df.2$base) +
   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
                      labels = v_order_parameters) +
-  xlab("Parameter") + ylab("Incremental Cost") +
+  xlab("Parameter") + ylab("Incremental Costs (BNX vs. MET)") +
+  ylim(-7000, 25000) +
+  #scale_y_break(5000, 20000) +
   coord_flip()
 
 p_tornado_costs
@@ -114,12 +120,17 @@ df.2 <- df_DSA_qalys_MMS %>%
          ymax = pmax(output.value, base),
          xmin = as.numeric(var_name) - width/2,
          xmax = as.numeric(var_name) + width/2)
+# Add value labels for SA ranges
+data_merge2 <- inner_join(df.2, df_dsa_qaly_labels, by = c("var_name", "type"))  # Applying inner_join() function
+
 
 # create plot
 # (use scale_x_continuous to change labels in y axis to name of parameters)
 p_tornado_qalys <- ggplot() + 
-  geom_rect(data = df.2, 
+  geom_rect(data = data_merge2, 
             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
+  geom_text(data = data_merge2, aes(y = output.value, x = (xmax+xmin)/2, label = dsa_val_u), hjust = 1) +
+  geom_text(data = data_merge2, aes(y = output.value, x = (xmax+xmin)/2, label = dsa_val_l), hjust = 0) +
   theme_bw() + 
   scale_fill_manual(values = c("Upper" = "midnightblue",
                                "Lower" = "slategray2")) +
@@ -128,7 +139,8 @@ p_tornado_qalys <- ggplot() +
   geom_hline(yintercept = df.2$base) +
   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
                      labels = v_order_parameters) +
-  xlab("Parameter") + ylab("Incremental QALYs") +
+  xlab("Parameter") + ylab("Incremental QALYs (BNX vs. MET)") +
+  ylim(-0.25, -0.05) +
   coord_flip()
 
 p_tornado_qalys

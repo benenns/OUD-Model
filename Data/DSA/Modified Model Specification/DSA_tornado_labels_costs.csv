@@ -1,0 +1,31 @@
+var_name,type,dsa_val_l,dsa_val_u
+No retention difference by episode,Lower,,
+No retention difference for concurrent use,Lower,,
+No retention difference for injection,Lower,,
+Fentanyl prevalence,Lower,,[0.19]
+Fentanyl reduction for non-injection,Lower,,[0.04]
+Fentanyl overdose multiplier,Lower,,[5.79]
+First month overdose multiplier (BNX),Lower,,[0.18]
+First month overdose multiplier (MET),Lower,[1.55],
+First month overdose multiplier (opioid use),Lower,,[1.43]
+Overdose multiplier (injection),Lower,,
+Probability overdose witnessed,Lower,[0.32],
+Probability receive NX,Lower,[0.18],
+Probability NX success,Lower,[0.73],
+Fatal overdose rate,Lower,,[0.06]
+Alternative crime cost estimates (Krebs et al. 2014),Lower,,
+No retention difference by episode,Upper,,
+No retention difference for concurrent use,Upper,,
+No retention difference for injection,Upper,,
+Fentanyl prevalence,Upper,[0.85],
+Fentanyl reduction for non-injection,Upper,[0.46],
+Fentanyl overdose multiplier,Upper,[9.21],
+First month overdose multiplier (BNX),Upper,[1.85],
+First month overdose multiplier (MET),Upper,,[5.09]
+First month overdose multiplier (opioid use),Upper,[11.43],
+Overdose multiplier (injection),Upper,[2.9],
+Probability overdose witnessed,Upper,,[0.94]
+Probability receive NX,Upper,,[0.55]
+Probability NX success,Upper,,[0.97]
+Fatal overdose rate,Upper,[0.09],
+Alternative crime cost estimates (Krebs et al. 2014),Upper,,

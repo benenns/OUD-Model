@@ -38,16 +38,16 @@ v_dsa_qalys_hui_3_MMS <- unlist(df_dsa_qalys_MMS["pe_hui_3",])
 #############
 ### QALYs ###
 #############
-# Low
-# MMS
-#l_outcomes_MET_qalys_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_low_MMS)
-#l_outcomes_BUP_qalys_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_low_MMS)
-#ICER_qalys_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_low_MMS, outcomes_int = l_outcomes_BUP_qalys_low_MMS)
-# High
-# MMS
-#l_outcomes_MET_qalys_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_high_MMS)
-#l_outcomes_BUP_qalys_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_high_MMS)
-#ICER_qalys_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_high_MMS, outcomes_int = l_outcomes_BUP_qalys_high_MMS)
+# # Low
+# # MMS
+# l_outcomes_MET_qalys_low_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_low_MMS)
+# l_outcomes_BUP_qalys_low_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_low_MMS)
+# ICER_qalys_low_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_low_MMS, outcomes_int = l_outcomes_BUP_qalys_low_MMS)
+# # High
+# # MMS
+# l_outcomes_MET_qalys_high_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_high_MMS)
+# l_outcomes_BUP_qalys_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map, v_params_dsa = v_dsa_qalys_high_MMS)
+# ICER_qalys_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_high_MMS, outcomes_int = l_outcomes_BUP_qalys_high_MMS)
 
 ## Reduced (EQ-5D-5L) ##
 # MMS
@@ -95,10 +95,10 @@ ICER_qalys_hui_3_MMS <- ICER(outcomes_comp = l_outcomes_MET_qalys_hui_3_MMS, out
 #v_qalys_high_MMS <- c(ICER_qalys_high_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_qalys_high_MMS$df_icer$n_icer_TOTAL_life)
 #df_qalys_high_TS <- data.frame(ICER_qalys_high_TS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_high_TS$df_icer$n_icer_TOTAL_1yr)
 # Alt (EQ-5d-3L)
-v_qalys_eq_5d_3l_MMS <- c(ICER_qalys_eq_5d_3l_MMS$df_incremental$n_inc_qalys_TOTAL_life)
+v_qalys_eq_5d_3l_MMS <- c(ICER_qalys_eq_5d_3l_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_qalys_eq_5d_3l_MMS$df_incremental$n_inc_qalys_TOTAL_life)
 #df_qalys_eq_5d_3l_TS <- data.frame(ICER_qalys_eq_5d_3l_TS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_eq_5d_3l_TS$df_icer$n_icer_TOTAL_1yr)
 # Alt (HUI-3)
-v_qalys_hui_3_MMS <- c(ICER_qalys_hui_3_MMS$df_incremental$n_inc_qalys_TOTAL_life)
+v_qalys_hui_3_MMS <- c(ICER_qalys_hui_3_MMS$df_incremental$n_inc_qalys_TOTAL_life, ICER_qalys_hui_3_MMS$df_incremental$n_inc_qalys_TOTAL_life)
 #df_qalys_hui_3_TS <- data.frame(ICER_qalys_hui_3_TS$df_incremental$n_inc_qalys_TOTAL_1yr, ICER_qalys_hui_3_TS$df_icer$n_icer_TOTAL_1yr)
 # ODN low
 #v_qalys_odn_low_MMS <- c(ICER_qalys_odn_low_MMS$df_incremental$n_inc_qalys_TOTAL_life)
@@ -112,7 +112,7 @@ df_qalys_MMS <- as_data_frame(df_qalys_MMS) %>% #mutate(diff = abs(Upper - Lower
                                                  #      base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
   add_column(var_name = c("Alternative instrument (EQ-5D-3L)", "Alternative instrument (HUI-3)"))
 
-tbl_df_summary_incremental_MMS$mean
+#tbl_df_summary_incremental_MMS$mean
 
 ## As .RData ##
 save(df_qalys_MMS, 
