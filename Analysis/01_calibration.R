@@ -95,7 +95,7 @@ plotrix::plotCI(x    = l_cali_targets$ODN$Time,
 set.seed(3730687)
 
 ### Number of random samples to obtain from the posterior distribution 
-n_resamp <- 5000 # to match number of PSA draws
+n_resamp <- 10000 # to match number of PSA draws
 
 ### Names and number of input parameters to be calibrated
 #v_param_names  <- c("Overdose Rate (TX)",
@@ -114,8 +114,29 @@ n_target       <- length(v_target_names)
 #### Run IMIS algorithm ####
 l_fit_imis <- IMIS(B = 1000,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
-                   number_k = 100,      # maximum number of iterations in IMIS (originally 10)
+                   number_k = 500,      # maximum number of iterations in IMIS (originally 10)
                    D = 0) # originally 0
+
+# Unique parameter sets
+n_unique <- length(unique(l_fit_imis$resample[,1])) # 5471
+# Effective sample size
+n_ess <- round(sum(table(l_fit_imis$resample[,1]))^2/ sum(table(l_fit_imis$resample[,1])^2), 0) # 3790
+# Max weight
+n_max_wt <- max(table(l_fit_imis$resample[,1]))/sum(table(l_fit_imis$resample[,1])) # 0.001
+
+# Calibration stats
+df_cali_stats <- data.frame(n_unique, n_ess, n_max_wt)
+df_cali_stats
+
+### Save calibration stats
+## As .RData
+save(df_cali_stats, 
+     file = "outputs/Calibration/cali_stats.RData")
+## As .csv
+write.csv(df_cali_stats, 
+          file = "outputs/Calibration/cali_stats.csv", 
+          row.names = FALSE)
+
 ### Obtain posterior
 m_calib_post <- l_fit_imis$resample
 
