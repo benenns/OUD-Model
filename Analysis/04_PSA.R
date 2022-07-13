@@ -30,7 +30,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 5000 # just to test function (will be set as n_sim)
+n_sim <- 10000 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
@@ -85,10 +85,10 @@ combine_custom_MMS <- function(LL1, LL2) {
 }
 
 # Run PSA for each block to help memory issues
-n_sim <- 1500
+#n_sim <- 1500
 n_block_size <- 500 # size of block for each loop
 n_blocks <- n_sim/n_block_size
-n_start <- 500 # set to 0 if running full PSA
+n_start <- 0 # set to 0 if running full PSA
 
 # Initialize lists
 l_outcomes_MET_PSA_MMS <- list()
@@ -140,7 +140,7 @@ for (j in (0:(n_blocks - 1))){
 }
 
 #sendmail("ben.enns@gmail.com", subject = "Notification from R", message = "PSA finished running!", password="rmail")
-pbPost("note", "Notification from R", "PSA runs complete (office desktop)")
+#pbPost("note", "Notification from R", "PSA runs complete (office desktop)")
 
 # combine output data sets
 # initialize empty data frames
@@ -224,7 +224,7 @@ load(file = "outputs/PSA/Modified Model Specification/ICER_PSA_MMS.RData")
 ### Summary stats ###
 ## Modified Model Specification ##
 # Methadone
-tbl_df_summary_MET_MMS <- df_outcomes_MET_PSA_MMS %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
+tbl_df_summary_MET_MMS <- df_outcomes_MET_PSA_MMS_comb %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
                                                                              n_HEALTH_SECTOR_costs_6mo, 
                                                                              n_CRIMINAL_costs_6mo,
                                                                              n_TX_costs_6mo,
@@ -252,7 +252,7 @@ tbl_df_summary_MET_MMS <- df_outcomes_MET_PSA_MMS %>% as.tibble() %>% select(n_T
             min = min(value),
             max = max(value))
 # BNX
-tbl_df_summary_BUP_MMS <- df_outcomes_BUP_PSA_MMS %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
+tbl_df_summary_BUP_MMS <- df_outcomes_BUP_PSA_MMS_comb %>% as.tibble() %>% select(n_TOTAL_costs_6mo, 
                                                                              n_HEALTH_SECTOR_costs_6mo, 
                                                                              n_CRIMINAL_costs_6mo,
                                                                              n_TX_costs_6mo,
@@ -281,7 +281,7 @@ tbl_df_summary_BUP_MMS <- df_outcomes_BUP_PSA_MMS %>% as.tibble() %>% select(n_T
             max = max(value))
 
 # Incremental
-tbl_df_summary_incremental_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% select(n_inc_costs_TOTAL_6mo,
+tbl_df_summary_incremental_MMS <- df_incremental_PSA_MMS_comb %>% as.tibble() %>% select(n_inc_costs_TOTAL_6mo,
                                                                                     n_inc_costs_TOTAL_10yr,
                                                                                     n_inc_costs_TOTAL_life,
                                                                                     n_inc_costs_HEALTH_SECTOR_6mo,
@@ -330,7 +330,7 @@ tbl_df_summary_incremental_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% sel
             max = max(value))
 
 # ICER
-tbl_df_summary_ICER_MMS <- df_ICER_PSA_MMS %>% as.tibble() %>% select(n_icer_TOTAL_6mo,
+tbl_df_summary_ICER_MMS <- df_ICER_PSA_MMS_comb %>% as.tibble() %>% select(n_icer_TOTAL_6mo,
                                                                       n_icer_HEALTH_SECTOR_6mo,
                                                                       n_icer_TOTAL_10yr,
                                                                       n_icer_HEALTH_SECTOR_10yr,
@@ -347,7 +347,7 @@ tbl_df_summary_ICER_MMS <- df_ICER_PSA_MMS %>% as.tibble() %>% select(n_icer_TOT
             max = max(value))
 
 # ICER CI STABILITY
-tbl_df_summary_ICER_MMS_2000 <- df_ICER_PSA_MMS[1:2000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_2000 <- df_ICER_PSA_MMS_comb[1:2000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -358,7 +358,7 @@ tbl_df_summary_ICER_MMS_2000 <- df_ICER_PSA_MMS[1:2000, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_summary_ICER_MMS_2500 <- df_ICER_PSA_MMS[1:2500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_2500 <- df_ICER_PSA_MMS_comb[1:2500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -369,7 +369,7 @@ tbl_df_summary_ICER_MMS_2500 <- df_ICER_PSA_MMS[1:2500, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_summary_ICER_MMS_3000 <- df_ICER_PSA_MMS[1:3000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_3000 <- df_ICER_PSA_MMS_comb[1:3000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -380,7 +380,7 @@ tbl_df_summary_ICER_MMS_3000 <- df_ICER_PSA_MMS[1:3000, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_summary_ICER_MMS_3500 <- df_ICER_PSA_MMS[1:3500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_3500 <- df_ICER_PSA_MMS_comb[1:3500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -391,7 +391,7 @@ tbl_df_summary_ICER_MMS_3500 <- df_ICER_PSA_MMS[1:3500, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_summary_ICER_MMS_4000 <- df_ICER_PSA_MMS[1:4000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_4000 <- df_ICER_PSA_MMS_comb[1:4000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -402,7 +402,7 @@ tbl_df_summary_ICER_MMS_4000 <- df_ICER_PSA_MMS[1:4000, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_summary_ICER_MMS_4500 <- df_ICER_PSA_MMS[1:4500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_4500 <- df_ICER_PSA_MMS_comb[1:4500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -413,7 +413,7 @@ tbl_df_summary_ICER_MMS_4500 <- df_ICER_PSA_MMS[1:4500, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_summary_ICER_MMS_5000 <- df_ICER_PSA_MMS[1:5000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+tbl_df_summary_ICER_MMS_5000 <- df_ICER_PSA_MMS_comb[1:5000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
   gather("variable", "value") %>% 
   group_by(variable) %>% 
   summarize(mean = mean(value),
@@ -424,7 +424,119 @@ tbl_df_summary_ICER_MMS_5000 <- df_ICER_PSA_MMS[1:5000, ] %>% as.tibble() %>% se
             min = min(value),
             max = max(value))
 
-tbl_df_CI_stability <- rbind(tbl_df_summary_ICER_MMS_2000, tbl_df_summary_ICER_MMS_2500, tbl_df_summary_ICER_MMS_3000, tbl_df_summary_ICER_MMS_3500, tbl_df_summary_ICER_MMS_4000, tbl_df_summary_ICER_MMS_4500, tbl_df_summary_ICER_MMS_5000)
+tbl_df_summary_ICER_MMS_5500 <- df_ICER_PSA_MMS_comb[1:5500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_6000 <- df_ICER_PSA_MMS_comb[1:6000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_6500 <- df_ICER_PSA_MMS_comb[1:6500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_7000 <- df_ICER_PSA_MMS_comb[1:7000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_7500 <- df_ICER_PSA_MMS_comb[1:7500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_8000 <- df_ICER_PSA_MMS_comb[1:8000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_8500 <- df_ICER_PSA_MMS_comb[1:8500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_9000 <- df_ICER_PSA_MMS_comb[1:9000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_9500 <- df_ICER_PSA_MMS_comb[1:9500, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_summary_ICER_MMS_10000 <- df_ICER_PSA_MMS_comb[1:10000, ] %>% as.tibble() %>% select(n_icer_TOTAL_life) %>%
+  gather("variable", "value") %>% 
+  group_by(variable) %>% 
+  summarize(mean = mean(value),
+            sd = sd(value),
+            q50 = quantile(value, probs = .5),
+            q025 = quantile(value, probs = .025),
+            q975 = quantile(value, probs = .975),
+            min = min(value),
+            max = max(value))
+
+tbl_df_CI_stability <- rbind(tbl_df_summary_ICER_MMS_2000, tbl_df_summary_ICER_MMS_2500, tbl_df_summary_ICER_MMS_3000, tbl_df_summary_ICER_MMS_3500, tbl_df_summary_ICER_MMS_4000, tbl_df_summary_ICER_MMS_4500, tbl_df_summary_ICER_MMS_5000,
+                             tbl_df_summary_ICER_MMS_5500, tbl_df_summary_ICER_MMS_6000, tbl_df_summary_ICER_MMS_6500, tbl_df_summary_ICER_MMS_7000, tbl_df_summary_ICER_MMS_7500, tbl_df_summary_ICER_MMS_8000, tbl_df_summary_ICER_MMS_8500, tbl_df_summary_ICER_MMS_9000,
+                             tbl_df_summary_ICER_MMS_9500, tbl_df_summary_ICER_MMS_10000)
 #add_rownames(tbl_df_CI_stability) <- c("2000", "2500", "3000", "3500", "4000")
 
 
@@ -450,7 +562,7 @@ save(tbl_df_summary_incremental_MMS,
 
 ## Incremental ##
 # MMS
-tbl_df_summary_inc_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% mutate(BNX_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
+tbl_df_summary_inc_MMS <- df_incremental_PSA_MMS_comb %>% as.tibble() %>% mutate(BNX_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
                                                                             BNX_dominate_TOTAL_10yr = ifelse(n_inc_costs_TOTAL_10yr < 0 & n_inc_qalys_TOTAL_10yr > 0, 1, 0),
                                                                             BNX_dominate_TOTAL_life = ifelse(n_inc_costs_TOTAL_life < 0 & n_inc_qalys_TOTAL_life > 0, 1, 0),
                                                                             BNX_dominate_HEALTH_SECTOR_6mo = ifelse(n_inc_costs_HEALTH_SECTOR_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
@@ -511,13 +623,13 @@ tbl_df_summary_inc_MMS <- df_incremental_PSA_MMS %>% as.tibble() %>% mutate(BNX_
 #####################
 ### Societal perspective ###
 # MMS
-df_incremental_PSA_MMS_TOTAL_6mo <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_6mo = n_inc_qalys_TOTAL_6mo,
+df_incremental_PSA_MMS_TOTAL_6mo <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_6mo = n_inc_qalys_TOTAL_6mo,
                                                                                 inc_costs_MMS_6mo = n_inc_costs_TOTAL_6mo) %>% select(inc_qalys_MMS_6mo, inc_costs_MMS_6mo)
 
 # df_incremental_PSA_MMS_TOTAL_10yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
 #                                                                                  inc_costs_MMS_10yr = n_inc_costs_TOTAL_10yr) %>% select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
 
-df_incremental_PSA_MMS_TOTAL_life <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_life = n_inc_qalys_TOTAL_life,
+df_incremental_PSA_MMS_TOTAL_life <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_life = n_inc_qalys_TOTAL_life,
                                                                                 inc_costs_MMS_life = n_inc_costs_TOTAL_life) %>% select(inc_qalys_MMS_life, inc_costs_MMS_life)
 
 
@@ -527,13 +639,13 @@ df_PSA_ellipse_TOTAL <- df_PSA_ellipse_TOTAL %>% mutate(Scenario = "Societal Per
 
 ### Health sector perspective ###
 # MMS
-df_incremental_PSA_MMS_HEALTH_SECTOR_6mo <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_6mo = n_inc_qalys_TOTAL_6mo,
+df_incremental_PSA_MMS_HEALTH_SECTOR_6mo <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_6mo = n_inc_qalys_TOTAL_6mo,
                                                                                               inc_costs_MMS_6mo = n_inc_costs_HEALTH_SECTOR_6mo) %>% select(inc_qalys_MMS_6mo, inc_costs_MMS_6mo)
 
 # df_incremental_PSA_MMS_HEALTH_SECTOR_10yr <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_10yr = n_inc_qalys_TOTAL_10yr,
 #                                                                                                inc_costs_MMS_10yr = n_inc_costs_HEALTH_SECTOR_10yr) %>% select(inc_qalys_MMS_10yr, inc_costs_MMS_10yr)
 
-df_incremental_PSA_MMS_HEALTH_SECTOR_life <- df_incremental_PSA_MMS %>% as_tibble() %>% mutate(inc_qalys_MMS_life = n_inc_qalys_TOTAL_life,
+df_incremental_PSA_MMS_HEALTH_SECTOR_life <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_life = n_inc_qalys_TOTAL_life,
                                                                                                inc_costs_MMS_life = n_inc_costs_HEALTH_SECTOR_life) %>% select(inc_qalys_MMS_life, inc_costs_MMS_life)
 
 # Combine
