@@ -562,7 +562,7 @@ save(tbl_df_summary_incremental_MMS,
 
 ## Incremental ##
 # MMS
-tbl_df_summary_dom_MMS <- df_incremental_PSA_MMS_comb %>% as.tibble() %>% mutate(BNX_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
+tbl_df_summary_inc_MMS <- df_incremental_PSA_MMS_comb %>% as.tibble() %>% mutate(BNX_dominate_TOTAL_6mo = ifelse(n_inc_costs_TOTAL_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
                                                                             BNX_dominate_TOTAL_10yr = ifelse(n_inc_costs_TOTAL_10yr < 0 & n_inc_qalys_TOTAL_10yr > 0, 1, 0),
                                                                             BNX_dominate_TOTAL_life = ifelse(n_inc_costs_TOTAL_life < 0 & n_inc_qalys_TOTAL_life > 0, 1, 0),
                                                                             BNX_dominate_HEALTH_SECTOR_6mo = ifelse(n_inc_costs_HEALTH_SECTOR_6mo < 0 & n_inc_qalys_TOTAL_6mo > 0, 1, 0),
@@ -575,7 +575,12 @@ tbl_df_summary_dom_MMS <- df_incremental_PSA_MMS_comb %>% as.tibble() %>% mutate
                                                                             MET_dominate_HEALTH_SECTOR_10yr = ifelse(n_inc_costs_HEALTH_SECTOR_10yr > 0 & n_inc_qalys_TOTAL_10yr < 0, 1, 0),
                                                                             MET_dominate_HEALTH_SECTOR_life = ifelse(n_inc_costs_HEALTH_SECTOR_life > 0 & n_inc_qalys_TOTAL_life < 0, 1, 0))
 
-write.csv(tbl_df_summary_dom_MMS,
+tbl_df_dominant_sim_MMS <- tbl_df_summary_inc_MMS %>% select(BNX_dominate_TOTAL_6mo, BNX_dominate_TOTAL_10yr, BNX_dominate_TOTAL_life, BNX_dominate_HEALTH_SECTOR_6mo, BNX_dominate_HEALTH_SECTOR_10yr, BNX_dominate_HEALTH_SECTOR_life,
+                                                             MET_dominate_TOTAL_6mo, MET_dominate_TOTAL_10yr, MET_dominate_TOTAL_life, MET_dominate_HEALTH_SECTOR_6mo, MET_dominate_HEALTH_SECTOR_10yr, MET_dominate_HEALTH_SECTOR_life)
+
+tbl_df_dom_summary_MMS <- summarise_all(tbl_df_dominant_sim_MMS, mean)
+
+write.csv(tbl_df_dom_summary_MMS,
           file = "outputs/PSA/Modified Model Specification/summary_dom_PSA_MMS.csv",
           row.names = FALSE)
 
