@@ -46,8 +46,8 @@ state_colours_time3 <-                        c("#c83803", "#FFAE5C", "#003594",
 state_colours_trace_sero <- c("#252525", "#cb181d", "#2171b5", "#6a51a3", "#969696", "#fc9272", "#9ecae1", "#bcbddc")
 
 # Labels
-state_trace_label <- c("Death", "Fatal overdose", "Non-fatal overdose", "Opioid use", "BNX", "BNX + opioid", "MET", "MET + opioid", "No opioid use")
-state_time_label  <- c("ODN", "OU", "BNX", "BNXC", "MET", "METC", "NOU")
+state_trace_label <- c("Death", "Fatal overdose", "Non-fatal overdose", "Opioid use", "BNX", "BNX + opioid", "MET", "MET + opioid", "Opioid cessation")
+state_time_label  <- c("ODN", "OU", "BNX", "BNXC", "MET", "METC", "OC")
 
 ### Markov trace plots ###
 # Model 1 (Primary health state definition)
