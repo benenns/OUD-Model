@@ -35,12 +35,12 @@ l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
                                 file.qalys = "data/Modified Model Specification/qalys.csv")
 
 # Load calibration inputs #
-v_cali_param_names <- c("'Overdose rate (treatment)'",
-                        "'Overdose rate (treatment + opioid)'",
-                        "'Overdose rate (active opioid)'", 
-                        "'Overdose rate (inactive opioid)'",
+v_cali_param_names <- c("'Overdose rate (BNX/MET)'",
+                        "'Overdose rate (BNX/MET + opioid)'",
+                        "'Overdose rate (opioid use)'", 
+                        "'Overdose rate (opioid cessation)'",
                         #"'First month mult (treatment)'",
-                        "'First month mult (treatment + opioid)'",
+                        "'First month mult (BNX/MET + opioid)'",
                         #"'First month mult (active opioid)'",
                         #"'Injection mult'",
                         "'Fentanyl mult'",
@@ -118,11 +118,11 @@ l_fit_imis <- IMIS(B = 1000,      # n_samp = B*10 (was 100 incremental sample si
                    D = 0) # originally 0
 
 # Unique parameter sets
-n_unique <- length(unique(l_fit_imis$resample[,1])) # 5471
+n_unique <- length(unique(l_fit_imis$resample[,1])) # 6299
 # Effective sample size
-n_ess <- round(sum(table(l_fit_imis$resample[,1]))^2/ sum(table(l_fit_imis$resample[,1])^2), 0) # 3790
+n_ess <- round(sum(table(l_fit_imis$resample[,1]))^2/ sum(table(l_fit_imis$resample[,1])^2), 0) # 4568
 # Max weight
-n_max_wt <- max(table(l_fit_imis$resample[,1]))/sum(table(l_fit_imis$resample[,1])) # 0.001
+n_max_wt <- max(table(l_fit_imis$resample[,1]))/sum(table(l_fit_imis$resample[,1])) # 0.0009
 
 # Calibration stats
 df_cali_stats <- data.frame(n_unique, n_ess, n_max_wt)
