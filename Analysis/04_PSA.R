@@ -704,12 +704,11 @@ plot_PSA_ellipse <- ggplot() +
   geom_abline(slope = 100000, intercept = 0) +
   labs(y = "Incremental costs (BNX vs. MET)", x = "Incremental QALYs (BNX vs. MET)") +
   xlim(-0.4, 0.1) +
-  #ylim(-40000, 75000) +
   scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K"), limits = c(-80000, 75000)) +
   
   scale_color_manual(name = '',
                      breaks = c('Societal Perspective', 'Health Sector Perspective'),
-                     values = c('Societal Perspective' = 'darkblue', 'Health Sector Perspective' = 'darkred')) +
+                     values = c('Societal Perspective' = "#2c7bb6", 'Health Sector Perspective' = "#d7191c")) +
   
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
         plot.title = element_text(hjust=0.02, vjust=-7), 
