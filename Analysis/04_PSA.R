@@ -663,19 +663,42 @@ df_PSA_ellipse_HEALTH_SECTOR <- df_PSA_ellipse_HEALTH_SECTOR %>% mutate(Scenario
 
 # Combine all
 df_PSA_ellipse <- rbind(df_PSA_ellipse_TOTAL, df_PSA_ellipse_HEALTH_SECTOR)
+df_PSA_points_temp <- df_PSA_ellipse %>% as_tibble() %>% rename(qalys.6mo = inc_qalys_MMS_6mo,
+                                                                qalys.life = inc_qalys_MMS_life,
+                                                                costs.6mo = inc_costs_MMS_6mo,
+                                                                costs.life = inc_costs_MMS_life) %>% mutate(ID = row_number())
 
+df_PSA_points_qalys <- df_PSA_points_temp %>% select(ID, Scenario, qalys.6mo, qalys.life)
+df_PSA_points_qalys_long <- reshape(df_PSA_points_qalys, direction = 'long', 
+                         varying = c('qalys.6mo', 'qalys.life'), 
+                         timevar = 'var',
+                         times = c('6mo', 'life'),
+                         v.names = 'qalys',
+                         idvar = c('ID', 'Scenario'))
+
+df_PSA_points_costs <- df_PSA_points_temp %>% select(ID, Scenario, costs.6mo, costs.life)
+df_PSA_points_costs_long <- reshape(df_PSA_points_costs, direction = 'long', 
+                                    varying = c('costs.6mo', 'costs.life'), 
+                                    timevar = 'var',
+                                    times = c('6mo', 'life'),
+                                    v.names = 'costs',
+                                    idvar = c('ID', 'Scenario'))
+
+df_PSA_points <- bind_cols(df_PSA_points_qalys_long, df_PSA_points_costs_long, .name_repair = "minimal")
+
+df_PSA_points <- inner_join(df_PSA_points_qalys_long, df_PSA_points_costs_long, by = c('ID', 'var', 'Scenario')) %>% 
+  mutate(index = ifelse(Scenario == "Societal Perspective" & var == "6mo", "Societal (6-month)", 
+                 ifelse(Scenario == "Societal Perspective" & var == "life", "Societal (Lifetime)", 
+                 ifelse (Scenario == "Health Sector Perspective" & var == "6mo", "Health Sector (6-month)", "Health Sector (Lifetime)"))))
+  
 #############
 ### Plots ###
 #############
 ## Full plot ##
 
 plot_PSA_ellipse <- ggplot() +
-  # Points
-  # MMS (Lifetime)
-  geom_point(data = df_PSA_ellipse, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life, colour = Scenario), alpha = 0.25, size = 1) +
-
-  # MMS (6-month)
-  geom_point(data = df_PSA_ellipse, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo, colour = Scenario), alpha = 0.25, size = 1) +
+  # Points (all scenarios and time horizons)
+  geom_point(data = df_PSA_points, aes(x = qalys, y = costs, colour = index), alpha = 0.4, size = 1) +
 
   # Ellipses (Societal)
   # MMS (6-month)
@@ -694,26 +717,25 @@ plot_PSA_ellipse <- ggplot() +
   stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
 
   # Add labels
-  annotate("text", x =  0.05, y = 25000, label = "Six-month \n Time-horizon", fontface = "bold", size = 3) +
-  annotate("text", x = -0.15, y = 45000, label = "Lifetime \n Time-horizon", fontface = "bold", size = 3) +
+  #annotate("text", x =  0.05, y = 25000, label = "Six-month \n Time-horizon", fontface = "bold", size = 3) +
+  #annotate("text", x = -0.15, y = 45000, label = "Lifetime \n Time-horizon", fontface = "bold", size = 3) +
   
-  annotate("text", x =  -0.38, y = -48000, label = "ICER: \n $100,000/QALY", size = 3) +
+  annotate("text", x =  -0.47, y = -60000, label = "ICER: \n $100,000/QALY", size = 3) +
   
   geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_abline(slope = 100000, intercept = 0) +
   labs(y = "Incremental costs (BNX vs. MET)", x = "Incremental QALYs (BNX vs. MET)") +
-  xlim(-0.4, 0.1) +
-  scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K"), limits = c(-80000, 75000)) +
+  xlim(-0.5, 0.1) +
+  scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K"), limits = c(-100000, 100000)) +
   
   scale_color_manual(name = '',
-                     breaks = c('Societal Perspective', 'Health Sector Perspective'),
-                     values = c('Societal Perspective' = "#2c7bb6", 'Health Sector Perspective' = "#d7191c")) +
+                     breaks = c('Societal (6-month)', 'Health Sector (6-month)', 'Societal (Lifetime)', 'Health Sector (Lifetime)'),
+                     values = c('Societal (6-month)' = "#313695", 'Health Sector (6-month)' = "#f46d43", 'Societal (Lifetime)' = "#2166ac", 'Health Sector (Lifetime)' = "#d7191c")) +
   
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
         plot.title = element_text(hjust=0.02, vjust=-7), 
-        legend.position = "bottom") #+
-  #scale_fill_discrete(name = "Dose", labels = c("A", "B", "C", "D"))
+        legend.position = "bottom")
 
 plot_PSA_ellipse
 

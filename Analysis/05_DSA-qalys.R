@@ -110,7 +110,7 @@ df_qalys_MMS <- as.data.frame(m_qalys_MMS)
 colnames(df_qalys_MMS) <- c("Lower", "Upper")
 df_qalys_MMS <- as_data_frame(df_qalys_MMS) %>% #mutate(diff = abs(Upper - Lower),
                                                  #      base = ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life) %>%
-  add_column(var_name = c("Alternative instrument (EQ-5D-3L)", "Alternative instrument (HUI-3)"))
+  add_column(var_name = c("Alternative instrument (EQ-5D-3L)", "Alternative instrument (HUI3)"))
 
 #tbl_df_summary_incremental_MMS$mean
 

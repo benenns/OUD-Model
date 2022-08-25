@@ -14,7 +14,7 @@ Probability receive NX,Lower,,[0.18]
 Probability NX success,Lower,,[0.73]
 Fatal overdose rate,Lower,[0.06],
 Alternative instrument (EQ-5D-3L),Lower,,
-Alternative instrument (HUI-3),Lower,,
+Alternative instrument (HUI3),Lower,,
 No retention difference by episode,Upper,,
 No retention difference for concurrent use,Upper,,
 No retention difference for injection,Upper,,
@@ -30,4 +30,4 @@ Probability receive NX,Upper,[0.55],
 Probability NX success,Upper,[0.97],
 Fatal overdose rate,Upper,,[0.09]
 Alternative instrument (EQ-5D-3L),Upper,,
-Alternative instrument (HUI-3),Upper,,
+Alternative instrument (HUI3),Upper,,
