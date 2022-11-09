@@ -1662,12 +1662,33 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
         # First month (state-time)
         for(j in 1:(i - 1)){
           # state-time-dependent transition probability (j) * age (model-time)-specific mortality (i) * model-time-specific overdose (track in separate matrix)
+          
+          # Conditional state transition matrix at time (j) ~ sojourn time is continuous time spent in health state
+          # Remove deaths from all states (depends only on cohort age (i) and health state-specific SMR
           m_sojourn <- a_TDP_1[, , j] * m_alive[, i - 1] # state-time transition matrix at state-time j, re-weighted for model-time (age) varying mortality at each time point
+          
+          # Current health states from prior cycle
+          # Row vector of individuals across all health states
           v_current_state <- as.vector(a_M_trace[i - 1, , j]) # all in current state
+          
+          # Transitions remaining in current states
+          # Multiply current vector of state occupancy by diagonal of state-time-dependent array (i.e., the conditional probability of remaining in given health state)
           v_same_state <- as.vector(v_current_state * diag(m_sojourn)) # individuals remaining in state next period
+          
+          # Add remain probabilities to next period, increase sojourn time by 1
+          # a_M_trace already initialized for i = 1 above
+          # Add % individuals remaining in subsequent period only
           a_M_trace[i, ,j + 1] <- v_same_state # add remain to next period
+          
+          # Set diagonal to zero as these have been counted
+          # Reset only remain (diagonal) to zero and keep state transitions
           diag(m_sojourn) <- 0 # reset remain to 0 once counted
+          
+          # Transitions to new health states
+          # Create vector of states following transition according to conditional state-transition matrix excluding remain (i.e., multiply same states by zero)
           v_new_state <- as.vector(v_current_state %*% m_sojourn) # populate new states post-transition (excluding remaining)
+          
+          # Add new state %'s to markov trace
           a_M_trace[i, ,1] <- v_new_state + a_M_trace[i, ,1] # add new state %'s to array
         }
       }
@@ -1716,6 +1737,16 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
         }
       }
     }
+  
+  # Array checks
+  if(checks){
+  a_M_trace_1 <- a_M_trace[, , 1]
+  a_M_trace_2 <- a_M_trace[, , 2]
+  a_M_trace_3 <- a_M_trace[, , 3]
+  write.csv(a_M_trace_1,"checks/full trace array/a_M_trace_1.csv", row.names = TRUE)
+  write.csv(a_M_trace_2,"checks/full trace array/a_M_trace_2.csv", row.names = TRUE)
+  write.csv(a_M_trace_3,"checks/full trace array/a_M_trace_3.csv", row.names = TRUE)
+  } else{}
     
   # Collect trace for time-periods across all model states  
   m_M_trace <- array(0, dim = c((n_t + 1), n_states),
@@ -1787,7 +1818,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   }
   
   return(list(l_index_s = l_index_s,
-              #a_TDP = a_TDP,
+              a_M_trace = a_M_trace,
               m_M_trace = m_M_trace,
               m_M_agg_trace = m_M_agg_trace,
               m_M_agg_trace_death = m_M_agg_trace_death,

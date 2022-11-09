@@ -720,7 +720,7 @@ plot_PSA_ellipse <- ggplot() +
   #annotate("text", x =  0.05, y = 25000, label = "Six-month \n Time-horizon", fontface = "bold", size = 3) +
   #annotate("text", x = -0.15, y = 45000, label = "Lifetime \n Time-horizon", fontface = "bold", size = 3) +
   
-  annotate("text", x =  -0.47, y = -60000, label = "ICER: \n $100,000/QALY", size = 3) +
+  annotate("text", x =  -0.47, y = -60000, label = "ICER: \n $100,000/QALY", size = 4) +
   
   geom_vline(xintercept = 0, linetype = "solid", color = "black", size = 1.0) +
   geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 1.0) +
@@ -733,9 +733,11 @@ plot_PSA_ellipse <- ggplot() +
                      breaks = c('Societal (6-month)', 'Health Sector (6-month)', 'Societal (Lifetime)', 'Health Sector (Lifetime)'),
                      values = c('Societal (6-month)' = "#313695", 'Health Sector (6-month)' = "#f46d43", 'Societal (Lifetime)' = "#2166ac", 'Health Sector (Lifetime)' = "#d7191c")) +
   
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.key = element_rect(fill = "transparent", colour = "transparent"),
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), 
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
         plot.title = element_text(hjust=0.02, vjust=-7), 
-        legend.position = "bottom")
+        legend.position = "bottom",
+        text = element_text(size = 15))
 
 plot_PSA_ellipse
 

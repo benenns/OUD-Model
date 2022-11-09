@@ -237,9 +237,8 @@ plot_DSA_qalys_MMS_threshold <- ggplot(df_threshold_qalys_MMS, aes(x = perc_incr
   geom_hline(yintercept = 0) +
   #scale_x_continuous(labels = scales::percent) +
   scale_x_continuous(labels = scales::label_number(accuracy = 1, suffix = "x"), limits = c(1, 5)) +
-  xlab("Increase in BNX Episode Duration") + ylab("Incremental QALYs (BNX vs. MET)") #+
-  #xlim(1, 5) #+
-#ylim(-0.01, 0.025)
+  xlab("Increase in BNX Episode Duration") + ylab("Incremental QALYs (BNX vs. MET)") +
+  theme(text = element_text(size = 15))
 
 plot_DSA_qalys_MMS_threshold
 
@@ -258,9 +257,8 @@ plot_DSA_costs_MMS_threshold <- ggplot(df_threshold_costs_MMS, aes(x = perc_incr
   geom_hline(yintercept = 0) +
   scale_x_continuous(labels = scales::label_number(accuracy = 1, suffix = "x"), limits = c(1, 5)) +
   scale_y_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
-  xlab("Increase in BNX Episode Duration") + ylab("Incremental Costs (BNX vs. MET)*") #+
-  #xlim(1, 5) #+
-# ylim(-0.01, 0.025)
+  xlab("Increase in BNX Episode Duration") + ylab("Incremental Costs (BNX vs. MET)*") +
+  theme(text = element_text(size = 15))
 
 plot_DSA_costs_MMS_threshold
 
