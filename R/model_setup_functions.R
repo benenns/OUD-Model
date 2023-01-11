@@ -159,6 +159,9 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     # Probability of successful naloxone use
     p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
     
+    # **NEED TO PARSE OUT TRUE "UNWITNESSED" OD FOR FATAL OD RATE (combination of ambulance call-out and NX reversal from peers)
+    p_OD_rev <- p_NX_rev + p_EMS
+    
     # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
     # Subsets overdose into fatal and non-fatal, conditional on different parameters
     
