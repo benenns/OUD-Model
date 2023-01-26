@@ -584,6 +584,156 @@ write.csv(tbl_df_dom_summary_MMS,
           file = "outputs/PSA/Modified Model Specification/summary_dom_PSA_MMS.csv",
           row.names = FALSE)
 
+######################
+### CEAC (FOR R&R) ###
+### Lifetime       ###
+######################
+tbl_df_CEAC <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(ICER_TOTAL_life = (n_inc_costs_TOTAL_life/n_inc_qalys_TOTAL_life),
+                                                                      ICER_HEALTH_SECTOR_life = (n_inc_costs_HEALTH_SECTOR_life/n_inc_qalys_TOTAL_life),
+                                                                      BNX_dominate_TOTAL_life = ifelse(n_inc_costs_TOTAL_life < 0 & n_inc_qalys_TOTAL_life > 0, 1, 0),
+                                                                      BNX_dominate_HEALTH_SECTOR_life = ifelse(n_inc_costs_HEALTH_SECTOR_life < 0 & n_inc_qalys_TOTAL_life > 0, 1, 0),
+                                                                      MET_dominate_TOTAL_life = ifelse(n_inc_costs_TOTAL_life > 0 & n_inc_qalys_TOTAL_life < 0, 1, 0),
+                                                                      MET_dominate_HEALTH_SECTOR_life = ifelse(n_inc_costs_HEALTH_SECTOR_life > 0 & n_inc_qalys_TOTAL_life < 0, 1, 0),
+                                                                      BNX_health_loss = ifelse(n_inc_qalys_TOTAL_life < 0, 1, 0)) %>%
+                                                               select(n_inc_costs_TOTAL_life, n_inc_costs_HEALTH_SECTOR_life, n_inc_qalys_TOTAL_life,
+                                                                      ICER_TOTAL_life, ICER_HEALTH_SECTOR_life, BNX_dominate_TOTAL_life, BNX_dominate_HEALTH_SECTOR_life, 
+                                                                      MET_dominate_TOTAL_life, MET_dominate_HEALTH_SECTOR_life, BNX_health_loss) %>%
+                                                               mutate(CE_0K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 0) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 0) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_10K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 10000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                           ((BNX_health_loss == 0 & ICER_TOTAL_life <= 10000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_20K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 20000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                             ((BNX_health_loss == 0 & ICER_TOTAL_life <= 20000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_30K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 30000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                             ((BNX_health_loss == 0 & ICER_TOTAL_life <= 30000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_40K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 40000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                             ((BNX_health_loss == 0 & ICER_TOTAL_life <= 40000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_50K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 50000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 50000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_60K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 60000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 60000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_70K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 70000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 70000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_80K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 80000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 80000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_90K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 90000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 90000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_100K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 100000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_TOTAL_life <= 100000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_110K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 110000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 110000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_120K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 120000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 120000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_130K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 130000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 130000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_140K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 140000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 140000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_150K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 150000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 150000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_160K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 160000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 160000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_170K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 170000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 170000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_180K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 180000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 180000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_190K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 190000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 190000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_200K_TOTAL_life = ifelse(((BNX_health_loss == 1 & ICER_TOTAL_life >= 200000) | BNX_dominate_TOTAL_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_TOTAL_life <= 200000) | BNX_dominate_TOTAL_life == 1), 1, 0),
+                                                                      CE_0K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 0) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                  ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 0) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_10K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 10000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 10000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_20K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 20000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 20000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_30K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 30000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 30000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_40K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 40000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 40000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_50K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 50000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 50000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_60K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 60000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 60000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_70K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 70000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 70000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_80K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 80000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 80000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_90K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 90000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                   ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 90000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_100K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 100000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 100000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_110K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 110000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 110000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_120K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 120000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 120000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_130K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 130000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 130000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_140K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 140000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 140000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_150K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 150000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 150000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_160K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 160000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 160000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_170K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 170000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 170000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_180K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 180000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 180000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_190K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 190000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 190000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0),
+                                                                      CE_200K_HEALTH_SECTOR_life = ifelse(((BNX_health_loss == 1 & ICER_HEALTH_SECTOR_life >= 200000) | BNX_dominate_HEALTH_SECTOR_life == 1) | 
+                                                                                                    ((BNX_health_loss == 0 & ICER_HEALTH_SECTOR_life <= 200000) | BNX_dominate_HEALTH_SECTOR_life == 1), 1, 0))
+                                                                      
+  # ADD SUMMARY POINTS AT EACH THRESHOLD
+tbl_df_CEAC_summary <- tbl_df_CEAC %>% select(CE_0K_TOTAL_life, CE_10K_TOTAL_life, CE_20K_TOTAL_life, CE_30K_TOTAL_life, CE_40K_TOTAL_life, CE_50K_TOTAL_life, CE_60K_TOTAL_life, CE_70K_TOTAL_life,
+                                              CE_80K_TOTAL_life, CE_90K_TOTAL_life, CE_100K_TOTAL_life, CE_110K_TOTAL_life, CE_120K_TOTAL_life, CE_130K_TOTAL_life, CE_140K_TOTAL_life,
+                                              CE_150K_TOTAL_life, CE_160K_TOTAL_life, CE_170K_TOTAL_life, CE_180K_TOTAL_life, CE_190K_TOTAL_life, CE_200K_TOTAL_life,
+                                              CE_0K_HEALTH_SECTOR_life, CE_10K_HEALTH_SECTOR_life, CE_20K_HEALTH_SECTOR_life, CE_30K_HEALTH_SECTOR_life, CE_40K_HEALTH_SECTOR_life, CE_50K_HEALTH_SECTOR_life, CE_60K_HEALTH_SECTOR_life, CE_70K_HEALTH_SECTOR_life,
+                                              CE_80K_HEALTH_SECTOR_life, CE_90K_HEALTH_SECTOR_life, CE_100K_HEALTH_SECTOR_life, CE_110K_HEALTH_SECTOR_life, CE_120K_HEALTH_SECTOR_life, CE_130K_HEALTH_SECTOR_life, CE_140K_HEALTH_SECTOR_life,
+                                              CE_150K_HEALTH_SECTOR_life, CE_160K_HEALTH_SECTOR_life, CE_170K_HEALTH_SECTOR_life, CE_180K_HEALTH_SECTOR_life, CE_190K_HEALTH_SECTOR_life, CE_200K_HEALTH_SECTOR_life) %>% summarise_all(mean) #%>%
+  
+
+tbl_df_CEAC_long <- tbl_df_CEAC_summary %>% pivot_longer(
+    cols = starts_with("CE_"),
+    names_to = "Scenario",
+    values_to = "Proportion",
+    values_drop_na = TRUE
+  )
+
+tbl_df_labels <- str_split_fixed(tbl_df_CEAC_long$Scenario, '_', 4) %>% as_tibble() %>% mutate(Threshold = ifelse(V2 == "0K", 0, 
+                                                                                               ifelse(V2 == "10K", 10000,
+                                                                                               ifelse(V2 == "20K", 20000,
+                                                                                               ifelse(V2 == "30K", 30000,
+                                                                                               ifelse(V2 == "40K", 40000,
+                                                                                               ifelse(V2 == "50K", 50000,
+                                                                                               ifelse(V2 == "60K", 60000,
+                                                                                               ifelse(V2 == "70K", 70000,
+                                                                                               ifelse(V2 == "80K", 80000,
+                                                                                               ifelse(V2 == "90K", 90000,
+                                                                                               ifelse(V2 == "100K", 100000,
+                                                                                               ifelse(V2 == "110K", 110000,
+                                                                                               ifelse(V2 == "120K", 120000,
+                                                                                               ifelse(V2 == "130K", 130000,
+                                                                                               ifelse(V2 == "140K", 140000,
+                                                                                               ifelse(V2 == "150K", 150000,
+                                                                                               ifelse(V2 == "160K", 160000,
+                                                                                               ifelse(V2 == "170K", 170000,
+                                                                                               ifelse(V2 == "180K", 180000,
+                                                                                               ifelse(V2 == "190K", 190000,
+                                                                                               ifelse(V2 == "200K", 200000, NA))))))))))))))))))))),
+                                                                                   Perspective = ifelse(V3 == "TOTAL", "Societal", "Health Sector")) %>% select(Threshold, Perspective)
+
+tbl_df_CEAC_plot <- cbind(tbl_df_labels, tbl_df_CEAC_long) %>% as_tibble() %>% rename(p_BNX_CE = Proportion) %>% mutate(p_MET_CE = (1 - p_BNX_CE))
+
+#################
+### Plot CEAC ###
+#################
+ggplot(data = tbl_df_CEAC_plot, aes(x = Threshold, group = Perspective)) +
+  geom_line(aes(y = p_BNX_CE, colour = )) + 
+  geom_line(aes(y = p_MET_CE, colour = )) +
+  scale_color_grey() + theme_classic()
+  #geom_smooth()
+
+
 ######################################
 ### Produce scatter plot for ICERs ###
 ######################################
