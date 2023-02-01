@@ -722,17 +722,64 @@ tbl_df_labels <- str_split_fixed(tbl_df_CEAC_long$Scenario, '_', 4) %>% as_tibbl
                                                                                                ifelse(V2 == "200K", 200000, NA))))))))))))))))))))),
                                                                                    Perspective = ifelse(V3 == "TOTAL", "Societal", "Health Sector")) %>% select(Threshold, Perspective)
 
-tbl_df_CEAC_plot <- cbind(tbl_df_labels, tbl_df_CEAC_long) %>% as_tibble() %>% rename(p_BNX_CE = Proportion) %>% mutate(p_MET_CE = (1 - p_BNX_CE))
+tbl_df_CEAC_BNX <- cbind(tbl_df_labels, tbl_df_CEAC_long) %>% as_tibble() %>% mutate(Treatment = "BNX",
+                                                                                     tx_perspective = ifelse(Perspective == "Societal", "BNX (Societal)",
+                                                                                                                      ifelse(Perspective == "Health Sector", "BNX (Health Sector)", NA))) %>%
+                                                                              select(-Scenario) %>% relocate("Proportion", .after = "Treatment")
+
+  
+tbl_df_CEAC_MET <- cbind(tbl_df_labels, tbl_df_CEAC_long) %>% as_tibble() %>% mutate(Treatment = "MET",
+                                                                                     Proportion_MET = (1 - Proportion)) %>% select(-Proportion) %>%
+                                                                              rename(Proportion = Proportion_MET) %>%
+                                                                              mutate(tx_perspective = ifelse(Perspective == "Societal", "MET (Societal)",
+                                                                                                             ifelse(Perspective == "Health Sector", "MET (Health Sector)", NA))) %>%
+                                                                              select(-Scenario)
+
+
+tbl_df_CEAC_plot <- rbind(tbl_df_CEAC_BNX, tbl_df_CEAC_MET)
+
+# tbl_df_CEAC_temp2 <- tbl_df_CEAC_temp1 %>% mutate(p_BNX_soc = ifelse(tx_perspective == "BNX (Societal)", Proportion, NA),
+#                                                p_BNX_hs = ifelse(tx_perspective == "BNX (Health Sector)", Proportion, NA),
+#                                                p_MET_soc = ifelse(tx_perspective == "MET (Societal)", Proportion, NA),
+#                                                p_MET_hs = ifelse(tx_perspective == "MET (Health Sector)", Proportion, NA))
+# 
+# tbl_df_CEAC_BNX_soc <- tbl_df_CEAC_temp2 %>% select(Threshold, p_BNX_soc) %>% na.omit()
+# tbl_df_CEAC_BNX_hs  <- tbl_df_CEAC_temp2 %>% select(Threshold, p_BNX_hs) %>% na.omit()
+# tbl_df_CEAC_MET_soc <- tbl_df_CEAC_temp2 %>% select(Threshold, p_MET_soc) %>% na.omit()
+# tbl_df_CEAC_MET_hs  <- tbl_df_CEAC_temp2 %>% select(Threshold, p_MET_hs) %>% na.omit()
+# 
+# tbl_df_CEAC_temp3 <- merge(x = tbl_df_CEAC_BNX_soc, y = tbl_df_CEAC_MET_soc, 
+#                            by = "Threshold", all.x = TRUE)
+# tbl_df_CEAC_temp4 <- merge(x = tbl_df_CEAC_temp3, y = tbl_df_CEAC_BNX_hs,
+#                            by = "Threshold", all.x = TRUE)
+# tbl_df_CEAC_plot  <- merge(x = tbl_df_CEAC_temp4, y = tbl_df_CEAC_MET_hs,
+#                            by = "Threshold", all.x = TRUE)
+  
 
 #################
 ### Plot CEAC ###
 #################
-ggplot(data = tbl_df_CEAC_plot, aes(x = Threshold, group = Perspective)) +
-  geom_line(aes(y = p_BNX_CE, colour = )) + 
-  geom_line(aes(y = p_MET_CE, colour = )) +
-  scale_color_grey() + theme_classic()
-  #geom_smooth()
+plot_CEAC <- ggplot(data = tbl_df_CEAC_plot, aes(x = Threshold, y = Proportion)) +
+  geom_line(aes(linetype = Perspective, color = Treatment)) +
+  scale_linetype_manual(values = c("twodash", "solid"))+
+  scale_color_manual(values = c('#999999','#E69F00'))+
+  scale_x_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
+  labs(
+    x = "Willingness to pay threshold ($/QALY)",
+    y = "Probability cost-effective",
+    color = "Treatment Type",
+    linetype = "Payer Perspective"
+  ) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), 
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        plot.title = element_text(hjust = 0.02, vjust = -7), 
+        legend.position = "right",
+        text = element_text(size = 15))
 
+# Output full plot
+ggsave(plot_CEAC, 
+       filename = "Plots/PSA/CEAC.png", 
+       width = 8, height = 6, dpi = 350)
 
 ######################################
 ### Produce scatter plot for ICERs ###
