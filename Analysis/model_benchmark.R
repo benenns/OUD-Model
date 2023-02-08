@@ -27,8 +27,8 @@ source("R/generate_psa_parameters.R")
 source("Analysis/00_load_parameters.R")
 
 # Set number of cores
-#n_cores <- detectCores()
-n_cores <- 4
+n_cores <- detectCores()
+#n_cores <- 4
 registerDoParallel(n_cores)
 
 # Benchmark baseline deterministic model
@@ -59,7 +59,7 @@ registerDoParallel(n_cores)
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 4 # just to test function (will be set as n_sim)
+n_sim <- 10 # just to test function (will be set as n_sim)
 
 df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "MMS",
                                          file.death_hr = "data/death_hr.csv",
