@@ -27,9 +27,16 @@ source("R/generate_psa_parameters.R")
 source("Analysis/00_load_parameters.R")
 
 # Set number of cores
+<<<<<<< Updated upstream
 n_cores <- detectCores()
 #n_cores <- 4
 registerDoParallel(n_cores)
+=======
+#n_cores <- detectCores()
+n_cores <- 4
+cl <- makePSOCKcluster(2)
+registerDoParallel(cl)
+>>>>>>> Stashed changes
 
 # Benchmark baseline deterministic model
 # df_model_benchmark <- microbenchmark("Markov Model (Base)"    = markov_model(l_params_all = l_params_all),
@@ -136,6 +143,8 @@ df_model_benchmark_PSA <- microbenchmark("PSA - Single Core" = {for (i in 1:n_si
               df_incremental_PSA_MMS = df_incremental_PSA_MMS,
               df_ICER_PSA_MMS = df_ICER_PSA_MMS))}},
 times = 2)
+
+stopCluster(cl)
 
 plot_PSA <- autoplot(df_model_benchmark_PSA)
 
