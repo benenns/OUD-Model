@@ -27,16 +27,13 @@ source("R/generate_psa_parameters.R")
 source("Analysis/00_load_parameters.R")
 
 # Set number of cores
-<<<<<<< Updated upstream
-n_cores <- detectCores()
-#n_cores <- 4
-registerDoParallel(n_cores)
-=======
 #n_cores <- detectCores()
-n_cores <- 4
+#n_cores <- 4
+#registerDoParallel(n_cores)
+#n_cores <- detectCores()
+#n_cores <- 4
 cl <- makePSOCKcluster(2)
 registerDoParallel(cl)
->>>>>>> Stashed changes
 
 # Benchmark baseline deterministic model
 # df_model_benchmark <- microbenchmark("Markov Model (Base)"    = markov_model(l_params_all = l_params_all),
