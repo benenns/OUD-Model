@@ -26,37 +26,26 @@ source("R/generate_psa_parameters.R")
 # Load parameters
 source("Analysis/00_load_parameters.R")
 
-# Set number of cores
+# Stop clustering (stopCluster function doesn't always work with Windows)
+unregister_dopar <- function() {
+  env <- foreach:::.foreachGlobals
+  rm(list=ls(name=env), pos=env)
+}
+
+# Set up parallel
+unregister_dopar() # clear any clusters
+getDoParRegistered()
 #n_cores <- detectCores()
 #n_cores <- 4
 #registerDoParallel(n_cores)
 #n_cores <- detectCores()
 #n_cores <- 4
-cl <- makePSOCKcluster(2)
+#cl <- makePSOCKcluster(2)
+type <- if (exists("mcfork", mode = "function")) "FORK" else "PSOCK"
+cores <- getOption("mc.cores", detectCores())
+cl <- makeCluster((cores/2), type = type)
 registerDoParallel(cl)
-
-# Benchmark baseline deterministic model
-# df_model_benchmark <- microbenchmark("Markov Model (Base)"    = markov_model(l_params_all = l_params_all),
-#                                      "Markov Model (Outputs)" = outcomes(l_params_all = l_params_all, v_params_calib = v_calib_post_map),
-#                                      times = 100)
-# plot <- autoplot(df_model_benchmark)
-# 
-# ggsave(plot, 
-#        filename = "Plots/Benchmark/model_benchmark.png", 
-#        width = 10, height = 7)
-# 
-# # Benchmark model calibration
-# l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
-#                        ODN = read.csv(file = "data/cali_target_odn.csv", header = TRUE))
-# 
-# n_cali_max_per <- max(c(l_cali_targets$ODF$Time, l_cali_targets$ODN$Time))
-# 
-# df_model_benchmark_cali <- microbenchmark("Markov Model (Cali)" = markov_model(l_params_all = l_params_all, cali = TRUE), times = 100)
-# plot_cali <- autoplot(df_model_benchmark_cali)
-# 
-# ggsave(plot_cali, 
-#        filename = "Plots/Benchmark/model_benchmark_cali.png", 
-#        width = 10, height = 7)
+getDoParRegistered()
 
 # Benchmark PSA
 
@@ -141,7 +130,11 @@ df_model_benchmark_PSA <- microbenchmark("PSA - Single Core" = {for (i in 1:n_si
               df_ICER_PSA_MMS = df_ICER_PSA_MMS))}},
 times = 2)
 
-stopCluster(cl)
+unregister_dopar()
+
+#stopImplicitCluster()
+
+#stopCluster(cl)
 
 plot_PSA <- autoplot(df_model_benchmark_PSA)
 
