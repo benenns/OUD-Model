@@ -156,6 +156,9 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
                    fatal = FALSE,
                    injection = FALSE){
     
+    # ADDITIONAL VECTORS OF TIME-VARYING CALIBRATION PARAMETERS (DAD R&R)
+    # v_witness <- c()
+    
     # Probability of successful naloxone use
     p_NX_rev <- (p_witness * p_NX_used * p_NX_success)
     
@@ -181,6 +184,7 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     
     v_fent_exp_prob <- c(p_fent_exp_2018, p_fent_exp_2019, p_fent_exp_2020)
     
+
     # Adjustment for injection/non-injection
     #if (injection){
     #  v_fent_exp_prob <- v_fent_exp_prob
