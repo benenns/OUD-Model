@@ -13,6 +13,7 @@ library(rBeta2009)
 library(parallel)
 library(foreach)
 library(doParallel)
+library(parallelly)
 library(tidyr)
 
 # Call model setup functions
@@ -33,19 +34,27 @@ unregister_dopar <- function() {
 }
 
 # Set up parallel
+#
 unregister_dopar() # clear any clusters
-getDoParRegistered()
+#getDoParRegistered()
 #n_cores <- detectCores()
 #n_cores <- 4
 #registerDoParallel(n_cores)
-#n_cores <- detectCores()
+n_cores <- availableCores()
 #n_cores <- 4
 #cl <- makePSOCKcluster(2)
-type <- if (exists("mcfork", mode = "function")) "FORK" else "PSOCK"
-cores <- getOption("mc.cores", detectCores())
-cl <- makeCluster((cores/2), type = type)
+#type <- if (exists("mcfork", mode = "function")) "FORK" else "PSOCK"
+
+#cores <- getOption("mc.cores", detectCores())
+
+#cl <- parallelly::makeClusterPSOCK(10, autoStop = TRUE, dryrun = TRUE, quiet = TRUE, validate = TRUE, verbose = TRUE)
+cl <- parallelly::makeClusterPSOCK(10)
+#cl <- makeCluster((cores/2), type = type)
 registerDoParallel(cl)
 getDoParRegistered()
+availableWorkers()
+availableCores()
+print(isNodeAlive(cl))
 
 # Benchmark PSA
 
