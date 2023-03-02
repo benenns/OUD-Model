@@ -529,10 +529,16 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     p_fent_exp_2020 = runif(n_sim, min = df_fentanyl["low", "pe"], max = df_fentanyl["high", "pe"]),
     
     # Naloxone (OD reversal)
-    p_witness = rbeta(n_sim, shape1 = df_overdose["shape1", "witness_prob"], shape2 = df_overdose["shape2", "witness_prob"]),
+    
+    ### R&R MODIFICATION ###
+    #p_witness = rbeta(n_sim, shape1 = df_overdose["shape1", "witness_prob"], shape2 = df_overdose["shape2", "witness_prob"]), (now part of calibration)
+    
     p_attended = rbeta(n_sim, shape1 = df_overdose["shape1", "attended_prob"], shape2 = df_overdose["shape2", "attended_prob"]),
-    p_NX_used = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_prob"], shape2 = df_overdose["shape2", "NX_prob"]),
+    #p_NX_used = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_prob"], shape2 = df_overdose["shape2", "NX_prob"]),
     p_NX_success = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_success_prob"], shape2 = df_overdose["shape2", "NX_success_prob"]),
+    
+    ### R&R MODIFICATION ###
+    p_NX_2020 = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_prob"], shape2 = df_overdose["shape2", "NX_prob"]), #Hold NX at 2020 levels
 
     ### HIV seroconversion ###
     # Ensure that seed is set and produces identical draws for parameters that are set to be equal by assumption (e.g. all non-injection HIV seroconversion)

@@ -29,38 +29,33 @@ calibration_out <- function(v_params_calib,
   n_ODF_t1 <- l_cali_targets$ODF$Time[1]
   n_ODF_t2 <- l_cali_targets$ODF$Time[2]
   n_ODF_t3 <- l_cali_targets$ODF$Time[3]
+  n_ODF_t4 <- l_cali_targets$ODF$Time[4]### R&R MODIFICATION ###
   
   ### Non-fatal overdose ###
   n_ODN_t1 <- l_cali_targets$ODN$Time[1]
   n_ODN_t2 <- l_cali_targets$ODN$Time[2]
   n_ODN_t3 <- l_cali_targets$ODN$Time[3]
+  n_ODN_t4 <- l_cali_targets$ODN$Time[4]### R&R MODIFICATION ###
   
   ### Subset output by time-points ###
   ### Overdose deaths ###
-  # Fatal overdoses already cumulative at each time point
-  #n_ODF1 <- v_ODF[n_ODF_t1]
-  #n_ODF2 <- v_ODF[n_ODF_t2]
-  #n_ODF3 <- v_ODF[n_ODF_t3]
-  
-  # Yearly fatal overdoses (disaggregated)
+  # Yearly fatal overdoses
   n_ODF1 <- v_ODF[n_ODF_t1]
   n_ODF2 <- v_ODF[n_ODF_t2] - v_ODF[n_ODF_t1]
   n_ODF3 <- v_ODF[n_ODF_t3] - v_ODF[n_ODF_t2]
+  n_ODF4 <- v_ODF[n_ODF_t4] - v_ODF[n_ODF_t3]### R&R MODIFICATION ###
   
   ### Non-fatal overdose
   # Non-fatal overdoses need to be summed across time points to generate cumulative estimates
-  #n_ODN1 <- sum(v_ODN[c(1:n_ODN_t1)])
-  #n_ODN2 <- sum(v_ODN[c(1:n_ODN_t2)])
-  #n_ODN3 <- sum(v_ODN[c(1:n_ODN_t3)])
-  
-  # Yearly non-fatal overdose (disaggregated)
+  # Yearly non-fatal overdose
   n_ODN1 <- sum(v_ODN[c(1:n_ODN_t1)])
-  n_ODN2 <- sum(v_ODN[c(13:n_ODN_t2)])
-  n_ODN3 <- sum(v_ODN[c(25:n_ODN_t3)])
+  n_ODN2 <- sum(v_ODN[c((n_ODN_t1 + 1):n_ODN_t2)])### R&R MODIFICATION ###
+  n_ODN3 <- sum(v_ODN[c((n_ODN_t2 + 1):n_ODN_t3)])### R&R MODIFICATION ###
+  n_ODN4 <- sum(v_ODN[c((n_ODN_t3 + 1):n_ODN_t4)])### R&R MODIFICATION ###
   
   #### Return Output ####
-  l_out <- list(fatal_overdose = c(n_ODF1, n_ODF2, n_ODF3), # deaths at t1, t2 , t3 time periods (for yearly deaths: (i + 12) - i where i = first month of year, 1 + 12 = last month)
-                overdose = c(n_ODN1, n_ODN2, n_ODN3))
+  l_out <- list(fatal_overdose = c(n_ODF1, n_ODF2, n_ODF3, n_ODF4), # deaths at t1, t2, t3, t4 time periods (for yearly deaths: (i + 12) - i where i = first month of year, 1 + 12 = last month)
+                overdose = c(n_ODN1, n_ODN2, n_ODN3, n_ODN4))
   return(l_out)
 }
 
@@ -76,16 +71,14 @@ sample.prior <- function(n_samp,
   colnames(m_param_samp) <- v_param_names
   
   # draw parameters
-  draws  <- data.frame(n_TX_OD   = qgamma(m_lhs_unit[,1], shape = v_alpha[1], scale = v_beta[1]),  # n_TX_OD
-                       n_TXC_OD  = qgamma(m_lhs_unit[,2], shape = v_alpha[2], scale = v_beta[2]),  # n_TXC_OD
-                       n_REL_OD  = qgamma(m_lhs_unit[,3], shape = v_alpha[3], scale = v_beta[3]), # n_REL_OD
-                       n_ABS_OD  = qunif(m_lhs_unit[,4], min = v_alpha[4], max = v_beta[4]),   # n_ABS_OD
-                       #n_TX_OD_mult   = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TX_OD_mult
-                       n_TXC_OD_mult  = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TXC_OD_mult
-                       #n_REL_OD_mult  = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),                      # n_REL_OD_mult
-                       #n_INJ_OD_mult  = qgamma(m_lhs_unit[,8], shape = v_alpha[8], scale = v_beta[8]),  # n_INJ_OD_mult
-                       n_fent_OD_mult  = qunif(m_lhs_unit[,6], min = v_alpha[6], max = v_beta[6]),  # n_fent_OD_mult
-                       n_fatal_OD  = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]))  # n_fatal_OD
+  draws  <- data.frame(n_TX_OD         = qgamma(m_lhs_unit[,1], shape = v_alpha[1], scale = v_beta[1]),  # n_TX_OD
+                       n_TXC_OD        = qgamma(m_lhs_unit[,2], shape = v_alpha[2], scale = v_beta[2]),  # n_TXC_OD
+                       n_REL_OD        = qgamma(m_lhs_unit[,3], shape = v_alpha[3], scale = v_beta[3]), # n_REL_OD
+                       n_ABS_OD        = qunif(m_lhs_unit[,4],  min = v_alpha[4],   max = v_beta[4]),   # n_ABS_OD
+                       n_TXC_OD_mult   = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TXC_OD_mult
+                       n_fent_OD_mult  = qunif(m_lhs_unit[,6],  min = v_alpha[6],   max = v_beta[6]),  # n_fent_OD_mult
+                       n_fatal_OD      = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),
+                       p_witness       = qunif(m_lhs_unit[,8],  min = v_alpha[8],   max = v_beta[8]))  # Probability of witnessed overdose ### R&R MODIFICATION ###
   
   # draw parameters (uniform distribution)
   #for (i in 1:n_param){ 
@@ -117,14 +110,11 @@ log_prior <- function(v_params,
   lprior <- lprior + dgamma(v_params[, 1], shape = v_alpha[1], scale = v_beta[1], log = TRUE) # n_TX_OD
   lprior <- lprior + dgamma(v_params[, 2], shape = v_alpha[2], scale = v_beta[2], log = TRUE) # n_TXC_OD
   lprior <- lprior + dgamma(v_params[, 3], shape = v_alpha[3], scale = v_beta[3], log = TRUE) # n_REL_OD
-  lprior <- lprior + dunif(v_params[, 4], min = v_alpha[4], max = v_beta[4], log = TRUE) # n_ABS_OD
-  #lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TX_OD_mult
+  lprior <- lprior + dunif(v_params[, 4],  min = v_alpha[4],   max = v_beta[4], log = TRUE) # n_ABS_OD
   lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TXC_OD_mult
-  #lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_REL_OD_mult
-  #lprior <- lprior + dgamma(v_params[, 8], shape = v_alpha[8], scale = v_beta[8], log = TRUE) # n_INJ_OD_mult
-  lprior <- lprior + dunif(v_params[, 6], min = v_alpha[6], max = v_beta[6], log = TRUE) # n_fent_OD_mult
+  lprior <- lprior + dunif(v_params[, 6],  min = v_alpha[6],   max = v_beta[6], log = TRUE) # n_fent_OD_mult
   lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_fatal_OD
-  
+  lprior <- lprior + dunif(v_params[, 8],  min = v_alpha[8],   max = v_beta[8], log = TRUE) # p_witness
   
   #for (i in 1:n_param){
   #  lprior <- lprior + dunif(v_params[, i],
@@ -179,7 +169,7 @@ log_lik <- function(v_params){ # User defined
                                           sd = l_cali_targets$ODN$se,
                                           log = T) * l_cali_targets$ODN$weight)
       
-      ## can give different targets different weights
+      ## targets different weights
       v_weights <- c(1, 0.75) # 100% fatal overdose; 75% non-fatal overdose
       #v_weights <- rep(1, n_target) # set to 1 for equal weight
       ## weighted sum

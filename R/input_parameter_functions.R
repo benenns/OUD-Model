@@ -30,6 +30,7 @@ load_mort_params <- function(file.mort = NULL, n_male){
 #' @param file.unconditional String with the location and name of the file with empirical destination states
 #' @param file.overdose String with the location and name of the file with overdose/fentanyl-related parameters
 #' @param file.fentanyl String with the location and name of the file with fentanyl exposure parameters
+#' @param file.naloxone String with the location and name of the file with naloxone parameters
 #' @param file.hiv String with the location and name of the file with HIV seroconversion probabilities
 #' @param file.hcv String with the location and name of the file with HCV seroconversion probabilities
 #' @param file.costs String with the location and name of the file with costs (excluding crime costs)
@@ -45,11 +46,10 @@ load_all_params <- function(file.init = NULL,
                             file.death_hr = NULL,
                             file.frailty = NULL,
                             file.weibull = NULL,
-                            #file.weibull_scale = NULL,
-                            #file.weibull_shape = NULL,
                             file.unconditional = NULL,
                             file.overdose = NULL,
                             file.fentanyl = NULL,
+                            file.naloxone = NULL,
                             file.hiv = NULL,
                             file.hcv = NULL,
                             file.costs = NULL,
@@ -62,11 +62,10 @@ load_all_params <- function(file.init = NULL,
   df_death_hr <- read.csv(file = file.death_hr, row.names = 1, header = TRUE) # Mortality hazard ratios
   df_frailty <- read.csv(file = file.frailty, row.names = 1, header = TRUE) # Episode frailty params
   df_weibull <- read.csv(file = file.weibull, row.names = 1, header = TRUE) # Weibull params
-  #df_weibull_scale <- read.csv(file = file.weibull_scale, row.names = 1, header = TRUE) # Weibull scale params
-  #df_weibull_shape <- read.csv(file = file.weibull_shape, row.names = 1, header = TRUE) # Weibull shape params
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose-fentanyl parameters
   df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl exposure parameters
+  df_naloxone <- read.csv(file = file.naloxone, row.names = 1, header = TRUE) # Time-varying naloxone parameters for calibration
   df_hiv <- read.csv(file = file.hiv, row.names = 1, header = TRUE) # HIV seroconversion probs
   df_hcv <- read.csv(file = file.hcv, row.names = 1, header = TRUE) # HCV seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
@@ -84,9 +83,6 @@ load_all_params <- function(file.init = NULL,
     n_cali_per = df_init_params["pe", "cali_per"], # number of calibration periods
     n_male = df_init_params["pe", "male_prop"], # % male
     n_INJ = df_init_params["pe", "INJ_prop"], # % injection
-    #n_HIV = df_init_params["pe", "hiv_prop"], # % of HIV-positive individuals
-    #n_HCV = df_init_params["pe", "hcv_prop"], # % of HCV-positive individuals
-    #n_COI = df_init_params["pe", "coi_prop"], # % of co-infected individuals
     #Injection
     n_HIV_INJ = df_init_params["pe", "HIV_prop_INJ"], # % of HIV-positive individuals
     n_HCV_INJ = df_init_params["pe", "HCV_prop_INJ"], # % of HCV-positive individuals
@@ -108,7 +104,6 @@ load_all_params <- function(file.init = NULL,
     v_r_mort_by_age = load_mort_params(file = file.mort, n_male = df_init_params["pe", "male_prop"]), # vector of age-specific mortality
     
     #### Hazard ratios for death probability ####
-    # ***NEW ESTIMATES*** #
     # Non-injection
     hr_BUP_NI  = df_death_hr["pe", "TX"],
     hr_BUPC_NI = df_death_hr["pe", "TX"],
@@ -132,30 +127,6 @@ load_all_params <- function(file.init = NULL,
     hr_HIV_INJ  = df_death_hr["pe", "HIV"],
     hr_HCV_INJ  = df_death_hr["pe", "HCV"],
     hr_COI_INJ  = df_death_hr["pe", "COI"],
-    
-    # Non-injection
-    #hr_BUP_NI  = df_death_hr["pe", "BUP_NI"],
-    #hr_BUPC_NI = df_death_hr["pe", "BUPC_NI"],
-    #hr_MET_NI  = df_death_hr["pe", "MET_NI"],
-    #hr_METC_NI  = df_death_hr["pe", "METC_NI"],
-    #hr_REL_NI  = df_death_hr["pe", "REL_NI"],
-    #hr_ODN_NI   = df_death_hr["pe", "ODN_NI"],
-    #hr_ABS_NI  = df_death_hr["pe", "ABS_NI"],
-    #hr_HIV_NI  = df_death_hr["pe", "HIV_NI"],
-    #hr_HCV_NI  = df_death_hr["pe", "HCV_NI"],
-    #hr_COI_NI  = df_death_hr["pe", "COI_NI"],
-    
-    # Injection
-    #hr_BUP_INJ  = df_death_hr["pe", "BUP_INJ"],
-    #hr_BUPC_INJ  = df_death_hr["pe", "BUPC_INJ"],
-    #hr_MET_INJ  = df_death_hr["pe", "MET_INJ"],
-    #hr_METC_INJ  = df_death_hr["pe", "METC_INJ"],
-    #hr_REL_INJ  = df_death_hr["pe", "REL_INJ"],
-    #hr_ODN_INJ   = df_death_hr["pe", "ODN_INJ"],
-    #hr_ABS_INJ  = df_death_hr["pe", "ABS_INJ"],
-    #hr_HIV_INJ  = df_death_hr["pe", "HIV_INJ"],
-    #hr_HCV_INJ  = df_death_hr["pe", "HCV_INJ"],
-    #hr_COI_INJ  = df_death_hr["pe", "COI_INJ"],
     
     #### Frailty estimates for successive episodes, injection vs. non-injection, concurrent opioid use ####
     # ***NEW ESTIMATES*** #
@@ -183,47 +154,6 @@ load_all_params <- function(file.init = NULL,
     p_frailty_BUPC = df_frailty["pe", "BUPC"],
     p_frailty_METC = df_frailty["pe", "METC"],
     
-    # ***OLD ESTIMATES*** #
-    # Non-injection
-    #p_frailty_BUP_NI_1 = 1,
-    #p_frailty_BUP_NI_2 = df_frailty["pe", "BUP_NI_2"],
-    #p_frailty_BUP_NI_3 = df_frailty["pe", "BUP_NI_3"],
-    #p_frailty_BUPC_NI_1 = 1,
-    #p_frailty_BUPC_NI_2 = df_frailty["pe", "BUPC_NI_2"],
-    #p_frailty_BUPC_NI_3 = df_frailty["pe", "BUPC_NI_3"],
-    #p_frailty_MET_NI_1 = 1,
-    #p_frailty_MET_NI_2 = df_frailty["pe", "MET_NI_2"],
-    #p_frailty_MET_NI_3 = df_frailty["pe", "MET_NI_3"],
-    #p_frailty_METC_NI_1 = 1,
-    #p_frailty_METC_NI_2 = df_frailty["pe", "METC_NI_2"],
-    #p_frailty_METC_NI_3 = df_frailty["pe", "METC_NI_3"],
-    #p_frailty_ABS_NI_1 = 1,
-    #p_frailty_ABS_NI_2 = df_frailty["pe", "ABS_NI_2"],
-    #p_frailty_ABS_NI_3 = df_frailty["pe", "ABS_NI_3"],
-    #p_frailty_REL_NI_1 = 1,
-    #p_frailty_REL_NI_2 = df_frailty["pe", "REL_NI_2"],
-    #p_frailty_REL_NI_3 = df_frailty["pe", "REL_NI_3"],
-    
-    # Injection
-    #p_frailty_BUP_INJ_1 = 1,
-    #p_frailty_BUP_INJ_2 = df_frailty["pe", "BUP_INJ_2"],
-    #p_frailty_BUP_INJ_3 = df_frailty["pe", "BUP_INJ_3"],
-    #p_frailty_BUPC_INJ_1 = 1,
-    #p_frailty_BUPC_INJ_2 = df_frailty["pe", "BUPC_INJ_2"],
-    #p_frailty_BUPC_INJ_3 = df_frailty["pe", "BUPC_INJ_3"],
-    #p_frailty_MET_INJ_1 = 1,
-    #p_frailty_MET_INJ_2 = df_frailty["pe", "MET_INJ_2"],
-    #p_frailty_MET_INJ_3 = df_frailty["pe", "MET_INJ_3"],
-    #p_frailty_METC_INJ_1 = 1,
-    #p_frailty_METC_INJ_2 = df_frailty["pe", "METC_INJ_2"],
-    #p_frailty_METC_INJ_3 = df_frailty["pe", "METC_INJ_3"],
-    #p_frailty_ABS_INJ_1 = 1,
-    #p_frailty_ABS_INJ_2 = df_frailty["pe", "ABS_INJ_2"],
-    #p_frailty_ABS_INJ_3 = df_frailty["pe", "ABS_INJ_3"],
-    #p_frailty_REL_INJ_1 = 1,
-    #p_frailty_REL_INJ_2 = df_frailty["pe", "REL_INJ_2"],
-    #p_frailty_REL_INJ_3 = df_frailty["pe", "REL_INJ_3"],
-    
     #### Load weibull parameters ####
     # From OPTIMA trial
     # Shape
@@ -237,81 +167,8 @@ load_all_params <- function(file.init = NULL,
     p_weibull_scale_MET = df_weibull["pe", "MET_scale_1"],
     p_weibull_scale_REL = df_weibull["pe", "REL_scale_1"],
     p_weibull_scale_ABS = df_weibull["pe", "ABS_scale_1"],
-    
-    # Parameters for episode 1, 2, 3+
-    # BUP
-    # Scale
-    #p_weibull_scale_BUP_1 = df_weibull["pe", "BUP_scale_1"],
-    #p_weibull_scale_BUP_2 = df_weibull["pe", "BUP_scale_2"],
-    #p_weibull_scale_BUP_3 = df_weibull["pe", "BUP_scale_3"],
-    # Shape
-    #p_weibull_shape_BUP_1 = df_weibull["pe", "BUP_shape_1"],
-    #p_weibull_shape_BUP_2 = df_weibull["pe", "BUP_shape_2"],
-    #p_weibull_shape_BUP_3 = df_weibull["pe", "BUP_shape_3"],
-    
-    # MET
-    # Scale
-    #p_weibull_scale_MET_1 = df_weibull["pe", "MET_scale_1"],
-    #p_weibull_scale_MET_2 = df_weibull["pe", "MET_scale_2"],
-    #p_weibull_scale_MET_3 = df_weibull["pe", "MET_scale_3"],
-    # Shape
-    #p_weibull_shape_MET_1 = df_weibull["pe", "MET_shape_1"],
-    #p_weibull_shape_MET_2 = df_weibull["pe", "MET_shape_2"],
-    #p_weibull_shape_MET_3 = df_weibull["pe", "MET_shape_3"],
-    
-    # REL
-    # Scale
-    #p_weibull_scale_REL_1 = df_weibull["pe", "REL_scale_1"],
-    #p_weibull_scale_REL_2 = df_weibull["pe", "REL_scale_2"],
-    #p_weibull_scale_REL_3 = df_weibull["pe", "REL_scale_3"],
-    # Shape
-    #p_weibull_shape_REL_1 = df_weibull["pe", "REL_shape_1"],
-    #p_weibull_shape_REL_2 = df_weibull["pe", "REL_shape_2"],
-    #p_weibull_shape_REL_3 = df_weibull["pe", "REL_shape_3"],
-    
-    # ABS
-    # Scale
-    #p_weibull_scale_ABS_1 = df_weibull["pe", "ABS_scale_1"],
-    #p_weibull_scale_ABS_2 = df_weibull["pe", "ABS_scale_2"],
-    #p_weibull_scale_ABS_3 = df_weibull["pe", "ABS_scale_3"],
-    # Shape
-    #p_weibull_shape_ABS_1 = df_weibull["pe", "ABS_shape_1"],
-    #p_weibull_shape_ABS_2 = df_weibull["pe", "ABS_shape_2"],
-    #p_weibull_shape_ABS_3 = df_weibull["pe", "ABS_shape_3"],
-    
-    
-    # Weibull scale
-    #p_weibull_scale_BUP_NI = df_weibull_scale["pe", "BUP_NI"],
-    #p_weibull_scale_BUPC_NI = df_weibull_scale["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_scale_MET_NI = df_weibull_scale["pe", "MET_NI"],
-    #p_weibull_scale_METC_NI = df_weibull_scale["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_scale_REL_NI = df_weibull_scale["pe", "REL_NI"],
-    #p_weibull_scale_ABS_NI = df_weibull_scale["pe", "ABS_NI"],
-    #
-    #p_weibull_scale_BUP_INJ = df_weibull_scale["pe", "BUP_INJ"],
-    #p_weibull_scale_BUPC_INJ = df_weibull_scale["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_scale_MET_INJ = df_weibull_scale["pe", "MET_INJ"],
-    #p_weibull_scale_METC_INJ = df_weibull_scale["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_scale_REL_INJ = df_weibull_scale["pe", "REL_INJ"],
-    #p_weibull_scale_ABS_INJ = df_weibull_scale["pe", "ABS_INJ"],
-
-    # Weibull shape
-    #p_weibull_shape_BUP_NI = df_weibull_shape["pe", "BUP_NI"],
-    #p_weibull_shape_BUPC_NI = df_weibull_shape["pe", "BUP_NI"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_shape_MET_NI = df_weibull_shape["pe", "MET_NI"],
-    #p_weibull_shape_METC_NI = df_weibull_shape["pe", "MET_NI"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_shape_REL_NI = df_weibull_shape["pe", "REL_NI"],
-    #p_weibull_shape_ABS_NI = df_weibull_shape["pe", "ABS_NI"],
-    #
-    #p_weibull_shape_BUP_INJ = df_weibull_shape["pe", "BUP_INJ"],
-    #p_weibull_shape_BUPC_INJ = df_weibull_shape["pe", "BUP_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_shape_MET_INJ = df_weibull_shape["pe", "MET_INJ"],
-    #p_weibull_shape_METC_INJ = df_weibull_shape["pe", "MET_INJ"], # same estimates for concurrent use (adjustment with frailty)
-    #p_weibull_shape_REL_INJ = df_weibull_shape["pe", "REL_INJ"],
-    #p_weibull_shape_ABS_INJ = df_weibull_shape["pe", "ABS_INJ"],
 
     #### Unconditional transition probabilities ####
-    
     # Non-Injection
     # From BUP
     p_BUP_BUPC_NI  = df_UP["BUP_NI", "BUPC_NI"],
@@ -420,13 +277,6 @@ load_all_params <- function(file.init = NULL,
     n_TXC_OD_scale = df_overdose["scale", "TXC_OD"],
     n_REL_OD_scale = df_overdose["scale", "REL_OD"],
     n_ABS_OD_high  = df_overdose["high", "ABS_OD"],
-
-    # Overdose transition multipliers
-    # First 4 weeks of treatment and relapse
-    # Treatment states
-    #n_TX_OD_mult = df_overdose["pe", "TX_OD_mult"],
-    #n_TX_OD_mult_shape = df_overdose["shape", "TX_OD_mult"],
-    #n_TX_OD_mult_scale = df_overdose["scale", "TX_OD_mult"],
     
     # BUP
     n_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],
@@ -464,8 +314,6 @@ load_all_params <- function(file.init = NULL,
     n_fatal_OD_scale = df_overdose["scale", "fatal_OD"],
     
     # Fentanyl
-    # Rate of fentanyl overdose
-    #n_fent_OD = df_overdose["pe", "fent_OD_rate"],
     # Fentanyl rate multiplier
     n_fent_OD_mult = df_overdose["pe", "fent_OD_mult"],
     n_fent_OD_mult_shape = df_overdose["shape", "fent_OD_mult"],
@@ -488,35 +336,26 @@ load_all_params <- function(file.init = NULL,
     #p_fent_exp = df_fentanyl["2020", "CAN"],
     
     # Overall - Fentanyl prevalence
+    p_fent_exp_2017 = df_fentanyl["2017", "pe"],### R&R MODIFICATION ###
     p_fent_exp_2018 = df_fentanyl["2018", "pe"],
     p_fent_exp_2019 = df_fentanyl["2019", "pe"],
     p_fent_exp_2020 = df_fentanyl["2020", "pe"],
     
-    # BC - Fentanyl prevalence
-    #p_fent_exp_2018_bc = df_fentanyl["2018", "BC"],
-    #p_fent_exp_2019_bc = df_fentanyl["2019", "BC"],
-    #p_fent_exp_2020_bc = df_fentanyl["2020", "BC"],
-    
-    # AB - Fentanyl prevalence
-    #p_fent_exp_2018_ab = df_fentanyl["2018", "AB"],
-    #p_fent_exp_2019_ab = df_fentanyl["2019", "AB"],
-    #p_fent_exp_2020_ab = df_fentanyl["2020", "AB"],
-    
-    # ON - Fentanyl prevalence
-    #p_fent_exp_2018_on = df_fentanyl["2018", "ON"],
-    #p_fent_exp_2019_on = df_fentanyl["2019", "ON"],
-    #p_fent_exp_2020_on = df_fentanyl["2020", "ON"],
-    
-    # QC - Fentanyl prevalence
-    #p_fent_exp_2018_qc = df_fentanyl["2018", "QC"],
-    #p_fent_exp_2019_qc = df_fentanyl["2019", "QC"],
-    #p_fent_exp_2020_qc = df_fentanyl["2020", "QC"],
-    
     # Naloxone
-    p_witness = df_overdose["pe", "witness_prob"],
+    p_witness = df_overdose["pe", "witness_prob"],### R&R MODIFICATION ###
+    p_witness_low = df_overdose["low", "witness_prob"],### R&R MODIFICATION ###
+    p_witness_high = df_overdose["high", "witness_prob"],### R&R MODIFICATION ###
+    
+    
     p_attended = df_overdose["pe", "attended_prob"],
-    p_NX_used = df_overdose["pe", "NX_prob"],
+    #p_NX_used = df_overdose["pe", "NX_prob"],### R&R MODIFICATION ###
     p_NX_success = df_overdose["pe", "NX_success_prob"],
+    
+    ### R&R MODIFICATION ###
+    p_NX_2017 = df_naloxone["2017", "pe"],
+    p_NX_2018 = df_naloxone["2018", "pe"],
+    p_NX_2019 = df_naloxone["2019", "pe"],
+    p_NX_2020 = df_naloxone["2020", "pe"],
     
     #### Seroconversion ####
     # HIV Seroconversion
@@ -599,7 +438,6 @@ load_all_params <- function(file.init = NULL,
     p_HIV_HCV_ABS_INJ = df_hcv["pe", "COI_HCV_NI"],
 
     #### Costs ####
-    
     # Treatment Costs
     c_BUP_TX  = df_costs["pe", "BUP_TX"],
     c_MET_TX  = df_costs["pe", "MET_TX"],

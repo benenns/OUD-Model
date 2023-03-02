@@ -28,6 +28,7 @@ l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
                                 file.unconditional = "data/Modified Model Specification/unconditional.csv",
                                 file.overdose = "data/overdose.csv", # includes calibration-related parameters
                                 file.fentanyl = "data/Calibration/fentanyl.csv",
+                                file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
                                 file.hiv = "data/hiv_sero.csv",
                                 file.hcv = "data/hcv_sero.csv",
                                 file.costs = "data/Modified Model Specification/costs.csv",
@@ -39,32 +40,28 @@ v_cali_param_names <- c("'Overdose rate (BNX/MET)'",
                         "'Overdose rate (BNX/MET + opioid)'",
                         "'Overdose rate (opioid use)'", 
                         "'Overdose rate (opioid cessation)'",
-                        #"'First month mult (treatment)'",
                         "'First month mult (BNX/MET + opioid)'",
-                        #"'First month mult (active opioid)'",
-                        #"'Injection mult'",
                         "'Fentanyl mult'",
-                        "'Fatal overdose rate'")
-v_par1 <- c(n_TX_OD_shape   = l_params_all$n_TX_OD_shape,
-             n_TXC_OD_shape  = l_params_all$n_TXC_OD_shape,
-             n_REL_OD_shape   = l_params_all$n_REL_OD_shape,
-             n_ABS_OD_low    = l_params_all$n_ABS_OD_low,
-             #n_TX_OD_mult_shape  = l_params_all$n_TX_OD_mult_shape,
-             n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
-             #n_REL_OD_mult_shape = l_params_all$n_REL_OD_mult_shape,
-             #n_INJ_OD_mult_shape = l_params_all$n_INJ_OD_mult_shape,
-             n_fent_OD_mult_low = l_params_all$n_fent_OD_mult_low,
-             n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape) # lower bound estimate for each param
-v_par2 <- c(n_TX_OD_scale   = l_params_all$n_TX_OD_scale,
-            n_TXC_OD_scale  = l_params_all$n_TXC_OD_scale,
-            n_REL_OD_scale   = l_params_all$n_REL_OD_scale,
-            n_ABS_OD_high    = l_params_all$n_ABS_OD_high,
-            #n_TX_OD_mult_scale  = l_params_all$n_TX_OD_mult_scale,
+                        "'Fatal overdose rate'",
+                        "'Probability overdose witnessed")
+
+v_par1 <- c(n_TX_OD_shape       = l_params_all$n_TX_OD_shape,
+            n_TXC_OD_shape      = l_params_all$n_TXC_OD_shape,
+            n_REL_OD_shape      = l_params_all$n_REL_OD_shape,
+            n_ABS_OD_low        = l_params_all$n_ABS_OD_low,
+            n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
+            n_fent_OD_mult_low  = l_params_all$n_fent_OD_mult_low,
+            n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape,
+            p_witness           = l_params_all$p_witness_low)### R&R MODIFICATION ###
+
+v_par2 <- c(n_TX_OD_scale       = l_params_all$n_TX_OD_scale,
+            n_TXC_OD_scale      = l_params_all$n_TXC_OD_scale,
+            n_REL_OD_scale      = l_params_all$n_REL_OD_scale,
+            n_ABS_OD_high       = l_params_all$n_ABS_OD_high,
             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
-            #n_REL_OD_mult_scale = l_params_all$n_REL_OD_mult_scale,
-            #n_INJ_OD_mult_scale = l_params_all$n_INJ_OD_mult_scale,
             n_fent_OD_mult_high = l_params_all$n_fent_OD_mult_high,
-            n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale)
+            n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale,
+            p_witness           = l_params_all$p_witness_high)### R&R MODIFICATION ###
 
 #### Load calibration targets ####
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
@@ -79,7 +76,6 @@ plotrix::plotCI(x    = l_cali_targets$ODF$Time,
                 y    = l_cali_targets$ODF$pe, 
                 ui   = l_cali_targets$ODF$high,
                 li   = l_cali_targets$ODF$low,
-                #ylim = c(0, 1), 
                 xlab = "Month", ylab = "Fatal Overdoses")
 
 ### TARGET 2: Non-fatal overdose ("ODN")
@@ -87,25 +83,14 @@ plotrix::plotCI(x    = l_cali_targets$ODN$Time,
                 y    = l_cali_targets$ODN$pe, 
                 ui   = l_cali_targets$ODN$high,
                 li   = l_cali_targets$ODN$low,
-                #ylim = c(0, 1), 
                 xlab = "Month", ylab = "Non-fatal Overdoses")
 
 #### Specify calibration parameters ####
-### Specify seed (for reproducible sequence of random numbers)
+### Set seed
 set.seed(3730687)
 
 ### Number of random samples to obtain from the posterior distribution 
 n_resamp <- 10000 # to match number of PSA draws
-
-### Names and number of input parameters to be calibrated
-#v_param_names  <- c("Overdose Rate (TX)",
- #                   "Overdose Rate (TXC)",
-  #                  "Overdose Rate (REL)",
-   #                 "First-month Mult (TX)",
-    #                "First-month Mult (TXC)",
-     #               "First-month Mult (REL)",
-      #              "Injection Mult",
-       #             "Fatal Overdose Rate")
 
 ### Number of calibration targets
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
@@ -293,9 +278,15 @@ for(i in 1:n_resamp){
   m_model_targets_ODF[i, 2] <- l_model_target_fit$fatal_overdose[2]
   m_model_targets_ODF[i, 3] <- l_model_target_fit$fatal_overdose[3]
   
+  ### R&R MODIFICATION ###
+  m_model_targets_ODF[i, 4] <- l_model_target_fit$fatal_overdose[4]
+  
   m_model_targets_ODN[i, 1] <- l_model_target_fit$overdose[1]
   m_model_targets_ODN[i, 2] <- l_model_target_fit$overdose[2]
   m_model_targets_ODN[i, 3] <- l_model_target_fit$overdose[3]
+  
+  ### R&R MODIFICATION ###
+  m_model_targets_ODN[i, 4] <- l_model_target_fit$overdose[4]
 }
 
 ## As .RData
@@ -313,7 +304,7 @@ m_model_targets_ODN_stats <- cbind(matrixStats::colQuantiles(m_model_targets_ODN
                                                              probs = c(0.025, 0.5, 0.975)),
                                    matrixStats::colMeans2(m_model_targets_ODN))
 
-m_time <- matrix(c(12, 24, 36))
+m_time <- matrix(c(12, 24, 36, 48))
 m_pop <- matrix(l_cali_targets$ODF$Pop)
 m_model_targets_ODF_fit <- cbind(m_model_targets_ODF_stats, m_time, m_pop)
 m_model_targets_ODN_fit <- cbind(m_model_targets_ODN_stats, m_time, m_pop)
@@ -352,8 +343,8 @@ plot_fit_ODF <- p_temp_ODF + labs(title = NULL, x = "Year", y = "Fatal overdoses
                              theme(legend.position="none") + 
                              theme(legend.title = element_blank()) +
                              scale_color_manual(values = c('#999999','#E69F00')) +
-                             scale_x_continuous(breaks = c(12, 24, 36),
-                                                labels = c("2018", "2019", "2020"))
+                             scale_x_continuous(breaks = c(12, 24, 36, 48),
+                                                labels = c("2017", "2018", "2019", "2020"))
 #plot_fit_ODF
 
 # Non-fatal overdose
@@ -368,8 +359,8 @@ plot_fit_ODN <- p_temp_ODN + labs(title = NULL, x = "Year", y = "Non-fatal overd
                              theme(legend.position = "none") + 
                              theme(legend.title = element_blank()) +
                              scale_color_manual(values = c('#999999','#E69F00')) +
-                             scale_x_continuous(breaks = c(12, 24, 36),
-                                                labels = c("2018", "2019", "2020"))
+                             scale_x_continuous(breaks = c(12, 24, 36, 48),
+                                                labels = c("2017", "2018", "2019", "2020"))
 
 # Code to extract legend from plots
 g_legend<-function(a.gplot){

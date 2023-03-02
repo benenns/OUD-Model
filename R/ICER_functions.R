@@ -109,26 +109,26 @@ outcomes <- function(l_params_all,
       m_HRU_costs[i, MET & NI]     <- m_HRU_costs[i, MET & NI] * c_MET_NI_HRU
       m_HRU_costs[i, METC & NI]    <- m_HRU_costs[i, METC & NI] * c_METC_NI_HRU
       m_HRU_costs[i, REL & NI]     <- m_HRU_costs[i, REL & NI] * c_REL_NI_HRU
-      m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended) + (c_OD_TX * p_attended))
-      m_HRU_costs[i, ODF & NI]     <- m_HRU_costs[i, ODF & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      m_HRU_costs[i, ODN & NI]     <- m_HRU_costs[i, ODN & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended) + (c_OD_TX * p_attended))
+      m_HRU_costs[i, ODF & NI]     <- m_HRU_costs[i, ODF & NI] * (c_ODN_NI_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ABS & NI]     <- m_HRU_costs[i, ABS & NI] * c_ABS_NI_HRU
       m_HRU_costs[i, BUP & INJ]    <- m_HRU_costs[i, BUP & INJ] * c_BUP_INJ_HRU
       m_HRU_costs[i, BUPC & INJ]   <- m_HRU_costs[i, BUPC & INJ] * c_BUPC_INJ_HRU
       m_HRU_costs[i, MET & INJ]    <- m_HRU_costs[i, MET & INJ] * c_MET_INJ_HRU
       m_HRU_costs[i, METC & INJ]   <- m_HRU_costs[i, METC & INJ] * c_METC_INJ_HRU
       m_HRU_costs[i, REL & INJ]    <- m_HRU_costs[i, REL & INJ] * c_REL_INJ_HRU
-      m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended) + (c_OD_TX * p_attended))
-      m_HRU_costs[i, ODF & INJ]    <- m_HRU_costs[i, ODF & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+      m_HRU_costs[i, ODN & INJ]    <- m_HRU_costs[i, ODN & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended) + (c_OD_TX * p_attended))
+      m_HRU_costs[i, ODF & INJ]    <- m_HRU_costs[i, ODF & INJ] * (c_ODN_INJ_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended))
       m_HRU_costs[i, ABS & INJ]    <- m_HRU_costs[i, ABS & INJ] * c_ABS_INJ_HRU
       
       ## ADD COSTS FOR FATAL OVERDOSE AND DEBUG vvv
       # For fatal overdose costs (need to use i - 1 since trace is cumulative)
       if(i == 1){
-        m_HRU_costs[i, ODF & NI]  <- m_HRU_costs[i, ODF & NI] #* (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-        m_HRU_costs[i, ODF & INJ] <- m_HRU_costs[i, ODF & INJ] #* (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+        m_HRU_costs[i, ODF & NI]  <- m_HRU_costs[i, ODF & NI] #* (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended))
+        m_HRU_costs[i, ODF & INJ] <- m_HRU_costs[i, ODF & INJ] #* (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended))
       } else{
-        m_HRU_costs[i, ODF & NI]  <- (m_HRU_costs[i, ODF & NI] - m_HRU_costs[i - 1, ODF & NI]) #* (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
-        m_HRU_costs[i, ODF & INJ] <- (m_HRU_costs[i, ODF & INJ] - m_HRU_costs[i - 1, ODF & INJ]) #* (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_used) + (c_OD_AMB * p_attended))
+        m_HRU_costs[i, ODF & NI]  <- (m_HRU_costs[i, ODF & NI] - m_HRU_costs[i - 1, ODF & NI]) #* (c_OD_NI_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended))
+        m_HRU_costs[i, ODF & INJ] <- (m_HRU_costs[i, ODF & INJ] - m_HRU_costs[i - 1, ODF & INJ]) #* (c_OD_INJ_HRU + (c_OD_NX * p_witness * p_NX_2020) + (c_OD_AMB * p_attended))
       }
       
       m_HRU_costs[i, ] <- m_HRU_costs[i, ] / ((1 + n_per_discount)^i) # apply monthly discount

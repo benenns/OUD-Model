@@ -5,7 +5,6 @@ library(reshape2) # to transform data
 library(ggplot2)  # for nice looking plots
 library(tidyverse)
 library(formattable)
-#library(xlsx)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -15,14 +14,6 @@ source("R/ICER_functions.R")
 
 # Load parameters
 source("Analysis/00_load_parameters.R") # load all model parameters for each scenario + calibrated parameters
-
-### Main deterministic model outputs ###
-# Run Markov model and return outputs (using MAP point estimates from posterior distribution for calibrated params)
-#l_outcomes_MET <- outcomes(l_params_all = l_params_MET, v_params_calib = v_calib_post_map)
-#l_outcomes_BUP <- outcomes(l_params_all = l_params_BUP, v_params_calib = v_calib_post_map)
-
-# Calculate ICERs
-#ICER <- ICER(outcomes_comp = l_outcomes_MET, outcomes_int = l_outcomes_BUP)
 
 #### Produce model outputs ####
 #### Modified Model Specification ####
@@ -38,25 +29,11 @@ saveRDS(l_outcomes_BUP_MMS, file = "outputs/outcomes/outcomes_BUP_MMS.RData")
 saveRDS(l_outcomes_MET_MMS, file = "outputs/outcomes/outcomes_MET_MMS.RData")
 saveRDS(df_outcomes_MMS, file = "outputs/outcomes/outcomes_MMS.RData")
 
-#### Trial Specification ####
-# l_outcomes_BUP_TS  <- outcomes(l_params_all = l_params_BUP_TS, v_params_calib = v_calib_post_map)
-# l_outcomes_MET_TS  <- outcomes(l_params_all = l_params_MET_TS, v_params_calib = v_calib_post_map)
-# 
-# df_outcomes_TS <- rbind(l_outcomes_BUP_TS$df_outcomes, l_outcomes_MET_TS$df_outcomes)
-# rownames(df_outcomes_TS) <- c("Early take-home BNX", "Methadone")
-# 
-# # Save output
-# saveRDS(l_outcomes_BUP_TS, file = "outputs/outcomes/outcomes_BUP_TS.RData")
-# saveRDS(l_outcomes_MET_TS, file = "outputs/outcomes/outcomes_MET_TS.RData")
-# saveRDS(df_outcomes_TS, file = "outputs/outcomes/df_outcomes_TS.RData")
-
 # Generate ICERs
 l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
-#l_ICER_TS <- ICER(outcomes_comp = l_outcomes_MET_TS, outcomes_int = l_outcomes_BUP_TS)
 
 # Save output
 saveRDS(l_ICER_MMS, file = "outputs/outcomes/ICER_MMS.RData")
-#saveRDS(l_ICER_TS, file = "outputs/outcomes/ICER_TS.RData")
 
 ######################################
 #### Modified Model Specification ####
@@ -74,7 +51,6 @@ write.csv(l_outcomes_validation_MMS$m_M_agg_trace,"outputs/trace/Modified Model 
 # Full model costs
 write.csv(l_outcomes_MET_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_BUP.csv", row.names = TRUE)
-#write.csv(l_outcomes_validation_MMS$m_TOTAL_costs_states,"outputs/trace/Modified Model Specification/full_trace_costs_BUP.csv", row.names = TRUE)
 
 # Outcomes
 # Disaggregated
