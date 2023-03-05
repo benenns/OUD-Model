@@ -48,7 +48,7 @@ n_cores <- availableCores()
 #cores <- getOption("mc.cores", detectCores())
 
 #cl <- parallelly::makeClusterPSOCK(10, autoStop = TRUE, dryrun = TRUE, quiet = TRUE, validate = TRUE, verbose = TRUE)
-cl <- parallelly::makeClusterPSOCK(10)
+cl <- parallelly::makeClusterPSOCK(8)
 #cl <- makeCluster((cores/2), type = type)
 registerDoParallel(cl)
 getDoParRegistered()

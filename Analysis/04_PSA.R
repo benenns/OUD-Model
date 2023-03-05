@@ -9,13 +9,20 @@ library(parallel)
 library(foreach)
 library(doParallel)
 library(tidyr)
+library(future)
+library(doFuture)
 #library(mail)
 #library(RPushbullet)
 
 # Set number of cores
 #n_cores <- detectCores()
-n_cores <- 4
+n_cores <- 8
+makeCluster(n_cores, outfile = "checks/parallel_log.txt")
 registerDoParallel(n_cores)
+
+#registerDoFuture()
+#cl <- makeCluster(4)
+#lan(cluster, workers = cl)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -30,7 +37,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 10000 # just to test function (will be set as n_sim)
+n_sim <- 100 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
@@ -54,7 +61,7 @@ df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = 
                                              file.qalys = "data/Modified Model Specification/qalys.csv",
                                              file.imis_output = "outputs/Calibration/imis_output.RData")
 
-write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", row.names = TRUE)
+#write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", row.names = TRUE)
 
 # Initialize data frames
 # # Modified Model Specification
@@ -86,7 +93,7 @@ combine_custom_MMS <- function(LL1, LL2) {
 
 # Run PSA for each block to help memory issues
 #n_sim <- 1500
-n_block_size <- 500 # size of block for each loop
+n_block_size <- 50 # size of block for each loop
 n_blocks <- n_sim/n_block_size
 n_start <- 0 # set to 0 if running full PSA
 
@@ -121,6 +128,8 @@ for (j in (0:(n_blocks - 1))){
   
     #df_ICER_PSA_MMS <- rbind(df_ICER_PSA_MMS, l_ICER_MMS$df_icer)
     df_ICER_PSA_MMS <- l_ICER_MMS$df_icer
+    
+    gc()
     
     return(list(df_outcomes_MET_PSA_MMS = df_outcomes_MET_PSA_MMS, 
                 df_outcomes_BUP_PSA_MMS = df_outcomes_BUP_PSA_MMS, 
