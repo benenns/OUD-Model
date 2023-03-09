@@ -270,13 +270,13 @@ load_all_params <- function(file.init = NULL,
     n_TX_OD_shape  = df_overdose["shape", "TX_OD"],
     n_TXC_OD_shape = df_overdose["shape", "TXC_OD"],
     n_REL_OD_shape = df_overdose["shape", "REL_OD"],
-    n_ABS_OD_low   = df_overdose["low", "ABS_OD"],
+    n_ABS_OD_shape = df_overdose["shape", "ABS_OD"],
     
     # Gamma scale parameter (prior)
     n_TX_OD_scale  = df_overdose["scale", "TX_OD"],
     n_TXC_OD_scale = df_overdose["scale", "TXC_OD"],
     n_REL_OD_scale = df_overdose["scale", "REL_OD"],
-    n_ABS_OD_high  = df_overdose["high", "ABS_OD"],
+    n_ABS_OD_scale = df_overdose["scale", "ABS_OD"],
     
     # BUP
     n_BUP_OD_mult = df_overdose["pe", "BUP_OD_mult"],

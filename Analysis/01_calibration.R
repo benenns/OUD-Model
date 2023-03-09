@@ -48,7 +48,7 @@ v_cali_param_names <- c("'Overdose rate (BNX/MET)'",
 v_par1 <- c(n_TX_OD_shape       = l_params_all$n_TX_OD_shape,
             n_TXC_OD_shape      = l_params_all$n_TXC_OD_shape,
             n_REL_OD_shape      = l_params_all$n_REL_OD_shape,
-            n_ABS_OD_low        = l_params_all$n_ABS_OD_low,
+            n_ABS_OD_low        = l_params_all$n_ABS_OD_shape,### R&R MODIFICATION ###
             n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
             n_fent_OD_mult_shape  = l_params_all$n_fent_OD_mult_shape,### R&R MODIFICATION ###
             n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape,
@@ -57,7 +57,7 @@ v_par1 <- c(n_TX_OD_shape       = l_params_all$n_TX_OD_shape,
 v_par2 <- c(n_TX_OD_scale       = l_params_all$n_TX_OD_scale,
             n_TXC_OD_scale      = l_params_all$n_TXC_OD_scale,
             n_REL_OD_scale      = l_params_all$n_REL_OD_scale,
-            n_ABS_OD_high       = l_params_all$n_ABS_OD_high,
+            n_ABS_OD_high       = l_params_all$n_ABS_OD_scale,### R&R MODIFICATION ###
             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
             n_fent_OD_mult_scale = l_params_all$n_fent_OD_mult_scale,### R&R MODIFICATION ###
             n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale,
@@ -204,8 +204,6 @@ imis_output <- load(file = "outputs/Calibration/imis_output.RData")
 m_calib_prior <- sample.prior(n_samp = n_resamp)
 
 # Prepare data
-#colnames(m_calib_post)[8] <- "n_fatal_OD" #This step just for now due to naming discrepancy (remove later)
-
 df_samp_prior <- melt(cbind(Distribution = "Prior", 
                             as.data.frame(m_calib_prior[1:n_resamp, ])), 
                             variable.name = "Parameter")
@@ -259,11 +257,6 @@ ggsave(prior_v_posterior,
 ggsave(prior_v_posterior, 
        filename = "Plots/Calibration/prior-v-posterior.png", 
        width = 10, height = 7)
-#ggsave(prior_v_posterior, 
-#       filename = "Plots/Calibration/prior-v-posterior.jpeg", 
-#       width = 10, height = 7)
-
-
 
 #### Plot model fit against calibration targets ####
 # Run model for n_samp posterior distribution draws
@@ -277,14 +270,12 @@ for(i in 1:n_resamp){
   m_model_targets_ODF[i, 1] <- l_model_target_fit$fatal_overdose[1]
   m_model_targets_ODF[i, 2] <- l_model_target_fit$fatal_overdose[2]
   m_model_targets_ODF[i, 3] <- l_model_target_fit$fatal_overdose[3]
-  
   ### R&R MODIFICATION ###
   m_model_targets_ODF[i, 4] <- l_model_target_fit$fatal_overdose[4]
   
   m_model_targets_ODN[i, 1] <- l_model_target_fit$overdose[1]
   m_model_targets_ODN[i, 2] <- l_model_target_fit$overdose[2]
   m_model_targets_ODN[i, 3] <- l_model_target_fit$overdose[3]
-  
   ### R&R MODIFICATION ###
   m_model_targets_ODN[i, 4] <- l_model_target_fit$overdose[4]
 }

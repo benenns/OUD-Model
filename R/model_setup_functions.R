@@ -152,16 +152,15 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
                    time,
                    first_month = FALSE,
                    fatal = FALSE,
-                   injection = FALSE,
-                   cali = FALSE){
+                   injection = FALSE){
     
     # Probability of naloxone use
-    if (cali == TRUE){
+    #if (cali == TRUE){
       v_NX_used <- c(p_NX_2017, p_NX_2018, p_NX_2019, p_NX_2020)### R&R MODIFICATION ###
       p_NX_used <- v_NX_used[time]
-    } else{
-      p_NX_used <- p_NX_2020
-    }
+    #} else{
+    #  p_NX_used <- p_NX_2020
+    #}
     
     # Probability of successful naloxone use
     p_NX_rev <- (p_witness * p_NX_used * p_NX_success)### R&R MODIFICATION ###
@@ -173,12 +172,12 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     
     # Probability of fentanyl exposure 
     # Generate time-varying probability of fentanyl exposure
-    if (cali == TRUE){
+    #if (cali == TRUE){
       v_fent_exp_prob <- c(p_fent_exp_2017, p_fent_exp_2018, p_fent_exp_2019, p_fent_exp_2020)### R&R MODIFICATION ###
       p_fent_exp      <- v_fent_exp_prob[time]
-    } else{
-      p_fent_exp <- p_fent_exp_2020
-    }
+    #} else{
+    #  p_fent_exp <- p_fent_exp_2020
+    #}
 
     # Convert input monthly rates to monthly probabilities - multiply rates by first month multiplier before converting
     if (injection == TRUE && first_month == TRUE){
@@ -556,13 +555,11 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   
   # From MET
   # First month
-  a_UP_first[MET & NI, METC & NI, i] <- p_MET_METC_NI #* (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
-  a_UP_first[MET & NI, BUP & NI, i]  <- p_MET_BUP_NI #* (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
-  a_UP_first[MET & NI, BUPC & NI, i]  <- p_MET_BUPC_NI #* (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
-  a_UP_first[MET & NI, ABS & NI, i]  <- p_MET_ABS_NI #* (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
-  a_UP_first[MET & NI, REL & NI, i]  <- p_MET_REL_NI #* (1 - m_ODN_first[MET & NI, i] - m_ODF_first[MET & NI, i])
-  #a_UP_first[MET & NI, ODN & NI, i]  <- m_ODN_first[MET & NI, i]
-  #a_UP_first[MET & NI, ODF & NI, i]  <- m_ODF_first[MET & NI, i]
+  a_UP_first[MET & NI, METC & NI, i] <- p_MET_METC_NI
+  a_UP_first[MET & NI, BUP & NI, i]  <- p_MET_BUP_NI
+  a_UP_first[MET & NI, BUPC & NI, i]  <- p_MET_BUPC_NI
+  a_UP_first[MET & NI, ABS & NI, i]  <- p_MET_ABS_NI
+  a_UP_first[MET & NI, REL & NI, i]  <- p_MET_REL_NI
   
   # Month 2+
   a_UP[MET & NI, METC & NI, i] <- p_MET_METC_NI #* (1 - m_ODN[MET & NI, i] - m_ODF[MET & NI, i])
