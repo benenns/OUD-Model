@@ -74,9 +74,9 @@ sample.prior <- function(n_samp,
   draws  <- data.frame(n_TX_OD         = qgamma(m_lhs_unit[,1], shape = v_alpha[1], scale = v_beta[1]),  # n_TX_OD
                        n_TXC_OD        = qgamma(m_lhs_unit[,2], shape = v_alpha[2], scale = v_beta[2]),  # n_TXC_OD
                        n_REL_OD        = qgamma(m_lhs_unit[,3], shape = v_alpha[3], scale = v_beta[3]), # n_REL_OD
-                       n_ABS_OD        = qunif(m_lhs_unit[,4],  min = v_alpha[4],   max = v_beta[4]),   # n_ABS_OD
+                       n_ABS_OD        = qgamma(m_lhs_unit[,4], shape = v_alpha[4], scale = v_beta[4]),   # n_ABS_OD ### R&R MODIFICATION ###
                        n_TXC_OD_mult   = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TXC_OD_mult
-                       n_fent_OD_mult  = qunif(m_lhs_unit[,6],  min = v_alpha[6],   max = v_beta[6]),  # n_fent_OD_mult
+                       n_fent_OD_mult  = qgamma(m_lhs_unit[,6], shape = v_alpha[6], scale = v_beta[6]),  # n_fent_OD_mult ### R&R MODIFICATION ###
                        n_fatal_OD      = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),
                        p_witness       = qunif(m_lhs_unit[,8],  min = v_alpha[8],   max = v_beta[8]))  # Probability of witnessed overdose ### R&R MODIFICATION ###
   
@@ -110,11 +110,11 @@ log_prior <- function(v_params,
   lprior <- lprior + dgamma(v_params[, 1], shape = v_alpha[1], scale = v_beta[1], log = TRUE) # n_TX_OD
   lprior <- lprior + dgamma(v_params[, 2], shape = v_alpha[2], scale = v_beta[2], log = TRUE) # n_TXC_OD
   lprior <- lprior + dgamma(v_params[, 3], shape = v_alpha[3], scale = v_beta[3], log = TRUE) # n_REL_OD
-  lprior <- lprior + dunif(v_params[, 4],  min = v_alpha[4],   max = v_beta[4], log = TRUE) # n_ABS_OD
+  lprior <- lprior + dgamma(v_params[, 4], shape = v_alpha[4], scale = v_beta[4], log = TRUE) # n_ABS_OD ### R&R MODIFICATION ###
   lprior <- lprior + dgamma(v_params[, 5], shape = v_alpha[5], scale = v_beta[5], log = TRUE) # n_TXC_OD_mult
-  lprior <- lprior + dunif(v_params[, 6],  min = v_alpha[6],   max = v_beta[6], log = TRUE) # n_fent_OD_mult
+  lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE) # n_fent_OD_mult
   lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_fatal_OD
-  lprior <- lprior + dunif(v_params[, 8],  min = v_alpha[8],   max = v_beta[8], log = TRUE) # p_witness
+  lprior <- lprior + dunif(v_params[, 8],  min = v_alpha[8],   max = v_beta[8], log = TRUE) # p_witness ### R&R MODIFICATION ###
   
   #for (i in 1:n_param){
   #  lprior <- lprior + dunif(v_params[, i],

@@ -152,13 +152,19 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
                    time,
                    first_month = FALSE,
                    fatal = FALSE,
-                   injection = FALSE){
+                   injection = FALSE,
+                   cali = FALSE){
     
     # Probability of naloxone use
-    v_NX_used <- c(p_NX_2017, p_NX_2018, p_NX_2019, p_NX_2020)### R&R MODIFICATION ###
+    if (cali == TRUE){
+      v_NX_used <- c(p_NX_2017, p_NX_2018, p_NX_2019, p_NX_2020)### R&R MODIFICATION ###
+      p_NX_used <- v_NX_used[time]
+    } else{
+      p_NX_used <- p_NX_2020
+    }
     
     # Probability of successful naloxone use
-    p_NX_rev <- (p_witness * v_NX_used[time] * p_NX_success)### R&R MODIFICATION ###
+    p_NX_rev <- (p_witness * p_NX_used * p_NX_success)### R&R MODIFICATION ###
     
     # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
     # Subsets overdose into fatal and non-fatal, conditional on different parameters
@@ -167,20 +173,25 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     
     # Probability of fentanyl exposure 
     # Generate time-varying probability of fentanyl exposure
-    v_fent_exp_prob <- c(p_fent_exp_2017, p_fent_exp_2018, p_fent_exp_2019, p_fent_exp_2020)### R&R MODIFICATION ###
+    if (cali == TRUE){
+      v_fent_exp_prob <- c(p_fent_exp_2017, p_fent_exp_2018, p_fent_exp_2019, p_fent_exp_2020)### R&R MODIFICATION ###
+      p_fent_exp      <- v_fent_exp_prob[time]
+    } else{
+      p_fent_exp <- p_fent_exp_2020
+    }
 
     # Convert input monthly rates to monthly probabilities - multiply rates by first month multiplier before converting
     if (injection == TRUE && first_month == TRUE){
-      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * multiplier * (v_fent_exp_prob[time] * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * multiplier * (p_fent_exp * fent_mult)))
     }
     else if (injection == TRUE && first_month == FALSE){
-      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * (v_fent_exp_prob[time] * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * n_INJ_OD_mult * (p_fent_exp * fent_mult)))
     }
     else if (injection == FALSE && first_month == TRUE){
-      p_base_OD <- 1 - exp(-(rate * multiplier * (v_fent_exp_prob[time] * p_ni_fent_reduction * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * multiplier * (p_fent_exp * p_ni_fent_reduction * fent_mult)))
     }
     else if (injection == FALSE && first_month == FALSE){
-      p_base_OD <- 1 - exp(-(rate * (v_fent_exp_prob[time] * p_ni_fent_reduction * fent_mult)))
+      p_base_OD <- 1 - exp(-(rate * (p_fent_exp * p_ni_fent_reduction * fent_mult)))
     }
 
     # Naloxone effect on fatal overdose

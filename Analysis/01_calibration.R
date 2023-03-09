@@ -43,14 +43,14 @@ v_cali_param_names <- c("'Overdose rate (BNX/MET)'",
                         "'First month mult (BNX/MET + opioid)'",
                         "'Fentanyl mult'",
                         "'Fatal overdose rate'",
-                        "'Probability overdose witnessed")
+                        "'Probability overdose witnessed'")
 
 v_par1 <- c(n_TX_OD_shape       = l_params_all$n_TX_OD_shape,
             n_TXC_OD_shape      = l_params_all$n_TXC_OD_shape,
             n_REL_OD_shape      = l_params_all$n_REL_OD_shape,
             n_ABS_OD_low        = l_params_all$n_ABS_OD_low,
             n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
-            n_fent_OD_mult_low  = l_params_all$n_fent_OD_mult_low,
+            n_fent_OD_mult_shape  = l_params_all$n_fent_OD_mult_shape,### R&R MODIFICATION ###
             n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape,
             p_witness           = l_params_all$p_witness_low)### R&R MODIFICATION ###
 
@@ -59,7 +59,7 @@ v_par2 <- c(n_TX_OD_scale       = l_params_all$n_TX_OD_scale,
             n_REL_OD_scale      = l_params_all$n_REL_OD_scale,
             n_ABS_OD_high       = l_params_all$n_ABS_OD_high,
             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
-            n_fent_OD_mult_high = l_params_all$n_fent_OD_mult_high,
+            n_fent_OD_mult_scale = l_params_all$n_fent_OD_mult_scale,### R&R MODIFICATION ###
             n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale,
             p_witness           = l_params_all$p_witness_high)### R&R MODIFICATION ###
 
@@ -72,18 +72,18 @@ n_cali_max_per <- max(c(l_cali_targets$ODF$Time, l_cali_targets$ODN$Time))
 
 #### Visualize targets ####
 ### TARGET 1: Overdose deaths ("ODF")
-plotrix::plotCI(x    = l_cali_targets$ODF$Time, 
-                y    = l_cali_targets$ODF$pe, 
-                ui   = l_cali_targets$ODF$high,
-                li   = l_cali_targets$ODF$low,
-                xlab = "Month", ylab = "Fatal Overdoses")
+# plotrix::plotCI(x    = l_cali_targets$ODF$Time, 
+#                 y    = l_cali_targets$ODF$pe, 
+#                 ui   = l_cali_targets$ODF$high,
+#                 li   = l_cali_targets$ODF$low,
+#                 xlab = "Month", ylab = "Fatal Overdoses")
 
 ### TARGET 2: Non-fatal overdose ("ODN")
-plotrix::plotCI(x    = l_cali_targets$ODN$Time, 
-                y    = l_cali_targets$ODN$pe, 
-                ui   = l_cali_targets$ODN$high,
-                li   = l_cali_targets$ODN$low,
-                xlab = "Month", ylab = "Non-fatal Overdoses")
+# plotrix::plotCI(x    = l_cali_targets$ODN$Time, 
+#                 y    = l_cali_targets$ODN$pe, 
+#                 ui   = l_cali_targets$ODN$high,
+#                 li   = l_cali_targets$ODN$low,
+#                 xlab = "Month", ylab = "Non-fatal Overdoses")
 
 #### Specify calibration parameters ####
 ### Set seed
@@ -97,7 +97,7 @@ v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
 n_target       <- length(v_target_names)
 
 #### Run IMIS algorithm ####
-l_fit_imis <- IMIS(B = 1000,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
+l_fit_imis <- IMIS(B = 100,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
                    number_k = 500,      # maximum number of iterations in IMIS (originally 10)
                    D = 0) # originally 0
@@ -155,7 +155,7 @@ save(df_posterior_summ,
      file = "outputs/Calibration/summary_posterior.RData")
 ## As .csv
 write.csv(df_posterior_summ, 
-          file = "tables/summary_posterior.csv", 
+          file = "outputs/Calibration/summary_posterior.csv", 
           row.names = FALSE)
 
 #### Visualization of posterior distribution ####
@@ -268,7 +268,7 @@ ggsave(prior_v_posterior,
 #### Plot model fit against calibration targets ####
 # Run model for n_samp posterior distribution draws
 # Output list of fatal and total overdoses at T = 1, T = 2, T = 3
-m_model_targets_ODF <- m_model_targets_ODN <- matrix(0, nrow = n_resamp, ncol = 3) 
+m_model_targets_ODF <- m_model_targets_ODN <- matrix(0, nrow = n_resamp, ncol = 4) 
 
 for(i in 1:n_resamp){
   l_model_target_fit <- calibration_out(v_params_calib = m_calib_post[i, ], 
@@ -345,7 +345,13 @@ plot_fit_ODF <- p_temp_ODF + labs(title = NULL, x = "Year", y = "Fatal overdoses
                              scale_color_manual(values = c('#999999','#E69F00')) +
                              scale_x_continuous(breaks = c(12, 24, 36, 48),
                                                 labels = c("2017", "2018", "2019", "2020"))
-#plot_fit_ODF
+
+# Plot for extracting legend only
+plot_fit_ODF_leg <- p_temp_ODF + labs(title = NULL, x = "Year", y = "Fatal overdoses") +
+  theme_classic() +
+  scale_color_manual(values = c('#999999','#E69F00')) +
+  scale_x_continuous(breaks = c(12, 24, 36, 48),
+                     labels = c("2017", "2018", "2019", "2020"))
 
 # Non-fatal overdose
 p_temp_ODN <- ggplot(df_fit_ODN, aes(x = Time, y = Num, group = Target, color = Target)) + 
@@ -362,6 +368,7 @@ plot_fit_ODN <- p_temp_ODN + labs(title = NULL, x = "Year", y = "Non-fatal overd
                              scale_x_continuous(breaks = c(12, 24, 36, 48),
                                                 labels = c("2017", "2018", "2019", "2020"))
 
+plot_fit_ODN
 # Code to extract legend from plots
 g_legend<-function(a.gplot){
   tmp <- ggplot_gtable(ggplot_build(a.gplot))
@@ -369,7 +376,7 @@ g_legend<-function(a.gplot){
   legend <- tmp$grobs[[leg]]
   return(legend)}
 
-mylegend <- g_legend(plot_fit_ODF)
+mylegend <- g_legend(plot_fit_ODF_leg)
 
 # Combined
 #plot_fit_comb <- grid.arrange(plot_fit_ODF, plot_fit_ODN, nrow = 1, ncol = 2, common.legend = TRUE, legend = "bottom")
@@ -377,6 +384,7 @@ mylegend <- g_legend(plot_fit_ODF)
 plot_fit_comb <- grid.arrange(arrangeGrob(plot_fit_ODF, plot_fit_ODN, nrow = 1),
                                           mylegend, nrow = 2, heights = c(6, 1))
 
+plot_fit_comb
 # Outputs
 ggsave(plot_fit_ODF, 
        filename = "Plots/Calibration/target-fit-ODF.png", 

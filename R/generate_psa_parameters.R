@@ -24,6 +24,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
                                 file.unconditional = NULL,
                                 file.overdose = NULL,
                                 file.fentanyl = NULL,
+                                file.naloxone = NULL,
                                 file.hiv = NULL,
                                 file.hcv = NULL,
                                 file.costs = NULL,
@@ -38,6 +39,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
   df_UP <- read.csv(file = file.unconditional, row.names = 1, header = TRUE) # Unconditional transition probs
   df_overdose <- read.csv(file = file.overdose, row.names = 1, header = TRUE) # Overdose params
   df_fentanyl <- read.csv(file = file.fentanyl, row.names = 1, header = TRUE) # Fentanyl params
+  df_naloxone <- read.csv(file = file.naloxone, row.names = 1, header = TRUE) # Time-varying naloxone parameters for calibration
   df_hiv <- read.csv(file = file.hiv, row.names = 1, header = TRUE) # HIV seroconversion probs
   df_hcv <- read.csv(file = file.hcv, row.names = 1, header = TRUE) # HCV seroconversion probs
   df_costs <- read.csv(file = file.costs, row.names = 1, header = TRUE) # All costs excluding crime
@@ -526,7 +528,9 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     # Fentanyl
     p_ni_fent_reduction = rbeta(n_sim, shape1 = df_overdose["shape1", "ni_fent_reduction"], shape2 = df_overdose["shape2", "ni_fent_reduction"]),
     #p_fent_exp_2020 = df_fentanyl["2020", "CAN"], # add distribution parameters (uniform between range of multiple fentanyl % estimates)
-    p_fent_exp_2020 = runif(n_sim, min = df_fentanyl["low", "pe"], max = df_fentanyl["high", "pe"]),
+    
+    
+    p_fent_exp_2020 = rnorm(n_sim, mean = df_fentanyl["2020", "CAN"], sd = df_fentanyl["sd", "CAN"]),### R&R MODIFICATION ###
     
     # Naloxone (OD reversal)
     
@@ -538,7 +542,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     p_NX_success = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_success_prob"], shape2 = df_overdose["shape2", "NX_success_prob"]),
     
     ### R&R MODIFICATION ###
-    p_NX_2020 = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_prob"], shape2 = df_overdose["shape2", "NX_prob"]), #Hold NX at 2020 levels
+    p_NX_2020 = rnorm(n_sim, mean = df_naloxone["2020", "pe"], sd = df_naloxone["sd", "pe"]), #Hold NX at 2020 levels
 
     ### HIV seroconversion ###
     # Ensure that seed is set and produces identical draws for parameters that are set to be equal by assumption (e.g. all non-injection HIV seroconversion)
