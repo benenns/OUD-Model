@@ -78,7 +78,8 @@ sample.prior <- function(n_samp,
                        n_TXC_OD_mult   = qgamma(m_lhs_unit[,5], shape = v_alpha[5], scale = v_beta[5]),   # n_TXC_OD_mult
                        n_fent_OD_mult  = qgamma(m_lhs_unit[,6], shape = v_alpha[6], scale = v_beta[6]),  # n_fent_OD_mult ### R&R MODIFICATION ###
                        n_fatal_OD      = qgamma(m_lhs_unit[,7], shape = v_alpha[7], scale = v_beta[7]),
-                       p_witness       = qunif(m_lhs_unit[,8],  min = v_alpha[8],   max = v_beta[8]))  # Probability of witnessed overdose ### R&R MODIFICATION ###
+                       p_witness       = qunif(m_lhs_unit[,8],  min = v_alpha[8],   max = v_beta[8]),
+                       p_witness_covid_adj       = qunif(m_lhs_unit[,9],  min = v_alpha[9],   max = v_beta[9]))  # Probability of witnessed overdose ### R&R MODIFICATION ###
   
   # draw parameters (uniform distribution)
   #for (i in 1:n_param){ 
@@ -115,6 +116,7 @@ log_prior <- function(v_params,
   lprior <- lprior + dgamma(v_params[, 6], shape = v_alpha[6], scale = v_beta[6], log = TRUE) # n_fent_OD_mult
   lprior <- lprior + dgamma(v_params[, 7], shape = v_alpha[7], scale = v_beta[7], log = TRUE) # n_fatal_OD
   lprior <- lprior + dunif(v_params[, 8],  min = v_alpha[8],   max = v_beta[8], log = TRUE) # p_witness ### R&R MODIFICATION ###
+  lprior <- lprior + dunif(v_params[, 9],  min = v_alpha[9],   max = v_beta[9], log = TRUE) # p_witness_covid_adj ### R&R MODIFICATION ###
   
   #for (i in 1:n_param){
   #  lprior <- lprior + dunif(v_params[, i],

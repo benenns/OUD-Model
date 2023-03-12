@@ -43,25 +43,28 @@ v_cali_param_names <- c("'Overdose rate (BNX/MET)'",
                         "'First month mult (BNX/MET + opioid)'",
                         "'Fentanyl mult'",
                         "'Fatal overdose rate'",
-                        "'Probability overdose witnessed'")
+                        "'Probability overdose witnessed'",
+                        "'COVID-19 reduction witness'")
 
 v_par1 <- c(n_TX_OD_shape       = l_params_all$n_TX_OD_shape,
             n_TXC_OD_shape      = l_params_all$n_TXC_OD_shape,
             n_REL_OD_shape      = l_params_all$n_REL_OD_shape,
-            n_ABS_OD_low        = l_params_all$n_ABS_OD_shape,### R&R MODIFICATION ###
+            n_ABS_OD_shape        = l_params_all$n_ABS_OD_shape,### R&R MODIFICATION ###
             n_TXC_OD_mult_shape = l_params_all$n_TXC_OD_mult_shape,
             n_fent_OD_mult_shape  = l_params_all$n_fent_OD_mult_shape,### R&R MODIFICATION ###
             n_fatal_OD_shape    = l_params_all$n_fatal_OD_shape,
-            p_witness           = l_params_all$p_witness_low)### R&R MODIFICATION ###
+            p_witness_low           = l_params_all$p_witness_low,
+            p_witness_covid_adj_low           = l_params_all$p_witness_covid_adj_low)### R&R MODIFICATION ###
 
 v_par2 <- c(n_TX_OD_scale       = l_params_all$n_TX_OD_scale,
             n_TXC_OD_scale      = l_params_all$n_TXC_OD_scale,
             n_REL_OD_scale      = l_params_all$n_REL_OD_scale,
-            n_ABS_OD_high       = l_params_all$n_ABS_OD_scale,### R&R MODIFICATION ###
+            n_ABS_OD_scale       = l_params_all$n_ABS_OD_scale,### R&R MODIFICATION ###
             n_TXC_OD_mult_scale = l_params_all$n_TXC_OD_mult_scale,
             n_fent_OD_mult_scale = l_params_all$n_fent_OD_mult_scale,### R&R MODIFICATION ###
             n_fatal_OD_scale    = l_params_all$n_fatal_OD_scale,
-            p_witness           = l_params_all$p_witness_high)### R&R MODIFICATION ###
+            p_witness_high           = l_params_all$p_witness_high,
+            p_witness_covid_adj_high = l_params_all$p_witness_covid_adj_high)### R&R MODIFICATION ###
 
 #### Load calibration targets ####
 l_cali_targets <- list(ODF = read.csv(file = "data/cali_target_odf.csv", header = TRUE),
@@ -96,12 +99,13 @@ n_resamp <- 10000 # to match number of PSA draws
 v_target_names <- c("Fatal Overdoses", "Non-fatal Overdoses")
 n_target       <- length(v_target_names)
 
+Sys.time()
 #### Run IMIS algorithm ####
 l_fit_imis <- IMIS(B = 100,      # n_samp = B*10 (was 100 incremental sample size at each iteration of IMIS)
                    B.re = n_resamp,      # "n_resamp" desired posterior sample size
                    number_k = 500,      # maximum number of iterations in IMIS (originally 10)
                    D = 0) # originally 0
-
+Sys.time()
 # Unique parameter sets
 n_unique <- length(unique(l_fit_imis$resample[,1])) # 6299
 # Effective sample size
@@ -136,7 +140,7 @@ m_calib_post_95cr <- matrixStats::colQuantiles(m_calib_post,
 
 ### Compute posterior values for draw
 v_calib_post      <- exp(log_post(m_calib_post))
-
+Sys.time()
 ### Compute maximum-a-posteriori (MAP) as the mode of the sampled values
 v_calib_post_map  <- m_calib_post[which.max(v_calib_post), ]
 
@@ -279,7 +283,7 @@ for(i in 1:n_resamp){
   ### R&R MODIFICATION ###
   m_model_targets_ODN[i, 4] <- l_model_target_fit$overdose[4]
 }
-
+Sys.time()
 ## As .RData
 save(m_model_targets_ODF, 
      file = "outputs/Calibration/model_targets_ODF.RData")

@@ -152,7 +152,8 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
                    time,
                    first_month = FALSE,
                    fatal = FALSE,
-                   injection = FALSE){
+                   injection = FALSE,
+                   cali = cali){
     
     # Probability of naloxone use
     #if (cali == TRUE){
@@ -161,9 +162,15 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
     #} else{
     #  p_NX_used <- p_NX_2020
     #}
+    # Only added to adjust for 2020 covid disruption in calibration, reverts to normal post-2020
+    if (cali == TRUE && time == 4){
+      p_witness_adj <- p_witness * p_witness_covid_adj### R&R MODIFICATION ###
+    } else{
+      p_witness_adj <- p_witness
+    }
     
     # Probability of successful naloxone use
-    p_NX_rev <- (p_witness * p_NX_used * p_NX_success)### R&R MODIFICATION ###
+    p_NX_rev <- (p_witness_adj * p_NX_used * p_NX_success)### R&R MODIFICATION ###
     
     # Probability of mortality from overdose accounting for baseline overdose fatality and effectiveness of naloxone
     # Subsets overdose into fatal and non-fatal, conditional on different parameters
@@ -218,60 +225,60 @@ markov_model <- function(l_params_all, err_stop = FALSE, verbose = FALSE, checks
   for(i in 1:time_periods){
   # Probability of overdose
   # Non-fatal (first month)
-  m_ODN_first[BUP & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  m_ODN_first[MET & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  m_ODN_first[TXC & NI, i]  <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  m_ODN_first[REL & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  m_ODN_first[ODN & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  m_ODN_first[ABS & NI, i]  <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE)
-  m_ODN_first[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  m_ODN_first[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  m_ODN_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  m_ODN_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  m_ODN_first[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
-  m_ODN_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE)
+  m_ODN_first[BUP & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN_first[MET & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN_first[TXC & NI, i]  <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN_first[REL & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN_first[ODN & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN_first[ABS & NI, i]  <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN_first[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN_first[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN_first[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult,  fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = FALSE, injection = TRUE, cali)
     
   # Fatal (first month)
-  m_ODF_first[BUP & NI, i] <- p_OD(rate = n_TX_OD,   rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  m_ODF_first[MET & NI, i] <- p_OD(rate = n_TX_OD,   rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  m_ODF_first[TXC & NI, i] <- p_OD(rate = n_TXC_OD,  rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  m_ODF_first[REL & NI, i] <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  m_ODF_first[ODN & NI, i] <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  m_ODF_first[ABS & NI, i] <- p_OD(rate = n_ABS_OD,  rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE)
-  m_ODF_first[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  m_ODF_first[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  m_ODF_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  m_ODF_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  m_ODF_first[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
-  m_ODF_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE)
+  m_ODF_first[BUP & NI, i]  <- p_OD(rate = n_TX_OD,   rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF_first[MET & NI, i]  <- p_OD(rate = n_TX_OD,   rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF_first[TXC & NI, i]  <- p_OD(rate = n_TXC_OD,  rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF_first[REL & NI, i]  <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF_first[ODN & NI, i]  <- p_OD(rate = n_REL_OD,  rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF_first[ABS & NI, i]  <- p_OD(rate = n_ABS_OD,  rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF_first[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF_first[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF_first[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF_first[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF_first[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF_first[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = TRUE, fatal = TRUE, injection = TRUE, cali)
     
   # Non-fatal (month 2+)
-  m_ODN[BUP & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  m_ODN[MET & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  m_ODN[TXC & NI, i]  <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  m_ODN[REL & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  m_ODN[ODN & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  m_ODN[ABS & NI, i]  <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE)
-  m_ODN[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  m_ODN[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  m_ODN[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  m_ODN[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  m_ODN[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
-  m_ODN[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE)
+  m_ODN[BUP & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN[MET & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN[TXC & NI, i]  <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN[REL & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN[ODN & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN[ABS & NI, i]  <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = FALSE, cali)
+  m_ODN[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE, cali)
+  m_ODN[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = FALSE, injection = TRUE, cali)
   
   # Fatal (month 2+)
-  m_ODF[BUP & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  m_ODF[MET & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  m_ODF[TXC & NI, i]  <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  m_ODF[REL & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  m_ODF[ODN & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  m_ODF[ABS & NI, i]  <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE)
-  m_ODF[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  m_ODF[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  m_ODF[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  m_ODF[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  m_ODF[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
-  m_ODF[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE)
+  m_ODF[BUP & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF[MET & NI, i]  <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF[TXC & NI, i]  <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF[REL & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF[ODN & NI, i]  <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF[ABS & NI, i]  <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = FALSE, cali)
+  m_ODF[BUP & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_BUP_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF[MET & INJ, i] <- p_OD(rate = n_TX_OD,  rate_fatal = n_fatal_OD, multiplier = n_MET_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF[TXC & INJ, i] <- p_OD(rate = n_TXC_OD, rate_fatal = n_fatal_OD, multiplier = n_TXC_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF[REL & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF[ODN & INJ, i] <- p_OD(rate = n_REL_OD, rate_fatal = n_fatal_OD, multiplier = n_REL_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE, cali)
+  m_ODF[ABS & INJ, i] <- p_OD(rate = n_ABS_OD, rate_fatal = n_fatal_OD, multiplier = n_ABS_OD_mult, fent_mult = n_fent_OD_mult, time = i, first_month = FALSE, fatal = TRUE, injection = TRUE, cali)
   }
   
   if (checks){

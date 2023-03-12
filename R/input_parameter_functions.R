@@ -346,6 +346,10 @@ load_all_params <- function(file.init = NULL,
     p_witness_low = df_overdose["low", "witness_prob"],### R&R MODIFICATION ###
     p_witness_high = df_overdose["high", "witness_prob"],### R&R MODIFICATION ###
     
+    # Only for 2020 calibration year
+    p_witness_covid_adj = df_overdose["pe", "witness_covid_adj"],### R&R MODIFICATION ###
+    p_witness_covid_adj_low = df_overdose["low", "witness_covid_adj"],### R&R MODIFICATION ###
+    p_witness_covid_adj_high = df_overdose["high", "witness_covid_adj"],### R&R MODIFICATION ###
     
     p_attended = df_overdose["pe", "attended_prob"],
     #p_NX_used = df_overdose["pe", "NX_prob"],### R&R MODIFICATION ###
