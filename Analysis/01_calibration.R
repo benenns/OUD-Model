@@ -129,6 +129,9 @@ write.csv(df_cali_stats,
 ### Obtain posterior
 m_calib_post <- l_fit_imis$resample
 
+save(m_calib_post, 
+     file = "outputs/Calibration/m_calib_post.RData")
+load(file = "outputs/Calibration/m_calib_post.RData")
 #### Exploring posterior distribution ####
 #### Summary statistics of posterior distribution ####
 ### Compute posterior mean
