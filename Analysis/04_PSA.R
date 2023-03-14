@@ -54,6 +54,7 @@ df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = 
                                              file.unconditional = "data/Modified Model Specification/unconditional.csv",
                                              file.overdose = "data/overdose.csv",
                                              file.fentanyl = "data/fentanyl.csv",
+                                             file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
                                              file.hiv = "data/hiv_sero.csv",
                                              file.hcv = "data/hcv_sero.csv",
                                              file.costs = "data/Modified Model Specification/costs.csv",

@@ -530,7 +530,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     #p_fent_exp_2020 = df_fentanyl["2020", "CAN"], # add distribution parameters (uniform between range of multiple fentanyl % estimates)
     
     
-    p_fent_exp_2020 = rnorm(n_sim, mean = df_fentanyl["2020", "CAN"], sd = df_fentanyl["sd", "CAN"]),### R&R MODIFICATION ###
+    p_fent_exp_2020 = rbeta(n_sim, shape1 = df_fentanyl["shape1", "pe"], shape2 = df_fentanyl["shape2", "pe"]),### R&R MODIFICATION ###
     
     # Naloxone (OD reversal)
     
@@ -542,7 +542,7 @@ generate_psa_params <- function(n_sim = n_sim, seed = seed, n_pop = n_pop, scena
     p_NX_success = rbeta(n_sim, shape1 = df_overdose["shape1", "NX_success_prob"], shape2 = df_overdose["shape2", "NX_success_prob"]),
     
     ### R&R MODIFICATION ###
-    p_NX_2020 = rnorm(n_sim, mean = df_naloxone["2020", "pe"], sd = df_naloxone["sd", "pe"]), #Hold NX at 2020 levels
+    p_NX_2020 = rbeta(n_sim, shape1 = df_naloxone["shape1", "pe"], sd = df_naloxone["shape2", "pe"]), #Hold NX at 2020 levels
 
     ### HIV seroconversion ###
     # Ensure that seed is set and produces identical draws for parameters that are set to be equal by assumption (e.g. all non-injection HIV seroconversion)
