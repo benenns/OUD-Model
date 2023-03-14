@@ -16,7 +16,7 @@ library(doFuture)
 
 # Set number of cores
 #n_cores <- detectCores()
-n_cores <- 8
+n_cores <- 8 # number of cores is dictated more by memory than cpu (will max out memory at 8+ cores)
 makeCluster(n_cores, outfile = "checks/parallel_log.txt")
 registerDoParallel(n_cores)
 
@@ -37,7 +37,7 @@ source("Analysis/00_load_parameters.R")
 # Set population size for dirichlet draws
 n_pop_cohort <- 29000
 n_pop_trial  <- 272
-n_sim <- 100 # just to test function (will be set as n_sim)
+n_sim <- 10000 # just to test function (will be set as n_sim)
 
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
@@ -62,7 +62,7 @@ df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = 
                                              file.qalys = "data/Modified Model Specification/qalys.csv",
                                              file.imis_output = "outputs/Calibration/imis_output.RData")
 
-#write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", row.names = TRUE)
+write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", row.names = TRUE)
 
 # Initialize data frames
 # # Modified Model Specification
@@ -93,9 +93,9 @@ combine_custom_MMS <- function(LL1, LL2) {
 }
 
 # Run PSA for each block to help memory issues
-#n_sim <- 1500
-n_block_size <- 50 # size of block for each loop
-n_blocks <- n_sim/n_block_size
+n_runs <- 2000 # n_sim to run entire PSA
+n_block_size <- 100 # size of block for each loop
+n_blocks <- n_runs/n_block_size #to run entire set
 n_start <- 0 # set to 0 if running full PSA
 
 # Initialize lists
@@ -104,9 +104,6 @@ l_outcomes_BUP_PSA_MMS <- list()
 l_ICER_PSA_MMS         <- list()        
 l_incremental_PSA_MMS  <- list()
 
-#k<-0
-#s1 <- n_start + 1 + k*n_block_size
-#e1 <- n_start + (k + 1)*n_block_size
 
 for (j in (0:(n_blocks - 1))){
   l_PSA_MMS <- foreach(i = (n_start + 1 + j*n_block_size):(n_start + (j + 1)*n_block_size), .combine = combine_custom_MMS, .packages = 'tidyr') %dopar% {

@@ -25,15 +25,15 @@ df_outcomes_MMS <- rbind(l_outcomes_BUP_MMS$df_outcomes, l_outcomes_MET_MMS$df_o
 rownames(df_outcomes_MMS) <- c("Early take-home BNX", "Methadone")
 
 # Save output
-saveRDS(l_outcomes_BUP_MMS, file = "outputs/outcomes/outcomes_BUP_MMS.RData")
-saveRDS(l_outcomes_MET_MMS, file = "outputs/outcomes/outcomes_MET_MMS.RData")
-saveRDS(df_outcomes_MMS, file = "outputs/outcomes/outcomes_MMS.RData")
+#saveRDS(l_outcomes_BUP_MMS, file = "outputs/outcomes/outcomes_BUP_MMS.RData")
+#saveRDS(l_outcomes_MET_MMS, file = "outputs/outcomes/outcomes_MET_MMS.RData")
+#aveRDS(df_outcomes_MMS, file = "outputs/outcomes/outcomes_MMS.RData")
 
 # Generate ICERs
 l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
 
 # Save output
-saveRDS(l_ICER_MMS, file = "outputs/outcomes/ICER_MMS.RData")
+#saveRDS(l_ICER_MMS, file = "outputs/outcomes/ICER_MMS.RData")
 
 ######################################
 #### Modified Model Specification ####
