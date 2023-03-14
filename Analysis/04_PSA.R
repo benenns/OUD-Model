@@ -94,7 +94,7 @@ combine_custom_MMS <- function(LL1, LL2) {
 
 # Run PSA for each block to help memory issues
 n_runs <- 2000 # n_sim to run entire PSA
-n_block_size <- 100 # size of block for each loop
+n_block_size <- 50 # size of block for each loop
 n_blocks <- n_runs/n_block_size #to run entire set
 n_start <- 0 # set to 0 if running full PSA
 
@@ -145,9 +145,6 @@ for (j in (0:(n_blocks - 1))){
   l_ICER_PSA_MMS[[j + 1]]         <- df_ICER_PSA_MMS
   l_incremental_PSA_MMS[[j + 1]]  <- df_incremental_PSA_MMS
 }
-
-#sendmail("ben.enns@gmail.com", subject = "Notification from R", message = "PSA finished running!", password="rmail")
-#pbPost("note", "Notification from R", "PSA runs complete (office desktop)")
 
 # combine output data sets
 # initialize empty data frames
