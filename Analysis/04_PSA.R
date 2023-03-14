@@ -14,9 +14,11 @@ library(doFuture)
 #library(mail)
 #library(RPushbullet)
 
+setwd() # SET TO WHEREVER YOU SAVE THE FOLDER
+
 # Set number of cores
 #n_cores <- detectCores()
-n_cores <- 8 # number of cores is dictated more by memory than cpu (will max out memory at 8+ cores)
+n_cores <- 8 # number of cores is dictated more by memory than cpu (will max out 32GB memory at >8 cores)
 makeCluster(n_cores, outfile = "checks/parallel_log.txt")
 registerDoParallel(n_cores)
 
@@ -47,35 +49,33 @@ n_sim <- 10000 # just to test function (will be set as n_sim)
 #### Modified Model Specification ####
 ######################################
 ## Base case (EQ-5D-5L)
-df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "MMS",
-                                             file.death_hr = "data/death_hr.csv",
-                                             file.frailty = "data/frailty.csv",
-                                             file.weibull = "data/Modified Model Specification/weibull.csv",
-                                             file.unconditional = "data/Modified Model Specification/unconditional.csv",
-                                             file.overdose = "data/overdose.csv",
-                                             file.fentanyl = "data/fentanyl.csv",
-                                             file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
-                                             file.hiv = "data/hiv_sero.csv",
-                                             file.hcv = "data/hcv_sero.csv",
-                                             file.costs = "data/Modified Model Specification/costs.csv",
-                                             file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
-                                             file.qalys = "data/Modified Model Specification/qalys.csv",
-                                             file.imis_output = "outputs/Calibration/imis_output.RData")
+# df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "MMS",
+#                                              file.death_hr = "data/death_hr.csv",
+#                                              file.frailty = "data/frailty.csv",
+#                                              file.weibull = "data/Modified Model Specification/weibull.csv",
+#                                              file.unconditional = "data/Modified Model Specification/unconditional.csv",
+#                                              file.overdose = "data/overdose.csv",
+#                                              file.fentanyl = "data/fentanyl.csv",
+#                                              file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
+#                                              file.hiv = "data/hiv_sero.csv",
+#                                              file.hcv = "data/hcv_sero.csv",
+#                                              file.costs = "data/Modified Model Specification/costs.csv",
+#                                              file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
+#                                              file.qalys = "data/Modified Model Specification/qalys.csv",
+#                                              file.imis_output = "outputs/Calibration/imis_output.RData")
 
-write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", row.names = TRUE)
 
-# Initialize data frames
-# # Modified Model Specification
-# df_outcomes_MET_PSA_MMS <- data.frame()
-# df_outcomes_BUP_PSA_MMS <- data.frame()
-# df_incremental_PSA_MMS <- data.frame()
-# df_ICER_PSA_MMS <- data.frame()
-# 
-# # Trial Specification
-# df_outcomes_MET_PSA_TS <- data.frame()
-# df_outcomes_BUP_PSA_TS <- data.frame()
-# df_incremental_PSA_TS <- data.frame()
-# df_ICER_PSA_TS <- data.frame()
+# Output data
+## As .RData
+#save(df_psa_params_MMS, 
+#     file = "outputs/PSA/Modified Model Specification/df_psa_params_MMS.RData")
+
+## As .csv
+#write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", 
+#          row.names = TRUE)
+
+# Load PSA inputs
+load(file = "outputs/PSA/Modified Model Specification/df_psa_params_MMS.RData")
 
 ######################################
 #### Modified Model Specification ####
@@ -93,8 +93,8 @@ combine_custom_MMS <- function(LL1, LL2) {
 }
 
 # Run PSA for each block to help memory issues
-n_runs <- 2000 # n_sim to run entire PSA
-n_block_size <- 50 # size of block for each loop
+n_runs <- n_sim # n_sim to run entire PSA
+n_block_size <- 1000 # size of block for each loop
 n_blocks <- n_runs/n_block_size #to run entire set
 n_start <- 0 # set to 0 if running full PSA
 
