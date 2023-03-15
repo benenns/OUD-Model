@@ -31,8 +31,8 @@ load(file = "outputs/Calibration/summary_posterior.RData")
 
 ## Fatal overdose ##
 # Witnessed OD
-v_dsa_witness_low <- unlist(df_dsa_overdose["low", "p_witness"])
-v_dsa_witness_high <- unlist(df_dsa_overdose["high", "p_witness"])
+v_dsa_witness_low <- unlist(df_posterior_summ["p_witness", "2.5%"]) ### R&R MODIFICATION
+v_dsa_witness_high <- unlist(df_posterior_summ["p_witness", "97.5%"]) ### R&R MODIFICATION
 names(v_dsa_witness_low) <- c("p_witness")
 names(v_dsa_witness_high) <- c("p_witness")
 
@@ -56,6 +56,7 @@ names(v_dsa_fatal_OD_high) <- c("n_fatal_OD")
 
 ## Non-fatal overdose ##
 # Fentanyl prevalence
+# SET FROM LOWEST AND HIGHEST % PROVINCES
 v_dsa_fent_exp_2020_low <- unlist(df_dsa_fentanyl["low", "pe"])
 v_dsa_fent_exp_2020_high <- unlist(df_dsa_fentanyl["high", "pe"])
 names(v_dsa_fent_exp_2020_low) <- c("p_fent_exp_2020")
@@ -100,15 +101,6 @@ names(v_dsa_INJ_OD_mult_high) <- c("n_INJ_OD_mult")
 ############################################
 #### Deterministic sensitivity analysis ####
 ############################################
-
-################
-### Baseline ###
-################
-# MMS
-# l_outcomes_MET_MMS <- outcomes(l_params_all = l_params_MET_MMS, v_params_calib = v_calib_post_map)
-# l_outcomes_BUP_MMS <- outcomes(l_params_all = l_params_BUP_MMS, v_params_calib = v_calib_post_map)
-# ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
-
 ################
 ### Overdose ###
 ################
@@ -236,16 +228,8 @@ l_outcomes_BUP_INJ_OD_mult_high_MMS <- outcomes(l_params_all = l_params_BUP_MMS,
 ICER_INJ_OD_mult_high_MMS <- ICER(outcomes_comp = l_outcomes_MET_INJ_OD_mult_high_MMS, outcomes_int = l_outcomes_BUP_INJ_OD_mult_high_MMS)
 
 ################
-### Baseline ###
-################
-# df_baseline_MMS <- data.frame(ICER_MMS$df_incremental, ICER_MMS$df_icer)
-
-################
 ### Overdose ###
 ################
-# Baseline
-# df_overdose_baseline_MMS <- data.frame(ICER_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_MMS$df_incremental$n_inc_qalys_TOTAL_life, 
-#                                        ICER_MMS$df_icer$n_icer_TOTAL_life)
 # Costs
 # Non-fatal OD
 v_overdose_fent_exp_costs_MMS <- c(ICER_fent_exp_2020_low_MMS$df_incremental$n_inc_costs_TOTAL_life, ICER_fent_exp_2020_high_MMS$df_incremental$n_inc_costs_TOTAL_life)
@@ -269,8 +253,7 @@ m_overdose_costs_MMS <- rbind(v_overdose_fent_exp_costs_MMS, v_overdose_ni_fent_
 
 df_overdose_costs_MMS <- as.data.frame(m_overdose_costs_MMS)
 colnames(df_overdose_costs_MMS) <- c("Lower", "Upper")
-df_overdose_costs_MMS <- as_data_frame(df_overdose_costs_MMS) %>% #mutate(diff = abs(Upper - Lower),
-                                                                  #       base = ICER_MMS$df_incremental$n_inc_costs_TOTAL_life) %>%
+df_overdose_costs_MMS <- as_data_frame(df_overdose_costs_MMS) %>%
   add_column(var_name = c("Fentanyl prevalence", "Fentanyl reduction for non-injection", "Fentanyl overdose multiplier", "First month overdose multiplier (BNX)", "First month overdose multiplier (MET)", 
                           "First month overdose multiplier (opioid use)", "Overdose multiplier (injection)", "Probability overdose witnessed", "Probability receive NX", "Probability NX success", "Fatal overdose rate"))
 
@@ -311,95 +294,3 @@ df_overdose_qalys_MMS <- as_data_frame(df_overdose_qalys_MMS) %>% #mutate(diff =
 ## As .RData ##
 save(df_overdose_qalys_MMS, 
      file = "outputs/DSA/Modified Model Specification/df_overdose_qalys_MMS.RData")
-
-# ICER
-# v_overdose_witness_icer_MMS <- c(ICER_witness_low_MMS$df_incremental$n_inc_icer_TOTAL_life, ICER_witness_high_MMS$df_incremental$n_inc_icer_TOTAL_life)
-# v_overdose_NX_prob_icer_MMS <- c(ICER_NX_prob_low_MMS$df_incremental$n_inc_icer_TOTAL_life, ICER_NX_prob_high_MMS$df_incremental$n_inc_icer_TOTAL_life)
-# v_overdose_NX_success_icer_MMS <- c(ICER_NX_success_low_MMS$df_incremental$n_inc_icer_TOTAL_life, ICER_NX_success_high_MMS$df_incremental$n_inc_icer_TOTAL_life)
-# v_overdose_fatal_OD_icer_MMS <- c(ICER_fatal_OD_low_MMS$df_incremental$n_inc_icer_TOTAL_life, ICER_fatal_OD_high_MMS$df_incremental$n_inc_icer_TOTAL_life)
-
-
-#########################
-#### Tornado Diagram ####
-#########################
-# Costs
-# v_order_parameters <- df_overdose_costs_MMS %>% arrange(diff) %>%
-#   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
-#   select(var_name) %>% unlist() %>% levels()
-# 
-# # width of columns in plot (value between 0 and 1)
-# width <- 0.75
-# # get data frame in shape for ggplot and geom_rect
-# df.2 <- df_overdose_costs_MMS %>% 
-#   # gather columns Lower_Bound and Upper_Bound into a single column using gather
-#   gather(key = 'type', value = 'output.value', Lower:Upper) %>%
-#   # just reordering columns
-#   select(var_name, type, output.value, diff, base) %>%
-#   # create the columns for geom_rect
-#   mutate(var_name = factor(var_name, levels = v_order_parameters),
-#          ymin = pmin(output.value, base),
-#          ymax = pmax(output.value, base),
-#          xmin = as.numeric(var_name) - width/2,
-#          xmax = as.numeric(var_name) + width/2)
-
-# create plot
-# (use scale_x_continuous to change labels in y axis to name of parameters)
-# p_tornado_overdose_costs <- ggplot() + 
-#   geom_rect(data = df.2, 
-#             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-#   theme_bw() + 
-#   scale_fill_manual(values = c("Upper" = "#5ab4ac",
-#                                "Lower" = "#d8b365")) +
-#   theme(axis.title.y = element_blank(), legend.position = 'bottom',
-#         legend.title = element_blank()) + 
-#   geom_hline(yintercept = df.2$base) +
-#   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
-#                      labels = v_order_parameters) +
-#   xlab("Parameter") + ylab("Incremental Cost") +
-#   coord_flip()
-# 
-# png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_costs.png", width = 600, height = 600)
-# p_tornado_overdose_costs
-# dev.off()
-
-# QALYs
-# v_order_parameters <- df_overdose_qalys_MMS %>% arrange(diff) %>%
-#   mutate(var_name = factor(x = var_name, levels = var_name)) %>%
-#   select(var_name) %>% unlist() %>% levels()
-# 
-# # width of columns in plot (value between 0 and 1)
-# width <- 0.75
-# # get data frame in shape for ggplot and geom_rect
-# df.2 <- df_overdose_qalys_MMS %>% 
-#   # gather columns Lower_Bound and Upper_Bound into a single column using gather
-#   gather(key = 'type', value = 'output.value', Lower:Upper) %>%
-#   # just reordering columns
-#   select(var_name, type, output.value, diff, base) %>%
-#   # create the columns for geom_rect
-#   mutate(var_name = factor(var_name, levels = v_order_parameters),
-#          ymin = pmin(output.value, base),
-#          ymax = pmax(output.value, base),
-#          xmin = as.numeric(var_name) - width/2,
-#          xmax = as.numeric(var_name) + width/2)
-
-# create plot
-# (use scale_x_continuous to change labels in y axis to name of parameters)
-#png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 960, height = 540)
-# p_tornado_overdose_qalys <- ggplot() + 
-#   geom_rect(data = df.2, 
-#             aes(ymax = ymax, ymin = ymin, xmax = xmax, xmin = xmin, fill = type)) +
-#   theme_bw() + 
-#   scale_fill_manual(values = c("Upper" = "#5ab4ac",
-#                                "Lower" = "#d8b365")) +
-#   theme(axis.title.y=element_blank(), legend.position = 'bottom',
-#         legend.title = element_blank()) + 
-#   geom_hline(yintercept = df.2$base) +
-#   scale_x_continuous(breaks = c(1:length(v_order_parameters)), 
-#                      labels = v_order_parameters) +
-#   xlab("Parameter") + ylab("Incremental Cost") +
-#   coord_flip()
-# #dev.off()
-# 
-# png(file = "Plots/DSA/Modified Model Spec/tornado_overdose_qalys.png", width = 600, height = 600)
-# p_tornado_overdose_qalys
-# dev.off()

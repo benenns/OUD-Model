@@ -210,13 +210,6 @@ load(file = "outputs/DSA/Modified Model Specification/df_threshold_MMS.RData")
 # Prepare data for plotting
 df_threshold_MMS <- df_threshold_MMS %>% mutate(perc_increase = as.numeric(v_threshold_rownames_MMS))
 
-# MMS
-#df_threshold_qalys_MMS <- df_threshold_MMS %>% gather("scenario", "inc_qalys", n_inc_qalys_TOTAL_life, na.rm = FALSE, convert = FALSE) %>%
-#  select(perc_increase, scenario, inc_qalys)
-
-#df_threshold_costs_MMS <- df_threshold_MMS %>% gather("scenario", "inc_costs", n_inc_costs_TOTAL_life, na.rm = FALSE, convert = FALSE) %>%
-#  select(perc_increase, scenario, inc_costs)
-
 df_threshold_qalys_MMS <- df_threshold_MMS %>% select(perc_increase, n_inc_qalys_TOTAL_life, prov)
 df_threshold_costs_MMS <- df_threshold_MMS %>% select(perc_increase, n_inc_costs_TOTAL_life, prov)
 
