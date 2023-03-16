@@ -314,7 +314,7 @@ outcomes <- function(l_params_all,
     #                        "Criminal Costs (1-year)", "Criminal Costs (5-year)", "Criminal Costs (10-year)", "Criminal Costs (Lifetime)", "Treatment Costs (1-year)", "Treatment Costs (5-year)", "Treatment Costs (10-year)", "Treatment Costs (Lifetime)",
     #                        "Total QALYs (1-year)", "Total QALYs (5-year)", "Total QALYs (10-year)", "Total QALYs (Lifetime)")
 
-    return(list(a_M_trace = a_M_trace,
+    return(list(#a_M_trace = a_M_trace,
                 m_M_trace = m_M_trace,
                 m_M_agg_trace = m_M_agg_trace,
                 m_M_agg_trace_sero = m_M_agg_trace_sero,
