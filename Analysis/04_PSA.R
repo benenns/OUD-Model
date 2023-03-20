@@ -13,16 +13,11 @@ library(future)
 library(doFuture)
 
 #### START HERE TO RUN PSA ####
-
 # Set number of cores
 #n_cores <- detectCores()
 n_cores <- 8 # number of cores is dictated more by memory than cpu (will max out 32GB memory at >8 cores)
 makeCluster(n_cores, outfile = "checks/parallel_log.txt")
 registerDoParallel(n_cores)
-
-#registerDoFuture()
-#cl <- makeCluster(4)
-#lan(cluster, workers = cl)
 
 # Call model setup functions
 # To-do: Move into package eventually
@@ -42,42 +37,35 @@ n_sim <- 10000 # just to test function (will be set as n_sim)
 ### PSA model outputs
 ### Run Markov model for PSA draws and return outputs ###
 # Generate PSA parameter draws
-
-######################################
-#### Modified Model Specification ####
-######################################
-## Base case (EQ-5D-5L)
-# df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "MMS",
-#                                              file.death_hr = "data/death_hr.csv",
-#                                              file.frailty = "data/frailty.csv",
-#                                              file.weibull = "data/Modified Model Specification/weibull.csv",
-#                                              file.unconditional = "data/Modified Model Specification/unconditional.csv",
-#                                              file.overdose = "data/overdose.csv",
-#                                              file.fentanyl = "data/fentanyl.csv",
-#                                              file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
-#                                              file.hiv = "data/hiv_sero.csv",
-#                                              file.hcv = "data/hcv_sero.csv",
-#                                              file.costs = "data/Modified Model Specification/costs.csv",
-#                                              file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
-#                                              file.qalys = "data/Modified Model Specification/qalys.csv",
-#                                              file.imis_output = "outputs/Calibration/imis_output.RData")
+df_psa_params_MMS <- generate_psa_params(n_sim = n_sim, seed = 3730687, n_pop = n_pop_trial, scenario = "MMS",
+                                             file.death_hr = "data/death_hr.csv",
+                                             file.frailty = "data/frailty.csv",
+                                             file.weibull = "data/Modified Model Specification/weibull.csv",
+                                             file.unconditional = "data/Modified Model Specification/unconditional.csv",
+                                             file.overdose = "data/overdose.csv",
+                                             file.fentanyl = "data/fentanyl.csv",
+                                             file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
+                                             file.hiv = "data/hiv_sero.csv",
+                                             file.hcv = "data/hcv_sero.csv",
+                                             file.costs = "data/Modified Model Specification/costs.csv",
+                                             file.crime_costs = "data/Modified Model Specification/crime_costs.csv",
+                                             file.qalys = "data/Modified Model Specification/qalys.csv",
+                                             file.imis_output = "outputs/Calibration/imis_output.RData")
 
 
 # Output data
 ## As .RData
-#save(df_psa_params_MMS, 
-#     file = "outputs/PSA/Modified Model Specification/df_psa_params_MMS.RData")
+save(df_psa_params_MMS, 
+     file = "outputs/PSA/Modified Model Specification/df_psa_params_MMS.RData")
 
 ## As .csv
-#write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", 
-#          row.names = TRUE)
+write.csv(df_psa_params_MMS,"outputs/PSA/Modified Model Specification/input_PSA_MMS.csv", 
+          row.names = TRUE)
 
 # Load PSA inputs
 load(file = "outputs/PSA/Modified Model Specification/df_psa_params_MMS.RData")
 
-######################################
-#### Modified Model Specification ####
-######################################
+# Function to combine parallel outputs
 combine_custom_MMS <- function(LL1, LL2) {
   df_outcomes_MET_PSA_MMS <- rbind(LL1$df_outcomes_MET_PSA_MMS, LL2$df_outcomes_MET_PSA_MMS)
   df_outcomes_BUP_PSA_MMS <- rbind(LL1$df_outcomes_BUP_PSA_MMS, LL2$df_outcomes_BUP_PSA_MMS)
@@ -119,10 +107,8 @@ for (j in (0:(n_blocks - 1))){
     # Calculate ICER (societal and health sector perspective)
     l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
   
-    #df_incremental_PSA_MMS <- rbind(df_incremental_PSA_MMS, l_ICER_MMS$df_incremental)
     df_incremental_PSA_MMS <- l_ICER_MMS$df_incremental
   
-    #df_ICER_PSA_MMS <- rbind(df_ICER_PSA_MMS, l_ICER_MMS$df_icer)
     df_ICER_PSA_MMS <- l_ICER_MMS$df_icer
     
     gc()
@@ -168,13 +154,6 @@ for (i in 1:n_blocks){
   df_incremental_PSA_MMS_comb <- rbind(df_incremental_PSA_MMS_comb, df_temp)
 }
 
-#stopImplicitCluster()
-
-# df_outcomes_MET_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_MET_PSA_MMS
-# df_outcomes_BUP_PSA_MMS <- l_incremental_PSA_MMS$df_outcomes_BUP_PSA_MMS
-# df_ICER_PSA_MMS         <- l_incremental_PSA_MMS$df_ICER_PSA_MMS
-# df_incremental_PSA_MMS  <- l_incremental_PSA_MMS$df_incremental_PSA_MMS
-
 stopImplicitCluster()
 
 ### Output results
@@ -209,12 +188,6 @@ load(file = "outputs/PSA/Modified Model Specification/outcomes_MET_PSA_MMS.RData
 load(file = "outputs/PSA/Modified Model Specification/outcomes_BUP_PSA_MMS.RData")
 load(file = "outputs/PSA/Modified Model Specification/incremental_PSA_MMS.RData")
 load(file = "outputs/PSA/Modified Model Specification/ICER_PSA_MMS.RData")
-
-# TEMP CODE
-# df_outcomes_MET_PSA_MMS_comb <- df_outcomes_MET_PSA_MMS
-# df_outcomes_BUP_PSA_MMS_comb <- df_outcomes_BUP_PSA_MMS
-# df_incremental_PSA_MMS_comb <- df_incremental_PSA_MMS
-# df_ICER_PSA_MMS_comb <- df_ICER_PSA_MMS
 
 ### Summary stats ###
 # Methadone
@@ -522,24 +495,6 @@ tbl_df_CEAC_MET <- cbind(tbl_df_labels, tbl_df_CEAC_long) %>% as_tibble() %>% mu
 
 
 tbl_df_CEAC_plot <- rbind(tbl_df_CEAC_BNX, tbl_df_CEAC_MET)
-
-# tbl_df_CEAC_temp2 <- tbl_df_CEAC_temp1 %>% mutate(p_BNX_soc = ifelse(tx_perspective == "BNX (Societal)", Proportion, NA),
-#                                                p_BNX_hs = ifelse(tx_perspective == "BNX (Health Sector)", Proportion, NA),
-#                                                p_MET_soc = ifelse(tx_perspective == "MET (Societal)", Proportion, NA),
-#                                                p_MET_hs = ifelse(tx_perspective == "MET (Health Sector)", Proportion, NA))
-# 
-# tbl_df_CEAC_BNX_soc <- tbl_df_CEAC_temp2 %>% select(Threshold, p_BNX_soc) %>% na.omit()
-# tbl_df_CEAC_BNX_hs  <- tbl_df_CEAC_temp2 %>% select(Threshold, p_BNX_hs) %>% na.omit()
-# tbl_df_CEAC_MET_soc <- tbl_df_CEAC_temp2 %>% select(Threshold, p_MET_soc) %>% na.omit()
-# tbl_df_CEAC_MET_hs  <- tbl_df_CEAC_temp2 %>% select(Threshold, p_MET_hs) %>% na.omit()
-# 
-# tbl_df_CEAC_temp3 <- merge(x = tbl_df_CEAC_BNX_soc, y = tbl_df_CEAC_MET_soc, 
-#                            by = "Threshold", all.x = TRUE)
-# tbl_df_CEAC_temp4 <- merge(x = tbl_df_CEAC_temp3, y = tbl_df_CEAC_BNX_hs,
-#                            by = "Threshold", all.x = TRUE)
-# tbl_df_CEAC_plot  <- merge(x = tbl_df_CEAC_temp4, y = tbl_df_CEAC_MET_hs,
-#                            by = "Threshold", all.x = TRUE)
-  
 
 #################
 ### Plot CEAC ###

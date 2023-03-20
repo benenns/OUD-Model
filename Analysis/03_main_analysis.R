@@ -7,7 +7,6 @@ library(tidyverse)
 library(formattable)
 
 # Call model setup functions
-# To-do: Move into package eventually
 source("R/input_parameter_functions.R")
 source("R/model_setup_functions.R")
 source("R/ICER_functions.R")
@@ -24,20 +23,9 @@ l_outcomes_validation_MMS  <- outcomes(l_params_all = l_params_all_validation_MM
 df_outcomes_MMS <- rbind(l_outcomes_BUP_MMS$df_outcomes, l_outcomes_MET_MMS$df_outcomes)
 rownames(df_outcomes_MMS) <- c("Early take-home BNX", "Methadone")
 
-# Save output
-#saveRDS(l_outcomes_BUP_MMS, file = "outputs/outcomes/outcomes_BUP_MMS.RData")
-#saveRDS(l_outcomes_MET_MMS, file = "outputs/outcomes/outcomes_MET_MMS.RData")
-#aveRDS(df_outcomes_MMS, file = "outputs/outcomes/outcomes_MMS.RData")
-
 # Generate ICERs
 l_ICER_MMS <- ICER(outcomes_comp = l_outcomes_MET_MMS, outcomes_int = l_outcomes_BUP_MMS)
 
-# Save output
-#saveRDS(l_ICER_MMS, file = "outputs/outcomes/ICER_MMS.RData")
-
-######################################
-#### Modified Model Specification ####
-######################################
 # Full model trace
 write.csv(l_outcomes_MET_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_MET.csv", row.names = TRUE)
 write.csv(l_outcomes_BUP_MMS$m_M_trace,"outputs/trace/Modified Model Specification/trace_BUP.csv", row.names = TRUE)

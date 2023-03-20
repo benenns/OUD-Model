@@ -13,20 +13,19 @@ library(grid)
 library(gridExtra)
 library(lattice)
 
-# To-do: Move functions into R package for OUD model
 source("R/input_parameter_functions.R")
 source("R/model_setup_functions.R")
 source("R/calibration_functions.R")
 
 # Load model inputs #
 l_params_all <- load_all_params(file.init = "data/Calibration/init_params.csv",
-                                file.init_dist = "data/init_dist.csv", # calibrate on BC OUD cohort data for 2018
+                                file.init_dist = "data/init_dist.csv",
                                 file.mort = "data/all_cause_mortality.csv",
                                 file.death_hr = "data/death_hr.csv",
                                 file.frailty = "data/frailty.csv",
                                 file.weibull = "data/Modified Model Specification/weibull.csv",
                                 file.unconditional = "data/Modified Model Specification/unconditional.csv",
-                                file.overdose = "data/overdose.csv", # includes calibration-related parameters
+                                file.overdose = "data/overdose.csv",
                                 file.fentanyl = "data/Calibration/fentanyl.csv",
                                 file.naloxone = "data/naloxone.csv",### R&R MODIFICATION ###
                                 file.hiv = "data/hiv_sero.csv",
