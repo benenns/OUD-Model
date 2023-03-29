@@ -505,7 +505,7 @@ plot_CEAC <- ggplot(data = tbl_df_CEAC_plot, aes(x = Threshold, y = Proportion))
   scale_color_manual(values = c('#999999','#E69F00'))+
   scale_x_continuous(labels = scales::dollar_format(scale = .001, suffix = "K")) +
   labs(
-    x = "Willingness to pay threshold ($/QALY)",
+    x = "Willingness to accept health loss threshold ($/QALY)",
     y = "Probability cost-effective",
     color = "Treatment Type",
     linetype = "Payer Perspective"
@@ -582,18 +582,18 @@ df_PSA_ellipse_TOTAL <- df_PSA_ellipse_TOTAL %>% mutate(Scenario = "Societal Per
 
 ### Health sector perspective ###
 # MMS
-df_incremental_PSA_MMS_HEALTH_SECTOR_6mo <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_6mo = n_inc_qalys_TOTAL_6mo,
-                                                                                              inc_costs_MMS_6mo = n_inc_costs_HEALTH_SECTOR_6mo) %>% select(inc_qalys_MMS_6mo, inc_costs_MMS_6mo)
+#df_incremental_PSA_MMS_HEALTH_SECTOR_6mo <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_6mo = n_inc_qalys_TOTAL_6mo,
+                                                                                              #inc_costs_MMS_6mo = n_inc_costs_HEALTH_SECTOR_6mo) %>% select(inc_qalys_MMS_6mo, inc_costs_MMS_6mo)
 
-df_incremental_PSA_MMS_HEALTH_SECTOR_life <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_life = n_inc_qalys_TOTAL_life,
-                                                                                               inc_costs_MMS_life = n_inc_costs_HEALTH_SECTOR_life) %>% select(inc_qalys_MMS_life, inc_costs_MMS_life)
+#df_incremental_PSA_MMS_HEALTH_SECTOR_life <- df_incremental_PSA_MMS_comb %>% as_tibble() %>% mutate(inc_qalys_MMS_life = n_inc_qalys_TOTAL_life,
+                                                                                              # inc_costs_MMS_life = n_inc_costs_HEALTH_SECTOR_life) %>% select(inc_qalys_MMS_life, inc_costs_MMS_life)
 
 # Combine
-df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, df_incremental_PSA_MMS_HEALTH_SECTOR_life)
-df_PSA_ellipse_HEALTH_SECTOR <- df_PSA_ellipse_HEALTH_SECTOR %>% mutate(Scenario = "Health Sector Perspective")
+#df_PSA_ellipse_HEALTH_SECTOR <- cbind(df_incremental_PSA_MMS_HEALTH_SECTOR_6mo, df_incremental_PSA_MMS_HEALTH_SECTOR_life)
+#df_PSA_ellipse_HEALTH_SECTOR <- df_PSA_ellipse_HEALTH_SECTOR %>% mutate(Scenario = "Health Sector Perspective")
 
 # Combine all
-df_PSA_ellipse <- rbind(df_PSA_ellipse_TOTAL, df_PSA_ellipse_HEALTH_SECTOR)
+df_PSA_ellipse <- rbind(df_PSA_ellipse_TOTAL)#, df_PSA_ellipse_HEALTH_SECTOR)
 df_PSA_points_temp <- df_PSA_ellipse %>% as_tibble() %>% rename(qalys.6mo = inc_qalys_MMS_6mo,
                                                                 qalys.life = inc_qalys_MMS_life,
                                                                 costs.6mo = inc_costs_MMS_6mo,
@@ -621,6 +621,15 @@ df_PSA_points <- inner_join(df_PSA_points_qalys_long, df_PSA_points_costs_long, 
   mutate(index = ifelse(Scenario == "Societal Perspective" & var == "6mo", "Societal (6-month)", 
                  ifelse(Scenario == "Societal Perspective" & var == "life", "Societal (Lifetime)", 
                  ifelse (Scenario == "Health Sector Perspective" & var == "6mo", "Health Sector (6-month)", "Health Sector (Lifetime)"))))
+
+# Extract mean point estimates
+# Societal (6-month)
+n_soc_6m_cost <- as.numeric(tbl_df_summary_incremental_MMS[11, 2])
+n_soc_6m_qaly <- as.numeric(tbl_df_summary_incremental_MMS[17, 2])
+  # Societal (Lifetime)
+  n_soc_life_cost <- as.numeric(tbl_df_summary_incremental_MMS[12, 2])
+n_soc_life_qaly <- as.numeric(tbl_df_summary_incremental_MMS[18, 2])
+
   
 #############
 ### Plots ###
@@ -633,20 +642,26 @@ plot_PSA_ellipse <- ggplot() +
 
   # Ellipses (Societal)
   # MMS (6-month)
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "gold", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "#67000d", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "#fcbba1", size = 1, alpha = 1, level = 0.5) +
   # MMS (Lifetime)
-  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "black", size = 1, alpha = 1, level = 0.95) +
-  #stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "#08306b", size = 1, alpha = 1, level = 0.95) +
+  stat_ellipse(data = df_PSA_ellipse_TOTAL, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "#c6dbef", size = 1, alpha = 1, level = 0.5) +
 
   # Ellipses (Health sector)
   # MMS (6-month)
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "gold", size = 1, alpha = 1, level = 0.95) +
+  #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = 2, color = "gold", size = 1, alpha = 1, level = 0.95) +
   #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_6mo, y = inc_costs_MMS_6mo), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
   # MMS (Lifetime)
-  stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "black", size = 1, alpha = 1, level = 0.95) +
+  #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = 2, color = "black", size = 1, alpha = 1, level = 0.95) +
   #stat_ellipse(data = df_PSA_ellipse_HEALTH_SECTOR, aes(x = inc_qalys_MMS_life, y = inc_costs_MMS_life), linetype = "solid", color = "#869397", size = 1, alpha = 1, level = 0.5) +
 
+  # Add mean point estimates
+  # Societal (6-month)
+  #geom_point(aes(x = n_soc_6m_qaly, y = n_soc_6m_cost), colour = "red") +
+  # Societal (Lifetime)
+  #geom_point(aes(x = n_soc_life_qaly, y = n_soc_life_cost), colour = "red") +
+  
   # Add labels
   #annotate("text", x =  0.05, y = 25000, label = "Six-month \n Time-horizon", fontface = "bold", size = 3) +
   #annotate("text", x = -0.15, y = 45000, label = "Lifetime \n Time-horizon", fontface = "bold", size = 3) +
@@ -663,7 +678,7 @@ plot_PSA_ellipse <- ggplot() +
   scale_color_manual(name = '',
                      breaks = c('Societal (6-month)', 'Health Sector (6-month)', 'Societal (Lifetime)', 'Health Sector (Lifetime)'),
                      ### UPDATE COLORS FOR R&R ###
-                     values = c('Societal (6-month)' = "#f46d43", 'Health Sector (6-month)' = "#d7191c", 'Societal (Lifetime)' = "#74add1", 'Health Sector (Lifetime)' = "#2c7bb6")) +
+                     values = c('Societal (6-month)' = "#fb6a4a", 'Societal (Lifetime)' = "#6baed6")) +
                      #values = c('Societal (6-month)' = "#d7191c", 'Health Sector (6-month)' = "#fdae61", 'Societal (Lifetime)' = "#2c7bb6", 'Health Sector (Lifetime)' = "#abd9e9")) +
   
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), 
